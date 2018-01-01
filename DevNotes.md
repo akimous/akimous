@@ -2,12 +2,22 @@
 
 ## Get started
 
-1. Install the dependencies
+1. Install rollup
+   ```yarn add rollup -dev```
+2. Install the dependencies
    ```yarn install```
-2. Start dev server
+3. Start dev server
    ```nom run dev```
 
 ## Build for production
 
-```npm run build```
+```
+yarn upgrade-interactive
+yarn check --integrity
+
+```
+
+
+
+
 

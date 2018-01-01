@@ -1,13 +1,31 @@
 {
-  "name": "chakuro",
-  "version": "1.0.0",
-  "description": "A progressive Python IDE",
-  "main": "index.html",
-  "repository": "git@gitlab.com:red8012/chakuro.git",
-  "author": "Yu-Ann Chen <red8012@gmail.com>",
-  "license": "MIT",
-  "private": true,
-  "devDependencies": {
-    "browser-sync": "^2.23.1"
-  }
+    "name": "chakuro",
+    "version": "1.0.0",
+    "description": "A progressive Python IDE",
+    "main": "build/index.html",
+    "repository": "git@gitlab.com:red8012/chakuro.git",
+    "author": "Yu-Ann Chen <red8012@gmail.com>",
+    "license": "MIT",
+    "private": true,
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-minify": "^0.2.0",
+        "browser-sync": "^2.23.1",
+        "eslint": "^4.14.0",
+        "rollup": "^0.53.2",
+        "rollup-plugin-babel": "^3.0.3",
+        "rollup-plugin-commonjs": "^8.2.6",
+        "rollup-plugin-node-resolve": "^3.0.0",
+        "rollup-plugin-svelte": "^4.0.0",
+        "svelte": "^1.50.0",
+        "svelte-cli": "^2.0.0"
+    },
+    "dependencies": {
+        "jquery": "^3.2.1",
+        "normalize.css": "^7.0.0"
+    },
+    "scripts": {
+        "build": "cp src/index.html node_modules/normalize.css/normalize.css build/ && rollup -c",
+        "dev": "browser-sync start --server 'build' --files 'build' & rollup -c -w"
+    }
 }
