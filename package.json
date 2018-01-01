@@ -6,5 +6,8 @@
   "repository": "git@gitlab.com:red8012/chakuro.git",
   "author": "Yu-Ann Chen <red8012@gmail.com>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "browser-sync": "^2.23.1"
+  }
 }
