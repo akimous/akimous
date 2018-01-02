@@ -1,0 +1,35 @@
+<div class="toolbar"></div>
+
+<style>
+    @import 'theme.css';
+
+    .toolbar {
+        height: var(--toolbar-height);
+        background: var(--panel-color);
+        border-bottom: 0.05rem solid var(--panel-delimiter-color);
+    }
+
+    #buttons {
+        position: absolute;
+        right: 0;
+        margin-top: calc((var(--toolbar-height) - var(--basic-ui-line-height))/2)
+    }
+
+    button {
+        color: var(--basic-ui-font-color);
+        font-size: var(--basic-ui-font-size);
+        background: transparent;
+        height: var(--basic-ui-line-height);
+        width: var(--basic-ui-line-height);
+        border: none;
+    }
+
+    button:hover {
+        background: var(--main-bg-color);
+    }
+
+</style>
+
+<script>
+    
+</script>

@@ -21,11 +21,17 @@
         "svelte-cli": "^2.0.0"
     },
     "dependencies": {
+        "codemirror": "^5.33.0",
+        "devicon": "^2.0.0",
         "jquery": "^3.2.1",
-        "normalize.css": "^7.0.0"
+        "jstree": "^3.3.4",
+        "keypress.js": "https://github.com/dmauro/Keypress.git",
+        "normalize.css": "^7.0.0",
+        "sortable": "^2.0.0",
+        "xterm": "^2.9.2"
     },
     "scripts": {
-        "build": "cp src/index.html node_modules/normalize.css/normalize.css build/ && rollup -c",
+        "build": "cp -r src/index.html node_modules/normalize.css/normalize.css resources/* build/ && rollup -c",
         "dev": "browser-sync start --server 'build' --files 'build' & rollup -c -w"
     }
 }

@@ -1,11 +1,126 @@
-<h1>Hello root!</h1>
+<Toolbar></Toolbar>
+<div id="split-bar-l" class="split-bar"></div>
+<div id="split-bar-r" class="split-bar"></div>
+<penal-left></penal-left>
+<penal-middle></penal-middle>
+<penal-right></penal-right>
 
 <style>
+    @import 'theme.css';
+    Toolbar {
+        overflow: scroll;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 10;
+    }
 
+    penal-left {
+        top: var(--toolbar-height);
+        height: calc(100% - var(--toolbar-height));
+        position: fixed;
+        left: 0;
+        width: var(--penal-left-width);
+    }
+
+    penal-right {
+        top: var(--toolbar-height);
+        height: calc(100% - var(--toolbar-height));
+        position: fixed;
+        left: calc(100% - var(--penal-right-width));
+        width: var(--penal-right-width);
+        z-index: 9;
+    }
+
+    .split-bar {
+        position: absolute;
+        top: var(--toolbar-height);
+        height: calc(100% - var(--toolbar-height));
+        width: .9rem;
+        cursor: col-resize;
+        z-index: 10;
+    }
+
+    #split-bar-l {
+        left: calc(var(--penal-left-width) - .4rem);
+    }
+
+    #split-bar-r {
+        left: calc(100% - var(--penal-right-width) - .4rem);
+    }
+
+    .split-bar:hover {
+        background: var(--panel-delimiter-hover-color);
+        background: linear-gradient(to right,
+        transparent 30%, var(--panel-delimiter-hover-color) 30%,
+        var(--panel-delimiter-hover-color) 70%,
+        transparent 70%);
+    }
+
+    penal-middle {
+        position: fixed;
+        top: var(--toolbar-height);
+        height: calc(100% - var(--toolbar-height));
+        left: calc(var(--penal-left-width) + 1px);
+        width: calc(100% - var(--penal-left-width) - var(--penal-right-width) - 1px);
+    }
+
+    l-modal {
+        position: absolute;
+        width: 40rem;
+        top: calc(var(--toolbar-height) * 2);
+        left: calc(50vw - 20rem);
+        z-index: 9999;
+
+    }
 
 </style>
 
 <script>
-    console.log('This is the root element')
+    import Toolbar from './Toolbar.html'
+
+    // register service worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('serviceWorker.js').then(registration => {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, err => {
+                console.log('ServiceWorker registration failed: ', err)
+            })
+        })
+    }
+
+    // polyfill scrollIntoViewIfNeeded
+    // from https://gist.github.com/hsablonniere/2581101
+    if (!Element.prototype.scrollIntoViewIfNeeded) {
+        Element.prototype.scrollIntoViewIfNeeded = function(centerIfNeeded) {
+            centerIfNeeded = arguments.length === 0 ? true : !!centerIfNeeded;
+            var parent = this.parentNode,
+                parentComputedStyle = window.getComputedStyle(parent, null),
+                parentBorderTopWidth = parseInt(parentComputedStyle.getPropertyValue('border-top-width')),
+                parentBorderLeftWidth = parseInt(parentComputedStyle.getPropertyValue('border-left-width')),
+                overTop = this.offsetTop - parent.offsetTop < parent.scrollTop,
+                overBottom = (this.offsetTop - parent.offsetTop + this.clientHeight - parentBorderTopWidth) > (parent.scrollTop + parent.clientHeight),
+                overLeft = this.offsetLeft - parent.offsetLeft < parent.scrollLeft,
+                overRight = (this.offsetLeft - parent.offsetLeft + this.clientWidth - parentBorderLeftWidth) > (parent.scrollLeft + parent.clientWidth),
+                alignWithTop = overTop && !overBottom;
+            if ((overTop || overBottom) && centerIfNeeded) {
+                parent.scrollTop = this.offsetTop - parent.offsetTop - parent.clientHeight / 2 - parentBorderTopWidth + this.clientHeight / 2;
+            }
+            if ((overLeft || overRight) && centerIfNeeded) {
+                parent.scrollLeft = this.offsetLeft - parent.offsetLeft - parent.clientWidth / 2 - parentBorderLeftWidth + this.clientWidth / 2;
+            }
+            if ((overTop || overBottom || overLeft || overRight) && !centerIfNeeded) {
+                this.scrollIntoView(alignWithTop);
+            }
+        };
+    }
+
+    export default {
+        components: {
+            Toolbar
+        }
+    }
 
 </script>
