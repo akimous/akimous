@@ -17,6 +17,7 @@
         "rollup-plugin-commonjs": "^8.2.6",
         "rollup-plugin-node-resolve": "^3.0.0",
         "rollup-plugin-svelte": "^4.0.0",
+        "serve": "^6.4.3",
         "svelte": "^1.50.0",
         "svelte-cli": "^2.0.0"
     },
@@ -32,6 +33,7 @@
     },
     "scripts": {
         "build": "cp -r src/index.html node_modules/normalize.css/normalize.css resources/* build/ && rollup -c",
-        "dev": "browser-sync start --server 'build' --files 'build' & rollup -c -w"
+        "dev": "browser-sync start --server 'build' --files 'build' & rollup -c -w",
+        "start": "serve build"
     }
 }

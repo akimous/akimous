@@ -1,28 +1,12 @@
-<Toolbar></Toolbar>
-<div id="split-bar-l" class="split-bar"></div>
-<div id="split-bar-r" class="split-bar"></div>
-<penal-left></penal-left>
+<Toolbar ref:toolbar></Toolbar>
+<div ref:splitBarL id="split-bar-l" class="split-bar"></div>
+<div ref:splitBarR id="split-bar-r" class="split-bar"></div>
+<PanelLeft></PanelLeft>
 <penal-middle></penal-middle>
 <penal-right></penal-right>
 
 <style>
     @import 'theme.css';
-    Toolbar {
-        overflow: scroll;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 10;
-    }
-
-    penal-left {
-        top: var(--toolbar-height);
-        height: calc(100% - var(--toolbar-height));
-        position: fixed;
-        left: 0;
-        width: var(--penal-left-width);
-    }
 
     penal-right {
         top: var(--toolbar-height);
@@ -79,6 +63,7 @@
 
 <script>
     import Toolbar from './Toolbar.html'
+    import PanelLeft from './PanelLeft/PanelLeft.html'
 
     // register service worker
     if ('serviceWorker' in navigator) {
@@ -117,9 +102,32 @@
         };
     }
 
+
     export default {
         components: {
-            Toolbar
+            Toolbar,
+            PanelLeft
+        },
+
+        oncreate() {
+            this.refs.splitBarL.onmousedown = e => {
+                e.preventDefault()
+                document.onmousemove = e => {
+                    const width = e.pageX + 'px'
+                    document.documentElement.style.setProperty('--penal-left-width', width)
+                }
+            }
+            this.refs.splitBarR.onmousedown = e => {
+                e.preventDefault()
+                document.onmousemove = e => {
+                    const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+                    const width = (viewportWidth - e.pageX) + 'px'
+                    document.documentElement.style.setProperty('--penal-right-width', width)
+                }
+            }
+            document.onmouseup = e => {
+                document.onmousemove = undefined
+            }
         }
     }
 
