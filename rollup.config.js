@@ -20,14 +20,12 @@ export default {
             css: css => {
                 css.write('build/bundle.css')
             },
-            cascade: false // this results in smaller CSS files
+            cascade: true
         }),
 
         resolve(),
         commonjs({
-            namedExports: {
-                'node_modules/jquery/dist/jquery.min.js': ['jquery']
-            }
+            namedExports: {}
         }),
         
         production && babel()

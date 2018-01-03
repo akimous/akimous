@@ -1189,6 +1189,10 @@ es-to-primitive@^1.1.1:
     is-date-object "^1.0.1"
     is-symbol "^1.0.1"
 
+es6-promise@^4.1.1:
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-4.2.2.tgz#f722d7769af88bd33bc13ec6605e1f92966b82d9"
+
 escape-html@~1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/escape-html/-/escape-html-1.0.3.tgz#0258eae4d3d0c0974de1c169188ef0051d1d1988"
@@ -1297,6 +1301,10 @@ esutils@^2.0.2:
 etag@^1.8.1, etag@~1.8.0, etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
+
+eventemitter2@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-4.1.2.tgz#0e1a8477af821a6ef3995b311bf74c23a5247f15"
 
 eventemitter3@1.x.x:
   version "1.2.0"
@@ -1761,6 +1769,29 @@ indexof@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/indexof/-/indexof-0.0.1.tgz#82dc336d232b9062179d05ab3293a66059fd435d"
 
+inferno-component@^3.8.2:
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/inferno-component/-/inferno-component-3.10.1.tgz#2242409dab4c1f165f3af7c89e4945bcb359b1b3"
+  dependencies:
+    inferno "3.10.1"
+    inferno-shared "3.10.1"
+    inferno-vnode-flags "3.10.1"
+
+inferno-shared@3.10.1:
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/inferno-shared/-/inferno-shared-3.10.1.tgz#6ad59d64ca03c0fdcc8495d4864410cafee81332"
+
+inferno-vnode-flags@3.10.1:
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/inferno-vnode-flags/-/inferno-vnode-flags-3.10.1.tgz#88a4528a3b4df0f33a3ace68dc45f05b651c0e41"
+
+inferno@3.10.1, inferno@^3.8.2:
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/inferno/-/inferno-3.10.1.tgz#5d292e6b1e848ef7f09e3e1b6b2029b703b2baf2"
+  dependencies:
+    inferno-shared "3.10.1"
+    inferno-vnode-flags "3.10.1"
+
 inflight@^1.0.4:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/inflight/-/inflight-1.0.6.tgz#49bd6331d7d02d0c09bc910a1075ba8165b56df9"
@@ -1794,6 +1825,22 @@ inquirer@^3.0.6:
     string-width "^2.1.0"
     strip-ansi "^4.0.0"
     through "^2.3.6"
+
+inspire-tree-dom@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/inspire-tree-dom/-/inspire-tree-dom-4.0.3.tgz#365d746506454f404f9d4e8c35f745bef62bddb1"
+  dependencies:
+    inferno "^3.8.2"
+    inferno-component "^3.8.2"
+
+inspire-tree@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/inspire-tree/-/inspire-tree-4.2.1.tgz#ecdad3a8d43158394b4db778eb602f1eb05bd26e"
+  dependencies:
+    es6-promise "^4.1.1"
+    eventemitter2 "^4.1.2"
+    lodash "^4.17.2"
+    uuid "^3.1.0"
 
 invariant@^2.2.2:
   version "2.2.2"
@@ -2164,7 +2211,7 @@ lodash@^3.10.1:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
-lodash@^4.13.1, lodash@^4.17.4, lodash@^4.3.0:
+lodash@^4.13.1, lodash@^4.17.2, lodash@^4.17.4, lodash@^4.3.0:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
@@ -3464,7 +3511,7 @@ utils-merge@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.0.tgz#0294fb922bb9375153541c4f7096231f287c8af8"
 
-uuid@^3.0.0:
+uuid@^3.0.0, uuid@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.1.0.tgz#3dd3d3e790abc24d7b0d3a034ffababe28ebbc04"
 

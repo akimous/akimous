@@ -24,7 +24,8 @@
         "semi": [
             "error",
             "never"
-        ]
+        ],
+        "no-console": "off"
     },
     "globals": {
         "process": false

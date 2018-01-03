@@ -1,24 +1,4 @@
-/*@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro');*/
-
-/*from https://google-webfonts-helper.herokuapp.com */
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 300;
-  src: local('Roboto Light'), local('Roboto-Light'),
-       url('roboto-v16-cyrillic-ext_latin_vietnamese_latin-ext_greek-ext_greek_cyrillic-300.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
-       url('roboto-v16-cyrillic-ext_latin_vietnamese_latin-ext_greek-ext_greek_cyrillic-300.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-}
-
-/* source-code-pro-regular - latin_latin-ext */
-@font-face {
-  font-family: 'Source Code Pro';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Source Code Pro'), local('SourceCodePro-Regular'),
-       url('source-code-pro-v6-latin_latin-ext-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
-       url('source-code-pro-v6-latin_latin-ext-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-}
+@import url('https://fonts.googleapis.com/css?family=Roboto:300|Source+Code+Pro');
 
 :root {
     --main-bg-color: rgb(36, 36, 36);
@@ -44,6 +24,7 @@
     --brighter-ui-font-color: #eee;
     --basic-ui-font-family: 'Roboto', 'Lucida Grande', 'Helvetica Neue', sans-serif;
     --basic-ui-font-size: 1rem;
+    --ui-font-size-small: .8rem;
     --ui-font-size-large: 1.6rem;
     --basic-ui-line-height: 1.6rem;
     
@@ -96,14 +77,14 @@ body {
 }
 
 .l-python-icon {
-    background: url(../../resource/python.svg) !important;
+    background: url(icons/python.svg) !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
     background-size: 70% 70% !important;  
 }
 
 .l-jupyter-icon {
-    background: url(../../resource/jupyter.svg) !important;
+    background: url(icons/jupyter.svg) !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
     background-size: 70% 70% !important;  
