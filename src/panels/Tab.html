@@ -1,0 +1,70 @@
+<span class='tab active'>
+    <span class='icon l-python-icon'></span>
+<span class='text'>{{fileName}}</span>
+</span>
+
+
+<style>
+    .tab {
+        border-right: 0.1rem solid var(--panel-delimiter-color);
+        padding: .5rem .5rem .4rem .2rem;
+        height: var(--tab-bar-height);
+        cursor: default;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .icon {
+        top: calc((var(--tab-bar-height) - var(--tab-bar-icon-size))/2);
+        height: var(--tab-bar-icon-size);
+        width: var(--tab-bar-icon-size);
+        display: inline-block;
+        position: relative;
+    }
+
+    .text {
+        color: var(--basic-ui-font-color);
+        font-family: var(--basic-ui-font-family);
+        font-size: var(--basic-ui-font-size);
+        -webkit-font-smoothing: subpixel-antialiased;
+        position: relative;
+    }
+
+    .tab:hover .text {
+        color: white;
+    }
+
+    .active {
+        background: linear-gradient(to bottom, var(--panel-color) 0%, var(--panel-color) 90%,
+        var(--ui-highlight-color) 90%, var(--ui-highlight-color) 100%);
+    }
+
+    .active .text {
+        color: var(--brighter-ui-font-color);
+    }
+
+    .active:hover .text {
+        color: white;
+    }
+
+    .dirty .text {
+        color: var(--ui-danger-color) !important;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals.js'
+
+    export default {
+        components: {},
+        oncreate() {
+            console.log('tab', this.get('fileName'))
+        },
+        methods: {
+
+        }
+    }
+
+</script>

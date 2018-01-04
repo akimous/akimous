@@ -1,0 +1,43 @@
+<div ref:tabBar id="tab-bar">
+
+</div>
+
+
+<style>
+    #tab-bar {
+        width: 100%;
+        height: var(--tab-bar-height);
+        position: absolute;
+        background: var(--panel-color);
+        border-bottom: 0.07rem solid var(--panel-delimiter-color);
+        margin: 0;
+        z-index: -1;
+    }
+
+</style>
+
+
+<script>
+    //    import FileTree from './panels/FileTree.html'
+    import g from '../lib/Globals.js'
+    import Tab from './Tab.html'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.tabBar = this
+        },
+        methods: {
+            openTab: function(id, fileName) {
+                console.warn('openTab', id, fileName)
+                const tab = new Tab({
+                    target: this.refs.tabBar,
+                    data: {
+                        fileName
+                    }
+                })
+            },
+        }
+    }
+
+</script>

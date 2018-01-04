@@ -1,0 +1,73 @@
+<div ref:codeEditor class="code-editor">
+
+</div>
+
+
+<style>
+    .code-editor {
+        height: calc(100% - 5px);
+        width: 100%;
+        -webkit-font-smoothing: subpixel-antialiased;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals.js'
+    import WSClient from '../lib/WSClient'
+    import CodeMirror from 'codemirror'
+//    import loadmode from 'codemirror/addon/mode/loadmode'
+
+    export default {
+        components: {},
+        oncreate() {
+            const fileName = this.get('fileName')
+            console.log('editor', fileName)
+            let startTime = performance.now()
+            this.clean = true
+            this.shouldClose = false
+//            this.mode = CodeMirror.findModeByFileName(fileName)
+//            console.info('mode', this.mode)
+            
+            this.ws = new WSClient('ws://127.0.0.1:3179/editor')
+            this.ws.addHandler('openFile', data => {
+                console.warn('transmission took', performance.now() - startTime)
+                this.cm = CodeMirror(this.refs.codeEditor, {
+                    value: data.content,
+//                    mode: this.mode.mime,
+                    theme: 'legato',
+                    indentUnit: 4,
+                    lineNumbers: true,
+                    autofocus: true,
+                    // addons
+                    matchBrackets: true, // edit/matchbrackets.js
+                    autoCloseBrackets: true, // edit/closebrackets.js
+                    highlightSelectionMatches: false, // search/match-highlighter.js
+                    styleActiveLine: true, // selection/active-line.js
+
+                    // keymap
+                    extraKeys: {
+                        'Tab': 'indentMore',
+                        'Shift-Tab': 'indentLess',
+                        'Cmd-/': 'toggleCommentIndented',
+                        'Cmd-Backspace': 'deleteLineAndGoLineEnd',
+                        'Cmd-D': 'duplicateLine',
+                        "Cmd-J": "joinLines",
+                    }
+                })
+            })
+            this.ws.connect(() => {
+                console.log('ws editor connected')
+                this.ws.send({
+                    cmd: 'openFile',
+                    filePath: this.get('filePath')
+                })
+            })
+        },
+        methods: {
+
+        }
+    }
+
+</script>

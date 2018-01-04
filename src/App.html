@@ -2,7 +2,7 @@
 <div ref:splitBarL id="split-bar-l" class="split-bar"></div>
 <div ref:splitBarR id="split-bar-r" class="split-bar"></div>
 <PanelLeft></PanelLeft>
-<penal-middle></penal-middle>
+<PanelMiddle ref:panelMiddle></PanelMiddle>
 <penal-right></penal-right>
 
 <style>
@@ -42,14 +42,6 @@
         transparent 70%);
     }
 
-    penal-middle {
-        position: fixed;
-        top: var(--toolbar-height);
-        height: calc(100% - var(--toolbar-height));
-        left: calc(var(--penal-left-width) + 1px);
-        width: calc(100% - var(--penal-left-width) - var(--penal-right-width) - 1px);
-    }
-
     l-modal {
         position: absolute;
         width: 40rem;
@@ -63,7 +55,8 @@
 
 <script>
     import Toolbar from './Toolbar.html'
-    import PanelLeft from './PanelLeft/PanelLeft.html'
+    import PanelLeft from './PanelLeft.html'
+    import PanelMiddle from './PanelMiddle.html'
 
     // register service worker
     if ('serviceWorker' in navigator) {
@@ -106,7 +99,8 @@
     export default {
         components: {
             Toolbar,
-            PanelLeft
+            PanelLeft,
+            PanelMiddle
         },
 
         oncreate() {

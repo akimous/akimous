@@ -1,0 +1,89 @@
+<div ref:panelMiddle id="panel-middle">
+    <TabBar id="tab-bar"></TabBar>
+</div>
+
+
+<style>
+    #panel-middle {
+        position: fixed;
+        top: var(--toolbar-height);
+        height: calc(100% - var(--toolbar-height));
+        left: calc(var(--penal-left-width) + 1px);
+        width: calc(100% - var(--penal-left-width) - var(--penal-right-width) - 1px);
+    }
+
+</style>
+
+
+<script>
+    import g from './lib/Globals.js'
+    import TabBar from './panels/TabBar.html'
+    import CodeEditor from './editor/CodeEditor.html'
+
+    const MAX_ACTIVATION_HISTORY = 32
+
+    export default {
+        components: {
+            TabBar
+        },
+        oncreate() {
+            g.penalMiddle = this
+            this.mapToID = {} // /path/to/a/file.py -> <span>
+            this.idCounter = 0
+            this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
+            this.activationHistoryIndex = 0            
+            this.openFile('/Users/ray/Code/LegatoIDE/test/test.py', 'test.py')
+        },
+        methods: {
+            openFile: function(filePath, fileName) {
+                let id = this.mapToID[filePath]
+                if (id == undefined) {
+                    id = 'f' + this.idCounter++;
+                    this.mapToID[filePath] = id
+                    g.tabBar.openTab(id, fileName)
+                    const editor = new CodeEditor({
+                        target: this.refs.panelMiddle,
+                        data: {
+                            id,
+                            filePath,
+                            fileName
+                        }
+                    })
+                }
+                console.log('opening file', filePath, id)
+//                    
+//                    
+//                    // open editor
+//                    const editor = new CodeEditor({
+//                        target: this.refs.panelMiddle,
+//                        data: {
+//                            id,
+//                            filePath,
+//                            fileName
+//                        }
+//                    })
+                    //                    this.root.getElementById('penal-middle').insertAdjacentHTML('beforeend', `
+                    //                        <l-editor id='${id}' filePath='${filePath}' fileName='${fileName}' class='active'></l-editor>
+                    //                    `)
+//                }
+//                this.activateFile(id)
+            },
+            activateFile: function(id) {
+                // write to activation history
+                if (this.activationHistory[this.activationHistoryIndex] != id) {
+                    this.activationHistoryIndex = (this.activationHistoryIndex + 1) % MAX_ACTIVATION_HISTORY
+                    this.activationHistory[this.activationHistoryIndex] = id
+                }
+                g.tabBar.activateTab(id)
+                // activate editor
+                for (const i of this.root.querySelectorAll('.active'))
+                    i.classList.remove('active')
+                g.activeEditor = this.root.getElementById(id)
+                g.activeEditor.classList.add('active')
+                if (g.activeEditor.cm)
+                    g.activeEditor.cm.focus()
+            }
+        }
+    }
+
+</script>
