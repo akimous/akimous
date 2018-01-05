@@ -1,0 +1,138 @@
+@import url(theme.css);
+.cm-s-legato.CodeMirror {
+    background: var(--main-bg-color);
+    color: var(--basic-monospace-font-color);
+    font-family: var(--basic-monospace-font-family);
+    font-size: var(--basic-monospace-font-size);
+    line-height: var(--basic-monospace-line-height);
+    height: 100%;
+}
+
+.cm-s-legato div.CodeMirror-selected {
+    background: rgb(34, 71, 129);
+}
+
+.cm-s-legato .CodeMirror-line::selection,
+.cm-s-legato .CodeMirror-line > span::selection,
+.cm-s-legato .CodeMirror-line > span > span::selection {
+    background: rgba(48, 48, 48, .99);
+}
+
+.cm-s-legato .CodeMirror-line::-moz-selection,
+.cm-s-legato .CodeMirror-line > span::-moz-selection,
+.cm-s-legato .CodeMirror-line > span > span::-moz-selection {
+    background: rgba(48, 48, 48, .99);
+}
+
+.cm-s-legato .CodeMirror-gutters {
+    background: var(--darker-color);
+    border-right: 0px;
+}
+
+.cm-s-legato .CodeMirror-guttermarker {
+    color: #ac4142;
+}
+
+.cm-s-legato .CodeMirror-guttermarker-subtle {
+    color: #505050;
+}
+
+.cm-s-legato .CodeMirror-linenumber {
+    color: #505050;
+}
+
+.cm-s-legato .CodeMirror-cursor {
+    border-left: 1px solid #b0b0b0;
+}
+
+.cm-s-legato span.cm-comment {
+    color: #415B75;
+}
+
+.cm-s-legato span.cm-meta,
+.cm-s-legato span.cm-link,
+.cm-s-legato span.cm-number,
+.cm-s-legato span.cm-atom {
+    color: #aa759f;
+}
+
+.cm-s-legato span.cm-property,
+.cm-s-legato span.cm-attribute {
+    color: var(--ao);
+}
+
+.cm-s-legato span.cm-keyword {
+    color: #ac4142;
+}
+
+.cm-s-legato span.cm-string {
+    color: #f4bf75;
+}
+
+.cm-s-legato span.cm-variable {
+    color: #90a959;
+    color: #92A66C;
+    color: #9EB274;
+}
+
+.cm-s-legato span.cm-builtin {
+    color: #6a9fb5;
+}
+
+.cm-s-legato span.cm-variable-2 {
+    color: #7D79B5;
+}
+
+.cm-s-legato span.cm-function {
+    color: var(--gray2);
+}
+
+.cm-s-legato span.cm-def {
+    color: #d28445;
+}
+
+.cm-s-legato span.cm-bracket {
+    color: var(--gray3);
+}
+
+.cm-s-legato span.cm-tag {
+    color: #ac4142;
+}
+
+.cm-s-legato span.cm-error {
+    background: #ac4142;
+    color: #b0b0b0;
+}
+
+.cm-s-legato .CodeMirror-activeline-background {
+    background: var(--darkest-color);
+}
+
+.cm-s-legato .CodeMirror-matchingbracket {
+    text-decoration: none;
+    color: white !important;
+    position: relative;
+}
+
+.cm-s-legato .CodeMirror-matchingbracket:after {
+    content: '';
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 1px;
+    border-width: 0 0 0.1rem;
+    border-style: solid;
+    border-color: red;
+}
+
+.cm-matchhighlight {
+    box-shadow: inset 0 0 .2rem white;
+}
+
+.CodeMirror-activeline-gutter > .CodeMirror-linenumber {
+    color: #999;
+}
+
+.CodeMirror-activeline-gutter {
+    background: #000;
+}

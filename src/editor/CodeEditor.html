@@ -5,7 +5,9 @@
 
 <style>
     .code-editor {
-        height: calc(100% - 5px);
+        position: absolute;
+        height: calc(100% - var(--toolbar-height) - 5px);
+        top: var(--toolbar-height);
         width: 100%;
         -webkit-font-smoothing: subpixel-antialiased;
     }
@@ -17,25 +19,39 @@
     import g from '../lib/Globals.js'
     import WSClient from '../lib/WSClient'
     import CodeMirror from 'codemirror'
-//    import loadmode from 'codemirror/addon/mode/loadmode'
+    import meta from 'codemirror/mode/meta'
 
     export default {
         components: {},
         oncreate() {
             const fileName = this.get('fileName')
+            const filePath = this.get('filePath')
+            const mode = CodeMirror.findModeByFileName(fileName)
             console.log('editor', fileName)
-            let startTime = performance.now()
-            this.clean = true
-            this.shouldClose = false
-//            this.mode = CodeMirror.findModeByFileName(fileName)
-//            console.info('mode', this.mode)
-            
-            this.ws = new WSClient('ws://127.0.0.1:3179/editor')
-            this.ws.addHandler('openFile', data => {
-                console.warn('transmission took', performance.now() - startTime)
+
+            // Step 1: Connect to websocket and read file
+            const readFile = new Promise(resolve => {
+                let startTime = performance.now()
+                this.clean = true
+                this.shouldClose = false
+                this.ws = new WSClient('ws://127.0.0.1:3179/editor')
+                this.ws.addHandler('openFile', data => {
+                    console.warn('transmission took', performance.now() - startTime)
+                    resolve(data) // <-- exit here
+                })
+                this.ws.connect(() => {
+                    console.log('ws editor connected')
+                    this.ws.send({
+                        cmd: 'openFile',
+                        filePath
+                    })
+                })
+            })
+
+            readFile.then(data => {
                 this.cm = CodeMirror(this.refs.codeEditor, {
                     value: data.content,
-//                    mode: this.mode.mime,
+                    mode: mode.mime,
                     theme: 'legato',
                     indentUnit: 4,
                     lineNumbers: true,
@@ -55,13 +71,6 @@
                         'Cmd-D': 'duplicateLine',
                         "Cmd-J": "joinLines",
                     }
-                })
-            })
-            this.ws.connect(() => {
-                console.log('ws editor connected')
-                this.ws.send({
-                    cmd: 'openFile',
-                    filePath: this.get('filePath')
                 })
             })
         },

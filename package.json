@@ -9,7 +9,7 @@
     "private": true,
     "devDependencies": {
         "babel-cli": "^6.26.0",
-        "babel-core": "^6.26.0",
+        "babel-core": "6",
         "babel-minify": "^0.2.0",
         "browser-sync": "^2.23.1",
         "eslint": "^4.14.0",
@@ -27,6 +27,7 @@
         "jquery": "^3.2.1",
         "jstree": "^3.3.4",
         "keypress.js": "https://github.com/dmauro/Keypress.git",
+        "requirejs": "^2.3.5",
         "sortable": "^2.0.0",
         "xterm": "^2.9.2"
     },
