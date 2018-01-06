@@ -18,8 +18,49 @@
 <script>
     import g from '../lib/Globals.js'
     import WSClient from '../lib/WSClient'
+    
     import CodeMirror from 'codemirror'
+    import python from '../lib/python'
+    
+    // CM modes
+    import clike from 'codemirror/mode/clike/clike'
+    import cmake from 'codemirror/mode/cmake/cmake'
+    import coffeescript from 'codemirror/mode/coffeescript/coffeescript'
+    import css from 'codemirror/mode/css/css'
+    import django from 'codemirror/mode/django/django'
+    import dockerfile from 'codemirror/mode/dockerfile/dockerfile'
+    import fortran from 'codemirror/mode/fortran/fortran'
+    import go from 'codemirror/mode/go/go'
+    import htmlembedded from 'codemirror/mode/htmlembedded/htmlembedded'
+    import htmlmixed from 'codemirror/mode/htmlmixed/htmlmixed'
+    import javascript from 'codemirror/mode/javascript/javascript'
+    import lua from 'codemirror/mode/lua/lua'
+    import livescript from 'codemirror/mode/livescript/livescript'
+    import markdown from 'codemirror/mode/markdown/markdown'
+    import nginx from 'codemirror/mode/nginx/nginx'
+    import perl from 'codemirror/mode/perl/perl'
+    import php from 'codemirror/mode/php/php'
+    import protobuf from 'codemirror/mode/protobuf/protobuf'
+    import r from 'codemirror/mode/r/r'
+    import ruby from 'codemirror/mode/ruby/ruby'
+    import rust from 'codemirror/mode/rust/rust'
+    import sass from 'codemirror/mode/sass/sass'
+    import shell from 'codemirror/mode/shell/shell'
+    import sql from 'codemirror/mode/sql/sql'
+    import swift from 'codemirror/mode/swift/swift'
+    import toml from 'codemirror/mode/toml/toml'
+    import xml from 'codemirror/mode/xml/xml'
+    import yaml from 'codemirror/mode/yaml/yaml'
+    
+    
+    // CM addons
     import meta from 'codemirror/mode/meta'
+    import matchbrackets from 'codemirror/addon/edit/matchbrackets'
+    import closebrackets from 'codemirror/addon/edit/closebrackets'
+    import comment from 'codemirror/addon/comment/comment'
+    import activeline from 'codemirror/addon/selection/active-line'
+    import matchhighlighter from 'codemirror/addon/search/match-highlighter'
+    
 
     export default {
         components: {},
@@ -27,7 +68,7 @@
             const fileName = this.get('fileName')
             const filePath = this.get('filePath')
             const mode = CodeMirror.findModeByFileName(fileName)
-            console.log('editor', fileName)
+            console.log('editor', fileName, mode)
 
             // Step 1: Connect to websocket and read file
             const readFile = new Promise(resolve => {
