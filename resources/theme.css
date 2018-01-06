@@ -15,8 +15,9 @@
 
     --toolbar-height: 2rem;
     --tab-bar-height: 2rem;
-    --penal-left-width: 15rem;
+    --penal-left-width: calc(8rem + 7vw);
     --penal-right-width: 3rem;
+    --prompt-width: 40rem;
     
     --tab-bar-icon-size: 1.4rem;
     

@@ -4,6 +4,7 @@
 <PanelLeft></PanelLeft>
 <PanelMiddle ref:panelMiddle></PanelMiddle>
 <penal-right></penal-right>
+<Prompt ref:prompt></Prompt>
 
 <style>
     @import 'theme.css';
@@ -42,22 +43,14 @@
         var(--panel-delimiter-hover-color) 70%,
         transparent 70%);
     }
-
-    l-modal {
-        position: absolute;
-        width: 40rem;
-        top: calc(var(--toolbar-height) * 2);
-        left: calc(50vw - 20rem);
-        z-index: 9999;
-
-    }
-
 </style>
 
 <script>
+    import g from './lib/Globals.js'
     import Toolbar from './Toolbar.html'
     import PanelLeft from './PanelLeft.html'
     import PanelMiddle from './PanelMiddle.html'
+    import Prompt from './panels/Prompt.html'
 
     // register service worker
     if ('serviceWorker' in navigator) {
@@ -101,7 +94,8 @@
         components: {
             Toolbar,
             PanelLeft,
-            PanelMiddle
+            PanelMiddle,
+            Prompt,
         },
 
         oncreate() {
@@ -123,6 +117,22 @@
             document.onmouseup = e => {
                 document.onmousemove = undefined
             }
+
+            g.prompt.open({
+                active: true,
+                icon: 'fa fa-hdd-o',
+                content: 'Lorem ipsem',
+                buttons: [{
+                    text: 'yes',
+                    style: 'success',
+                    action: () => {
+                        console.log('blablabla')
+                    }
+                }, {
+                    text: 'no',
+                    style: 'danger'
+                } ]
+            })
         }
     }
 

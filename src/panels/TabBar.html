@@ -18,7 +18,6 @@
 
 
 <script>
-    //    import FileTree from './panels/FileTree.html'
     import g from '../lib/Globals.js'
     import Tab from './Tab.html'
 
@@ -26,16 +25,29 @@
         components: {},
         oncreate() {
             g.tabBar = this
+            this.pathToTab = {} // /path/to/a/file.py -> <Tab>
+            this.observe('activeFilePath', (activeFilePath, inactiveFilePath) => {
+                const activeTab = this.pathToTab[activeFilePath]
+                const inactiveTab = this.pathToTab[inactiveFilePath]
+                activeTab && activeTab.set({
+                    active: true
+                })
+                inactiveTab && inactiveTab.set({
+                    active: false
+                })
+            })
         },
         methods: {
-            openTab: function(id, fileName) {
-                console.warn('openTab', id, fileName)
+            openTab: function(filePath, fileName) {
                 const tab = new Tab({
                     target: this.refs.tabBar,
                     data: {
-                        fileName
+                        filePath,
+                        fileName,
+                        active: true
                     }
                 })
+                this.pathToTab[filePath] = tab
             },
         }
     }

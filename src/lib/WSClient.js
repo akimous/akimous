@@ -1,7 +1,7 @@
 export default class {
     constructor(path) {
         this.path = path
-        this.debug = true
+        this.debug = false
         this.handlers = {}
     }
     
@@ -24,13 +24,13 @@ export default class {
             console.log(`Recieved error from ${this.path}: ${event}`)
         }
         
-        this.socket.onopen = event => {
+        this.socket.onopen = () => {
             console.log(`WebSocket opened on ${this.path}`)
             if (callback != null)
                 callback(this)
         }
         
-        this.socket.onclose = event => {
+        this.socket.onclose = () => {
             console.warn(`WebSocket unexpectedly dropped on ${this.path}`)
             // TODO: should show warning on UI
             setTimeout(() => {

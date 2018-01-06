@@ -1,0 +1,161 @@
+<div class="modal" style="display: {{active ? 'block' : 'none'}}">
+    <div class="icon-area">
+        <i class="icon {{icon}}" aria-hidden="true"></i>
+    </div>
+    <div class="text">{{{content}}}</div>
+    <table>
+        <tr>
+            {{#each buttons as button}}
+            <td class="td {{button.style}}" onclick="({{button.action}})()" on:click="dismiss()"> {{button.text}} </td>
+            {{/each}}
+        </tr>
+    </table>
+</div>
+
+
+<style>
+    .modal {
+        position: absolute;
+        background: var(--modal-bg-color);
+        width: var(--prompt-width);
+        top: calc(var(--toolbar-height) * 2 + .07rem);
+        left: calc(50vw - 20rem);
+        color: var(--modal-text-color);
+        font-family: var(--basic-ui-font-family);
+        font-size: var(--ui-font-size-large);
+        padding: 2rem;
+        box-sizing: border-box;
+        border-radius: .5rem;
+        cursor: default;
+        z-index: 9999;
+        box-shadow: 0 .5rem .5rem rgba(0, 0, 0, 0.5);
+    }
+
+    .icon-area {
+        font-size: 4rem;
+        width: 4rem;
+        height: 5rem;
+        top: 1.7rem;
+        text-align: right;
+        position: absolute;
+    }
+
+    em {
+        color: var(--ui-highlight-color);
+        font-style: normal;
+        font-weight: bold;
+    }
+
+    .text {
+        left: 6rem;
+        padding-bottom: 4rem;
+        top: 0;
+        width: calc(100% - 6rem);
+        position: relative;
+    }
+
+    table {
+        table-layout: fixed;
+        bottom: 0;
+        left: 0;
+        width: var(--prompt-width);
+        height: 3rem;
+        position: absolute;
+        border-radius: .5rem;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-border-horizontal-spacing: 0;
+        -webkit-border-vertical-spacing: 0;
+    }
+
+    tbody {
+        padding: 0;
+        margin: 0;
+    }
+
+    td {
+        background: var(--brighter-ui-font-color);
+        color: var(--ui-prompt-color);
+        font-size: var(--ui-font-size-large);
+        text-align: center;
+        font-weight: bold;
+    }
+
+    td:hover {
+        filter: brightness(110%);
+    }
+
+    table tr:last-child td:first-child {
+        border-bottom-left-radius: .5rem;
+    }
+
+    table tr:last-child td:last-child {
+        border-bottom-right-radius: .5rem;
+    }
+
+    .success {
+        background: var(--brighter-green);
+        color: var(--gray1);
+    }
+
+    .dismiss {
+        background: var(--gray2);
+        color: var(--gray6);
+    }
+
+    .danger {
+        background: var(--brighter-red);
+        color: var(--gray1);
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals.js'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.prompt = this
+            this.queue = []
+        },
+        data() {
+            return {
+                active: false,
+                icon: 'fa fa-question-circle',
+                content: '',
+                buttons: [{
+                    text: 'Yes',
+                    style: 'success'
+                }, {
+                    text: 'No',
+                    style: 'danger'
+                }]
+            }
+        },
+        methods: {
+            open(data) {
+                this.queue.push(data)
+                if (this.queue.length == 1) {
+                    this.set(data)
+                }
+                this.set({
+                    active: true
+                })
+                //                g.activeEditor && g.activeEditor.completion.close()
+            },
+            dismiss(callback) {
+                this.queue.shift()
+                if (this.queue.length != 0) {
+                    this.set(this.queue[0])
+                    return
+                }
+                this.set({
+                    active: false
+                })
+            }
+        }
+    }
+
+</script>

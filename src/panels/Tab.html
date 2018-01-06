@@ -1,6 +1,6 @@
-<span class='tab active'>
-    <span class='icon l-python-icon'></span>
-<span class='text'>{{fileName}}</span>
+<span class="tab {{active ? 'active' : ''}}" on:click="activate()">
+    <span class="icon l-python-icon"></span>
+    <span class="text">{{fileName}}</span>
 </span>
 
 
@@ -60,10 +60,11 @@
     export default {
         components: {},
         oncreate() {
-            console.log('tab', this.get('fileName'))
         },
         methods: {
-
+            activate() {
+                g.panelMiddle.activateFile(this.get('filePath'))
+            }
         }
     }
 

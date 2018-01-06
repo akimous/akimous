@@ -27,12 +27,11 @@
         "jquery": "^3.2.1",
         "jstree": "^3.3.4",
         "keypress.js": "https://github.com/dmauro/Keypress.git",
-        "requirejs": "^2.3.5",
         "sortable": "^2.0.0",
         "xterm": "^2.9.2"
     },
     "scripts": {
-        "build": "rm -r build/* && cp -r src/index.html resources/* build/ && rollup -c",
+        "build": "rm -r build/* && cp -r src/index.html resources/* build/ && rollup -c && cd build/ && brotli bundle.*",
         "dev": "browser-sync start --server 'build' --files 'build' & rollup -c -w",
         "start": "serve build"
     }

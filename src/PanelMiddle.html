@@ -27,61 +27,102 @@
             TabBar
         },
         oncreate() {
-            g.penalMiddle = this
-            this.mapToID = {} // /path/to/a/file.py -> <span>
-            this.idCounter = 0
+            g.panelMiddle = this
+            this.pathToEditor = {} // /path/to/a/file.py -> <CodeEditor>
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
-            this.activationHistoryIndex = 0            
+            this.activationHistoryIndex = 0
             this.openFile('/Users/ray/Code/LegatoIDE/test/test.py', 'test.py')
         },
         methods: {
             openFile: function(filePath, fileName) {
-                let id = this.mapToID[filePath]
-                if (id == undefined) {
-                    id = 'f' + this.idCounter++;
-                    this.mapToID[filePath] = id
-                    g.tabBar.openTab(id, fileName)
-                    const editor = new CodeEditor({
+                let editor = this.pathToEditor[filePath]
+                if (!editor) {
+                    this.pathToEditor[filePath] = new CodeEditor({
                         target: this.refs.panelMiddle,
                         data: {
-                            id,
                             filePath,
-                            fileName
+                            fileName,
+                            active: true
                         }
                     })
+                    g.tabBar.openTab(filePath, fileName)
                 }
-                console.log('opening file', filePath, id)
-//                    
-//                    
-//                    // open editor
-//                    const editor = new CodeEditor({
-//                        target: this.refs.panelMiddle,
-//                        data: {
-//                            id,
-//                            filePath,
-//                            fileName
-//                        }
-//                    })
-                    //                    this.root.getElementById('penal-middle').insertAdjacentHTML('beforeend', `
-                    //                        <l-editor id='${id}' filePath='${filePath}' fileName='${fileName}' class='active'></l-editor>
-                    //                    `)
-//                }
-//                this.activateFile(id)
+                this.activateFile(filePath)
             },
-            activateFile: function(id) {
+            activateFile(filePath) {
                 // write to activation history
-                if (this.activationHistory[this.activationHistoryIndex] != id) {
+                if (this.activationHistory[this.activationHistoryIndex] != filePath) {
                     this.activationHistoryIndex = (this.activationHistoryIndex + 1) % MAX_ACTIVATION_HISTORY
-                    this.activationHistory[this.activationHistoryIndex] = id
+                    this.activationHistory[this.activationHistoryIndex] = filePath
                 }
-                g.tabBar.activateTab(id)
+                g.tabBar.set({
+                    activeFilePath: filePath
+                })
                 // activate editor
-                for (const i of this.root.querySelectorAll('.active'))
-                    i.classList.remove('active')
-                g.activeEditor = this.root.getElementById(id)
-                g.activeEditor.classList.add('active')
-                if (g.activeEditor.cm)
-                    g.activeEditor.cm.focus()
+                g.activeEditor && (g.activeEditor.set({
+                    active: false
+                }))
+                const editor = this.pathToEditor[filePath]
+                g.activeEditor = editor
+                if (!editor) return
+                editor.set({
+                    active: true
+                })
+                editor.cm && editor.cm.focus()
+            },
+            closeFile(filePath) {
+                return
+                /*
+                const editor = this.root.getElementById(id)
+                // if the file has been edited, prompt for saving
+                if (!editor.clean) {
+                    g.prompt(
+                        'fa fa-hdd-o',
+                        `Do you want to save the changes you made in <em>${editor.getAttribute('fileName')}</em> ?`, [{
+                            text: `Don't Save`,
+                            style: 'danger',
+                            callback: () => {
+                                editor.clean = true
+                                this.closeFile(id)
+                            }
+                        }, {
+                            text: `Cancel`,
+                            style: 'dismiss',
+                            callback: () => {}
+                        }, {
+                            text: `Save`,
+                            style: 'success',
+                            callback: () => {
+                                editor.save()
+                                editor.shouldClose = true
+                            }
+                        }])
+                    return
+                }
+
+                g.activeEditor = undefined
+                const filePath = this.root.getElementById(id).getAttribute('filePath')
+                g.tabBar.closeTab(id)
+                this.root.getElementById(id).remove()
+                delete this.mapToTabID[filePath]
+                // clear activation history
+                for (var i = 0; i < MAX_ACTIVATION_HISTORY; i++)
+                    if (this.activationHistory[i] == id)
+                        this.activationHistory[i] = undefined
+                // activate previous file
+                for (var i = this.activationHistoryIndex; i > this.activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
+                    const previouslyActivatedId = this.activationHistory[i % MAX_ACTIVATION_HISTORY]
+                    if (previouslyActivatedId != undefined) {
+                        this.activateFile(previouslyActivatedId)
+                        return
+                    }
+                }
+                // if history is exhausted, select the last editor
+                let editors = this.root.querySelectorAll('l-editor')
+                if (editors.length > 0) {
+                    this.activateFile(editors[editors.length - 1].getAttribute('id'))
+                }
+            */
             }
         }
     }

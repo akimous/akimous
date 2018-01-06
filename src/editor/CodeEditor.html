@@ -1,4 +1,4 @@
-<div ref:codeEditor class="code-editor">
+<div ref:codeEditor class="code-editor" style="display: {{active ? 'block' : 'none'}}">
 
 </div>
 
@@ -98,10 +98,10 @@
                     lineNumbers: true,
                     autofocus: true,
                     // addons
-                    matchBrackets: true, // edit/matchbrackets.js
-                    autoCloseBrackets: true, // edit/closebrackets.js
-                    highlightSelectionMatches: false, // search/match-highlighter.js
-                    styleActiveLine: true, // selection/active-line.js
+                    matchBrackets: true, // edit/matchbrackets
+                    autoCloseBrackets: true, // edit/closebrackets
+                    highlightSelectionMatches: false, // search/match-highlighter
+                    styleActiveLine: true, // selection/active-line
 
                     // keymap
                     extraKeys: {

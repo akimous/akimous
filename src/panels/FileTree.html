@@ -54,6 +54,7 @@
 
 
 <script>
+    import g from '../lib/Globals.js'
     import WSClient from '../lib/WSClient'
     import {
         fileTypeIconMappingDefinition,
@@ -157,7 +158,8 @@
                     } else if (node.type == 'folder') {
                         jstree.open_node(node.id)
                     } else {
-                        g.openFile(node.id, node.text)
+                        console.log(g.panelMiddle)
+                        g.panelMiddle.openFile(node.id, node.text)
                     }
                     node.last_clicked_time = undefined
                 } else {
