@@ -16,12 +16,13 @@
 
 
 <script>
-    import g from '../lib/Globals.js'
+    import g from '../lib/Globals'
     import WSClient from '../lib/WSClient'
-    
+    import CMEventDispatcher from './CMEventDispatcher'
+
     import CodeMirror from 'codemirror'
     import python from '../lib/python'
-    
+
     // CM modes
     import clike from 'codemirror/mode/clike/clike'
     import cmake from 'codemirror/mode/cmake/cmake'
@@ -51,8 +52,8 @@
     import toml from 'codemirror/mode/toml/toml'
     import xml from 'codemirror/mode/xml/xml'
     import yaml from 'codemirror/mode/yaml/yaml'
-    
-    
+
+
     // CM addons
     import meta from 'codemirror/mode/meta'
     import matchbrackets from 'codemirror/addon/edit/matchbrackets'
@@ -60,15 +61,14 @@
     import comment from 'codemirror/addon/comment/comment'
     import activeline from 'codemirror/addon/selection/active-line'
     import matchhighlighter from 'codemirror/addon/search/match-highlighter'
-    
+
 
     export default {
         components: {},
         oncreate() {
             const fileName = this.get('fileName')
-            const filePath = this.get('filePath')
             const mode = CodeMirror.findModeByFileName(fileName)
-            console.log('editor', fileName, mode)
+            this.filePath = this.get('filePath')
 
             // Step 1: Connect to websocket and read file
             const readFile = new Promise(resolve => {
@@ -84,12 +84,13 @@
                     console.log('ws editor connected')
                     this.ws.send({
                         cmd: 'openFile',
-                        filePath
+                        filePath: this.filePath
                     })
                 })
             })
 
-            readFile.then(data => {
+            // Step 2: Open editor
+            const initializeCM = readFile.then(data => {
                 this.cm = CodeMirror(this.refs.codeEditor, {
                     value: data.content,
                     mode: mode.mime,
@@ -114,9 +115,52 @@
                     }
                 })
             })
+
+            // Step 3: Do the rest of things
+            initializeCM.then(() => setTimeout(() => {
+
+                this.cm.refresh() // prevent CM occasionally shifts to the right
+                //                            registerCMCommands(CodeMirror)
+                //                            this.predictor = new Predictor(this)
+                // only enable predictor when the document is a Python file
+                //                            if (this.mode.mode !== 'python') 
+                //                                this.predictor.enabled = false
+                //                            this.formatter = Formatter(this)
+                this.cmEventDispatcher = new CMEventDispatcher(this)
+                //                            this.completionEventDispatcher = new CompletionEventDispatcher(this)
+                //                            this.completion.bindReferences(this)
+                this.ws.addHandler('saveFile-ok', data => {
+                    this.clean = true
+                    if (this.shouldClose) {
+                        g.panelMiddle.closeFile(this.filePath)
+                        return
+                    }
+                    this.cm.doc.markClean()
+                    g.tabBar.setClean(this.filePath)
+                })
+                this.ws.addHandler('predict-result', data => {
+                    this.predictor.receive(data)
+                })
+
+                // resolve Safari overscroll jitter issue
+                const scroller = this.refs.codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
+                scroller.onwheel = e => {
+                    if (e.deltaY <= 0) return
+                    const scrollInfo = this.cm.getScrollInfo()
+                    if (scrollInfo.top + scrollInfo.clientHeight >= scrollInfo.height) {
+                        e.preventDefault()
+                    }
+                }
+            }, 200))
         },
         methods: {
-
+            save() {
+                this.ws.send({
+                    cmd: 'saveFile',
+                    filePath: this.filePath,
+                    content: this.cm.getValue()
+                })
+            }
         }
     }
 

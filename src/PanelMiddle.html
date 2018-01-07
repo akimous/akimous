@@ -71,58 +71,56 @@
                 editor.cm && editor.cm.focus()
             },
             closeFile(filePath) {
-                return
-                /*
-                const editor = this.root.getElementById(id)
+                const editor = this.pathToEditor[filePath]
                 // if the file has been edited, prompt for saving
                 if (!editor.clean) {
-                    g.prompt(
-                        'fa fa-hdd-o',
-                        `Do you want to save the changes you made in <em>${editor.getAttribute('fileName')}</em> ?`, [{
+                    g.prompt.open({
+                        icon: 'fa fa-hdd-o',
+                        content: `Do you want to save the changes you made in <em>${editor.get('fileName')}</em> ?`,
+                        buttons: [{
                             text: `Don't Save`,
                             style: 'danger',
-                            callback: () => {
+                            action: () => {
+                                console.log('fuck')
                                 editor.clean = true
-                                this.closeFile(id)
+                                this.closeFile(filePath)
                             }
                         }, {
                             text: `Cancel`,
                             style: 'dismiss',
-                            callback: () => {}
                         }, {
                             text: `Save`,
                             style: 'success',
-                            callback: () => {
+                            action: () => {
                                 editor.save()
                                 editor.shouldClose = true
                             }
-                        }])
+                        }]
+                    })
                     return
                 }
-
                 g.activeEditor = undefined
-                const filePath = this.root.getElementById(id).getAttribute('filePath')
-                g.tabBar.closeTab(id)
-                this.root.getElementById(id).remove()
-                delete this.mapToTabID[filePath]
+                g.tabBar.closeTab(filePath)
+                editor.destroy()
+                delete this.pathToEditor[filePath]
+                
                 // clear activation history
                 for (var i = 0; i < MAX_ACTIVATION_HISTORY; i++)
-                    if (this.activationHistory[i] == id)
+                    if (this.activationHistory[i] === filePath)
                         this.activationHistory[i] = undefined
                 // activate previous file
                 for (var i = this.activationHistoryIndex; i > this.activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
-                    const previouslyActivatedId = this.activationHistory[i % MAX_ACTIVATION_HISTORY]
-                    if (previouslyActivatedId != undefined) {
-                        this.activateFile(previouslyActivatedId)
+                    const previouslyActivatedFilePath = this.activationHistory[i % MAX_ACTIVATION_HISTORY]
+                    if (previouslyActivatedFilePath != undefined) {
+                        this.activateFile(previouslyActivatedFilePath)
                         return
                     }
                 }
                 // if history is exhausted, select the last editor
-                let editors = this.root.querySelectorAll('l-editor')
-                if (editors.length > 0) {
-                    this.activateFile(editors[editors.length - 1].getAttribute('id'))
+                let tabs = g.tabBar.refs.tabBar.getElementsByClassName('tab')
+                if (tabs.length > 0) {
+                    this.activateFile(tabs[tabs.length - 1].dataset.filepath)
                 }
-            */
             }
         }
     }

@@ -1,4 +1,4 @@
-<span class="tab {{active ? 'active' : ''}}" on:click="activate()">
+<span class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" data-filepath="{{filePath}}" on:click="activate()" on:dblclick="close()">
     <span class="icon l-python-icon"></span>
     <span class="text">{{fileName}}</span>
 </span>
@@ -61,9 +61,17 @@
         components: {},
         oncreate() {
         },
+        data() {
+            return {
+                clean: true
+            }
+        },
         methods: {
             activate() {
                 g.panelMiddle.activateFile(this.get('filePath'))
+            },
+            close() {
+                g.panelMiddle.closeFile(this.get('filePath'))
             }
         }
     }

@@ -6,7 +6,7 @@
     <table>
         <tr>
             {{#each buttons as button}}
-            <td class="td {{button.style}}" onclick="({{button.action}})()" on:click="dismiss()"> {{button.text}} </td>
+            <td class="td {{button.style}}" on:click="onClickButton(button)"> {{button.text}} </td>
             {{/each}}
         </tr>
     </table>
@@ -145,7 +145,8 @@
                 })
                 //                g.activeEditor && g.activeEditor.completion.close()
             },
-            dismiss(callback) {
+            onClickButton(button) {
+                button.action && button.action()
                 this.queue.shift()
                 if (this.queue.length != 0) {
                     this.set(this.queue[0])

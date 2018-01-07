@@ -38,7 +38,7 @@
             })
         },
         methods: {
-            openTab: function(filePath, fileName) {
+            openTab(filePath, fileName) {
                 const tab = new Tab({
                     target: this.refs.tabBar,
                     data: {
@@ -49,6 +49,10 @@
                 })
                 this.pathToTab[filePath] = tab
             },
+            closeTab(filePath) {
+                this.pathToTab[filePath].destroy()
+                delete this.pathToTab[filePath]
+            }
         }
     }
 
