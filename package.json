@@ -26,7 +26,7 @@
         "codemirror": "^5.33.0",
         "jquery": "^3.2.1",
         "jstree": "^3.3.4",
-        "keypress.js": "https://github.com/dmauro/Keypress.git",
+        "keyboardjs": "^2.4.1",
         "sortable": "^2.0.0",
         "xterm": "^2.9.2"
     },

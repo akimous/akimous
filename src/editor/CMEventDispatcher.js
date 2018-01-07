@@ -1,4 +1,4 @@
-import g from '../lib/Globals.js'
+import g from '../lib/Globals'
 
 class CMEventDispatcher {
     constructor(editor) {

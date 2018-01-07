@@ -18,7 +18,7 @@
 
 
 <script>
-    import g from '../lib/Globals.js'
+    import g from '../lib/Globals'
     import Tab from './Tab.html'
 
     export default {
@@ -52,6 +52,11 @@
             closeTab(filePath) {
                 this.pathToTab[filePath].destroy()
                 delete this.pathToTab[filePath]
+            },
+            setClean(filePath) {
+                this.pathToTab[filePath].set({
+                    clean: true
+                })
             }
         }
     }

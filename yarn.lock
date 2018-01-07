@@ -2082,9 +2082,9 @@ jstree@^3.3.4:
   dependencies:
     jquery ">=1.9.1"
 
-"keypress.js@https://github.com/dmauro/Keypress.git":
-  version "2.1.4"
-  resolved "https://github.com/dmauro/Keypress.git#ce2837dbf9967acfc46ce4192f26b37c57bec732"
+keyboardjs@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/keyboardjs/-/keyboardjs-2.4.1.tgz#7c5ad28695a21b6c4d066681c127376a60f9acd1"
 
 kind-of@^3.0.2:
   version "3.2.2"
