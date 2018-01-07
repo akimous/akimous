@@ -27,7 +27,7 @@
         "jquery": "^3.2.1",
         "jstree": "^3.3.4",
         "keyboardjs": "^2.4.1",
-        "sortable": "^2.0.0",
+        "sortablejs": "^1.7.0",
         "xterm": "^2.9.2"
     },
     "scripts": {

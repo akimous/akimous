@@ -20,6 +20,7 @@
 <script>
     import g from '../lib/Globals'
     import Tab from './Tab.html'
+    import Sortable from 'sortablejs'
 
     export default {
         components: {},
@@ -35,6 +36,9 @@
                 inactiveTab && inactiveTab.set({
                     active: false
                 })
+            })
+            this.sortable = Sortable.create(this.refs.tabBar, {
+                animation: 0,
             })
         },
         methods: {
