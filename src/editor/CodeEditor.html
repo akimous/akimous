@@ -19,6 +19,9 @@
     import g from '../lib/Globals'
     import WSClient from '../lib/WSClient'
     import CMEventDispatcher from './CMEventDispatcher'
+    import RealtimeFormatter from './RealtimeFormatter'
+    import Predictor from './completion/Predictor'
+    import Completion from './completion/Completion.html'
 
     import CodeMirror from 'codemirror'
     import python from '../lib/python'
@@ -121,11 +124,11 @@
 
                 this.cm.refresh() // prevent CM occasionally shifts to the right
                 //                            registerCMCommands(CodeMirror)
-                //                            this.predictor = new Predictor(this)
+                this.predictor = new Predictor(this)
                 // only enable predictor when the document is a Python file
                 //                            if (this.mode.mode !== 'python') 
                 //                                this.predictor.enabled = false
-                //                            this.formatter = Formatter(this)
+                this.realtimeFormatter = RealtimeFormatter(this)
                 this.cmEventDispatcher = new CMEventDispatcher(this)
                 //                            this.completionEventDispatcher = new CompletionEventDispatcher(this)
                 //                            this.completion.bindReferences(this)

@@ -1,17 +1,204 @@
 import g from '../lib/Globals'
 
 class CMEventDispatcher {
-    constructor(editor) {
-        const cm = editor.cm
-        const doc = cm.doc
+    constructor(lEditor) {
+        const cm = lEditor.cm,
+            doc = cm.doc,
+            formatter = lEditor.formatter,
+            predictor = lEditor.predictor,
+            completion = lEditor.completion
+
+        let shouldSyncAfterChange = false
+        let shouldDismissCompletionOnCursorActivity = false
+
+        function getNTokens(n, pos) {
+            const tokens = Array(n)
+            for (let i = 0; i < n; i++) {
+                try {
+                    const token = cm.getTokenAt(pos, true)
+                    tokens[i] = token
+                    pos.ch = token.start
+                } catch (e) {
+                    break
+                }
+            }
+            return tokens
+        }
+
+        cm.on('scroll', () => {
+            lEditor.completion.close()
+        })
+
+
+        function setHighlightSelectionMatches(cm, newValue) {
+            if (cm.options['highlightSelectionMatches'] !== newValue)
+                cm.setOption('highlightSelectionMatches', newValue)
+        }
+        cm.on('cursorActivity', (cm) => {
+            if (shouldDismissCompletionOnCursorActivity) {
+                completion.close()
+            }
+            shouldDismissCompletionOnCursorActivity = true
+
+            // patches HighlightSelectionMatches plugin behaviour
+            // should not highlight if multiple tokens are selected
+            if (cm.somethingSelected()) {
+                const selections = cm.listSelections()
+                if (selections.length > 1) return setHighlightSelectionMatches(cm, false)
+                const selection = selections[0]
+                const from = selection.from()
+                const to = selection.to()
+                if (from.line !== to.line) return setHighlightSelectionMatches(cm, false)
+                const token = cm.getTokenAt(to)
+                if (token.start !== from.ch || token.end !== to.ch)
+                    return setHighlightSelectionMatches(cm, false)
+                return setHighlightSelectionMatches(cm, true)
+            }
+        })
+
         doc.on('change', (doc, changeObj) => {
-            if (editor.clean === doc.isClean()) return
-            editor.clean = !editor.clean
-            g.tabBar.pathToTab[editor.get('filePath')].set({
-                clean: editor.clean
-            })
+            if (lEditor.clean == doc.isClean()) return
+            lEditor.clean = !lEditor.clean
+            if (lEditor.clean) g.tabBar.setClean(lEditor.id)
+            else g.tabBar.setDirty(lEditor.id)
+        })
+
+        cm.on('changes', (cm, c) => {
+            const indent = this.ensureIndent
+            this.ensureIndent = undefined
+            if (indent != undefined) {
+                const pos = doc.getCursor()
+                const diff = indent - pos.ch
+                if (diff > 0)
+                    cm.doc.replaceRange(' '.repeat(diff), pos, pos)
+                else if (diff < 0)
+                    cm.execCommand('indentLess')
+            }
+            // handles Jedi sync if the change isn't a single-char input
+            const origin = c[0].origin
+            if (shouldSyncAfterChange ||
+                (origin !== '+input' && origin !== '+completion' && origin !== '+delete')) {
+                shouldSyncAfterChange = false
+                predictor.sync(doc.getValue())
+            }
+        })
+
+        cm.on('beforeChange', (cm, c) => {
+            shouldDismissCompletionOnCursorActivity = false
+            formatter.setContext(cm, c)
+            if (lEditor.debug) console.log('beforeChange', c)
+            const startTime = performance.now()
+            try {
+                const cursor = c.from
+                const lineContent = cm.doc.getLine(cursor.line)
+                switch (c.origin) {
+                case '+input': {
+                    const inputChar = c.text[0]
+                    // TODO: reuse t0/1/2 in formatter
+                    const [t0, t1, t2] = getNTokens(3, {
+                        line: c.from.line,
+                        ch: c.from.ch
+                    })
+                    const inputAfterFormatting = c.text[0]
+
+                    // for forcing passive in function definition
+                    let isInFunctionSignatureDefinition = false
+                    let forcePassiveCompletion = false
+
+                    // if it is not single char input, handle by predictor.sync()
+                    if (c.text.length === 1 &&
+                        c.from.line === c.to.line &&
+                        inputChar.length === 1
+                    ) {
+                        // def foo(shouldDisplayPassiveCompletionHere)
+                        const currentState = cm.getTokenAt(c.from).state
+                        if (currentState.scopes) {
+                            const currentScope = currentState.scopes[currentState.scopes.length - 1]
+                            if (currentScope.type === ')') {
+                                let pos = cm.scanForBracket(c.from, -1, undefined, {
+                                    bracketRegex: /[()]/
+                                }).pos
+                                const [tr1, tr2, tr3] = getNTokens(3, pos)
+                                if (tr3.string === 'def')
+                                    isInFunctionSignatureDefinition = true
+                                if (isInFunctionSignatureDefinition && t0.string !== '=')
+                                    forcePassiveCompletion = true
+                            }
+                        }
+                        formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
+                        const isInputAlphanumericOrUnderscore = /[A-Za-z0-9_]/.test(inputChar)
+                        const isFirstLetter = isInputAlphanumericOrUnderscore && (
+                            cursor.ch === 0 ||
+                            !/[A-Za-z0-9_]/.test(lineContent.charAt(cursor.ch - 1))
+                        )
+
+                        // handle completion and predictions
+                        if (isFirstLetter) {
+                            const lineContentAfterInput = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
+                            predictor.send(
+                                lineContentAfterInput,
+                                cursor.line,
+                                cursor.ch + inputAfterFormatting.length
+                            )
+                            const currentTokenType = cm.getTokenTypeAt(cursor)
+                            if (currentTokenType === 'string' ||
+                                currentTokenType === 'comment' ||
+                                t1.string === 'for' // for var_name in ... should not complete var_name
+                            ) completion.passive = true
+                            else completion.passive = forcePassiveCompletion
+                        } else if (predictor.currentCompletions) {
+                            const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch) + c.text[0]
+                            predictor.sort(input)
+                            const shouldDisplayCompletion = completion.setCompletions(predictor.currentCompletions)
+                            if (!shouldDisplayCompletion) completion.close()
+                        }
+                    } else {
+                        shouldSyncAfterChange = true
+                        formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
+                    }
+                    break
+                }
+                case '+delete': {
+                    if (c.from.line !== c.to.line) {
+                        shouldSyncAfterChange = true
+                    } else {
+                        formatter.deleteHandler()
+                    }
+                    if (!completion.isOpen) break
+                    if (predictor.firstTriggeredCharPos.ch === cursor.ch) {
+                        completion.close()
+                        break
+                    }
+                    const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch)
+                    predictor.sort(input)
+                    completion.setCompletions(predictor.currentCompletions)
+                    break
+                }
+                }
+            } catch (e) {
+                console.error(e)
+            }
+            const timeElapsed = performance.now() - startTime
+            if (lEditor.debug) console.log('beforeChange took', timeElapsed)
+            if (timeElapsed > 5) console.warn('slow', c, timeElapsed)
         })
     }
+
+    setIndentAfterChange(n) {
+        this.ensureIndent = n
+    }
 }
+
+//    constructor(editor) {
+//        const cm = editor.cm
+//        const doc = cm.doc
+//        doc.on('change', (doc, changeObj) => {
+//            if (editor.clean === doc.isClean()) return
+//            editor.clean = !editor.clean
+//            g.tabBar.pathToTab[editor.get('filePath')].set({
+//                clean: editor.clean
+//            })
+//        })
+//    }
 
 export default CMEventDispatcher

@@ -43,6 +43,7 @@
         var(--panel-delimiter-hover-color) 70%,
         transparent 70%);
     }
+
 </style>
 
 <script>
@@ -52,7 +53,8 @@
     import PanelMiddle from './PanelMiddle.html'
     import Prompt from './panels/Prompt.html'
     import Keymap from './lib/Keymap'
-    
+    import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl.js'
+
     // register service worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -100,40 +102,28 @@
         },
 
         oncreate() {
-            this.refs.splitBarL.onmousedown = e => {
-                e.preventDefault()
-                document.onmousemove = e => {
-                    const width = e.pageX + 'px'
-                    document.documentElement.style.setProperty('--penal-left-width', width)
+            setTimeout(() => {
+                this.refs.splitBarL.onmousedown = e => {
+                    e.preventDefault()
+                    document.onmousemove = e => {
+                        const width = e.pageX + 'px'
+                        document.documentElement.style.setProperty('--penal-left-width', width)
+                    }
                 }
-            }
-            this.refs.splitBarR.onmousedown = e => {
-                e.preventDefault()
-                document.onmousemove = e => {
-                    const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-                    const width = (viewportWidth - e.pageX) + 'px'
-                    document.documentElement.style.setProperty('--penal-right-width', width)
+                this.refs.splitBarR.onmousedown = e => {
+                    e.preventDefault()
+                    document.onmousemove = e => {
+                        const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+                        const width = (viewportWidth - e.pageX) + 'px'
+                        document.documentElement.style.setProperty('--penal-right-width', width)
+                    }
                 }
-            }
-            document.onmouseup = e => {
-                document.onmousemove = undefined
-            }
+                document.onmouseup = e => {
+                    document.onmousemove = undefined
+                }
 
-//            g.prompt.open({
-//                active: true,
-//                icon: 'fa fa-hdd-o',
-//                content: 'Lorem ipsem',
-//                buttons: [{
-//                    text: 'yes',
-//                    style: 'success',
-//                    action: () => {
-//                        console.log('blablabla')
-//                    }
-//                }, {
-//                    text: 'no',
-//                    style: 'danger'
-//                } ]
-//            })
+                g.layeredKeyboardControl = new LayeredKeyboardControl()
+            }, 300)
         }
     }
 

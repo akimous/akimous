@@ -1,0 +1,172 @@
+<div ref:Completion></div>
+
+
+<style>
+    ref:Completion {
+        background: var(--main-bg-color);
+        color: var(--basic-monospace-font-color);
+        height: 100%;
+        width: 100%;
+        box-shadow: 0 .1rem 1rem .1rem rgba(0, 0, 0, .7);
+        border-radius: .5rem;
+        font-family: var(--basic-monospace-font-family);
+        font-size: var(--basic-monospace-font-size);
+        line-height: 2rem;
+
+        overflow-x: scroll;
+        cursor: default;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .line {
+        height: 2rem;
+        padding-right: 1rem;
+    }
+
+    .line.selected {
+        background: var(--panel-color);
+    }
+
+    .line::before {
+        display: inline-block;
+        height: 2rem;
+        width: 2rem;
+        margin-right: 1rem;
+        text-align: center;
+        color: var(--brighter-ui-font-color);
+    }
+
+    .selected::before {
+        color: white;
+    }
+
+    em {
+        font-style: normal;
+        font-weight: bold;
+        color: white;
+    }
+
+    .instruction::before {
+        background: var(--gray6);
+        content: '>';
+    }
+
+    .class::before {
+        background: var(--darker-orange);
+        content: 'C';
+    }
+
+    .function::before {
+        background: var(--darker-yellow);
+        content: 'F';
+    }
+
+    .instance::before {
+        background: var(--darker-green);
+        content: 'I';
+    }
+
+    .keyword::before {
+        background: var(--darker-red);
+        content: 'K';
+    }
+
+    .module::before {
+        background: var(--darker-blue);
+        content: 'M';
+    }
+
+    .param::before {
+        background: var(--darker-purple);
+        content: 'P';
+    }
+
+    .statement::before {
+        background: var(--darker-ao);
+        content: 'S';
+    }
+
+    .selected.instruction::before {
+        background: var(--gray5);
+        content: '>';
+    }
+
+    .selected.class::before {
+        background: var(--orange);
+    }
+
+    .selected.function::before {
+        background: var(--yellow);
+    }
+
+    .selected.instance::before {
+        background: var(--green);
+    }
+
+    .selected.keyword::before {
+        background: var(--red);
+    }
+
+    .selected.module::before {
+        background: var(--blue);
+    }
+
+    .selected.param::before {
+        background: var(--purple);
+    }
+
+    .selected.statement::before {
+        background: var(--ao);
+    }
+
+</style>
+
+
+<script>
+    import g from '../../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {
+//            this.isOpen = false
+//            this.passive = false
+            this.selectedCompletion = undefined
+            this.onClickHandler = (event) => {
+                this.selectedCompletion = event.path[0]
+                this.commit()
+            }
+//            this.renderCompletionLines = () => {
+//                if (this.completionLinesToBeRendered === undefined) return
+//                for (let i of this.completionLinesToBeRendered) {
+//                    const el = document.createElement('div')
+//                    el.classList.add('line')
+//                    el.classList.add(i.t)
+//                    el.id = 'c' + this.completionLineCounter++
+//                        el.innerHTML = i.highlight
+//                    el.onclick = this.onClickHandler
+//                    el.type = i.t
+//                    this.container.appendChild(el)
+//                }
+//            }
+        },
+        data() {
+            return {
+                open: false,
+                passive: false
+            }
+        },
+        methods: {
+            shouldDisplayCompletion(c) {
+                if (this.passive && c.c.length < 3) return false
+                return c.sortScore > 0
+            },
+            bindReferences(editor) {
+                this.cm = editor.cm
+                this.predictor = editor.predictor
+                this.completion = editor.completion
+            }
+        }
+    }
+
+</script>
