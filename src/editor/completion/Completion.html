@@ -1,12 +1,14 @@
-<div ref:Completion></div>
+<div ref:completion class="completion"></div>
 
 
 <style>
-    ref:Completion {
+    .completion {
         background: var(--main-bg-color);
         color: var(--basic-monospace-font-color);
-        height: 100%;
-        width: 100%;
+        height: 14rem;
+        min-width: 24rem;
+        z-index: 100;
+        position: absolute;
         box-shadow: 0 .1rem 1rem .1rem rgba(0, 0, 0, .7);
         border-radius: .5rem;
         font-family: var(--basic-monospace-font-family);
@@ -19,115 +21,19 @@
         -webkit-user-select: none;
     }
 
-    .line {
-        height: 2rem;
-        padding-right: 1rem;
-    }
-
-    .line.selected {
-        background: var(--panel-color);
-    }
-
-    .line::before {
-        display: inline-block;
-        height: 2rem;
-        width: 2rem;
-        margin-right: 1rem;
-        text-align: center;
-        color: var(--brighter-ui-font-color);
-    }
-
-    .selected::before {
-        color: white;
-    }
-
-    em {
-        font-style: normal;
-        font-weight: bold;
-        color: white;
-    }
-
-    .instruction::before {
-        background: var(--gray6);
-        content: '>';
-    }
-
-    .class::before {
-        background: var(--darker-orange);
-        content: 'C';
-    }
-
-    .function::before {
-        background: var(--darker-yellow);
-        content: 'F';
-    }
-
-    .instance::before {
-        background: var(--darker-green);
-        content: 'I';
-    }
-
-    .keyword::before {
-        background: var(--darker-red);
-        content: 'K';
-    }
-
-    .module::before {
-        background: var(--darker-blue);
-        content: 'M';
-    }
-
-    .param::before {
-        background: var(--darker-purple);
-        content: 'P';
-    }
-
-    .statement::before {
-        background: var(--darker-ao);
-        content: 'S';
-    }
-
-    .selected.instruction::before {
-        background: var(--gray5);
-        content: '>';
-    }
-
-    .selected.class::before {
-        background: var(--orange);
-    }
-
-    .selected.function::before {
-        background: var(--yellow);
-    }
-
-    .selected.instance::before {
-        background: var(--green);
-    }
-
-    .selected.keyword::before {
-        background: var(--red);
-    }
-
-    .selected.module::before {
-        background: var(--blue);
-    }
-
-    .selected.param::before {
-        background: var(--purple);
-    }
-
-    .selected.statement::before {
-        background: var(--ao);
-    }
+    
 
 </style>
 
 
 <script>
     import g from '../../lib/Globals'
+    import CompletionRow from './CompletionRow.html'
 
     export default {
-        components: {},
+        components: {
+            CompletionRow
+        },
         oncreate() {
 //            this.isOpen = false
 //            this.passive = false
@@ -136,6 +42,11 @@
                 this.selectedCompletion = event.path[0]
                 this.commit()
             }
+            
+            const test = new CompletionRow({
+                target: this.refs.completion,
+                
+            })
 //            this.renderCompletionLines = () => {
 //                if (this.completionLinesToBeRendered === undefined) return
 //                for (let i of this.completionLinesToBeRendered) {
@@ -164,7 +75,7 @@
             bindReferences(editor) {
                 this.cm = editor.cm
                 this.predictor = editor.predictor
-                this.completion = editor.completion
+//                this.completion = editor.completion
             }
         }
     }

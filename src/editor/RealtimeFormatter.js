@@ -1,12 +1,6 @@
-const RealtimeFormatter = function (editor) {
+const RealtimeFormatter = (editor, CodeMirror) => {
     let cm, c
-
-    function Pos(line, ch) {
-        return {
-            line,
-            ch
-        }
-    }
+    const Pos = CodeMirror.Pos
 
     const operators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->)|[+\-*/%&|^~<>!@=])$/
     const compoundOperators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->))$/

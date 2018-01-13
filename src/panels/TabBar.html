@@ -61,6 +61,11 @@
                 this.pathToTab[filePath].set({
                     clean: true
                 })
+            },
+            setDirty(filePath) {
+                this.pathToTab[filePath].set({
+                    clean: false
+                })
             }
         }
     }

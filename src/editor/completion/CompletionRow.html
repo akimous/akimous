@@ -1,0 +1,121 @@
+<div ref:completionRow class="row"></div>
+
+
+<style>
+    .row {
+        height: 2rem;
+        padding-right: 1rem;
+    }
+
+    .row.selected {
+        background: var(--panel-color);
+    }
+
+    .row::before {
+        display: inline-block;
+        height: 2rem;
+        width: 2rem;
+        margin-right: 1rem;
+        text-align: center;
+        color: var(--brighter-ui-font-color);
+    }
+
+    .selected::before {
+        color: white;
+    }
+
+    em {
+        font-style: normal;
+        font-weight: bold;
+        color: white;
+    }
+
+    .instruction::before {
+        background: var(--gray6);
+        content: '>';
+    }
+
+    .class::before {
+        background: var(--darker-orange);
+        content: 'C';
+    }
+
+    .function::before {
+        background: var(--darker-yellow);
+        content: 'F';
+    }
+
+    .instance::before {
+        background: var(--darker-green);
+        content: 'I';
+    }
+
+    .keyword::before {
+        background: var(--darker-red);
+        content: 'K';
+    }
+
+    .module::before {
+        background: var(--darker-blue);
+        content: 'M';
+    }
+
+    .param::before {
+        background: var(--darker-purple);
+        content: 'P';
+    }
+
+    .statement::before {
+        background: var(--darker-ao);
+        content: 'S';
+    }
+
+    .selected.instruction::before {
+        background: var(--gray5);
+        content: '>';
+    }
+
+    .selected.class::before {
+        background: var(--orange);
+    }
+
+    .selected.function::before {
+        background: var(--yellow);
+    }
+
+    .selected.instance::before {
+        background: var(--green);
+    }
+
+    .selected.keyword::before {
+        background: var(--red);
+    }
+
+    .selected.module::before {
+        background: var(--blue);
+    }
+
+    .selected.param::before {
+        background: var(--purple);
+    }
+
+    .selected.statement::before {
+        background: var(--ao);
+    }
+
+</style>
+
+
+<script>
+    import g from '../../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {},
+        data() {
+            return {}
+        },
+        methods: {}
+    }
+
+</script>

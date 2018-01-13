@@ -1,5 +1,6 @@
 import g from '../lib/Globals'
 import Keymap from './Keymap'
+import CompletionEventDispatcher from '../editor/completion/CompletionEventDispatcher.js'
 
 class LayeredKeyboardControl {
     sendText(text) {

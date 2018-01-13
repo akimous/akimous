@@ -1,6 +1,5 @@
-<div ref:codeEditor class="code-editor" style="display: {{active ? 'block' : 'none'}}">
-
-</div>
+<div ref:codeEditor class="code-editor" style="display: {{active ? 'block' : 'none'}}"/>
+<Completion ref:completion></Completion>
 
 
 <style>
@@ -19,6 +18,7 @@
     import g from '../lib/Globals'
     import WSClient from '../lib/WSClient'
     import CMEventDispatcher from './CMEventDispatcher'
+    import registerCMCommands from './CMCommands'
     import RealtimeFormatter from './RealtimeFormatter'
     import Predictor from './completion/Predictor'
     import Completion from './completion/Completion.html'
@@ -65,9 +65,12 @@
     import activeline from 'codemirror/addon/selection/active-line'
     import matchhighlighter from 'codemirror/addon/search/match-highlighter'
 
+    registerCMCommands(CodeMirror)
 
     export default {
-        components: {},
+        components: {
+            Completion
+        },
         oncreate() {
             const fileName = this.get('fileName')
             const mode = CodeMirror.findModeByFileName(fileName)
@@ -121,15 +124,16 @@
 
             // Step 3: Do the rest of things
             initializeCM.then(() => setTimeout(() => {
-
+                this.completion = this.refs.completion
                 this.cm.refresh() // prevent CM occasionally shifts to the right
-                //                            registerCMCommands(CodeMirror)
+                
                 this.predictor = new Predictor(this)
                 // only enable predictor when the document is a Python file
                 //                            if (this.mode.mode !== 'python') 
                 //                                this.predictor.enabled = false
-                this.realtimeFormatter = RealtimeFormatter(this)
+                this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
                 this.cmEventDispatcher = new CMEventDispatcher(this)
+                
                 //                            this.completionEventDispatcher = new CompletionEventDispatcher(this)
                 //                            this.completion.bindReferences(this)
                 this.ws.addHandler('saveFile-ok', data => {

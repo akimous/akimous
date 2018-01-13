@@ -1,12 +1,12 @@
 import g from '../lib/Globals'
 
 class CMEventDispatcher {
-    constructor(lEditor) {
-        const cm = lEditor.cm,
+    constructor(editor) {
+        const cm = editor.cm,
             doc = cm.doc,
-            formatter = lEditor.formatter,
-            predictor = lEditor.predictor,
-            completion = lEditor.completion
+            formatter = editor.realtimeFormatter,
+            predictor = editor.predictor,
+            completion = editor.completion
 
         let shouldSyncAfterChange = false
         let shouldDismissCompletionOnCursorActivity = false
@@ -26,7 +26,9 @@ class CMEventDispatcher {
         }
 
         cm.on('scroll', () => {
-            lEditor.completion.close()
+            completion.set({
+                open: false
+            })
         })
 
 
@@ -36,7 +38,10 @@ class CMEventDispatcher {
         }
         cm.on('cursorActivity', (cm) => {
             if (shouldDismissCompletionOnCursorActivity) {
-                completion.close()
+                //                completion.close()
+                completion.set({
+                    open: false
+                })
             }
             shouldDismissCompletionOnCursorActivity = true
 
@@ -57,10 +62,10 @@ class CMEventDispatcher {
         })
 
         doc.on('change', (doc, changeObj) => {
-            if (lEditor.clean == doc.isClean()) return
-            lEditor.clean = !lEditor.clean
-            if (lEditor.clean) g.tabBar.setClean(lEditor.id)
-            else g.tabBar.setDirty(lEditor.id)
+            if (editor.clean == doc.isClean()) return
+            editor.clean = !editor.clean
+            if (editor.clean) g.tabBar.setClean(editor.filePath)
+            else g.tabBar.setDirty(editor.filePath)
         })
 
         cm.on('changes', (cm, c) => {
@@ -86,100 +91,102 @@ class CMEventDispatcher {
         cm.on('beforeChange', (cm, c) => {
             shouldDismissCompletionOnCursorActivity = false
             formatter.setContext(cm, c)
-            if (lEditor.debug) console.log('beforeChange', c)
+            if (editor.debug) console.log('beforeChange', c)
             const startTime = performance.now()
             try {
                 const cursor = c.from
                 const lineContent = cm.doc.getLine(cursor.line)
                 switch (c.origin) {
-                case '+input': {
-                    const inputChar = c.text[0]
-                    // TODO: reuse t0/1/2 in formatter
-                    const [t0, t1, t2] = getNTokens(3, {
-                        line: c.from.line,
-                        ch: c.from.ch
-                    })
-                    const inputAfterFormatting = c.text[0]
+                    case '+input':
+                        {
+                            const inputChar = c.text[0]
+                            // TODO: reuse t0/1/2 in formatter
+                            const [t0, t1, t2] = getNTokens(3, {
+                                line: c.from.line,
+                                ch: c.from.ch
+                            })
+                            const inputAfterFormatting = c.text[0]
 
-                    // for forcing passive in function definition
-                    let isInFunctionSignatureDefinition = false
-                    let forcePassiveCompletion = false
+                            // for forcing passive in function definition
+                            let isInFunctionSignatureDefinition = false
+                            let forcePassiveCompletion = false
 
-                    // if it is not single char input, handle by predictor.sync()
-                    if (c.text.length === 1 &&
-                        c.from.line === c.to.line &&
-                        inputChar.length === 1
-                    ) {
-                        // def foo(shouldDisplayPassiveCompletionHere)
-                        const currentState = cm.getTokenAt(c.from).state
-                        if (currentState.scopes) {
-                            const currentScope = currentState.scopes[currentState.scopes.length - 1]
-                            if (currentScope.type === ')') {
-                                let pos = cm.scanForBracket(c.from, -1, undefined, {
-                                    bracketRegex: /[()]/
-                                }).pos
-                                const [tr1, tr2, tr3] = getNTokens(3, pos)
-                                if (tr3.string === 'def')
-                                    isInFunctionSignatureDefinition = true
-                                if (isInFunctionSignatureDefinition && t0.string !== '=')
-                                    forcePassiveCompletion = true
+                            // if it is not single char input, handle by predictor.sync()
+                            if (c.text.length === 1 &&
+                                c.from.line === c.to.line &&
+                                inputChar.length === 1
+                            ) {
+                                // def foo(shouldDisplayPassiveCompletionHere)
+                                const currentState = cm.getTokenAt(c.from).state
+                                if (currentState.scopes) {
+                                    const currentScope = currentState.scopes[currentState.scopes.length - 1]
+                                    if (currentScope.type === ')') {
+                                        let pos = cm.scanForBracket(c.from, -1, undefined, {
+                                            bracketRegex: /[()]/
+                                        }).pos
+                                        const [tr1, tr2, tr3] = getNTokens(3, pos)
+                                        if (tr3.string === 'def')
+                                            isInFunctionSignatureDefinition = true
+                                        if (isInFunctionSignatureDefinition && t0.string !== '=')
+                                            forcePassiveCompletion = true
+                                    }
+                                }
+                                formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
+                                const isInputAlphanumericOrUnderscore = /[A-Za-z0-9_]/.test(inputChar)
+                                const isFirstLetter = isInputAlphanumericOrUnderscore && (
+                                    cursor.ch === 0 ||
+                                    !/[A-Za-z0-9_]/.test(lineContent.charAt(cursor.ch - 1))
+                                )
+
+                                // handle completion and predictions
+                                if (isFirstLetter) {
+                                    const lineContentAfterInput = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
+                                    predictor.send(
+                                        lineContentAfterInput,
+                                        cursor.line,
+                                        cursor.ch + inputAfterFormatting.length
+                                    )
+                                    const currentTokenType = cm.getTokenTypeAt(cursor)
+                                    if (currentTokenType === 'string' ||
+                                        currentTokenType === 'comment' ||
+                                        t1.string === 'for' // for var_name in ... should not complete var_name
+                                    ) completion.passive = true
+                                    else completion.passive = forcePassiveCompletion
+                                } else if (predictor.currentCompletions) {
+                                    const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch) + c.text[0]
+                                    predictor.sort(input)
+                                    const shouldDisplayCompletion = completion.setCompletions(predictor.currentCompletions)
+                                    if (!shouldDisplayCompletion) completion.close()
+                                }
+                            } else {
+                                shouldSyncAfterChange = true
+                                formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                             }
+                            break
                         }
-                        formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
-                        const isInputAlphanumericOrUnderscore = /[A-Za-z0-9_]/.test(inputChar)
-                        const isFirstLetter = isInputAlphanumericOrUnderscore && (
-                            cursor.ch === 0 ||
-                            !/[A-Za-z0-9_]/.test(lineContent.charAt(cursor.ch - 1))
-                        )
-
-                        // handle completion and predictions
-                        if (isFirstLetter) {
-                            const lineContentAfterInput = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
-                            predictor.send(
-                                lineContentAfterInput,
-                                cursor.line,
-                                cursor.ch + inputAfterFormatting.length
-                            )
-                            const currentTokenType = cm.getTokenTypeAt(cursor)
-                            if (currentTokenType === 'string' ||
-                                currentTokenType === 'comment' ||
-                                t1.string === 'for' // for var_name in ... should not complete var_name
-                            ) completion.passive = true
-                            else completion.passive = forcePassiveCompletion
-                        } else if (predictor.currentCompletions) {
-                            const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch) + c.text[0]
+                    case '+delete':
+                        {
+                            if (c.from.line !== c.to.line) {
+                                shouldSyncAfterChange = true
+                            } else {
+                                formatter.deleteHandler()
+                            }
+                            if (!completion.isOpen) break
+                            if (predictor.firstTriggeredCharPos.ch === cursor.ch) {
+                                completion.close()
+                                break
+                            }
+                            const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch)
                             predictor.sort(input)
-                            const shouldDisplayCompletion = completion.setCompletions(predictor.currentCompletions)
-                            if (!shouldDisplayCompletion) completion.close()
+                            completion.setCompletions(predictor.currentCompletions)
+                            break
                         }
-                    } else {
-                        shouldSyncAfterChange = true
-                        formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
-                    }
-                    break
-                }
-                case '+delete': {
-                    if (c.from.line !== c.to.line) {
-                        shouldSyncAfterChange = true
-                    } else {
-                        formatter.deleteHandler()
-                    }
-                    if (!completion.isOpen) break
-                    if (predictor.firstTriggeredCharPos.ch === cursor.ch) {
-                        completion.close()
-                        break
-                    }
-                    const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch)
-                    predictor.sort(input)
-                    completion.setCompletions(predictor.currentCompletions)
-                    break
-                }
                 }
             } catch (e) {
                 console.error(e)
             }
             const timeElapsed = performance.now() - startTime
-            if (lEditor.debug) console.log('beforeChange took', timeElapsed)
+            if (editor.debug) console.log('beforeChange took', timeElapsed)
             if (timeElapsed > 5) console.warn('slow', c, timeElapsed)
         })
     }
@@ -188,17 +195,5 @@ class CMEventDispatcher {
         this.ensureIndent = n
     }
 }
-
-//    constructor(editor) {
-//        const cm = editor.cm
-//        const doc = cm.doc
-//        doc.on('change', (doc, changeObj) => {
-//            if (editor.clean === doc.isClean()) return
-//            editor.clean = !editor.clean
-//            g.tabBar.pathToTab[editor.get('filePath')].set({
-//                clean: editor.clean
-//            })
-//        })
-//    }
 
 export default CMEventDispatcher
