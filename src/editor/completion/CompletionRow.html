@@ -1,4 +1,6 @@
-<div ref:completionRow class="row"></div>
+<div ref:completionRow class="row {{type}}">
+    {{{text}}}
+</div>
 
 
 <style>
@@ -11,11 +13,13 @@
         background: var(--panel-color);
     }
 
-    .row::before {
+    .row::after {
         display: inline-block;
         height: 2rem;
         width: 2rem;
-        margin-right: 1rem;
+/*        margin-right: 1rem;*/
+        position: absolute;
+        right: 0;
         text-align: center;
         color: var(--brighter-ui-font-color);
     }
@@ -40,7 +44,7 @@
         content: 'C';
     }
 
-    .function::before {
+    .function::after {
         background: var(--darker-yellow);
         content: 'F';
     }
@@ -79,7 +83,7 @@
         background: var(--orange);
     }
 
-    .selected.function::before {
+    .selected.function::after {
         background: var(--yellow);
     }
 
@@ -113,7 +117,10 @@
         components: {},
         oncreate() {},
         data() {
-            return {}
+            return {
+                text: 'test',
+                type: 'function'
+            }
         },
         methods: {}
     }
