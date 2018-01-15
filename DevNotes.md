@@ -7,7 +7,13 @@
    ```yarn install && yarn run build```
 
 2. Start dev server
-   ```nom run dev```
+   ```yarn run dev```
+
+3. Serve via HTTP/2
+
+   1. Enable [allow-insecure-localhost flag](http://peter.sh/experiments/chromium-command-line-switches/#allow-insecure-localhost) on Chrome
+   2. `yarn run build`
+   3. `yarn run start`
 
 ## Build for production
 

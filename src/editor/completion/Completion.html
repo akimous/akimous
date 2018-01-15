@@ -1,4 +1,11 @@
-<div ref:completion class="completion"></div>
+<div ref:completion class="completion">
+<!--
+    
+    {{#each rows as row}}
+        <CompletionRow></CompletionRow>
+    {{/each}}
+-->
+</div>
 
 
 <style>
@@ -30,25 +37,62 @@
 
     export default {
         components: {
-            CompletionRow
+//            CompletionRow
         },
         oncreate() {
 //            this.isOpen = false
 //            this.passive = false
+            const completion = this.refs.completion
             this.selectedCompletion = undefined
             this.onClickHandler = (event) => {
                 this.selectedCompletion = event.path[0]
                 this.commit()
             }
+            this.completionRows = []
             
-            const test = new CompletionRow({
-                target: this.refs.completion,
-                
+            // keep row number of visible rows 1 to 7
+            let lastFVI = 999
+            const scrollHandler = () => {
+                const rowHeight = this.completionRows[0].refs.completionRow.clientHeight
+                let firstVisibleIndex = Math.floor(completion.scrollTop / rowHeight)
+                if (firstVisibleIndex < 0) 
+                    firstVisibleIndex = 0
+                if (firstVisibleIndex > this.completionRows.length) 
+                    firstVisibleIndex = this.completionRows.length - 1
+                if (lastFVI === firstVisibleIndex) return
+                let lastVisibleIndex = firstVisibleIndex + 8
+                if (lastVisibleIndex > this.completionRows.length)
+                    lastVisibleIndex = this.completionRows.length
+                for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+                    this.completionRows[i].set({
+                        rowNumber: i - firstVisibleIndex + 1
+                    })
+                }
+                lastFVI = firstVisibleIndex
+            }
+            completion.addEventListener('scroll', scrollHandler)
+            
+            
+            this.observe('rows', rows => {
+                for (const row of this.completionRows)
+                    row.destroy()
+                for (const row of rows) {
+                    this.completionRows.push(new CompletionRow({
+                        target: completion,
+                        data: row
+                    }))
+                }
+                lastFVI = 999
+                scrollHandler()
             })
-            new CompletionRow({
-                target: this.refs.completion,
-                
-            })
+//            const test = new CompletionRow({
+//                target: this.refs.completion,
+//                
+//            })
+//            new CompletionRow({
+//                target: this.refs.completion,
+//                
+//            })
 //            this.renderCompletionLines = () => {
 //                if (this.completionLinesToBeRendered === undefined) return
 //                for (let i of this.completionLinesToBeRendered) {
@@ -66,7 +110,53 @@
         data() {
             return {
                 open: false,
-                passive: false
+                passive: false,
+                rows: [
+                    {
+                        text: 'aaaa',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                    {
+                        text: 'bbbb',
+                        type: 'function'
+                    },
+                ]
             }
         },
         methods: {

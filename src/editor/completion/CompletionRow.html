@@ -1,23 +1,40 @@
-<div ref:completionRow class="row {{type}}">
-    {{{text}}}
+<!--<div ref:completionRow class="row {{type}}">-->
+<div ref:completionRow class="row">
+    <div class="row-number"> {{rowNumber}} </div>
+    <div class="row-content">{{{text}}}</div>
+    <div class="type-indicator {{type}}"> {{type.substring(0, 1).toUpperCase()}} </div>
 </div>
 
 
 <style>
     .row {
         height: 2rem;
-        padding-right: 1rem;
     }
 
     .row.selected {
         background: var(--panel-color);
     }
 
-    .row::after {
+    .row-number {
         display: inline-block;
         height: 2rem;
         width: 2rem;
-/*        margin-right: 1rem;*/
+        position: absolute;
+        text-align: center;
+        color: var(--ui-font-color);
+        background: var(--gray5);
+    }
+    
+    .row-content {
+        position: absolute;
+        left: 3rem;
+        overflow-x: hidden;
+    }
+    
+    .type-indicator {
+        display: inline-block;
+        height: 2rem;
+        width: 2rem;
         position: absolute;
         right: 0;
         text-align: center;
@@ -44,9 +61,8 @@
         content: 'C';
     }
 
-    .function::after {
+    .type-indicator.function {
         background: var(--darker-yellow);
-        content: 'F';
     }
 
     .instance::before {
@@ -118,8 +134,9 @@
         oncreate() {},
         data() {
             return {
-                text: 'test',
-                type: 'function'
+                text: 'testttttttttttttttttttttttttt',
+                type: 'function',
+                rowNumber: 0
             }
         },
         methods: {}
