@@ -1,11 +1,4 @@
-<div ref:completion class="completion">
-<!--
-    
-    {{#each rows as row}}
-        <CompletionRow></CompletionRow>
-    {{/each}}
--->
-</div>
+<div ref:completion class="completion" style="display:{{open?'block':'none'}}"/>
 
 
 <style>
@@ -15,7 +8,7 @@
         height: 14rem;
         min-width: 24rem;
         z-index: 100;
-        position: absolute;
+        position: relative;
         box-shadow: 0 .1rem 1rem .1rem rgba(0, 0, 0, .7);
         border-radius: .5rem;
         font-family: var(--basic-monospace-font-family);
@@ -37,11 +30,8 @@
 
     export default {
         components: {
-//            CompletionRow
         },
         oncreate() {
-//            this.isOpen = false
-//            this.passive = false
             const completion = this.refs.completion
             this.selectedCompletion = undefined
             this.onClickHandler = (event) => {
@@ -70,12 +60,15 @@
                 }
                 lastFVI = firstVisibleIndex
             }
-            completion.addEventListener('scroll', scrollHandler)
+            completion.addEventListener('scroll', scrollHandler, {
+                passive: true
+            })
             
             
             this.observe('rows', rows => {
                 for (const row of this.completionRows)
                     row.destroy()
+                this.completionRows.length = 0
                 for (const row of rows) {
                     this.completionRows.push(new CompletionRow({
                         target: completion,
@@ -83,80 +76,15 @@
                     }))
                 }
                 lastFVI = 999
-                scrollHandler()
+                this.completionRows.length && scrollHandler()
             })
-//            const test = new CompletionRow({
-//                target: this.refs.completion,
-//                
-//            })
-//            new CompletionRow({
-//                target: this.refs.completion,
-//                
-//            })
-//            this.renderCompletionLines = () => {
-//                if (this.completionLinesToBeRendered === undefined) return
-//                for (let i of this.completionLinesToBeRendered) {
-//                    const el = document.createElement('div')
-//                    el.classList.add('line')
-//                    el.classList.add(i.t)
-//                    el.id = 'c' + this.completionLineCounter++
-//                        el.innerHTML = i.highlight
-//                    el.onclick = this.onClickHandler
-//                    el.type = i.t
-//                    this.container.appendChild(el)
-//                }
-//            }
+
         },
         data() {
             return {
-                open: false,
+                open: true,
                 passive: false,
-                rows: [
-                    {
-                        text: 'aaaa',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                    {
-                        text: 'bbbb',
-                        type: 'function'
-                    },
-                ]
+                rows: []
             }
         },
         methods: {
@@ -168,6 +96,10 @@
                 this.cm = editor.cm
                 this.predictor = editor.predictor
 //                this.completion = editor.completion
+            },
+            shouldDisplayCompletionRow(row) {
+                if (this.get('passive') && row.c.length < 3) return false
+                return row.sortScore > 0
             }
         }
     }

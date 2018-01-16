@@ -41,17 +41,24 @@ class Predictor {
     }
 
     repositionCompletionWindow() {
+        const editorElement = this.editor.refs.codeEditor
+        const completionElement = this.completion.refs.completion
+        
         const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
         const coords = this.editor.cm.charCoords(this.firstTriggeredCharPos, 'window')
-        const editorArea = this.editor.getBoundingClientRect()
-        const completionArea = this.completion.getBoundingClientRect()
-        // const completionWidth = completionArea.right - completionArea.left
+        const charHeight = coords.bottom - coords.top
+        
+        const editorArea = editorElement.getBoundingClientRect()
+        const completionArea = completionElement.getBoundingClientRect()
         const completionHeight = completionArea.bottom - completionArea.top
-        let x = coords.left - 3 * rem
-        let y = coords.bottom + .3 * rem
-        if (y + completionHeight > editorArea.bottom) y = coords.top - completionHeight - .3 * rem
-        this.completion.style.left = x + 'px'
-        this.completion.style.top = y + 'px'
+        
+        let x = coords.left - editorArea.left - 3 * rem
+        let y = coords.bottom - editorArea.top + 1.3 * charHeight
+        if (y + completionHeight > editorArea.bottom) {
+            y = coords.top - completionHeight - 1.3 * charHeight
+        }
+        completionElement.style.left = `${x}px`
+        completionElement.style.top = `${y}px`
     }
 
     receive(data) {
@@ -60,11 +67,19 @@ class Predictor {
         this.currentCompletions = data.result
         if (data.result.length < 1) return this.completion.close()
         this.sort(input)
-        const shouldDisplayCompletion = this.completion.setCompletions(this.currentCompletions)
+//        const shouldDisplayCompletion = this.completion.setCompletions(this.currentCompletions)
+        const shouldDisplayCompletion = true
+        this.completion.set({
+            rows: this.currentCompletions.filter(this.completion.shouldDisplayCompletionRow, this.completion)
+        })
         if (shouldDisplayCompletion) {
-            this.completion.open()
+            this.completion.set({
+                open: true
+            })
             this.repositionCompletionWindow()
-        } else this.completion.close()
+        } else this.completion.set({
+            open: false
+        })
     }
 
     sort(input) {
