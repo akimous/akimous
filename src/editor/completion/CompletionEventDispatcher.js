@@ -3,8 +3,7 @@ class CompletionEventDispatcher {
     static handleNormalModeEvent(event) {
 //        const editor = g.activeEditor.editor
         const completion = g.activeEditor.completion
-
-        if (!completion.isOpen) return true
+        if (!completion.get('open')) return true
         switch (event.key) {
             case 'ArrowDown':
                 completion.down()
@@ -52,7 +51,7 @@ class CompletionEventDispatcher {
 //        const editor = g.activeEditor.editor
         const completion = g.activeEditor.completion
 
-        if (!completion.isOpen) return false
+        if (!completion.get('open')) return false
         switch (command) {
             case 'down':
                 completion.down()

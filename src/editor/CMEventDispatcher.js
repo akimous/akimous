@@ -155,8 +155,7 @@ class CMEventDispatcher {
                                 } else if (predictor.currentCompletions) {
                                     const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch) + c.text[0]
                                     predictor.sort(input)
-                                    const shouldDisplayCompletion = completion.setCompletions(predictor.currentCompletions)
-                                    if (!shouldDisplayCompletion) completion.close()
+                                    completion.setCompletions(predictor.currentCompletions)
                                 }
                             } else {
                                 shouldSyncAfterChange = true

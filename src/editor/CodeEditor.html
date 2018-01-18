@@ -1,4 +1,4 @@
-<div ref:codeEditor class="code-editor" style="display: {{active ? 'block' : 'none'}}"/>
+<div ref:codeEditor class="code-editor" style="display: {{active ? 'block' : 'none'}}" />
 <Completion ref:completion></Completion>
 
 
@@ -126,16 +126,16 @@
             initializeCM.then(() => setTimeout(() => {
                 this.completion = this.refs.completion
                 this.cm.refresh() // prevent CM occasionally shifts to the right
-                
+
                 this.predictor = new Predictor(this)
                 // only enable predictor when the document is a Python file
                 //                            if (this.mode.mode !== 'python') 
                 //                                this.predictor.enabled = false
                 this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
                 this.cmEventDispatcher = new CMEventDispatcher(this)
-                
+
                 //                            this.completionEventDispatcher = new CompletionEventDispatcher(this)
-                //                            this.completion.bindReferences(this)
+                this.completion.bindReferences(this)
                 this.ws.addHandler('saveFile-ok', data => {
                     this.clean = true
                     if (this.shouldClose) {
@@ -167,6 +167,11 @@
                     filePath: this.filePath,
                     content: this.cm.getValue()
                 })
+            },
+            insertText(text) {
+                g.activeEditor && g.activeEditor.cm.hasFocus()
+                if (g.activeEditor != this || !this.cm.hasFocus()) return
+                this.cm.doc.replaceRange(text, this.cm.doc.getCursor('from'), this.cm.doc.getCursor('to'), '+input')
             }
         }
     }

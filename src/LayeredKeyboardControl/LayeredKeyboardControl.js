@@ -3,11 +3,6 @@ import Keymap from './Keymap'
 import CompletionEventDispatcher from '../editor/completion/CompletionEventDispatcher.js'
 
 class LayeredKeyboardControl {
-    sendText(text) {
-        if (g.activeEditor && g.activeEditor.cm.hasFocus()) {
-            g.activeEditor.cm.doc.insertText(text)
-        }
-    }
     sendEditorCommand(command) {
         this.commandSent = true
         if (g.activeEditor && g.activeEditor.cm.hasFocus()) {
@@ -33,7 +28,6 @@ class LayeredKeyboardControl {
         }
         return false
     }
-
     stopPropagation(event) {
         event.preventDefault()
         event.stopPropagation()
@@ -70,7 +64,7 @@ class LayeredKeyboardControl {
             } else if (e.key === ' ') {
                 this.spacePressed = false
                 if (!this.commandSent) {
-                    CompletionEventDispatcher.handleCommand('commit') || this.sendText(' ')
+                    CompletionEventDispatcher.handleCommand('commit') || g.activeEditor.insertText(' ')
                 }
                 return this.stopPropagation(e)
             } else if (this.spacePressed && !this.textSent && !this.commandSent &&
@@ -78,7 +72,7 @@ class LayeredKeyboardControl {
                 this.sendCommand(e)
                 return this.stopPropagation(e)
             } else if (!this.commandSent && !this.textSent) {
-                this.sendText(e.key)
+                g.activeEditor.insertText(e.key)
                 this.textSent = true
             }
         }, {

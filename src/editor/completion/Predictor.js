@@ -4,7 +4,7 @@ class Predictor {
     static get debug() {
         return false
     }
-    
+
     constructor(editor) {
         this.editor = editor
         this.completion = editor.completion
@@ -40,46 +40,14 @@ class Predictor {
         console.warn('syncing')
     }
 
-    repositionCompletionWindow() {
-        const editorElement = this.editor.refs.codeEditor
-        const completionElement = this.completion.refs.completion
-        
-        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-        const coords = this.editor.cm.charCoords(this.firstTriggeredCharPos, 'window')
-        const charHeight = coords.bottom - coords.top
-        
-        const editorArea = editorElement.getBoundingClientRect()
-        const completionArea = completionElement.getBoundingClientRect()
-        const completionHeight = completionArea.bottom - completionArea.top
-        
-        let x = coords.left - editorArea.left - 3 * rem
-        let y = coords.bottom - editorArea.top + 1.3 * charHeight
-        if (y + completionHeight > editorArea.bottom) {
-            y = coords.top - completionHeight - 1.3 * charHeight
-        }
-        completionElement.style.left = `${x}px`
-        completionElement.style.top = `${y}px`
-    }
-
     receive(data) {
         const input = this.lineContent[this.firstTriggeredCharPos.ch]
         if (Predictor.debug) console.log('Predictor.recieve', data)
         this.currentCompletions = data.result
         if (data.result.length < 1) return this.completion.close()
         this.sort(input)
-//        const shouldDisplayCompletion = this.completion.setCompletions(this.currentCompletions)
-        const shouldDisplayCompletion = true
-        this.completion.set({
-            rows: this.currentCompletions.filter(this.completion.shouldDisplayCompletionRow, this.completion)
-        })
-        if (shouldDisplayCompletion) {
-            this.completion.set({
-                open: true
-            })
-            this.repositionCompletionWindow()
-        } else this.completion.set({
-            open: false
-        })
+        this.completion.setCompletions(this.currentCompletions)
+        this.completion.repositionCompletionWindow()
     }
 
     sort(input) {
