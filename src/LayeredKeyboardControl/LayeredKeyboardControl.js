@@ -11,17 +11,17 @@ class LayeredKeyboardControl {
         }
     }
     sendCommand(e) {
-        const key = e.key
+        const code = e.code
         this.commandSent = true
-        const completionCommand = Keymap.completionCommandKeymap[key]
+        const completionCommand = Keymap.completionCommandKeymap[code]
         if (!g.activeEditor || !g.activeEditor.cm.hasFocus()) return false
-        if (completionCommand && g.activeEditor.completion.isOpen) {
+        if (completionCommand && g.activeEditor.completion.get('open')) {
             CompletionEventDispatcher.handleCommand(completionCommand)
         } else {
             const extending = e.shiftKey
             if (extending) this.sendEditorCommand('setExtending')
             else this.sendEditorCommand('unsetExtending')
-            const command = Keymap.editorCommandKeymap[key.toLowerCase()]
+            const command = Keymap.editorCommandKeymap[code]
             this.sendEditorCommand(command)
 
             if (extending) this.sendEditorCommand('unsetExtending')

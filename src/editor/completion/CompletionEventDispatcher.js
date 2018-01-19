@@ -1,24 +1,26 @@
 import g from '../../lib/Globals'
 class CompletionEventDispatcher {
     static handleNormalModeEvent(event) {
-//        const editor = g.activeEditor.editor
         const completion = g.activeEditor.completion
         if (!completion.get('open')) return true
         switch (event.key) {
             case 'ArrowDown':
-                completion.down()
-                console.log('handled')
+                completion.move(1)
                 break
             case 'ArrowUp':
-                completion.up()
+                completion.move(-1)
                 break
 
             case 'Escape':
-                completion.close()
+                completion.set({
+                    open: false
+                })
                 break
             case 'ArrowLeft':
             case 'ArrowRight':
-                completion.close()
+                completion.set({
+                    open: false
+                })
                 return true
 
             case ' ':
@@ -39,7 +41,9 @@ class CompletionEventDispatcher {
                 if (/[+\-\*/|&^~%@><!]/.test(event.key))
                     completion.commit()
                 else if (/[=\[\](){}]/.test(event.key))
-                    completion.close()
+                    completion.set({
+                        open: false
+                    })
                 return true
         }
         event.preventDefault()
@@ -48,27 +52,34 @@ class CompletionEventDispatcher {
     }
 
     static handleCommand(command) {
-//        const editor = g.activeEditor.editor
         const completion = g.activeEditor.completion
 
         if (!completion.get('open')) return false
         switch (command) {
             case 'down':
-                completion.down()
+                completion.move(1)
                 return true
             case 'up':
-                completion.up()
+                completion.move(-1)
                 return true
             case 'down5X':
-                for (let i = 0; i < 5; i++)
-                    completion.down()
+                completion.move(5)
                 return true
             case 'up5X':
-                for (let i = 0; i < 5; i++)
-                    completion.up()
+                completion.move(-5)
                 return true
             case 'commit':
                 completion.commit()
+                return true
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+                completion.commit(+command)
                 return true
         }
         console.error('unhandled completion command')

@@ -32,12 +32,14 @@
         components: {},
         oncreate() {
             const completion = this.refs.completion
-            this.selectedCompletion = undefined
             this.onClickHandler = (event) => {
-                this.selectedCompletion = event.path[0]
+                this.set({
+                    selectedCompletionRow: event.path[0]
+                })
                 this.commit()
             }
             this.completionRows = []
+            this.completionRowShortcuts = new Array(9)
 
             // keep row number of visible rows 1 to 7
             let lastFVI = 999
@@ -54,9 +56,11 @@
                 if (lastVisibleIndex > this.completionRows.length)
                     lastVisibleIndex = this.completionRows.length
                 for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+                    const rowNumber = i - firstVisibleIndex + 1
                     this.completionRows[i].set({
-                        rowNumber: i - firstVisibleIndex + 1
+                        rowNumber
                     })
+                    this.completionRowShortcuts[rowNumber] = this.completionRows[i]
                 }
                 lastFVI = firstVisibleIndex
             }
@@ -70,26 +74,35 @@
                     row.destroy()
                 this.completionRows.length = 0
                 if (rows.length === 0) return
-                for (const row of rows) {
+                for (const [i, row] of rows.entries()) {
+                    row.index = i
                     this.completionRows.push(new CompletionRow({
                         target: completion,
                         data: row
                     }))
                 }
                 lastFVI = 999
-                this.completionRows[0].set({
-                    selected: true
+                this.set({
+                    selectedCompletionRow: this.completionRows[0]
                 })
-                this.selectedCompletion = this.completionRows[0]
                 this.completionRows.length && setTimeout(scrollHandler) // must defer, or we cannot get row height
             })
 
+            this.observe('selectedCompletionRow', (newValue, oldValue) => {
+                if (oldValue) oldValue.set({
+                    selected: false
+                })
+                if (newValue) newValue.set({
+                    selected: true
+                })
+            })
         },
         data() {
             return {
                 open: false,
                 passive: false,
-                rows: []
+                rows: [],
+                selectedCompletionRow: undefined
             }
         },
         methods: {
@@ -134,10 +147,10 @@
                 completionElement.style.left = `${x}px`
                 completionElement.style.top = `${y}px`
             },
-            commit() {
+            commit(rowNumber) {
                 if (!this.get('open')) return console.error('closed')
 
-                const completion = this.selectedCompletion
+                const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get('selectedCompletionRow')
                 if (!completion) return console.error('no selected completion')
                 
                 const type = completion.get('type')
@@ -157,6 +170,20 @@
                     '+completion'
                 )
                 this.cm.focus()
+            },
+            move(nRows) {
+                const currentIndex = this.get('selectedCompletionRow').get('index')
+                const length = this.completionRows.length
+                
+                let targetIndex = currentIndex + nRows
+                if (targetIndex >= length) targetIndex = length - 1
+                else if (targetIndex < 0) targetIndex = 0
+                
+                const targetRow = this.completionRows[targetIndex]
+                this.set({
+                    selectedCompletionRow: targetRow
+                })
+                targetRow.refs.completionRow.scrollIntoViewIfNeeded(false)
             }
         }
     }

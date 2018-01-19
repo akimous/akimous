@@ -1,37 +1,46 @@
 const editorCommandKeymap = {
-    'u': 'goLineUp',
-    'e': 'goLineDown',
-    'n': 'goGroupLeft',
-    'i': 'goGroupRight',
+    'KeyI': 'goLineUp',
+    'KeyK': 'goLineDown',
+    'KeyJ': 'goGroupLeft',
+    'KeyL': 'goGroupRight',
     
-    'h': 'goLineLeftSmart',
-    'o': 'goLineRight',
-    'l': 'goLineUp5X',
-    'y': 'goLineDown5X',
-    'j': 'goDocStart',
-    ';': 'goDocEnd',
+    'KeyH': 'goLineLeftSmart',
+    'Semicolon': 'goLineRight',
+    'KeyU': 'goLineUp5X',
+    'KeyO': 'goLineDown5X',
+    'KeyY': 'goDocStart',
+    'KeyP': 'goDocEnd',
     
-    'f': 'scrollUp',
-    's': 'scrollDown',
-    'c': 'focusAtCenter',
+    'KeyE': 'scrollUp',
+    'KeyD': 'scrollDown',
+    'KeyC': 'focusAtCenter',
     
-    'r': 'moveLineDown',
-    'w': 'moveLineUp',
+    'KeyS': 'moveLineDown',
+    'KeyW': 'moveLineUp',
     
-    'p': 'selectLine',
-    'd': 'selectScope',
-    't': 'selectSmart',
+    'KeyR': 'selectLine',
+    'KeyG': 'selectScope',
+    'KeyF': 'selectSmart',
     
-    'backspace': 'delGroupBefore',
-    'delete': 'delGroupAfter',
+    'Backspace': 'delGroupBefore',
+    'Delete': 'delGroupAfter',
     
 }
 
 const completionCommandKeymap = {
-    'u': 'up',
-    'e': 'down',
-    'l': 'up5X',
-    'y': 'down5X',
+    'KeyI': 'up',
+    'KeyK': 'down',
+    'KeyU': 'up5X',
+    'KeyO': 'down5X',
+    
+    'Digit1': '1',
+    'Digit2': '2',
+    'Digit3': '3',
+    'Digit4': '4',
+    'Digit5': '5',
+    'Digit6': '6',
+    'Digit7': '7',
+    'Digit8': '8',
 }
 
 export default {
