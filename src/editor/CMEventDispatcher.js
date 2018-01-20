@@ -170,9 +170,11 @@ class CMEventDispatcher {
                             } else {
                                 formatter.deleteHandler()
                             }
-                            if (!completion.isOpen) break
+                            if (!completion.get('open')) break
                             if (predictor.firstTriggeredCharPos.ch === cursor.ch) {
-                                completion.close()
+                                completion.set({
+                                    open: false
+                                })
                                 break
                             }
                             const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch)
