@@ -1,4 +1,4 @@
-build/**
+dist/**
 **/.DS_Store
 cert.pem
 key.pem

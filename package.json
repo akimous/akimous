@@ -32,8 +32,8 @@
         "xterm": "^2.9.2"
     },
     "scripts": {
-        "build": "rm -r build/* && cp -r src/index.html resources/* build/ && rollup -c && cd build/ && brotli bundle.*",
-        "dev": "browser-sync start --server 'build' --files 'build' & rollup -c -w",
+        "build": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c && cd dist/ && brotli bundle.*",
+        "dev": "browser-sync start --server 'dist' --files 'dist' & rollup -c -w",
         "start": "simplehttp2server --config firebase.json"
     }
 }

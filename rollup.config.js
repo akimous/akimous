@@ -11,14 +11,14 @@ export default {
         sourcemap: !production, // enable sourcemap when in production
         format: 'iife',
         name: 'app',
-        file: 'build/bundle.js'
+        file: 'dist/bundle.js'
     },
 
     plugins: [
         svelte({
             dev: !production, // enable run-time checks when not in production
             css: css => {
-                css.write('build/bundle.css', !production) // enable sourcemap when in production
+                css.write('dist/bundle.css', !production) // enable sourcemap when in production
             },
             cascade: true
         }),
