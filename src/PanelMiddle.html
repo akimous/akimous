@@ -8,8 +8,8 @@
         position: fixed;
         top: var(--toolbar-height);
         height: calc(100% - var(--toolbar-height));
-        left: calc(var(--penal-left-width) + 1px);
-        width: calc(100% - var(--penal-left-width) - var(--penal-right-width) - 1px);
+        left: calc(var(--panel-left-width) + 1px);
+        width: calc(100% - var(--panel-left-width) - var(--panel-right-width) - 1px);
     }
 
 </style>
@@ -31,7 +31,7 @@
             this.pathToEditor = {} // /path/to/a/file.py -> <CodeEditor>
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
             this.activationHistoryIndex = 0
-            this.openFile('/Users/ray/Code/LegatoIDE/test/test.py', 'test.py')
+            this.openFile('./demo/demo.py', 'demo.py')
         },
         methods: {
             openFile: function(filePath, fileName) {

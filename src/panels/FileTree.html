@@ -84,8 +84,8 @@
             this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
             let initialized = false
             this.ws.addHandler('updateFileTree', data => {
-                console.log('recieve updateFileTree')
-                const root_path = data.root
+                console.log('recieve updateFileTree', data)
+                const root_path = data.root + '/'
                 let startTime = performance.now()
 
                 // disabling redraw tenporarily to improve performance
@@ -95,7 +95,8 @@
                 }
 
                 // delete and populate children
-                const target_node = initialized ? root_path : tree
+                const target_node = initialized ? ('./' + root_path) : tree
+                console.log('target_node', target_node)
                 jstree.delete_node(jstree.get_node(target_node).children)
                 for (const dir of data.dirs) {
                     if (dir.startsWith('.')) continue
@@ -127,7 +128,7 @@
             this.ws.connect(() => {
                 this.ws.send({
                     cmd: 'updateFileTree',
-                    root: '/Users/ray/Code/LegatoIDE/',
+                    root: '.',
                 })
             })
 

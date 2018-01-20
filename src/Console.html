@@ -1,0 +1,48 @@
+<div ref:terminal id="terminal"></div>
+
+
+<style>
+    #terminal {
+        height: 100%;
+        width: 100%;
+        padding: 0.4rem;
+    }
+
+    .terminal,
+    .terminal .xterm-viewport{
+        background: var(--panel-color);
+        height: 100%;
+        width: 100%;
+        color: var(--basic-monospace-font-color);
+        font-family: var(--basic-monospace-font-family);
+        font-size: var(--basic-monospace-font-size);
+        line-height: var(--basic-monospace-line-height);
+    }
+
+</style>
+
+
+<script>
+    import g from './lib/Globals'
+    import Terminal from 'xterm'
+    import fit from 'xterm/lib/addons/fit/fit'
+    import attach from 'xterm/lib/addons/attach/attach'
+    
+    
+    export default {
+        components: {},
+        oncreate() {
+            g.console = this
+            this.terminal = new Terminal({
+                tabStopWidth: 4
+            })
+            this.terminal.open(this.refs.terminal, focus = false)
+            this.terminal.write('blabla')
+        },
+        data() {
+            return {}
+        },
+        methods: {}
+    }
+
+</script>

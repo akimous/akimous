@@ -3,21 +3,23 @@
 <div ref:splitBarR id="split-bar-r" class="split-bar"></div>
 <PanelLeft></PanelLeft>
 <PanelMiddle ref:panelMiddle></PanelMiddle>
-<penal-right></penal-right>
+<PanelRight></PanelRight>
 <Prompt ref:prompt></Prompt>
 
 <style>
     @import 'theme.css';
     @import 'style.css';
 
-    penal-right {
+/*
+    panel-right {
         top: var(--toolbar-height);
         height: calc(100% - var(--toolbar-height));
         position: fixed;
-        left: calc(100% - var(--penal-right-width));
-        width: var(--penal-right-width);
+        left: calc(100% - var(--panel-right-width));
+        width: var(--panel-right-width);
         z-index: 9;
     }
+*/
 
     .split-bar {
         position: absolute;
@@ -29,11 +31,11 @@
     }
 
     #split-bar-l {
-        left: calc(var(--penal-left-width) - .4rem);
+        left: calc(var(--panel-left-width) - .4rem);
     }
 
     #split-bar-r {
-        left: calc(100% - var(--penal-right-width) - .4rem);
+        left: calc(100% - var(--panel-right-width) - .4rem);
     }
 
     .split-bar:hover {
@@ -51,6 +53,7 @@
     import Toolbar from './Toolbar.html'
     import PanelLeft from './PanelLeft.html'
     import PanelMiddle from './PanelMiddle.html'
+    import PanelRight from './PanelRight.html'
     import Prompt from './panels/Prompt.html'
     import Keymap from './lib/Keymap'
     import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl.js'
@@ -98,6 +101,7 @@
             Toolbar,
             PanelLeft,
             PanelMiddle,
+            PanelRight,
             Prompt,
         },
 
@@ -107,7 +111,7 @@
                     e.preventDefault()
                     document.onmousemove = e => {
                         const width = e.pageX + 'px'
-                        document.documentElement.style.setProperty('--penal-left-width', width)
+                        document.documentElement.style.setProperty('--panel-left-width', width)
                     }
                 }
                 this.refs.splitBarR.onmousedown = e => {
@@ -115,8 +119,11 @@
                     document.onmousemove = e => {
                         const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
                         const width = (viewportWidth - e.pageX) + 'px'
-                        document.documentElement.style.setProperty('--penal-right-width', width)
+                        document.documentElement.style.setProperty('--panel-right-width', width)
                     }
+                }
+                this.refs.splitBarR.onmouseup = e => {
+                    g.console.terminal.fit()
                 }
                 document.onmouseup = e => {
                     document.onmousemove = undefined
