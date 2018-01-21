@@ -1,8 +1,10 @@
-<div id="file-tree-jstree"></div>
+<div ref:fileTree class="file-tree">
+    <div class="container" ref:children></div>
+</div>
 
 
-<style>    
-    #file-tree-jstree {
+<style>
+    .file-tree {
         width: 100%;
         height: calc(100% - .8rem);
         padding: .4rem 0;
@@ -10,44 +12,13 @@
         font-family: var(--basic-ui-font-family);
         font-size: .95rem;
         -webkit-font-smoothing: subpixel-antialiased;
+        user-select: none;
+        -webkit-user-select: none;
+        overflow-x: scroll;
     }
-
-    .jstree-default .jstree-wholerow,
-    .jstree-default .jstree-icon:empty,
-    .jstree-default .jstree-anchor {
-        height: var(--basic-ui-line-height);
-        line-height: var(--basic-ui-line-height);
-    }
-
-    a,
-    .jstree-ocl,
-    .jstree-wholerow-ul .jstree-leaf>.jstree-ocl,
-    .jstree-wholerow-ul .jstree-wholerow {
-        cursor: default;
-    }
-
-    .jstree-default .jstree-wholerow-hovered {
-        background: transparent;
-    }
-
-    .jstree-default .jstree-wholerow-clicked {
-        background: var(--ui-highlight-color);
-    }
-
-    .jstree-default>.jstree-wholerow-ul .jstree-hovered,
-    .jstree-default>.jstree-wholerow-ul .jstree-clicked {
-        color: white;
-    }
-
-    .jstree-default .jstree-anchor,
-    .jstree-default .jstree-animated,
-    .jstree-default .jstree-wholerow {
-        transition: none;
-    }
-
-    .jstree-ocl {
-        background: none !important;
-        display: none !important;
+    .container {
+        min-width: 100%;
+        display: inline-block;
     }
 
 </style>
@@ -56,117 +27,57 @@
 <script>
     import g from '../lib/Globals'
     import WSClient from '../lib/WSClient'
-    import {
-        fileTypeIconMappingDefinition,
-        mapToFileType
-    } from '../lib/FileTypes'
-    import jquery from 'jquery'
-    window.$ = jquery
-    import jstree from 'jstree'
+    import FileTreeNode from './FileTreeNode.html'
+
 
     export default {
+        components: {
+        },
         oncreate() {
-            $.jstree.defaults.core.themes.dots = false
-            $.jstree.defaults.core.themes.url = false
-            $.jstree.defaults.core.animation = false
-            $.jstree.defaults.core.dblclick_toggle = false // use tree.on('activate_node.jstree' to handle node opening
+            this.children = []
+            this.openedFolders = {}
 
-            const tree = $('#file-tree-jstree').jstree({
-                core: {
-                    check_callback: true,
-                },
-                plugins: ['dnd', 'sort', 'types', 'wholerow', 'state'],
-                types: fileTypeIconMappingDefinition
-            })
-            const jstree = tree.jstree(true)
-
+            const addNode = (parent, file, isFolder) => {
+                parent.children.push(new FileTreeNode({
+                    target: parent.refs.children,
+                    data: {
+                        displayName: file.name,
+                        path: file.path,
+                        isFolder,
+                        fileTree: this,
+                        level: parent.get('level') + 1
+                    }
+                }))
+            }
 
             this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
-            let initialized = false
-            this.ws.addHandler('updateFileTree', data => {
-                console.log('recieve updateFileTree', data)
-                const root_path = data.root + '/'
-                let startTime = performance.now()
-
-                // disabling redraw tenporarily to improve performance
-                const old_redraw = jstree.redraw_node
-                if (initialized) {
-                    jstree.redraw_node = () => {}
-                }
-
-                // delete and populate children
-                const target_node = initialized ? ('./' + root_path) : tree
-                console.log('target_node', target_node)
-                jstree.delete_node(jstree.get_node(target_node).children)
+            this.ws.addHandler('openFolder', data => {
+                console.log('data', data)
+                let target = this.openedFolders[data.path]
+                if (!target) target = this
                 for (const dir of data.dirs) {
-                    if (dir.startsWith('.')) continue
-                    jstree.create_node(target_node, {
-                        id: root_path + dir + data.sep,
-                        text: dir,
-                        type: 'folder',
-                        children: [{
-                            text: 'loading...',
-                            type: 'loading'
-                        }]
-                    })
+                    addNode(target, dir, true)
                 }
                 for (const file of data.files) {
-                    if (file.startsWith('.')) continue
-                    jstree.create_node(target_node, {
-                        id: root_path + file,
-                        text: file,
-                        type: mapToFileType(file),
-                    })
+                    addNode(target, file, false)
                 }
 
-                // resume redrawing
-                jstree.redraw_node = old_redraw
-                jstree.redraw(true)
-                initialized = true
-                console.info('updated tree in ', performance.now() - startTime)
             })
             this.ws.connect(() => {
                 this.ws.send({
-                    cmd: 'updateFileTree',
-                    root: '.',
+                    cmd: 'openFolder',
+                    path: this.get('path'),
                 })
             })
+        },
+        data() {
+            return {
+                path: '.',
+                level: -1,
 
-            tree.on('before_open.jstree', (e, data) => {
-                this.ws.send({
-                    cmd: 'updateFileTree',
-                    root: data.node.id
-                })
-                data.node.type = 'folder-open'
-                data.node.icon = 'fa fa-folder-open'
-            })
-
-            tree.on('close_node.jstree', (e, data) => {
-                data.node.type = 'folder'
-                data.node.icon = 'fa fa-folder'
-                jstree.redraw_node(data.node.id)
-            })
-
-            // fix javascript double click sometimes not firing
-            tree.on('activate_node.jstree', (e, data) => {
-                const node = data.node
-                const current_time = new Date().getTime()
-                if (node.last_clicked_time == undefined) {
-                    node.last_clicked_time = current_time
-                } else if (current_time - node.last_clicked_time < 500) {
-                    if (jstree.is_open(node.id)) {
-                        jstree.close_node(node.id)
-                    } else if (node.type == 'folder') {
-                        jstree.open_node(node.id)
-                    } else {
-                        g.panelMiddle.openFile(node.id, node.text)
-                    }
-                    node.last_clicked_time = undefined
-                } else {
-                    node.last_clicked_time = current_time
-                }
-            })
-        }
+            }
+        },
+        methods: {}
     }
 
 </script>

@@ -14,18 +14,22 @@
         height: var(--basic-ui-line-height);
         line-height: var(--basic-ui-line-height);
         cursor: default;
-        padding-left: 0.3rem;
         white-space: nowrap;
+        min-width: 100%;
     }
 
     .file-tree-node.selected {
         background: var(--ui-highlight-color);
         color: white;
     }
+    
+    .file-tree-node:hover {
+        color: white;
+    }
 
     .icon {
         width: 1rem;
-        height: 1.2rem;
+        min-height: 1rem;
         display: inline-block;
         vertical-align: text-bottom;
         background-size: 100% 100% !important;
@@ -114,7 +118,6 @@
             onClick() {
                 const selected = this.get('selected')
                 if (!selected) {
-                    console.log('fired')
                     this.get('fileTree').fire('cancelAllSelection')
                 }
                 this.set({
@@ -134,6 +137,8 @@
                     } else {
                         this.removeChildren()
                     }
+                } else {
+                    g.panelMiddle.openFile(this.get('path'), this.get('displayName'))
                 }
 
             },
@@ -142,11 +147,6 @@
                     child.destroy()
                 this.children.length = 0
             },
-//            cancelAllSelection() {
-//                this.set({
-//                    selected: false
-//                })
-//            }
         }
     }
 

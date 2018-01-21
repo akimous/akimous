@@ -27,15 +27,15 @@
     },
     "dependencies": {
         "codemirror": "^5.33.0",
-        "jquery": "^3.2.1",
         "jstree": "^3.3.4",
         "keyboardjs": "^2.4.1",
         "sortablejs": "^1.7.0",
         "xterm": "^2.9.2"
     },
     "scripts": {
-        "build": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c && cd dist/ && brotli bundle.*",
         "dev": "browser-sync start --server 'dist' --files 'dist' & rollup -c -w",
+        "build": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c",
+        "release": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c && cd dist/ && brotli bundle.*",
         "start": "simplehttp2server --config firebase.json"
     }
 }
