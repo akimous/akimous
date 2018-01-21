@@ -1,9 +1,11 @@
-<div on:click="onClick()" class="file-tree-node {{selected?'selected':''}}">
+<div on:click="onClick()" on:dblclick="onDoubleClick()" class="file-tree-node {{selected?'selected':''}}">
     <span class="icon {{icon}}"></span>
-    <span class="text"> 
-        {{text}}
+    <span class="display-name"> 
+        {{displayName}}
     </span>
 </div>
+{{#each children as child}}
+<:Self displayName="{{child.displayName}}" /> {{/each}}
 
 
 <style>
@@ -11,12 +13,24 @@
         height: var(--basic-ui-line-height);
         line-height: var(--basic-ui-line-height);
         cursor: default;
-        user-select: none;
+        padding-left: 0.3rem;
     }
-    
+
     .file-tree-node.selected {
         background: var(--ui-highlight-color);
         color: white;
+    }
+
+    .icon {
+        width: 1rem;
+        height: 1.2rem;
+        display: inline-block;
+        vertical-align: text-bottom;
+        background-size: 100% 100% !important;
+    }
+
+    .display-name {
+        padding-left: 0.3rem;
     }
 
 </style>
@@ -24,17 +38,58 @@
 
 <script>
     import g from '../lib/Globals'
-    
+    import fileTypeToIcon from '../lib/FileTypeToIcon'
+
     export default {
         components: {},
         oncreate() {
-//            const fileType = 
+            // set icon
+            const displayName = this.get('displayName')
+            let icon
+            if (this.get('isFolder')) {
+                icon = fileTypeToIcon['folder']
+            } else {
+                try {
+                    const fileType = displayName.substring(displayName.lastIndexOf('.') + 1)
+                    icon = fileTypeToIcon[fileType]
+                } catch (e) {
+                    icon = fileTypeToIcon['default']
+                }
+            }
+            this.set({
+                icon
+            })
+
+            // register folder
+            if (this.get('isFolder')) {
+                this.observe('open', open => {
+                    if (open) {
+                        this.get('fileTree').openedFolders[this.get('path')] = this
+                        this.set({
+                            icon: fileTypeToIcon['folder-open']
+                        })
+                    } else {
+                        delete this.get('fileTree').openedFolders[this.get('path')]
+                        this.set({
+                            icon: fileTypeToIcon['folder']
+                        })
+                    }
+                    console.log('openedFolders', this.get('fileTree').openedFolders)
+                }, {
+                    init: false
+                })
+            }
         },
         data() {
             return {
-                text: 'test.py',
-                icon: 'fa fa-folder',
-                selected: true
+                displayName: '',
+                path: '',
+                isFolder: true,
+                open: false,
+                icon: '',
+                selected: false,
+                children: [], // must be the same name as FileTree.children
+                fileTree: undefined
             }
         },
         methods: {
@@ -42,6 +97,21 @@
                 this.set({
                     selected: !this.get('selected')
                 })
+            },
+            onDoubleClick() {
+                if (this.get('isFolder')) {
+                    this.set({
+                        open: !this.get('open')
+                    })
+                    if (this.get('open')) {
+                        console.log('openedFolders', this.get('fileTree').openedFolders, this.get('path'), this.get('fileTree').openedFolders[this.get('path')])
+                        this.get('fileTree').ws.send({
+                            cmd: 'openFolder',
+                            path: this.get('path'),
+                        })
+                    }
+                }
+
             }
         }
     }
