@@ -1,13 +1,10 @@
 <div ref:fileTree class="file-tree">
-    <!--    <FileTreeNode></FileTreeNode>-->
-    {{#each children as child}}
-    <FileTreeNode displayName="{{child.displayName}}" path="{{child.path}}" isFolder="{{child.isFolder}}" fileTree="{{child.fileTree}}" /> {{/each}}
+    <div ref:children></div>
 </div>
 
 
 <style>
     .file-tree {
-        /*        background: darkblue;*/
         width: 100%;
         height: calc(100% - .8rem);
         padding: .4rem 0;
@@ -17,6 +14,7 @@
         -webkit-font-smoothing: subpixel-antialiased;
         user-select: none;
         -webkit-user-select: none;
+        overflow-x: scroll;
     }
 
 </style>
@@ -33,61 +31,47 @@
             FileTreeNode
         },
         oncreate() {
+            this.children = []
             this.openedFolders = {}
-            this.openedFolders[this.get('root')] = this
+
+            const addNode = (parent, file, isFolder) => {
+                parent.children.push(new FileTreeNode({
+                    target: parent.refs.children,
+                    data: {
+                        displayName: file.name,
+                        path: file.path,
+                        isFolder,
+                        fileTree: this,
+                        level: parent.get('level') + 1
+                    }
+                }))
+            }
+
             this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
             this.ws.addHandler('openFolder', data => {
-                console.log(data)
-                const target = this.openedFolders[data.path]
-                const children = target.get('children')
+                console.log('data', data)
+                let target = this.openedFolders[data.path]
+                if (!target) target = this
                 for (const dir of data.dirs) {
-                    children.push({
-                        displayName: dir,
-                        path: `${data.path}/${dir}`,
-                        isFolder: true,
-                        fileTree: this
-                    })
-                    //                    new FileTreeNode({
-                    //                        target: this.refs.fileTree,
-                    //                        data: {
-                    //                            displayName: dir,
-                    //                            path: `${data.path}/${dir}`,
-                    //                            isFolder: true,
-                    //                            fileTree: this
-                    //                        }
-                    //                    })
+                    addNode(target, dir, true)
                 }
                 for (const file of data.files) {
-                    children.push({
-                        displayName: file,
-                        path: `${data.path}/${file}`,
-                        isFolder: false,
-                        fileTree: this
-                    })
+                    addNode(target, file, false)
                 }
-                target.set({
-                    children
-                })
-                console.log('children', children)
+
             })
             this.ws.connect(() => {
                 this.ws.send({
                     cmd: 'openFolder',
-                    path: this.get('root'),
+                    path: this.get('path'),
                 })
-            })
-            new FileTreeNode({
-                target: this.refs.fileTree,
-                data: {
-                    fileName: 'level1.py',
-                    fileTree: this
-                }
             })
         },
         data() {
             return {
-                root: '.',
-                children: [] // must be the same name as FileTreeNode.children
+                path: '.',
+                level: -1,
+
             }
         },
         methods: {}

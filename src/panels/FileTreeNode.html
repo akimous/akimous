@@ -1,11 +1,12 @@
-<div on:click="onClick()" on:dblclick="onDoubleClick()" class="file-tree-node {{selected?'selected':''}}">
+<div on:click="onClick()" on:dblclick="onDoubleClick()" 
+   class="file-tree-node {{selected?'selected':''}}"
+   style="padding-left: {{0.3 + level}}rem;">
     <span class="icon {{icon}}"></span>
     <span class="display-name"> 
         {{displayName}}
     </span>
 </div>
-{{#each children as child}}
-<:Self displayName="{{child.displayName}}" /> {{/each}}
+<div ref:children></div>
 
 
 <style>
@@ -14,6 +15,7 @@
         line-height: var(--basic-ui-line-height);
         cursor: default;
         padding-left: 0.3rem;
+        white-space: nowrap;
     }
 
     .file-tree-node.selected {
@@ -38,11 +40,17 @@
 
 <script>
     import g from '../lib/Globals'
-    import fileTypeToIcon from '../lib/FileTypeToIcon'
+    import {
+        fileTypeToIcon,
+        defaultIcon,
+        folderIcon,
+        folderOpenIcon
+    } from '../lib/FileTypeToIcon'
 
     export default {
         components: {},
         oncreate() {
+            this.children = []
             // set icon
             const displayName = this.get('displayName')
             let icon
@@ -52,8 +60,9 @@
                 try {
                     const fileType = displayName.substring(displayName.lastIndexOf('.') + 1)
                     icon = fileTypeToIcon[fileType]
+                    if (!icon) icon = defaultIcon
                 } catch (e) {
-                    icon = fileTypeToIcon['default']
+                    icon = defaultIcon
                 }
             }
             this.set({
@@ -69,16 +78,25 @@
                             icon: fileTypeToIcon['folder-open']
                         })
                     } else {
+                        console.log('closing')
                         delete this.get('fileTree').openedFolders[this.get('path')]
                         this.set({
                             icon: fileTypeToIcon['folder']
                         })
                     }
-                    console.log('openedFolders', this.get('fileTree').openedFolders)
                 }, {
                     init: false
                 })
             }
+            
+            this.get('fileTree').on('cancelAllSelection', () => {
+                this.set({
+                    selected: false
+                })
+            })
+        },
+        ondestroy() {
+            this.removeChildren()
         },
         data() {
             return {
@@ -88,14 +106,19 @@
                 open: false,
                 icon: '',
                 selected: false,
-                children: [], // must be the same name as FileTree.children
+                level: 0,
                 fileTree: undefined
             }
         },
         methods: {
             onClick() {
+                const selected = this.get('selected')
+                if (!selected) {
+                    console.log('fired')
+                    this.get('fileTree').fire('cancelAllSelection')
+                }
                 this.set({
-                    selected: !this.get('selected')
+                    selected: !selected
                 })
             },
             onDoubleClick() {
@@ -104,15 +127,26 @@
                         open: !this.get('open')
                     })
                     if (this.get('open')) {
-                        console.log('openedFolders', this.get('fileTree').openedFolders, this.get('path'), this.get('fileTree').openedFolders[this.get('path')])
                         this.get('fileTree').ws.send({
                             cmd: 'openFolder',
                             path: this.get('path'),
                         })
+                    } else {
+                        this.removeChildren()
                     }
                 }
 
-            }
+            },
+            removeChildren() {
+                for (const child of this.children)
+                    child.destroy()
+                this.children.length = 0
+            },
+//            cancelAllSelection() {
+//                this.set({
+//                    selected: false
+//                })
+//            }
         }
     }
 

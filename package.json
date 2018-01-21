@@ -19,6 +19,7 @@
         "rollup-plugin-commonjs": "^8.2.6",
         "rollup-plugin-node-resolve": "^3.0.0",
         "rollup-plugin-postcss": "^1.2.5",
+        "rollup-plugin-sizes": "^0.4.2",
         "rollup-plugin-svelte": "^4.0.0",
         "simplehttp2server": "^2.0.0",
         "svelte": "^1.50.0",
