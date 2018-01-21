@@ -1,0 +1,49 @@
+<div on:click="onClick()" class="file-tree-node {{selected?'selected':''}}">
+    <span class="icon {{icon}}"></span>
+    <span class="text"> 
+        {{text}}
+    </span>
+</div>
+
+
+<style>
+    .file-tree-node {
+        height: var(--basic-ui-line-height);
+        line-height: var(--basic-ui-line-height);
+        cursor: default;
+        user-select: none;
+    }
+    
+    .file-tree-node.selected {
+        background: var(--ui-highlight-color);
+        color: white;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+    
+    export default {
+        components: {},
+        oncreate() {
+//            const fileType = 
+        },
+        data() {
+            return {
+                text: 'test.py',
+                icon: 'fa fa-folder',
+                selected: true
+            }
+        },
+        methods: {
+            onClick() {
+                this.set({
+                    selected: !this.get('selected')
+                })
+            }
+        }
+    }
+
+</script>
