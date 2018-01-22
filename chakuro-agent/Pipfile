@@ -1,0 +1,22 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+scikit-learn = "==0.19.0"
+numpy = "*"
+pandas = "*"
+jedi = "==0.10.2"
+websockets = "*"
+logzero = "*"
+python-levenshtein = "*"
+tqdm = "*"
+scipy = "*"
+
+
+[dev-packages]
+
