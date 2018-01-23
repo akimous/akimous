@@ -82,7 +82,6 @@
                             icon: fileTypeToIcon['folder-open']
                         })
                     } else {
-                        console.log('closing')
                         delete this.get('fileTree').openedFolders[this.get('path')]
                         this.set({
                             icon: fileTypeToIcon['folder']
@@ -101,6 +100,7 @@
         },
         ondestroy() {
             this.removeChildren()
+            delete this.get('fileTree').openedFolders[this.get('path')]
         },
         data() {
             return {
@@ -143,8 +143,9 @@
 
             },
             removeChildren() {
-                for (const child of this.children)
+                for (const child of this.children) {
                     child.destroy()
+                }
                 this.children.length = 0
             },
         }

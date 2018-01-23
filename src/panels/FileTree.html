@@ -54,7 +54,14 @@
             this.ws.addHandler('openFolder', data => {
                 console.log('data', data)
                 let target = this.openedFolders[data.path]
-                if (!target) target = this
+                if (!target) {
+                    target = this
+                    // clear all children
+                    for (const child of this.children) {
+                        child.destroy()
+                    }
+                    this.children.length = 0
+                }
                 for (const dir of data.dirs) {
                     addNode(target, dir, true)
                 }
