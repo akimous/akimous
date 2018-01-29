@@ -1,0 +1,55 @@
+<div class="context-menu-row {{selected?'selected':''}}" on:mouseover="mouseover()" on:click="click()">
+    {{{text}}}
+</div>
+
+
+<style>
+    .context-menu-row {
+        color: var(--modal-text-color);
+        height: var(--basic-ui-line-height);
+        padding: 0 1rem;
+        line-height: var(--basic-ui-line-height);
+        font-weight: 400;
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: default;
+    }
+    
+    .selected {
+        color: var(--brighter-ui-font-color);
+        background: var(--ui-selected-item);
+    }
+
+</style>
+
+
+<script>
+    import g from './Globals'
+
+    export default {
+        components: {},
+        oncreate() {
+        },
+        data() {
+            return {
+                selected: false,
+                text: '',
+                callback: undefined
+            }
+        },
+        methods: {
+            mouseover() {
+                this.parent.set({
+                    selectedItem: this
+                })
+            },
+            click() {
+                this.get('callback')()
+                this.parent.set({
+                    open: false
+                })
+            }
+        }
+    }
+
+</script>

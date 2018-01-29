@@ -5,6 +5,7 @@
 <PanelMiddle ref:panelMiddle></PanelMiddle>
 <PanelRight></PanelRight>
 <Prompt ref:prompt></Prompt>
+<ContextMenu ref:contextMenu></ContextMenu>
 
 <style>
     @import 'theme.css';
@@ -44,6 +45,7 @@
     import PanelMiddle from './PanelMiddle.html'
     import PanelRight from './PanelRight.html'
     import Prompt from './panels/Prompt.html'
+    import ContextMenu from './lib/ContextMenu.html'
     import Keymap from './lib/Keymap'
     import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl.js'
 
@@ -92,6 +94,7 @@
             PanelMiddle,
             PanelRight,
             Prompt,
+            ContextMenu
         },
 
         oncreate() {

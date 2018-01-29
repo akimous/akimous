@@ -2,6 +2,7 @@ import svelte from 'rollup-plugin-svelte'
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import babel from 'rollup-plugin-babel'
+import strip from 'rollup-plugin-strip'
 import sizes from 'rollup-plugin-sizes'
 //import postcss from 'rollup-plugin-postcss'
 
@@ -34,6 +35,7 @@ export default {
         //     minimize: true
         // }),
         production && babel(),
+        production && strip(),
         sizes()
     ]
 }

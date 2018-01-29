@@ -1,5 +1,11 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:300|Source+Code+Pro');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400|Source+Code+Pro');
 /*https://flatuicolors.com*/
+body {
+    color: var(--basic-ui-font-color);
+    font-family: var(--basic-ui-font-family);
+    font-weight: 300;
+}
+
 :root {
     --main-bg-color: rgb(36, 36, 36);
     --panel-color: rgb(63, 63, 63);
@@ -9,10 +15,17 @@
     --panel-delimiter-hover-color: var(--gray4);
 /*    --ui-highlight-color: rgb(48, 109, 199);*/
     --ui-highlight-color: var(--blue);
+    --ui-selected-item: rgb(35, 106, 210);
 /*    --ui-danger-color: rgb(237, 70, 47);*/
     --ui-danger-color: var(--brighter-red);
 /*    --ui-prompt-color: rgb(59, 138, 116);*/
 
+    --default-radius: .5rem;
+    --small-radius: .3rem;
+    
+    --default-shadow: 0 .1rem 1rem .1rem rgba(0, 0, 0, .7);
+    --small-shadow: 0 0 1rem 0 rgba(0, 0, 0, .3);
+    
     --toolbar-height: 2rem;
     --tab-bar-height: 2rem;
     --panel-left-width: calc(8rem + 7vw);

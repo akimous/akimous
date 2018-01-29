@@ -1,6 +1,4 @@
-<div on:click="onClick()" on:dblclick="onDoubleClick()" 
-   class="file-tree-node {{selected?'selected':''}}"
-   style="padding-left: {{0.3 + level}}rem;">
+<div on:click="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node {{selected?'selected':''}}" style="padding-left: {{0.3 + level}}rem;">
     <span class="icon {{icon}}"></span>
     <span class="display-name"> 
         {{displayName}}
@@ -22,7 +20,7 @@
         background: var(--ui-highlight-color);
         color: white;
     }
-    
+
     .file-tree-node:hover {
         color: white;
     }
@@ -50,6 +48,31 @@
         folderIcon,
         folderOpenIcon
     } from '../lib/FileTypeToIcon'
+
+    const contextMenu = [{
+        text: 'New File',
+        callback: () => {
+            console.log('new file clicked')
+        }
+    }, {
+        text: 'New Folder',
+        callback: () => {}
+    }, {
+        text: 'New Python Module',
+        callback: () => {}
+    }, {
+        text: 'Rename',
+        callback: () => {}
+    }, {
+        text: 'Delete',
+        callback: () => {}
+    }, {
+        text: 'Show in File Manager',
+        callback: () => {}
+    }, {
+        text: 'Copy Path',
+        callback: () => {}
+    }]
 
     export default {
         components: {},
@@ -91,12 +114,13 @@
                     init: false
                 })
             }
-            
+
             this.get('fileTree').on('cancelAllSelection', () => {
                 this.set({
                     selected: false
                 })
             })
+
         },
         ondestroy() {
             this.removeChildren()
@@ -141,6 +165,19 @@
                     g.panelMiddle.openFile(this.get('path'), this.get('displayName'))
                 }
 
+            },
+            onContextMenu(e) {
+                this.get('fileTree').fire('cancelAllSelection')
+                this.set({
+                    selected: true
+                })
+                g.contextMenu.set({
+                    open: true,
+                    x: e.clientX,
+                    y: e.clientY,
+                    items: contextMenu
+                })
+                e.preventDefault()
             },
             removeChildren() {
                 for (const child of this.children) {

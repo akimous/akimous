@@ -1,0 +1,88 @@
+<div ref:contextMenu id="context-menu" style="display:{{open?'block':'none'}}; top:{{y}}px; left:{{x}}px;">
+</div>
+
+
+<style>
+    #context-menu {
+        min-height: 100px;
+        min-width: 100px;
+        background: var(--modal-bg-color);
+        position: absolute;
+        z-index: 9999;
+        border-radius: var(--small-radius);
+        overflow-x: hidden;
+        padding: .2rem 0;
+        box-shadow: var(--small-shadow);
+        vertical-align: middle;
+        margin-left: .1rem;
+        margin-top: -.5rem;
+    }
+
+</style>
+
+
+<script>
+    import g from './Globals'
+    import ContextMenuRow from './ContextMenuRow.html'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.contextMenu = this
+            this.children = []
+//            for (let i = 0; i < 3; i++) {
+//
+//                const child = new ContextMenuRow({
+//                    target: this.refs.contextMenu,
+//                    data: {}
+//                })
+//                child.parent = this
+//                this.children.push(child)
+//            }
+
+            this.observe('open', newValue => {
+                this.set({
+                    selectedItem: undefined
+                })
+            })
+            this.observe('items', items => {
+                for (const i of this.children)
+                    i.destroy()
+                this.children.length = 0
+                for (const i of items) {
+                    const child = new ContextMenuRow({
+                        target: this.refs.contextMenu,
+                        data: i 
+                    })
+                    child.parent = this
+                    this.children.push(child)
+                }
+            })
+            this.observe('selectedItem', (newValue, oldValue) => {
+                if (oldValue) oldValue.set({
+                    selected: false
+                })
+                if (newValue) newValue.set({
+                    selected: true
+                })
+            })
+        },
+        data() {
+            return {
+                items: [
+                    {
+                        text: '',
+                        callback: () => {}
+                    }
+                ],
+                selectedItem: undefined,
+                open: false,
+                x: 0,
+                y: 0
+            }
+        },
+        methods: {
+        }
+    }
+
+</script>

@@ -18,8 +18,8 @@
         "rollup-plugin-babel": "^3.0.3",
         "rollup-plugin-commonjs": "^8.2.6",
         "rollup-plugin-node-resolve": "^3.0.0",
-        "rollup-plugin-postcss": "^1.2.5",
         "rollup-plugin-sizes": "^0.4.2",
+        "rollup-plugin-strip": "^1.1.1",
         "rollup-plugin-svelte": "^4.0.0",
         "simplehttp2server": "^2.0.0",
         "svelte": "^1.50.0",
@@ -27,7 +27,6 @@
     },
     "dependencies": {
         "codemirror": "^5.33.0",
-        "jstree": "^3.3.4",
         "keyboardjs": "^2.4.1",
         "sortablejs": "^1.7.0",
         "xterm": "^2.9.2"
@@ -35,6 +34,7 @@
     "scripts": {
         "dev": "browser-sync start --server 'dist' --files 'dist' & rollup -c -w",
         "build": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c",
+        "copystatic": "cp -r src/index.html resources/* dist/",
         "release": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c && cd dist/ && brotli bundle.*",
         "start": "simplehttp2server --config firebase.json"
     }
