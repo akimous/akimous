@@ -31,7 +31,9 @@
             this.pathToEditor = {} // /path/to/a/file.py -> <CodeEditor>
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
             this.activationHistoryIndex = 0
-            this.openFile('./demo/demo.py', 'demo.py')
+            setTimeout(() => {
+                this.openFile('./demo/demo.py', 'demo.py')
+            })
         },
         methods: {
             openFile: function(filePath, fileName) {
@@ -103,7 +105,7 @@
                 g.tabBar.closeTab(filePath)
                 editor.destroy()
                 delete this.pathToEditor[filePath]
-                
+
                 // clear activation history
                 for (var i = 0; i < MAX_ACTIVATION_HISTORY; i++)
                     if (this.activationHistory[i] === filePath)
