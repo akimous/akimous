@@ -24,23 +24,15 @@
 <script>
     import g from './Globals'
     import ContextMenuRow from './ContextMenuRow.html'
+    import ContextMenuDivider from './ContextMenuDivider.html'
 
     export default {
         components: {},
         oncreate() {
             g.contextMenu = this
             this.children = []
-//            for (let i = 0; i < 3; i++) {
-//
-//                const child = new ContextMenuRow({
-//                    target: this.refs.contextMenu,
-//                    data: {}
-//                })
-//                child.parent = this
-//                this.children.push(child)
-//            }
 
-            this.observe('open', newValue => {
+            this.observe('open', open => {
                 this.set({
                     selectedItem: undefined
                 })
@@ -50,11 +42,20 @@
                     i.destroy()
                 this.children.length = 0
                 for (const i of items) {
-                    const child = new ContextMenuRow({
-                        target: this.refs.contextMenu,
-                        data: i 
-                    })
-                    child.parent = this
+                    let child
+                    if (i.divider) {
+                        console.log('divider')
+                        child = new ContextMenuDivider({
+                            target: this.refs.contextMenu,
+                        })
+                    } else {
+
+                        child = new ContextMenuRow({
+                            target: this.refs.contextMenu,
+                            data: i
+                        })
+                        child.parent = this
+                    }
                     this.children.push(child)
                 }
             })
@@ -66,23 +67,27 @@
                     selected: true
                 })
             })
+
+            document.onmousedown = e => {
+                if (!this.refs.contextMenu.contains(e.target))
+                    g.contextMenu.set({
+                        open: false
+                    })
+            }
         },
         data() {
             return {
-                items: [
-                    {
-                        text: '',
-                        callback: () => {}
-                    }
-                ],
+                items: [{
+                    text: '',
+                    callback: () => {}
+                }],
                 selectedItem: undefined,
                 open: false,
                 x: 0,
                 y: 0
             }
         },
-        methods: {
-        }
+        methods: {}
     }
 
 </script>

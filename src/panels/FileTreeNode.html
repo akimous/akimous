@@ -14,6 +14,7 @@
         cursor: default;
         white-space: nowrap;
         min-width: 100%;
+        font-size: var(--basic-ui-font-size);
     }
 
     .file-tree-node.selected {
@@ -51,26 +52,35 @@
 
     const contextMenu = [{
         text: 'New File',
+        icon: 'fa fa-file-o',
         callback: () => {
             console.log('new file clicked')
         }
     }, {
         text: 'New Folder',
+        icon: 'fa fa-folder-o',
         callback: () => {}
     }, {
         text: 'New Python Module',
+        icon: 'fa fa-cube',
         callback: () => {}
     }, {
+        divider: true
+    }, {
         text: 'Rename',
+        icon: 'fa fa-pencil-square-o',
         callback: () => {}
     }, {
         text: 'Delete',
+        icon: 'fa fa-trash-o',
         callback: () => {}
     }, {
         text: 'Show in File Manager',
+        icon: 'fa fa-external-link',
         callback: () => {}
     }, {
         text: 'Copy Path',
+        icon: 'fa fa-link',
         callback: () => {}
     }]
 

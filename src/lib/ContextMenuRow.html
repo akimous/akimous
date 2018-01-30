@@ -1,4 +1,7 @@
 <div class="context-menu-row {{selected?'selected':''}}" on:mouseover="mouseover()" on:click="click()">
+    <span class="icon">
+        <i class="{{icon}}" aria-hidden="true"></i>
+    </span>
     {{{text}}}
 </div>
 
@@ -19,6 +22,16 @@
         color: var(--brighter-ui-font-color);
         background: var(--ui-selected-item);
     }
+    
+    .icon {
+        width: 1rem;
+        margin-right: 0.5rem;
+        color: var(--gray4);
+    }
+    
+    .selected .icon {
+        color: var(--gray1);
+    }
 
 </style>
 
@@ -34,7 +47,8 @@
             return {
                 selected: false,
                 text: '',
-                callback: undefined
+                callback: undefined,
+                icon: ''
             }
         },
         methods: {
