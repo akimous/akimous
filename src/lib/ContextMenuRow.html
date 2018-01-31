@@ -25,6 +25,7 @@
     
     .icon {
         width: 1rem;
+        display: inline-block;
         margin-right: 0.5rem;
         color: var(--gray4);
     }
@@ -54,7 +55,7 @@
         methods: {
             mouseover() {
                 this.parent.set({
-                    selectedItem: this
+                    selectedRow: this
                 })
             },
             click() {

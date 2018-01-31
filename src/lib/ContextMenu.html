@@ -30,36 +30,41 @@
         components: {},
         oncreate() {
             g.contextMenu = this
-            this.children = []
+            this.rows = []
+            this.dividers = []
 
             this.observe('open', open => {
                 this.set({
-                    selectedItem: undefined
+                    selectedRow: undefined
+                })
+                if (open) g.activeEditor.completion.set({
+                    open: false
                 })
             })
             this.observe('items', items => {
-                for (const i of this.children)
+                for (const i of this.rows)
                     i.destroy()
-                this.children.length = 0
+                for (const i of this.dividers)
+                    i.destroy()
+                this.rows.length = 0
+                this.dividers.length = 0
                 for (const i of items) {
-                    let child
                     if (i.divider) {
-                        console.log('divider')
-                        child = new ContextMenuDivider({
+                        const child = new ContextMenuDivider({
                             target: this.refs.contextMenu,
                         })
+                        this.dividers.push(child)
                     } else {
-
-                        child = new ContextMenuRow({
+                        const child = new ContextMenuRow({
                             target: this.refs.contextMenu,
                             data: i
                         })
                         child.parent = this
+                        this.rows.push(child)
                     }
-                    this.children.push(child)
                 }
             })
-            this.observe('selectedItem', (newValue, oldValue) => {
+            this.observe('selectedRow', (newValue, oldValue) => {
                 if (oldValue) oldValue.set({
                     selected: false
                 })
@@ -81,13 +86,28 @@
                     text: '',
                     callback: () => {}
                 }],
-                selectedItem: undefined,
+                selectedRow: undefined,
                 open: false,
                 x: 0,
                 y: 0
             }
         },
-        methods: {}
+        methods: {
+            move(nRows) {
+                const currentIndex = this.rows.indexOf(this.get('selectedRow'))
+                const length = this.rows.length
+
+                let targetIndex = currentIndex + nRows
+                if (currentIndex === -1 && nRows < 0) targetIndex = length - 1
+                else if (targetIndex >= length) targetIndex = length - 1
+                else if (targetIndex < 0) targetIndex = 0
+
+                const targetRow = this.rows[targetIndex]
+                this.set({
+                    selectedRow: targetRow
+                })
+            }
+        }
     }
 
 </script>

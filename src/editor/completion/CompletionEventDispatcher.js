@@ -53,7 +53,6 @@ class CompletionEventDispatcher {
 
     static handleCommand(command) {
         const completion = g.activeEditor.completion
-
         if (!completion.get('open')) return false
         switch (command) {
             case 'down':
@@ -67,6 +66,12 @@ class CompletionEventDispatcher {
                 return true
             case 'up5X':
                 completion.move(-5)
+                return true
+            case 'bottom':
+                completion.move(9999)
+                return true
+            case 'top':
+                completion.move(-9999)
                 return true
             case 'commit':
                 completion.commit()

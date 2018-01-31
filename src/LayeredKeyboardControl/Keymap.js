@@ -32,6 +32,8 @@ const completionCommandKeymap = {
     'KeyK': 'down',
     'KeyU': 'up5X',
     'KeyO': 'down5X',
+    'KeyY': 'top',
+    'KeyP': 'bottom',
     
     'Digit1': '1',
     'Digit2': '2',

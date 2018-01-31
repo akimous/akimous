@@ -1,6 +1,7 @@
 import g from '../lib/Globals'
 import Keymap from './Keymap'
 import CompletionEventDispatcher from '../editor/completion/CompletionEventDispatcher.js'
+import ContextMenuEventDispatcher from '../lib/ContextMenuEventDispatcher.js'
 
 class LayeredKeyboardControl {
     sendEditorCommand(command) {
@@ -14,7 +15,11 @@ class LayeredKeyboardControl {
         const code = e.code
         this.commandSent = true
         const completionCommand = Keymap.completionCommandKeymap[code]
-        if (!g.activeEditor || !g.activeEditor.cm.hasFocus()) return false
+        if (!g.activeEditor || !g.activeEditor.cm.hasFocus()) {
+            if (completionCommand)
+                ContextMenuEventDispatcher.handleCommand(completionCommand)
+            return false
+        }
         if (completionCommand && g.activeEditor.completion.get('open')) {
             CompletionEventDispatcher.handleCommand(completionCommand)
         } else {
@@ -51,7 +56,8 @@ class LayeredKeyboardControl {
                 this.textSent = false
             } else {
                 this.textSent = true
-                return CompletionEventDispatcher.handleNormalModeEvent(e)
+                return CompletionEventDispatcher.handleNormalModeEvent(e) &&
+                    ContextMenuEventDispatcher.handleNormalModeEvent(e)
             }
             return this.stopPropagation(e)
         }, {
@@ -64,7 +70,9 @@ class LayeredKeyboardControl {
             } else if (e.key === ' ') {
                 this.spacePressed = false
                 if (!this.commandSent) {
-                    CompletionEventDispatcher.handleCommand('commit') || g.activeEditor.insertText(' ')
+                    CompletionEventDispatcher.handleCommand('commit') ||
+                        ContextMenuEventDispatcher.handleCommand('commit') ||
+                        g.activeEditor.insertText(' ')
                 }
                 return this.stopPropagation(e)
             } else if (this.spacePressed && !this.textSent && !this.commandSent &&
