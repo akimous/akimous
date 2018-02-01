@@ -99,7 +99,7 @@
             const initializeCM = readFile.then(data => {
                 this.cm = CodeMirror(this.refs.codeEditor, {
                     value: data.content,
-                    mode: mode.mime,
+                    mode: mode ? mode.mime : undefined,
                     theme: 'legato',
                     indentUnit: 4,
                     lineNumbers: true,
