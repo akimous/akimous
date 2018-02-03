@@ -37,42 +37,42 @@ function EventDispatcherFactory(options) {
 
     const handleCommand = command => {
         const target = dispatchTarget.length > 1 ? g[dispatchTarget[0]][dispatchTarget[1]] : g[dispatchTarget[0]]
-            if (closable && !target.get('open')) return false
-            switch (command) {
-                case 'down':
-                    target.move(1)
-                    return true
-                case 'up':
-                    target.move(-1)
-                    return true
-                case 'down5X':
-                    target.move(5)
-                    return true
-                case 'up5X':
-                    target.move(-5)
-                    return true
-                case 'bottom':
-                    target.move(9999)
-                    return true
-                case 'top':
-                    target.move(-9999)
-                    return true
-                case 'commit':
-                    target.enter()
-                    return true
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                    target.enter(+command)
-                    return true
-            }
-            console.error('unhandled command')
+        if (closable && !target.get('open')) return false
+        switch (command) {
+            case 'down':
+                target.move(1)
+                return true
+            case 'up':
+                target.move(-1)
+                return true
+            case 'down5X':
+                target.move(5)
+                return true
+            case 'up5X':
+                target.move(-5)
+                return true
+            case 'bottom':
+                target.move(9999)
+                return true
+            case 'top':
+                target.move(-9999)
+                return true
+            case 'commit':
+                target.enter()
+                return true
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+                target.enter(+command)
+                return true
         }
+        console.error('unhandled command')
+    }
 
     return {
         handleKeyEvent,
