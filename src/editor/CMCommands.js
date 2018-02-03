@@ -22,7 +22,7 @@ function registerCMCommands(CodeMirror) {
             const selections = []
             for (const range of cm.listSelections()) {
                 if (range.empty())
-                    cm.replaceRange(cm.getLine(range.head.line) + "\n", Pos(range.head.line, 0))
+                    cm.replaceRange(cm.getLine(range.head.line) + '\n', Pos(range.head.line, 0))
                 else {
                     const from = range.from()
                     const to = range.to()
@@ -45,6 +45,8 @@ function registerCMCommands(CodeMirror) {
 
     // from keymap/sublime.js, not yet arranged
     commands.joinLines = function (cm) {
+        /* eslint-disable semi */
+        /* eslint-disable quotes */
         var ranges = cm.listSelections(),
             joined = [];
         for (var i = 0; i < ranges.length; i++) {
@@ -301,7 +303,6 @@ function registerCMCommands(CodeMirror) {
 
     commands.selectSmart = cm => {
         const extended = []
-        const lineCount = cm.lineCount()
 
         for (const range of cm.listSelections()) {
             const from = range.from()
@@ -309,7 +310,6 @@ function registerCMCommands(CodeMirror) {
             // prevent unexpected result during cursor move
             from.sticky = null
             to.sticky = null
-            let newSelection
 
             // priority 1: select word
             if (CodeMirror.cmpPos(from, to) === 0) {
@@ -325,7 +325,6 @@ function registerCMCommands(CodeMirror) {
             }
 
             // priority 2: select token
-            let fromToken
             if (from.line === to.line) {
                 const fromToken = cm.getTokenAt(from)
                 const toToken = cm.getTokenAt(to)
@@ -341,8 +340,8 @@ function registerCMCommands(CodeMirror) {
             }
 
             // priority 3: select scope
-            let left = CodeMirror.scanForRegex(cm, from, -1, /[(\[{\,]/)
-            let right = CodeMirror.scanForRegex(cm, to, 1, /[)\]}\,]/)
+            let left = CodeMirror.scanForRegex(cm, from, -1, /[([{,]/)
+            let right = CodeMirror.scanForRegex(cm, to, 1, /[)\]},]/)
             let compareLeft = CodeMirror.cmpPos(from, left)
             let compareRight = CodeMirror.cmpPos(to, right)
             let shouldExpandAgain = false
@@ -350,14 +349,14 @@ function registerCMCommands(CodeMirror) {
             if (left && right) {
                 if (compareLeft === 1 && compareRight <= 1 && cm.getTokenAt(from).string === ' ') {
                     from.ch -= 1
-                    left = CodeMirror.scanForRegex(cm, from, -1, /[(\[{\,]/)
+                    left = CodeMirror.scanForRegex(cm, from, -1, /[([{,]/)
                     shouldExpandAgain = true
                 }
                 if (shouldExpandAgain || (compareLeft === 0 && compareRight === 0)) {
                     let shouldContinue = true
                     if (left.token.string === ',') {
                         from.ch -= 1
-                        left = CodeMirror.scanForRegex(cm, from, -1, /[(\[{]/)
+                        left = CodeMirror.scanForRegex(cm, from, -1, /[([{]/)
                         shouldContinue = false
                     }
                     console.log(right)
@@ -367,7 +366,7 @@ function registerCMCommands(CodeMirror) {
                         shouldContinue = false
                     }
                     // if all contents in brackets are selected, expand to include brackets themselves
-                    if (shouldContinue && /[(\[{]/.test(left.token.string) && /[)\]}]/.test(right.token.string)) {
+                    if (shouldContinue && /[([{]/.test(left.token.string) && /[)\]}]/.test(right.token.string)) {
                         left.ch -= 1
                         right.ch++
                     }

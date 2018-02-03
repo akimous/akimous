@@ -7,7 +7,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const operatorChars = /[=+\-*/|&^~%@><!]$/
     const idendifier = /^[^\d\W]\w*$/
 
-    const inString = (pos, ch) => cm.getTokenTypeAt(pos) === 'string'
+    const inString = (pos) => cm.getTokenTypeAt(pos) === 'string'
     const inSomething = (open, close) => {
         const searchNLines = 20
         let line = c.from.line

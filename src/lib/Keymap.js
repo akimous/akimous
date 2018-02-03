@@ -10,7 +10,7 @@ function hotkey(key, handler) {
 
 hotkey('mod + s', g.saveFile)
 
-hotkey('mod + shift + s', e => {
+hotkey('mod + shift + s', () => {
     g.saveAll()
 })
 

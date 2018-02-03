@@ -27,13 +27,15 @@ const editorCommandKeymap = {
     
 }
 
-const completionCommandKeymap = {
+const genericCommandKeymap = {
     'KeyI': 'up',
     'KeyK': 'down',
     'KeyU': 'up5X',
     'KeyO': 'down5X',
     'KeyY': 'top',
     'KeyP': 'bottom',
+    'KeyH': 'top',
+    'Semicolon': 'bottom',
     
     'Digit1': '1',
     'Digit2': '2',
@@ -47,5 +49,5 @@ const completionCommandKeymap = {
 
 export default {
     editorCommandKeymap,
-    completionCommandKeymap
+    genericCommandKeymap
 }

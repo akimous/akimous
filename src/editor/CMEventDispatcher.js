@@ -61,7 +61,7 @@ class CMEventDispatcher {
             }
         })
 
-        doc.on('change', (doc, changeObj) => {
+        doc.on('change', (doc/*, changeObj*/) => {
             if (editor.clean == doc.isClean()) return
             editor.clean = !editor.clean
             if (editor.clean) g.tabBar.setClean(editor.filePath)
@@ -124,6 +124,7 @@ class CMEventDispatcher {
                                         let pos = cm.scanForBracket(c.from, -1, undefined, {
                                             bracketRegex: /[()]/
                                         }).pos
+                                        // eslint-disable-next-line
                                         const [tr1, tr2, tr3] = getNTokens(3, pos)
                                         if (tr3.string === 'def')
                                             isInFunctionSignatureDefinition = true

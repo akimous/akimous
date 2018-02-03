@@ -1,7 +1,6 @@
 import g from '../lib/Globals'
 import Keymap from './Keymap'
-import CompletionEventDispatcher from '../editor/completion/CompletionEventDispatcher.js'
-import ContextMenuEventDispatcher from '../lib/ContextMenuEventDispatcher.js'
+import EventDispatcherFactory from './EventDispatcherFactory.js'
 
 class LayeredKeyboardControl {
     sendEditorCommand(command) {
@@ -14,21 +13,20 @@ class LayeredKeyboardControl {
     sendCommand(e) {
         const code = e.code
         this.commandSent = true
-        const completionCommand = Keymap.completionCommandKeymap[code]
+        const command = Keymap.genericCommandKeymap[code]
         if (!g.activeEditor || !g.activeEditor.cm.hasFocus()) {
-            if (completionCommand)
-                ContextMenuEventDispatcher.handleCommand(completionCommand)
+            if (command)
+                this.contextMenuKeyHandler.handleCommand(command)
             return false
         }
-        if (completionCommand && g.activeEditor.completion.get('open')) {
-            CompletionEventDispatcher.handleCommand(completionCommand)
+        if (command && g.activeEditor.completion.get('open')) {
+            this.completionKeyHandler.handleCommand(command)
         } else {
             const extending = e.shiftKey
             if (extending) this.sendEditorCommand('setExtending')
             else this.sendEditorCommand('unsetExtending')
             const command = Keymap.editorCommandKeymap[code]
             this.sendEditorCommand(command)
-
             if (extending) this.sendEditorCommand('unsetExtending')
         }
         return false
@@ -43,6 +41,23 @@ class LayeredKeyboardControl {
         this.commandSent = false
         this.textSent = false
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
+
+        this.completionKeyHandler = EventDispatcherFactory({
+            dispatchTarget: ['activeEditor', 'completion'],
+            extraKeyHandler(event, target) {
+                if (/[.,()[\]:+\-*/|&^~%@><!]/.test(event.key))
+                    target.enter()
+                else if (/[=[\](){}]/.test(event.key))
+                    target.set({
+                        open: false
+                    })
+                return true
+            }
+        })
+        this.contextMenuKeyHandler = EventDispatcherFactory({
+            dispatchTarget: ['contextMenu'],
+        })
+
         document.addEventListener('keydown', e => {
             if (e.key === 'Shift') {
                 // bypass shift
@@ -56,8 +71,8 @@ class LayeredKeyboardControl {
                 this.textSent = false
             } else {
                 this.textSent = true
-                return CompletionEventDispatcher.handleNormalModeEvent(e) &&
-                    ContextMenuEventDispatcher.handleNormalModeEvent(e)
+                return this.completionKeyHandler.handleKeyEvent(e) && 
+                    this.contextMenuKeyHandler.handleKeyEvent(e)
             }
             return this.stopPropagation(e)
         }, {
@@ -70,8 +85,8 @@ class LayeredKeyboardControl {
             } else if (e.key === ' ') {
                 this.spacePressed = false
                 if (!this.commandSent) {
-                    CompletionEventDispatcher.handleCommand('commit') ||
-                        ContextMenuEventDispatcher.handleCommand('commit') ||
+                    this.completionKeyHandler.handleCommand('commit') ||
+                        this.contextMenuKeyHandler.handleCommand('commit') ||
                         g.activeEditor.insertText(' ')
                 }
                 return this.stopPropagation(e)

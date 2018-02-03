@@ -106,6 +106,10 @@
                 this.set({
                     selectedRow: targetRow
                 })
+            },
+            enter(rowNumber) {
+                const row = rowNumber ? this.rows[rowNumber - 1] : this.get('selectedRow')
+                row && row.click()
             }
         }
     }

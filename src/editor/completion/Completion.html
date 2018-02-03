@@ -36,7 +36,7 @@
                 this.set({
                     selectedCompletionRow: event.path[0]
                 })
-                this.commit()
+                this.enter()
             }
             this.completionRows = []
             this.completionRowShortcuts = new Array(9)
@@ -147,7 +147,7 @@
                 completionElement.style.left = `${x}px`
                 completionElement.style.top = `${y}px`
             },
-            commit(rowNumber) {
+            enter(rowNumber) {
                 if (!this.get('open')) return console.error('closed')
 
                 const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get('selectedCompletionRow')

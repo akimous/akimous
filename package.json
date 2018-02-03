@@ -28,6 +28,7 @@
     "dependencies": {
         "codemirror": "^5.33.0",
         "keyboardjs": "^2.4.1",
+        "pressure": "^2.1.2",
         "sortablejs": "^1.7.0",
         "xterm": "^2.9.2"
     },
