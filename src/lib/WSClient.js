@@ -1,7 +1,7 @@
 export default class {
     constructor(path) {
         this.path = path
-        this.debug = false
+        this.debug = true
         this.handlers = {}
     }
     

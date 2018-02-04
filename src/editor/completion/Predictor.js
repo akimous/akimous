@@ -44,7 +44,10 @@ class Predictor {
         const input = this.lineContent[this.firstTriggeredCharPos.ch]
         if (Predictor.debug) console.log('Predictor.recieve', data)
         this.currentCompletions = data.result
-        if (data.result.length < 1) return this.completion.close()
+        if (data.result.length < 1)
+            return this.completion.set({
+                open: false
+            })
         this.sort(input)
         this.completion.setCompletions(this.currentCompletions)
         this.completion.repositionCompletionWindow()

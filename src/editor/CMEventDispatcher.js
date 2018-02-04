@@ -96,9 +96,6 @@ class CMEventDispatcher {
             try {
                 const cursor = c.from
                 const lineContent = cm.doc.getLine(cursor.line)
-                //                switch (c.origin) {
-                //                    case '+input':
-                //                        {
                 if (c.origin === '+input') {
                     const inputChar = c.text[0]
                     // TODO: reuse t0/1/2 in formatter
@@ -165,8 +162,6 @@ class CMEventDispatcher {
                     }
                     //                        break
                 }
-                //                    case '+delete':
-                //                        {
                 else if (c.origin === '+delete') {
 
                     if (c.from.line !== c.to.line) {
@@ -176,20 +171,17 @@ class CMEventDispatcher {
                     }
                     if (!completion.get('open'))
                         return
-                    //                            break
                     if (predictor.firstTriggeredCharPos.ch === cursor.ch) {
                         completion.set({
                             open: false
                         })
-                        //                            break
+                        return
                     }
                     const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch)
                     predictor.sort(input)
                     completion.setCompletions(predictor.currentCompletions)
-                    //                        break
                     return
                 }
-                //                }
             } catch (e) {
                 console.error(e)
             }

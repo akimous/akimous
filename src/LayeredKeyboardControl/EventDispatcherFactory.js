@@ -4,9 +4,11 @@ function EventDispatcherFactory(options) {
     const extraKeyHandler = options.extraKeyHandler
     const dispatchTarget = options.dispatchTarget
     const closable = options.closable || true
+    if (!dispatchTarget) console.error('dispatchTarget is null')
 
     const handleKeyEvent = event => {
         const target = dispatchTarget.length > 1 ? g[dispatchTarget[0]][dispatchTarget[1]] : g[dispatchTarget[0]]
+        if (!target) return true
         if (closable && !target.get('open')) return true
 
         switch (event.key) {

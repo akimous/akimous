@@ -14,6 +14,7 @@
         "browser-sync": "^2.23.1",
         "cypress": "^1.4.1",
         "eslint": "^4.14.0",
+        "http-server": "^0.11.1",
         "rollup": "^0.53.2",
         "rollup-plugin-babel": "^3.0.3",
         "rollup-plugin-commonjs": "^8.2.6",
@@ -21,7 +22,6 @@
         "rollup-plugin-sizes": "^0.4.2",
         "rollup-plugin-strip": "^1.1.1",
         "rollup-plugin-svelte": "^4.0.0",
-        "simplehttp2server": "^2.0.0",
         "svelte": "^1.50.0",
         "svelte-cli": "^2.0.0"
     },
@@ -36,7 +36,7 @@
         "dev": "browser-sync start --server 'dist' --files 'dist' & rollup -c -w",
         "build": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c",
         "copystatic": "cp -r src/index.html resources/* dist/",
-        "release": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c && cd dist/ && brotli bundle.*",
-        "start": "simplehttp2server --config firebase.json"
+        "release": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c && cd dist/ && zopfli bundle.* && brotli bundle.js",
+        "start": "http-server ./dist -p 5000 -g"
     }
 }

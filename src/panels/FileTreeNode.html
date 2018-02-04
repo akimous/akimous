@@ -1,8 +1,9 @@
-<div on:click="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node {{selected?'selected':''}}" style="padding-left: {{0.3 + level}}rem;">
-    <span class="icon {{icon}}"></span>
+<div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node {{selected?'selected':''}}" style="padding-left: {{0.3 + level}}rem;">
+    <span class="icon {{icon}}"></span> {{#if !renaming}}
     <span class="display-name"> 
         {{displayName}}
-    </span>
+    </span> {{else}}
+    <input ref:input class="display-name" type="text" value="{{displayName}}" on:blur="commitRename()"> {{/if}}
 </div>
 <div ref:children></div>
 
@@ -36,6 +37,13 @@
 
     .display-name {
         padding-left: 0.3rem;
+        vertical-align: middle;
+    }
+
+    input.display-name {
+        border-radius: var(--small-radius);
+        font-size: var(--basic-ui-font-size);
+        height: var(--basic-ui-font-size);
     }
 
 </style>
@@ -49,6 +57,7 @@
         folderIcon,
         folderOpenIcon
     } from '../lib/FileTypeToIcon'
+    import pressure from 'pressure'
 
     const contextMenu = [{
         text: 'New File',
@@ -69,7 +78,10 @@
     }, {
         text: 'Rename',
         icon: 'fa fa-pencil-square-o',
-        callback: () => {}
+        callback: (target) => {
+            console.log(target)
+            target.rename()
+        }
     }, {
         text: 'Delete',
         icon: 'fa fa-trash-o',
@@ -130,7 +142,13 @@
                     selected: false
                 })
             })
-
+            
+            // find a way to move event handler outside
+            pressure.set(this.refs.row, {
+                startDeepPress: e => {
+                    this.rename()
+                }
+            })
         },
         ondestroy() {
             this.removeChildren()
@@ -138,14 +156,15 @@
         },
         data() {
             return {
+                icon: '',
                 displayName: '',
                 path: '',
+                level: 0,
+                fileTree: undefined,
                 isFolder: true,
                 open: false,
-                icon: '',
                 selected: false,
-                level: 0,
-                fileTree: undefined
+                renaming: false
             }
         },
         methods: {
@@ -185,7 +204,8 @@
                     open: true,
                     x: e.clientX,
                     y: e.clientY,
-                    items: contextMenu
+                    items: contextMenu,
+                    caller: this
                 })
                 e.preventDefault()
             },
@@ -195,6 +215,35 @@
                 }
                 this.children.length = 0
             },
+            rename() {
+                this.set({
+                    renaming: true
+                })
+                this.refs.input.focus()
+                this.refs.input.onkeydown = e => {
+                    if (e.key === 'Enter')
+                        this.commitRename()
+                    else if (e.key === 'Escape')
+                        this.set({
+                            renaming: false
+                        })
+                    else return true
+                    e.preventDefault()
+                    e.stopPropagation()
+                    return false
+                }
+            },
+            commitRename() {
+                if (this.refs.input.value !== this.get('displayName') && this.refs.input.value.length > 0)
+                    g.fileTree.ws.send({
+                        cmd: 'rename',
+                        path: this.get('path'),
+                        newName: this.refs.input.value
+                    })
+                this.set({
+                    renaming: false
+                })
+            }
         }
     }
 
