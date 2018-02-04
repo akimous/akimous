@@ -99,6 +99,7 @@
     export default {
         components: {},
         oncreate() {
+            g.fileTree.allNodes[this.get('path')] = this
             this.children = []
             // set icon
             const displayName = this.get('displayName')
@@ -152,6 +153,7 @@
         },
         ondestroy() {
             this.removeChildren()
+            delete g.fileTree.allNodes[this.get('path')]
             delete this.get('fileTree').openedFolders[this.get('path')]
         },
         data() {

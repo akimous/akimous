@@ -30,6 +30,7 @@ async def rename(msg, send, context):
     result = {
         'oldPath': str(old_path),
         'newPath': str(new_path),
+        'newName': msg['newName']
     }
     if new_path.exists():
         result.update(cmd='rename-failed', reason='existed')

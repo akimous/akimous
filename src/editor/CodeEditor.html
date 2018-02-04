@@ -72,9 +72,13 @@
             Completion
         },
         oncreate() {
+            this.observe('filePath', (newValue, oldValue) => {
+                g.panelMiddle.pathToEditor[newValue] = this
+                if (oldValue) delete g.panelMiddle.pathToEditor[oldValue]
+            })
+            this.filePath = this.get('filePath')
             const fileName = this.get('fileName')
             const mode = CodeMirror.findModeByFileName(fileName)
-            this.filePath = this.get('filePath')
 
             // Step 1: Connect to websocket and read file
             const readFile = new Promise(resolve => {
@@ -159,6 +163,13 @@
                     }
                 }
             }, 200))
+        },
+        data() {
+            return {
+                fileName: '',
+                filePath: '',
+                active: false,
+            }
         },
         methods: {
             save() {

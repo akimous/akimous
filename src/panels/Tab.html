@@ -60,9 +60,16 @@
     export default {
         components: {},
         oncreate() {
+            this.observe('filePath', (newValue, oldValue) => {
+                g.tabBar.pathToTab[newValue] = this
+                if (oldValue) delete g.tabBar.pathToTab[oldValue]
+            })
         },
         data() {
             return {
+                fileName: '',
+                filePath: '',
+                active: false,
                 clean: true
             }
         },

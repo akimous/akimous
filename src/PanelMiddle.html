@@ -32,14 +32,14 @@
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
             this.activationHistoryIndex = 0
             setTimeout(() => {
-                this.openFile('./demo/demo.py', 'demo.py')
+                this.openFile('demo/demo.py', 'demo.py')
             })
         },
         methods: {
             openFile: function(filePath, fileName) {
                 let editor = this.pathToEditor[filePath]
                 if (!editor) {
-                    this.pathToEditor[filePath] = new CodeEditor({
+                    new CodeEditor({
                         target: this.refs.panelMiddle,
                         data: {
                             filePath,
