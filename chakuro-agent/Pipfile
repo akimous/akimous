@@ -16,6 +16,7 @@ logzero = "*"
 python-levenshtein = "*"
 tqdm = "*"
 scipy = "*"
+watchdog = "*"
 
 
 [dev-packages]

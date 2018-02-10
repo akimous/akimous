@@ -2,15 +2,10 @@ import asyncio
 import websockets
 import json
 import traceback
-#import ssl
-#from ssl import Purpose
 from types import SimpleNamespace
 from logzero import logger as log
+from contextlib import suppress
 
-#sslContext = ssl.create_default_context(Purpose.CLIENT_AUTH)
-#sslContext.load_cert_chain('../../chakuro/cert.pem', '../../chakuro/key.pem')
-#print(sslContext.verify_mode)
-# print(sslContext.get_ciphers())
 
 class WS:
     handlers = {}  # [path][command] -> coroutine
@@ -44,7 +39,7 @@ class WS:
             async def send(obj):
                 await ws.send(json.dumps(obj))
             log.info('Connection %s established.', path)
-            context = SimpleNamespace()
+            context = SimpleNamespace(observer=None)
 
             while 1:
                 msg = await ws.recv()
@@ -57,12 +52,15 @@ class WS:
                 else:
                     try:
                         await command_handler(msg, send, context)
-                    except:
+                    except Exception:
                         traceback.print_exc()
 
         except websockets.exceptions.ConnectionClosed:
             log.info('Connection %s closed.', path)
             WS.clients[path].remove(ws)
+            if context.observer:
+                with suppress(Exception):
+                    context.observer.stop()
 
     @staticmethod
     def start_server(host='127.0.0.1', port=3179):
@@ -75,4 +73,8 @@ class WS:
         try:
             loop.run_forever()
         except KeyboardInterrupt:
+            for clients in WS.clients.values():
+                for ws in clients:
+                    ws.close()
+            loop.stop()
             return

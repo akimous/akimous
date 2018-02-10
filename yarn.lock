@@ -3246,8 +3246,8 @@ svelte@^1:
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.51.0.tgz#2a59b63dfa080c961ce1be4fff23aa7fef809456"
 
 svelte@^1.50.0:
-  version "1.54.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.54.0.tgz#6f378f9eaae98de414b08d4ce61ccca4933ad5f4"
+  version "1.54.1"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.54.1.tgz#d1a3134a7bed546fde6a6e054385aded22b306c7"
 
 symbol-observable@1.0.1:
   version "1.0.1"
