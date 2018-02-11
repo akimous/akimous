@@ -5,7 +5,11 @@
     </span> {{else}}
     <input ref:input class="display-name" type="text" value="{{displayName}}" on:blur="commitRename()"> {{/if}}
 </div>
-<div ref:children></div>
+<div ref:children>
+    {{#each dirs as i @id}}
+    <:Self level={{level+1}} item={{i}} parent={{self}} isFolder/> {{/each}} {{#each files as i @name}}
+    <:Self level={{level+1}} item={{i}} parent={{self}} /> {{/each}}
+</div>
 
 
 <style>
@@ -99,8 +103,19 @@
     export default {
         components: {},
         oncreate() {
-            g.fileTree.allNodes[this.get('path')] = this
-            this.children = []
+            this.observe('path', (newValue, oldValue) => {
+                g.fileTree.allNodes[newValue] = this
+                if (!oldValue) return
+                delete g.fileTree.allNodes[oldValue]
+                const dirs = this.get('dirs')
+                const files = this.get('files')
+                dirs.forEach(x => x.path = x.path.replace(oldValue, newValue))
+                files.forEach(x => x.path = x.path.replace(oldValue, newValue))
+                this.set({
+                    files,
+                    dirs
+                })
+            })
             // set icon
             const displayName = this.get('displayName')
             let icon
@@ -116,19 +131,20 @@
                 }
             }
             this.set({
-                icon
+                icon,
+                self: this
             })
 
             // register folder
             if (this.get('isFolder')) {
                 this.observe('open', open => {
                     if (open) {
-                        this.get('fileTree').openedFolders[this.get('path')] = this
+                        g.fileTree.openedFolders[this.get('path')] = this
                         this.set({
                             icon: fileTypeToIcon['folder-open']
                         })
                     } else {
-                        delete this.get('fileTree').openedFolders[this.get('path')]
+                        delete g.fileTree.openedFolders[this.get('path')]
                         this.set({
                             icon: fileTypeToIcon['folder']
                         })
@@ -138,12 +154,12 @@
                 })
             }
 
-            this.get('fileTree').on('cancelAllSelection', () => {
+            g.fileTree.on('cancelAllSelection', () => {
                 this.set({
                     selected: false
                 })
             })
-            
+
             // find a way to move event handler outside
             pressure.set(this.refs.row, {
                 startDeepPress: e => {
@@ -154,26 +170,32 @@
         ondestroy() {
             this.removeChildren()
             delete g.fileTree.allNodes[this.get('path')]
-            delete this.get('fileTree').openedFolders[this.get('path')]
+            delete g.fileTree.openedFolders[this.get('path')]
         },
         data() {
             return {
                 icon: '',
-                displayName: '',
-                path: '',
+                item: undefined,
                 level: 0,
-                fileTree: undefined,
-                isFolder: true,
+                isFolder: false,
                 open: false,
                 selected: false,
-                renaming: false
+                renaming: false,
+                // children
+                dirs: [],
+                files: [],
+                self: this
             }
+        },
+        computed: {
+            displayName: item => item.name,
+            path: item => item.path
         },
         methods: {
             onClick() {
                 const selected = this.get('selected')
                 if (!selected) {
-                    this.get('fileTree').fire('cancelAllSelection')
+                    g.fileTree.fire('cancelAllSelection')
                 }
                 this.set({
                     selected: !selected
@@ -185,12 +207,19 @@
                         open: !this.get('open')
                     })
                     if (this.get('open')) {
-                        this.get('fileTree').ws.send({
+                        g.fileTree.ws.send({
                             cmd: 'openFolder',
                             path: this.get('path'),
                         })
                     } else {
-                        this.removeChildren()
+                        this.set({
+                            files: [],
+                            dirs: []
+                        })
+                        g.fileTree.ws.send({
+                            cmd: 'closeFolder',
+                            path: this.get('path')
+                        })
                     }
                 } else {
                     g.panelMiddle.openFile(this.get('path'), this.get('displayName'))
@@ -198,7 +227,7 @@
 
             },
             onContextMenu(e) {
-                this.get('fileTree').fire('cancelAllSelection')
+                g.fileTree.fire('cancelAllSelection')
                 this.set({
                     selected: true
                 })
@@ -211,11 +240,17 @@
                 })
                 e.preventDefault()
             },
+            redraw() {
+                this.set({
+                    dirs: this.get('dirs').sort((a, b) => a.name > b.name),
+                    files: this.get('files').sort((a, b) => a.name > b.name)
+                })
+            },
             removeChildren() {
-                for (const child of this.children) {
-                    child.destroy()
-                }
-                this.children.length = 0
+                this.set({
+                    dirs: [],
+                    files: []
+                })
             },
             rename() {
                 this.set({

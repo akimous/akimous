@@ -1,7 +1,13 @@
 <div ref:fileTree class="file-tree">
-    <div class="container" ref:children></div>
+    <div class="container" ref:children>
+        {{#each dirs as i @id}}
+        <FileTreeNode item={{i}} parent={{self}} isFolder></FileTreeNode>
+        {{/each}} {{#each files as i @id}}
+        <FileTreeNode item={{i}} parent={{self}}></FileTreeNode>
+        {{/each}}
+    </div>
 </div>
-
+<!--displayName={{i.name}} path={{i.path}} -->
 
 <style>
     .file-tree {
@@ -16,6 +22,7 @@
         -webkit-user-select: none;
         overflow-x: scroll;
     }
+
     .container {
         min-width: 100%;
         display: inline-block;
@@ -29,52 +36,32 @@
     import WSClient from '../lib/WSClient'
     import FileTreeNode from './FileTreeNode.html'
 
-
     export default {
         components: {
+            FileTreeNode
         },
         oncreate() {
             g.fileTree = this
-            this.children = []
+            this.set({
+                self: this
+            })
             this.openedFolders = {}
             this.allNodes = {}
 
-            const addNode = (parent, file, isFolder) => {
-                parent.children.push(new FileTreeNode({
-                    target: parent.refs.children,
-                    data: {
-                        displayName: file.name,
-                        path: file.path,
-                        isFolder,
-                        fileTree: this,
-                        level: parent.get('level') + 1
-                    }
-                }))
-            }
-
             this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
-            this.ws.addHandler('openFolder', data => {
-                console.log('data', data)
+            this.ws.addHandler('openFolder-ok', data => {
                 let target = this.openedFolders[data.path]
-                if (!target) {
-                    target = this
-                    // clear all children
-                    for (const child of this.children) {
-                        child.destroy()
-                    }
-                    this.children.length = 0
-                }
-                for (const dir of data.dirs) {
-                    addNode(target, dir, true)
-                }
-                for (const file of data.files) {
-                    addNode(target, file, false)
-                }
+                if (!target) target = this
+
+                data.dirs.forEach(x => x.id = g.uid)
+                data.files.forEach(x => x.id = g.uid)
+                target.set({
+                    dirs: data.dirs.sort((a, b) => a.name > b.name),
+                    files: data.files.sort((a, b) => a.name > b.name)
+                })
             })
             this.ws.addHandler('rename-ok', data => {
-                console.log('data', data, g.tabBar.pathToTab)
                 const tab = g.tabBar.pathToTab[data.oldPath]
-                console.log('tab', tab, g.tabBar.pathToTab)
                 if (!tab) return
                 tab.set({
                     filePath: data.newPath,
@@ -86,6 +73,16 @@
                     fileName: data.newName
                 })
             })
+            this.ws.addHandler('event-DirRenamed', data => {
+                const node = this.allNodes[data.srcPath]
+                const item = node.get('item')
+                item.name = data.newName
+                item.path = data.destPath
+                node.set({
+                    item
+                })
+                node.get('parent').redraw()
+            })
             this.ws.connect(() => {
                 this.ws.send({
                     cmd: 'openFolder',
@@ -96,11 +93,19 @@
         data() {
             return {
                 path: '.',
-                level: -1,
-
+                dirs: [],
+                files: [],
+                self: this
             }
         },
-        methods: {}
+        methods: {
+            redraw() {
+                this.set({
+                    dirs: this.get('dirs').sort((a, b) => a.name > b.name),
+                    files: this.get('files').sort((a, b) => a.name > b.name)
+                })
+            }
+        }
     }
 
 </script>

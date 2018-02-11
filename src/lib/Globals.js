@@ -1,3 +1,4 @@
+let _uid = 0
 const g = {
     saveFile() {
         g.activeEditor && g.activeEditor.save()
@@ -10,6 +11,9 @@ const g = {
             if (!editor.clean)
                 editor.save()
         }
+    },
+    get uid() {
+        return _uid++
     }
 }
 

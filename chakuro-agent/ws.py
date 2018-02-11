@@ -39,7 +39,7 @@ class WS:
             async def send(obj):
                 await ws.send(json.dumps(obj))
             log.info('Connection %s established.', path)
-            context = SimpleNamespace(observer=None)
+            context = SimpleNamespace(observer=None, observed_watches={})
 
             while 1:
                 msg = await ws.recv()
