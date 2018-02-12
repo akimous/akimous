@@ -105,12 +105,17 @@
         oncreate() {
             this.observe('path', (newValue, oldValue) => {
                 g.fileTree.allNodes[newValue] = this
+                console.log('set allNodes path', newValue)
                 if (!oldValue) return
                 delete g.fileTree.allNodes[oldValue]
                 const dirs = this.get('dirs')
                 const files = this.get('files')
-                dirs.forEach(x => x.path = x.path.replace(oldValue, newValue))
-                files.forEach(x => x.path = x.path.replace(oldValue, newValue))
+                const replacePath = x => {
+                    if (x.path.indexOf(oldValue) !== 0) return
+                    x.path = x.path.replace(oldValue, newValue)
+                }
+                dirs.forEach(replacePath)
+                files.forEach(replacePath)
                 this.set({
                     files,
                     dirs
@@ -139,12 +144,12 @@
             if (this.get('isFolder')) {
                 this.observe('open', open => {
                     if (open) {
-                        g.fileTree.openedFolders[this.get('path')] = this
+//                        g.fileTree.openedFolders[this.get('path')] = this
                         this.set({
                             icon: fileTypeToIcon['folder-open']
                         })
                     } else {
-                        delete g.fileTree.openedFolders[this.get('path')]
+//                        delete g.fileTree.openedFolders[this.get('path')]
                         this.set({
                             icon: fileTypeToIcon['folder']
                         })
@@ -170,7 +175,7 @@
         ondestroy() {
             this.removeChildren()
             delete g.fileTree.allNodes[this.get('path')]
-            delete g.fileTree.openedFolders[this.get('path')]
+//            delete g.fileTree.openedFolders[this.get('path')]
         },
         data() {
             return {

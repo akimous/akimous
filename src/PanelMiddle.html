@@ -36,7 +36,7 @@
             })
         },
         methods: {
-            openFile: function(filePath, fileName) {
+            openFile(filePath, fileName) {
                 let editor = this.pathToEditor[filePath]
                 if (!editor) {
                     new CodeEditor({
@@ -50,6 +50,19 @@
                     g.tabBar.openTab(filePath, fileName)
                 }
                 this.activateFile(filePath)
+            },
+            renameDir(newDirPath, oldDirPath) {
+                for (const oldPath in this.pathToEditor) {
+                    if (oldPath.indexOf(oldDirPath) !== 0) continue
+                    const editor = this.pathToEditor[oldPath]
+                    const newPath = oldPath.replace(oldDirPath, newDirPath)
+                    editor.set({
+                        filePath: newPath
+                    })
+                    g.tabBar.renameDir(newPath, oldPath)
+                    console.log('renamed editor', editor)
+                    console.log('renamed tab', g.tabBar)
+                }
             },
             activateFile(filePath) {
                 // write to activation history

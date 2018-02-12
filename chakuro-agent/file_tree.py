@@ -26,13 +26,12 @@ class ChangeHandler(FileSystemEventHandler):
     def on_moved(self, event):
         log.info('on moved %s', repr(event))
         print(event.event_type, event.src_path, event.dest_path)
-        if event.is_directory:
-            self.send({
-                'cmd': 'event-DirRenamed',
-                'srcPath': event.src_path,
-                'destPath': event.dest_path,
-                'newName': Path(event.dest_path).name
-            })
+        self.send({
+            'cmd': 'event-DirRenamed' if event.is_directory else 'event-FileRenamed',
+            'srcPath': event.src_path,
+            'destPath': event.dest_path,
+            'newName': Path(event.dest_path).name
+        })
 
 
 register = partial(WS.register, 'fileTree')
@@ -82,22 +81,12 @@ async def open_folder(msg, send, context):
         'files': [dict(name=f, path=str(path / f)) for f in files]
     }
     start_monitor(path, send, context)
-    # event_loop = asyncio.get_event_loop()
-    #
-    # def main_thread_send(message):
-    #     event_loop.call_soon_threadsafe(asyncio.ensure_future, send(message))
-    #
-    # change_handler = ChangeHandler(main_thread_send)
-    # context.observed_watches[path] = get_observer(context).schedule(change_handler, str(path))
     await send(result)
 
 
 @register('closeFolder')
 async def close_folder(msg, send, context):
     stop_monitor(msg['path'], context)
-    # path = Path(msg['path'])
-    # get_observer(context).unschedule(context.observed_watches[path])
-    # del context.observed_watches[path]
 
 
 @register('rename')
@@ -105,7 +94,7 @@ async def rename(msg, send, context):
     old_path = Path(msg['path'])
     new_path = old_path.with_name(msg['newName'])
 
-    print(old_path, new_path)
+    log.info('renaming %s to %s', str(old_path), str(new_path))
     result = {
         'oldPath': str(old_path),
         'newPath': str(new_path),

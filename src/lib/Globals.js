@@ -16,5 +16,5 @@ const g = {
         return _uid++
     }
 }
-
+window.g = g
 export default g

@@ -76,7 +76,6 @@
                 g.panelMiddle.pathToEditor[newValue] = this
                 if (oldValue) delete g.panelMiddle.pathToEditor[oldValue]
             })
-            this.filePath = this.get('filePath')
             const fileName = this.get('fileName')
             const mode = CodeMirror.findModeByFileName(fileName)
 
@@ -94,7 +93,7 @@
                     console.log('ws editor connected')
                     this.ws.send({
                         cmd: 'openFile',
-                        filePath: this.filePath
+                        filePath: this.get('filePath')
                     })
                 })
             })
@@ -143,11 +142,11 @@
                 this.ws.addHandler('saveFile-ok', data => {
                     this.clean = true
                     if (this.shouldClose) {
-                        g.panelMiddle.closeFile(this.filePath)
+                        g.panelMiddle.closeFile(this.get('filePath'))
                         return
                     }
                     this.cm.doc.markClean()
-                    g.tabBar.setClean(this.filePath)
+                    g.tabBar.setClean(this.get('filePath'))
                 })
                 this.ws.addHandler('predict-result', data => {
                     this.predictor.receive(data)
@@ -162,7 +161,7 @@
                         e.preventDefault()
                     }
                 }
-            }, 200))
+            }))
         },
         data() {
             return {
@@ -175,7 +174,7 @@
             save() {
                 this.ws.send({
                     cmd: 'saveFile',
-                    filePath: this.filePath,
+                    filePath: this.get('filePath'),
                     content: this.cm.getValue()
                 })
             },

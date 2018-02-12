@@ -7,7 +7,6 @@
         {{/each}}
     </div>
 </div>
-<!--displayName={{i.name}} path={{i.path}} -->
 
 <style>
     .file-tree {
@@ -45,13 +44,18 @@
             this.set({
                 self: this
             })
-            this.openedFolders = {}
+//            this.openedFolders = {}
             this.allNodes = {}
 
             this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
             this.ws.addHandler('openFolder-ok', data => {
-                let target = this.openedFolders[data.path]
-                if (!target) target = this
+//                let target = this.openedFolders[data.path]
+                let target = this.allNodes[data.path]
+                if (!target) {
+                    target = this
+//                    this.openedFolders = {}
+                    this.allNodes = {}
+                }
 
                 data.dirs.forEach(x => x.id = g.uid)
                 data.files.forEach(x => x.id = g.uid)
@@ -61,19 +65,42 @@
                 })
             })
             this.ws.addHandler('rename-ok', data => {
-                const tab = g.tabBar.pathToTab[data.oldPath]
-                if (!tab) return
-                tab.set({
-                    filePath: data.newPath,
-                    fileName: data.newName
-                })
-                const editor = g.panelMiddle.pathToEditor[data.oldPath]
-                editor.set({
-                    filePath: data.newPath,
-                    fileName: data.newName
-                })
+                //                const tab = g.tabBar.pathToTab[data.oldPath]
+                //                if (!tab) return
+                //                tab.set({
+                //                    filePath: data.newPath,
+                //                    fileName: data.newName
+                //                })
+                //                const editor = g.panelMiddle.pathToEditor[data.oldPath]
+                //                editor.set({
+                //                    filePath: data.newPath,
+                //                    fileName: data.newName
+                //                })
             })
+            const renamingEventHandler = data => {
+                console.log('renamingEventHandler', data)
+                // change file tree names
+                const node = this.allNodes[data.srcPath]
+                console.warn(this.allNodes, data.srcPath, data.destPath)
+                const item = node.get('item')
+                item.name = data.newName
+                item.path = data.destPath
+                node.set({
+                    item
+                })
+                node.get('parent').redraw()
+
+                // change paths to opened files
+                if (data.cmd === 'event-FileRenamed') {
+                    g.panelMiddle.renameDir(data.destPath, data.srcPath)
+                    g.tabBar.renameFile(data.destPath, data.newName)
+                } else if (data.cmd === 'event-DirRenamed') {
+                    g.panelMiddle.renameDir(data.destPath, data.srcPath)
+                }
+            }
+            this.ws.addHandler('event-FileRenamed', renamingEventHandler)
             this.ws.addHandler('event-DirRenamed', data => {
+                // change file tree names
                 const node = this.allNodes[data.srcPath]
                 const item = node.get('item')
                 item.name = data.newName
@@ -82,7 +109,11 @@
                     item
                 })
                 node.get('parent').redraw()
+
+                // change paths to opened files
+                g.panelMiddle.renameDir(data.destPath, data.srcPath)
             })
+
             this.ws.connect(() => {
                 this.ws.send({
                     cmd: 'openFolder',

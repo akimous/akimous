@@ -51,11 +51,31 @@
                         active: true
                     }
                 })
-//                this.pathToTab[filePath] = tab
             },
             closeTab(filePath) {
                 this.pathToTab[filePath].destroy()
                 delete this.pathToTab[filePath]
+            },
+            renameDir(newPath, oldPath) {
+                const tab = this.pathToTab[oldPath]
+                tab.set({
+                    filePath: newPath,
+                })
+                const activeFilePath = this.get('activeFilePath')
+                if (activeFilePath && activeFilePath.indexOf(oldPath) === 0)
+                    this.set({
+                        activeFilePath: activeFilePath.replace(oldPath, newPath)
+                    })
+            },
+            renameFile(newPath, newName) {
+                // must renameDir first befor calling this
+                const tab = this.pathToTab[newPath]
+                if (!tab) {
+                    console.error('tab is null', this.pathToTab)
+                }
+                tab.set({
+                    fileName: newName,
+                })
             },
             setClean(filePath) {
                 this.pathToTab[filePath].set({
