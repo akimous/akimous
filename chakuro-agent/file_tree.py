@@ -9,13 +9,12 @@ from logzero import logger as log
 
 
 class ChangeHandler(FileSystemEventHandler):
-    def __init__(self, send):
+    def __init__(self, context):
         super().__init__()
-        self.send = send
+        self.context = context
 
     def on_created(self, event):
         log.info('on create %s', repr(event))
-        self.send('456')
 
     def on_deleted(self, event):
         log.info('on delete %s', repr(event))
@@ -26,12 +25,15 @@ class ChangeHandler(FileSystemEventHandler):
     def on_moved(self, event):
         log.info('on moved %s', repr(event))
         print(event.event_type, event.src_path, event.dest_path)
-        self.send({
+        self.context.main_thread_send({
             'cmd': 'event-DirRenamed' if event.is_directory else 'event-FileRenamed',
-            'srcPath': event.src_path,
-            'destPath': event.dest_path,
+            'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
             'newName': Path(event.dest_path).name
         })
+        for k in tuple(self.context.observed_watches.keys()):
+            if k.startswith(event.src_path):
+                stop_monitor(k, self.context)
+                start_monitor(k.replace(event.src_path, event.dest_path), self.context)
 
 
 register = partial(WS.register, 'fileTree')
@@ -47,19 +49,16 @@ def get_observer(context):
     return observer
 
 
-def start_monitor(path, send, context):
+def start_monitor(path, context):
     path = str(path)
-    event_loop = asyncio.get_event_loop()
-
-    def main_thread_send(message):
-        event_loop.call_soon_threadsafe(asyncio.ensure_future, send(message))
-
-    change_handler = ChangeHandler(main_thread_send)
+    log.warn('starting monitor %s', path)
+    change_handler = ChangeHandler(context)
     context.observed_watches[path] = get_observer(context).schedule(change_handler, path)
 
 
 def stop_monitor(path, context):
     path = str(path)
+    log.warn('stopping monitor %s', path)
     watch = context.observed_watches.get(path, None)
     if watch is None:
         log.error('stopping watch of path %s', path)
@@ -71,27 +70,31 @@ def stop_monitor(path, context):
 
 @register('openFolder')
 async def open_folder(msg, send, context):
-    path = Path(msg['path']).absolute()
-    root, dirs, files = next(os.walk(Path(path)))
+    is_root = msg.get('isRoot', False)
+    if is_root:
+        path = Path(msg['path']).resolve()
+        context.fileRoot = path
+    else:
+        path = Path(context.fileRoot, *msg['path'])
+    root, dirs, files = next(os.walk(path))
     result = {
         'cmd': 'openFolder-ok',
-        'folderName': path.name,
-        'path': str(path),
-        'dirs': [dict(name=d, path=str(path / d)) for d in dirs],
-        'files': [dict(name=f, path=str(path / f)) for f in files]
+        'path': path.relative_to(context.fileRoot).parts,
+        'dirs': dirs,
+        'files': files
     }
-    start_monitor(path, send, context)
+    start_monitor(path, context)
     await send(result)
 
 
 @register('closeFolder')
 async def close_folder(msg, send, context):
-    stop_monitor(msg['path'], context)
+    stop_monitor(Path(context.fileRoot, *msg['path']), context)
 
 
 @register('rename')
 async def rename(msg, send, context):
-    old_path = Path(msg['path'])
+    old_path = Path(context.fileRoot, *msg['path'])
     new_path = old_path.with_name(msg['newName'])
 
     log.info('renaming %s to %s', str(old_path), str(new_path))
@@ -108,7 +111,7 @@ async def rename(msg, send, context):
             result.update(cmd='rename-ok')
             if str(old_path) in context.observed_watches:
                 stop_monitor(old_path, context)
-                start_monitor(new_path, send, context)
+                start_monitor(new_path, context)
         except IOError as e:
             result.update(cmd='rename-failed', reason=repr(e))
     await send(result)

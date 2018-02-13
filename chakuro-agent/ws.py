@@ -39,7 +39,14 @@ class WS:
             async def send(obj):
                 await ws.send(json.dumps(obj))
             log.info('Connection %s established.', path)
-            context = SimpleNamespace(observer=None, observed_watches={})
+
+            def main_thread_send(message):
+                context.event_loop.call_soon_threadsafe(asyncio.ensure_future, send(message))
+
+            context = SimpleNamespace(observer=None,
+                                      observed_watches={},
+                                      event_loop=asyncio.get_event_loop(),
+                                      main_thread_send=main_thread_send)
 
             while 1:
                 msg = await ws.recv()

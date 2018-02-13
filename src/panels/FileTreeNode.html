@@ -1,14 +1,14 @@
 <div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node {{selected?'selected':''}}" style="padding-left: {{0.3 + level}}rem;">
     <span class="icon {{icon}}"></span> {{#if !renaming}}
     <span class="display-name"> 
-        {{displayName}}
+        {{name}}
     </span> {{else}}
-    <input ref:input class="display-name" type="text" value="{{displayName}}" on:blur="commitRename()"> {{/if}}
+    <input ref:input class="display-name" type="text" value="{{name}}" on:blur="commitRename()"> {{/if}}
 </div>
 <div ref:children>
-    {{#each dirs as i @id}}
-    <:Self level={{level+1}} item={{i}} parent={{self}} isFolder/> {{/each}} {{#each files as i @name}}
-    <:Self level={{level+1}} item={{i}} parent={{self}} /> {{/each}}
+    {{#each dirs as i @uid}}
+    <:Self level={{level+1}} name={{i.name}} parent={{self}} isFolder/> {{/each}} {{#each files as i @uid}}
+    <:Self level={{level+1}} name={{i.name}} parent={{self}} /> {{/each}}
 </div>
 
 
@@ -103,32 +103,22 @@
     export default {
         components: {},
         oncreate() {
-            this.observe('path', (newValue, oldValue) => {
-                g.fileTree.allNodes[newValue] = this
-                console.log('set allNodes path', newValue)
-                if (!oldValue) return
-                delete g.fileTree.allNodes[oldValue]
-                const dirs = this.get('dirs')
-                const files = this.get('files')
-                const replacePath = x => {
-                    if (x.path.indexOf(oldValue) !== 0) return
-                    x.path = x.path.replace(oldValue, newValue)
-                }
-                dirs.forEach(replacePath)
-                files.forEach(replacePath)
-                this.set({
-                    files,
-                    dirs
-                })
+            this.children = {}
+            this.observe('name', (newValue, oldValue) => {
+                console.log('observed name change', newValue, oldValue)
+                const parent = this.get('parent')
+                if (oldValue) delete parent.children[oldValue]
+                parent.children[newValue] = this
             })
+            
             // set icon
-            const displayName = this.get('displayName')
+            const name = this.get('name')
             let icon
             if (this.get('isFolder')) {
                 icon = fileTypeToIcon['folder']
             } else {
                 try {
-                    const fileType = displayName.substring(displayName.lastIndexOf('.') + 1)
+                    const fileType = name.substring(name.lastIndexOf('.') + 1)
                     icon = fileTypeToIcon[fileType]
                     if (!icon) icon = defaultIcon
                 } catch (e) {
@@ -144,12 +134,10 @@
             if (this.get('isFolder')) {
                 this.observe('open', open => {
                     if (open) {
-//                        g.fileTree.openedFolders[this.get('path')] = this
                         this.set({
                             icon: fileTypeToIcon['folder-open']
                         })
                     } else {
-//                        delete g.fileTree.openedFolders[this.get('path')]
                         this.set({
                             icon: fileTypeToIcon['folder']
                         })
@@ -165,7 +153,7 @@
                 })
             })
 
-            // find a way to move event handler outside
+            // todo: find a way to move event handler outside
             pressure.set(this.refs.row, {
                 startDeepPress: e => {
                     this.rename()
@@ -174,13 +162,11 @@
         },
         ondestroy() {
             this.removeChildren()
-            delete g.fileTree.allNodes[this.get('path')]
-//            delete g.fileTree.openedFolders[this.get('path')]
         },
         data() {
             return {
+                name: '',
                 icon: '',
-                item: undefined,
                 level: 0,
                 isFolder: false,
                 open: false,
@@ -189,14 +175,21 @@
                 // children
                 dirs: [],
                 files: [],
-                self: this
+                self: this,
+                parent: undefined,
             }
         },
-        computed: {
-            displayName: item => item.name,
-            path: item => item.path
-        },
         methods: {
+            getPath() {
+                const path = [this.get('name')]
+                let node = this.get('parent'),
+                    name
+                while (name = node.get('name')) {
+                    path.push(name)
+                    node = node.get('parent')
+                }
+                return path.reverse()
+            },
             onClick() {
                 const selected = this.get('selected')
                 if (!selected) {
@@ -214,7 +207,7 @@
                     if (this.get('open')) {
                         g.fileTree.ws.send({
                             cmd: 'openFolder',
-                            path: this.get('path'),
+                            path: this.getPath(),
                         })
                     } else {
                         this.set({
@@ -223,11 +216,11 @@
                         })
                         g.fileTree.ws.send({
                             cmd: 'closeFolder',
-                            path: this.get('path')
+                            path: this.getPath()
                         })
                     }
                 } else {
-                    g.panelMiddle.openFile(this.get('path'), this.get('displayName'))
+                    g.panelMiddle.openFile(this.getPath(), this.get('name'))
                 }
 
             },
@@ -276,10 +269,10 @@
                 }
             },
             commitRename() {
-                if (this.refs.input.value !== this.get('displayName') && this.refs.input.value.length > 0)
+                if (this.refs.input.value !== this.get('name') && this.refs.input.value.length > 0)
                     g.fileTree.ws.send({
                         cmd: 'rename',
-                        path: this.get('path'),
+                        path: this.getPath(),
                         newName: this.refs.input.value
                     })
                 this.set({

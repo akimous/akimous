@@ -19,9 +19,10 @@ model = joblib.load(Path(MODEL_PATH))
 model.n_jobs = 1
 log.info(f'Model {MODEL_PATH} loaded, n_jobs={model.n_jobs}')
 
+
 @register('openFile')
 async def open_file(msg, send, context):
-    context.path = Path(msg['filePath'])
+    context.path = Path(*msg['filePath'])
     with open(context.path) as f:
         content = f.read()
     context.doc = content.splitlines()

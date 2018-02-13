@@ -1,9 +1,9 @@
 <div ref:fileTree class="file-tree">
     <div class="container" ref:children>
-        {{#each dirs as i @id}}
-        <FileTreeNode item={{i}} parent={{self}} isFolder></FileTreeNode>
-        {{/each}} {{#each files as i @id}}
-        <FileTreeNode item={{i}} parent={{self}}></FileTreeNode>
+        {{#each dirs as i @uid}}
+        <FileTreeNode name={{i.name}} parent={{self}} isFolder></FileTreeNode>
+        {{/each}} {{#each files as i @uid}}
+        <FileTreeNode name={{i.name}} parent={{self}}></FileTreeNode>
         {{/each}}
     </div>
 </div>
@@ -40,101 +40,77 @@
             FileTreeNode
         },
         oncreate() {
+            this.children = {}
             g.fileTree = this
             this.set({
-                self: this
+                self: this,
             })
-//            this.openedFolders = {}
-            this.allNodes = {}
-
             this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
-            this.ws.addHandler('openFolder-ok', data => {
-//                let target = this.openedFolders[data.path]
-                let target = this.allNodes[data.path]
-                if (!target) {
-                    target = this
-//                    this.openedFolders = {}
-                    this.allNodes = {}
+
+            const sortAndAddUid = arr => arr.sort().map(i => {
+                return {
+                    name: i,
+                    uid: g.uid
                 }
-
-                data.dirs.forEach(x => x.id = g.uid)
-                data.files.forEach(x => x.id = g.uid)
-                target.set({
-                    dirs: data.dirs.sort((a, b) => a.name > b.name),
-                    files: data.files.sort((a, b) => a.name > b.name)
+            })
+            this.ws.addHandler('openFolder-ok', data => {
+                this.getNode(data.path).set({
+                    dirs: sortAndAddUid(data.dirs),
+                    files: sortAndAddUid(data.files)
                 })
             })
-            this.ws.addHandler('rename-ok', data => {
-                //                const tab = g.tabBar.pathToTab[data.oldPath]
-                //                if (!tab) return
-                //                tab.set({
-                //                    filePath: data.newPath,
-                //                    fileName: data.newName
-                //                })
-                //                const editor = g.panelMiddle.pathToEditor[data.oldPath]
-                //                editor.set({
-                //                    filePath: data.newPath,
-                //                    fileName: data.newName
-                //                })
-            })
-            const renamingEventHandler = data => {
-                console.log('renamingEventHandler', data)
-                // change file tree names
-                const node = this.allNodes[data.srcPath]
-                console.warn(this.allNodes, data.srcPath, data.destPath)
-                const item = node.get('item')
-                item.name = data.newName
-                item.path = data.destPath
+
+            const sortSiblings = (node, type) => {
                 node.set({
-                    item
+                    type: node.get(type).sort((a, b) => a.name > b.name)
                 })
-                node.get('parent').redraw()
-
+            }
+            const renamingEventHandler = data => {
+                // change file tree names
+                const node = this.getNode(data.path)
+                const parent = node.get('parent')
+                const oldName = data.path[data.path.length - 1]
+                node.set({
+                    name: data.newName
+                })
                 // change paths to opened files
                 if (data.cmd === 'event-FileRenamed') {
+                    parent.get('files').find(x => x.name == oldName).name = data.newName
+                    sortSiblings(parent, 'files')
                     g.panelMiddle.renameDir(data.destPath, data.srcPath)
                     g.tabBar.renameFile(data.destPath, data.newName)
                 } else if (data.cmd === 'event-DirRenamed') {
+                    parent.get('dirs').find(x => x.name == oldName).name = data.newName
+                    sortSiblings(parent, 'dirs')
                     g.panelMiddle.renameDir(data.destPath, data.srcPath)
                 }
             }
             this.ws.addHandler('event-FileRenamed', renamingEventHandler)
-            this.ws.addHandler('event-DirRenamed', data => {
-                // change file tree names
-                const node = this.allNodes[data.srcPath]
-                const item = node.get('item')
-                item.name = data.newName
-                item.path = data.destPath
-                node.set({
-                    item
-                })
-                node.get('parent').redraw()
-
-                // change paths to opened files
-                g.panelMiddle.renameDir(data.destPath, data.srcPath)
-            })
+            this.ws.addHandler('event-DirRenamed', renamingEventHandler)
 
             this.ws.connect(() => {
                 this.ws.send({
                     cmd: 'openFolder',
-                    path: this.get('path'),
+                    path: this.get('root'),
+                    isRoot: true
                 })
             })
         },
         data() {
             return {
-                path: '.',
+                root: '.',
                 dirs: [],
                 files: [],
                 self: this
             }
         },
         methods: {
-            redraw() {
-                this.set({
-                    dirs: this.get('dirs').sort((a, b) => a.name > b.name),
-                    files: this.get('files').sort((a, b) => a.name > b.name)
-                })
+            getNode(path) {
+                let node = this
+                for (const i of path) {
+                    node = node.children[i]
+                }
+                return node
             }
         }
     }
