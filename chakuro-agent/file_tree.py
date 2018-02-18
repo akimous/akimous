@@ -15,9 +15,17 @@ class ChangeHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         log.info('on create %s', repr(event))
+        self.context.main_thread_send({
+            'cmd': 'event-DirCreated' if event.is_directory else 'event-FileCreated',
+            'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
+        })
 
     def on_deleted(self, event):
         log.info('on delete %s', repr(event))
+        self.context.main_thread_send({
+            'cmd': 'event-DirDeleted' if event.is_directory else 'event-FileDeleted',
+            'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
+        })
 
     def on_modified(self, event):
         log.info('on modified %s', repr(event))

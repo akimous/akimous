@@ -60,7 +60,7 @@
                 })
             })
 
-            const sortSiblings = (node, type) => {
+            const sortChildren = (node, type) => {
                 node.set({
                     type: node.get(type).sort((a, b) => a.name > b.name)
                 })
@@ -70,24 +70,60 @@
                 const node = this.getNode(data.path)
                 const parent = node.get('parent')
                 const oldName = data.path[data.path.length - 1]
+                const target = data.cmd === 'event-FileRenamed' ? 'files' : 'dirs'
                 node.set({
                     name: data.newName
                 })
                 // change paths to opened files
-                if (data.cmd === 'event-FileRenamed') {
-                    parent.get('files').find(x => x.name == oldName).name = data.newName
-                    sortSiblings(parent, 'files')
-                    g.panelMiddle.renameDir(data.destPath, data.srcPath)
-                    g.tabBar.renameFile(data.destPath, data.newName)
-                } else if (data.cmd === 'event-DirRenamed') {
-                    parent.get('dirs').find(x => x.name == oldName).name = data.newName
-                    sortSiblings(parent, 'dirs')
-                    g.panelMiddle.renameDir(data.destPath, data.srcPath)
-                }
+                parent.get(target).find(x => x.name == oldName).name = data.newName
+                sortChildren(parent, target)
+                g.panelMiddle.renameDir(data.destPath, data.srcPath)
+
+                if (target === 'files') g.tabBar.renameFile(data.destPath, data.newName)
             }
             this.ws.addHandler('event-FileRenamed', renamingEventHandler)
             this.ws.addHandler('event-DirRenamed', renamingEventHandler)
 
+
+            // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
+            function binarySearch(array, target) {
+                let lo = -1,
+                    hi = array.length
+                while (1 + lo !== hi) {
+                    const mi = lo + ((hi - lo) >> 1);
+                    if (array[mi].name === target) hi = mi;
+                    else lo = mi
+                }
+                return hi;
+            }
+            const handlerFactory = (target, eventType) => {
+                return data => {
+                    const node = this.getNode(data.path.slice(0, -1))
+                    const arr = node.get(target)
+                    const name = data.path[data.path.length - 1]
+                    const position = binarySearch(arr, name)
+                    if (eventType === 'created')
+                        arr.splice(position, 0, {
+                            name,
+                            uid: g.uid
+                        })
+                    else arr.splice(position, 1)
+                    
+                    if (target === 'files')
+                        node.set({
+                            files: arr
+                        })
+                    else
+                        node.set({
+                            dirs: arr
+                        })
+                }
+            }
+            this.ws.addHandler('event-FileCreated', handlerFactory('files', 'created'))
+            this.ws.addHandler('event-DirCreated', handlerFactory('dirs', 'created'))
+            this.ws.addHandler('event-FileDeleted', handlerFactory('files', 'deleted'))
+            this.ws.addHandler('event-DirDeleted', handlerFactory('dirs', 'deleted'))
+            
             this.ws.connect(() => {
                 this.ws.send({
                     cmd: 'openFolder',

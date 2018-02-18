@@ -105,7 +105,6 @@
         oncreate() {
             this.children = {}
             this.observe('name', (newValue, oldValue) => {
-                console.log('observed name change', newValue, oldValue)
                 const parent = this.get('parent')
                 if (oldValue) delete parent.children[oldValue]
                 parent.children[newValue] = this
