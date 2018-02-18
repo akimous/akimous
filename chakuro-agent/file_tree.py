@@ -1,5 +1,4 @@
 import os
-import asyncio
 from functools import partial
 from pathlib import Path
 from watchdog.observers import Observer
@@ -26,6 +25,9 @@ class ChangeHandler(FileSystemEventHandler):
             'cmd': 'event-DirDeleted' if event.is_directory else 'event-FileDeleted',
             'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
         })
+        for k in tuple(self.context.observed_watches.keys()):
+            if k.startswith(event.src_path):
+                stop_monitor(k, self.context)
 
     def on_modified(self, event):
         log.info('on modified %s', repr(event))

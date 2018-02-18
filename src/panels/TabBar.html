@@ -70,9 +70,8 @@
             renameFile(newPath, newName) {
                 // must renameDir first befor calling this
                 const tab = this.pathToTab[newPath]
-                if (!tab) {
-                    console.error('tab is null', this.pathToTab)
-                }
+                if (!tab) return
+
                 tab.set({
                     fileName: newName,
                 })
