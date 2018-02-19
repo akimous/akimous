@@ -65,38 +65,37 @@
 
     const contextMenu = [{
         text: 'New File',
-        icon: 'fa fa-file-o',
+        icon: 'far fa-file',
         callback: () => {
             console.log('new file clicked')
         }
     }, {
         text: 'New Folder',
-        icon: 'fa fa-folder-o',
+        icon: 'fas fa-folder',
         callback: () => {}
     }, {
         text: 'New Python Module',
-        icon: 'fa fa-cube',
+        icon: 'fas fa-cube',
         callback: () => {}
     }, {
         divider: true
     }, {
         text: 'Rename',
-        icon: 'fa fa-pencil-square-o',
+        icon: 'fas fa-pen-square',
         callback: (target) => {
-            console.log(target)
             target.rename()
         }
     }, {
         text: 'Delete',
-        icon: 'fa fa-trash-o',
+        icon: 'fas fa-trash',
         callback: () => {}
     }, {
         text: 'Show in File Manager',
-        icon: 'fa fa-external-link',
+        icon: 'fas fa-external-link-alt',
         callback: () => {}
     }, {
         text: 'Copy Path',
-        icon: 'fa fa-link',
+        icon: 'fas fa-link',
         callback: () => {}
     }]
 

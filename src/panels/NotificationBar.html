@@ -1,0 +1,43 @@
+<div ref:notificationBar id="notification-bar"> {{{text}}}
+    {{#each actions as action}}
+    <span></span>
+    {{/each}} 
+</div>
+
+
+<style>
+    #notification-bar {
+        position: absolute;
+        top: 0;
+        height: var(--toolbar-height);
+        width: 100%;
+        z-index: 20;
+        background: red;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {},
+        data() {
+            return {
+                text: "Notification",
+                actions: [
+                    {
+                        name: "test",
+                        callback() {
+                            console.log('test')
+                        }
+                    }
+                ]
+            }
+        },
+        methods: {}
+    }
+
+</script>

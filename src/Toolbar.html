@@ -1,4 +1,5 @@
 <div id="toolbar"></div>
+<NotificationBar></NotificationBar>
 
 <style>
     #toolbar {
@@ -31,5 +32,18 @@
 </style>
 
 <script>
-    
+    import g from './lib/Globals'
+    import NotificationBar from './panels/NotificationBar.html'
+
+    export default {
+        components: {
+            NotificationBar
+        },
+        oncreate() {},
+        data() {
+            return {}
+        },
+        methods: {}
+    }
+
 </script>
