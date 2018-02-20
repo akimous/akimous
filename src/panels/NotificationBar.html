@@ -1,10 +1,9 @@
-<div ref:notificationBar id="notification-bar" class="{{level}}" style="{{active?'':'display:none'}}"> 
-    {{{text}}} 
-    {{#each actions as action}}
+<div ref:notificationBar id="notification-bar" class="{{level}}" style="{{active?'':'display:none'}}">
+    {{{text}}} {{#each actions as action}}
     <span class="action" on:click="doAction(action)">
         {{action.name}}
     </span> {{/each}}
-    <div class="dismiss" on:click="set({active: false})">
+    <div class="dismiss" on:click="showNext()">
         <i class="fas fa-times"></i>
     </div>
 </div>
@@ -29,11 +28,11 @@
         right: 0;
         width: 2rem;
     }
-    
+
     .dismiss:hover {
         color: white;
     }
-    
+
     .action {
         padding: 0.1rem 0.5rem;
         margin: 0 0.5rem;
@@ -42,17 +41,17 @@
         border: 0.1rem solid var(--gray3);
         border-radius: 0.3rem;
     }
-    
+
     .action:hover {
         background: var(--gray1);
         color: var(--blue);
     }
-    
+
     .question {
         background: var(--darker-blue);
     }
 
-    .info {
+    .success {
         background: var(--darker-green);
     }
 
@@ -70,13 +69,15 @@
 <script>
     import g from '../lib/Globals'
 
-
     export default {
         components: {},
-        oncreate() {},
+        oncreate() {
+            this.queue = []
+            g.notificationBar = this
+        },
         data() {
             return {
-                active: true,
+                active: false,
                 text: "Notification",
                 level: 'question',
                 actions: [{
@@ -90,9 +91,36 @@
         methods: {
             doAction(action) {
                 action.callback()
-                this.set({
-                    active: false
+                this.showNext()
+            },
+            show(level, text, actions) {
+                this.queue.push({
+                    level,
+                    text,
+                    actions
                 })
+                if (!this.get('active'))
+                    this.showNext()
+            },
+            showNext() {
+                if (!this.queue.length) {
+                    this.set({
+                        active: false
+                    })
+                    return
+                }
+            
+                const notification = this.queue.shift()
+                let timeout = undefined
+                if (notification.level === 'success') timeout = 1500
+                else if (notification.level === 'warning') timeout = 5000
+                if (timeout) {
+                    this.timer = setTimeout(() => this.showNext(), timeout)
+                }
+                
+                notification.actions = notification.actions || []
+                notification.active = true
+                this.set(notification)
             }
         }
     }

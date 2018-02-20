@@ -83,7 +83,12 @@
             }
             this.ws.addHandler('event-FileRenamed', renamingEventHandler)
             this.ws.addHandler('event-DirRenamed', renamingEventHandler)
-
+            this.ws.addHandler('rename-ok', data => {
+                g.notificationBar.show('success', `"<b>${data.oldName}</b>" has been renamed to "<b>${data.newName}</b>"`)
+            })
+            this.ws.addHandler('rename-failed', data => {
+                g.notificationBar.show('warning', `Failed to rename "<b>${data.oldName}</b>". ${data.reason}.`)
+            })
 
             // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
             function binarySearch(array, target) {

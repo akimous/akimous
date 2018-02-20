@@ -111,6 +111,7 @@ async def rename(msg, send, context):
     result = {
         'oldPath': str(old_path),
         'newPath': str(new_path),
+        'oldName': str(old_path.name),
         'newName': msg['newName']
     }
     if new_path.exists():
@@ -122,6 +123,6 @@ async def rename(msg, send, context):
             if str(old_path) in context.observed_watches:
                 stop_monitor(old_path, context)
                 start_monitor(new_path, context)
-        except IOError as e:
-            result.update(cmd='rename-failed', reason=repr(e))
+        except OSError as e:
+            result.update(cmd='rename-failed', reason=e.strerror)
     await send(result)

@@ -835,8 +835,8 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
 codemirror@^5.33.0:
-  version "5.34.0"
-  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.34.0.tgz#e345dcc09a6149db65cc70dff9d389c1c4b0cd06"
+  version "5.35.0"
+  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.35.0.tgz#280653d495455bc66aa87e6284292b02775ba878"
 
 color-convert@^1.9.0:
   version "1.9.1"
@@ -2882,8 +2882,8 @@ rollup-plugin-commonjs@^8.2.6:
     rollup-pluginutils "^2.0.1"
 
 rollup-plugin-node-resolve@^3.0.0:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-node-resolve/-/rollup-plugin-node-resolve-3.0.2.tgz#38babc12fd404cc2ba1ff68648fe43fa3ffee6b0"
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-node-resolve/-/rollup-plugin-node-resolve-3.0.3.tgz#8f57b253edd00e5b0ad0aed7b7e9cf5982e98fa4"
   dependencies:
     builtin-modules "^1.1.0"
     is-module "^1.0.0"
@@ -3236,16 +3236,12 @@ supports-color@^4.0.0:
     has-flag "^2.0.0"
 
 svelte-cli@^2.0.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/svelte-cli/-/svelte-cli-2.1.0.tgz#c336bae98cbb9ded89bb90998f9ace707e8f46a6"
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/svelte-cli/-/svelte-cli-2.2.0.tgz#e7509453962a86e808ae2cb86cde01786e575989"
   dependencies:
     svelte "^1"
 
-svelte@^1:
-  version "1.51.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.51.0.tgz#2a59b63dfa080c961ce1be4fff23aa7fef809456"
-
-svelte@^1.50.0:
+svelte@^1, svelte@^1.50.0:
   version "1.55.0"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.55.0.tgz#16494fc8e56ae83da705e1333b2146b5acbba884"
 
