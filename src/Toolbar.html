@@ -1,5 +1,6 @@
 <div id="toolbar"></div>
 <NotificationBar></NotificationBar>
+<NotificationHistory></NotificationHistory>
 
 <style>
     #toolbar {
@@ -34,10 +35,12 @@
 <script>
     import g from './lib/Globals'
     import NotificationBar from './panels/NotificationBar.html'
+    import NotificationHistory from './panels/NotificationHistory.html'
 
     export default {
         components: {
-            NotificationBar
+            NotificationBar,
+            NotificationHistory
         },
         oncreate() {},
         data() {

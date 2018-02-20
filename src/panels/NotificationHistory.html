@@ -1,0 +1,53 @@
+<div ref:notificationHistory id="notification-history">
+    1234
+</div>
+
+
+<style>
+    #notification-history {
+        position: absolute;
+        right: 0.5rem;
+        top: calc(var(--toolbar-height) + 0.5rem);
+        width: var(--prompt-width);
+        min-height: 10rem;
+        max-height: 70rem;
+        z-index: 11;
+        background: var(--modal-bg-color);
+        color: var(--modal-text-color);
+        box-sizing: border-box;
+        border-radius: var(--default-radius);
+        box-shadow: var(--default-shadow);
+    }
+
+    /* https://leaverou.github.io/bubbly/ */
+    #notification-history:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0.5rem;
+        width: 0;
+        height: 0;
+        border: 0.5rem solid transparent;
+        border-bottom-color: var(--modal-bg-color);
+        border-top: 0;
+        margin-left: -0.5rem;
+        margin-top: -0.5rem;
+        border-right: 0;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {},
+        data() {
+            return {}
+        },
+        methods: {}
+    }
+
+</script>

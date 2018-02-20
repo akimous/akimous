@@ -89,14 +89,14 @@
                 const editor = this.pathToEditor[filePath]
                 // if the file has been edited, prompt for saving
                 if (!editor.clean) {
+                    // todo: close completion, blur editor
                     g.prompt.open({
-                        icon: 'fa fa-hdd-o',
+                        icon: 'far fa-hdd',
                         content: `Do you want to save the changes you made in <em>${editor.get('fileName')}</em> ?`,
                         buttons: [{
                             text: `Don't Save`,
                             style: 'danger',
                             action: () => {
-                                console.log('fuck')
                                 editor.clean = true
                                 this.closeFile(filePath)
                             }

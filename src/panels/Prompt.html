@@ -25,10 +25,10 @@
         font-size: var(--ui-font-size-large);
         padding: 2rem;
         box-sizing: border-box;
-        border-radius: .5rem;
+        border-radius: var(--default-radius);
         cursor: default;
         z-index: 9999;
-        box-shadow: 0 .5rem .5rem rgba(0, 0, 0, 0.5);
+        box-shadow: var(--default-shadow);
     }
 
     .icon-area {
@@ -123,7 +123,7 @@
         data() {
             return {
                 active: false,
-                icon: 'fa fa-question-circle',
+                icon: 'far fa-question-circle',
                 content: '',
                 buttons: [{
                     text: 'Yes',

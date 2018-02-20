@@ -28,6 +28,7 @@ async def open_file(msg, send, context):
     context.doc = content.splitlines()
     await send({
         'cmd': 'openFile',
+        'mtime': str(context.path.stat().st_mtime),
         'content': content
     })
 
@@ -76,7 +77,6 @@ async def predict(msg, send, context):
     else: 
         result = []
 
-    
     await send({
         'cmd': 'predict-result',
         'line': line_number,
