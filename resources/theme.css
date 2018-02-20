@@ -37,7 +37,7 @@ body {
     --basic-ui-font-color: #ccc;
     --brighter-ui-font-color: #eee;
     --basic-ui-font-family: 'Roboto', 'Lucida Grande', 'Helvetica Neue', sans-serif;
-    --basic-ui-font-size: .95rem;
+    --basic-ui-font-size: 1rem;
     --ui-font-size-small: .8rem;
     --ui-font-size-large: 1.6rem;
     --basic-ui-line-height: 1.6rem;
