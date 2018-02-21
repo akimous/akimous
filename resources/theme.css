@@ -31,6 +31,7 @@ body {
     --panel-left-width: calc(8rem + 7vw);
     --panel-right-width: 3rem;
     --prompt-width: 40rem;
+    --bubble-width: 30rem;
     
     --tab-bar-icon-size: 1.4rem;
     
@@ -53,6 +54,7 @@ body {
     --red: #c0392b;
     --brighter-red: #e74c3c;
     --darker-red: #992D22;
+    --light-red: #ff7675;
     
     --orange: #d35400;
     --brighter-orange: #e67e22;
@@ -61,10 +63,12 @@ body {
     --yellow: #f39c12;
     --brighter-yellow: #f1c40f;
     --darker-yellow: #CC830F;
+    --light-yellow: #ffeaa7;
     
     --green: #27ae60;
     --brighter-green: #2ecc71;
     --darker-green: #1E874B;
+    --light-green: #55efc4;
     
     --ao: #16a085;
     --brighter-ao: #1abc9c;
@@ -73,6 +77,7 @@ body {
     --blue: #2980b9;
     --brighter-blue: #3498db;
     --darker-blue: #216694;
+    --light-blue: #74b9ff;
     
     --purple: #8e44ad;
     --brighter-purple: #9b59b6;

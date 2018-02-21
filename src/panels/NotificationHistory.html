@@ -1,6 +1,15 @@
+{{#if open}}
 <div ref:notificationHistory id="notification-history">
-    1234
+    <div class="container">
+        {{#if items.length===0}}
+        <div class="no-notifications">
+            No Notifications
+        </div> {{/if}} {{#each items as item}}
+        <div class="item {{item.level}}">{{{item.message}}}</div>
+        {{/each}}
+    </div>
 </div>
+{{/if}}
 
 
 <style>
@@ -8,9 +17,9 @@
         position: absolute;
         right: 0.5rem;
         top: calc(var(--toolbar-height) + 0.5rem);
-        width: var(--prompt-width);
+        width: var(--bubble-width);
         min-height: 10rem;
-        max-height: 70rem;
+        max-height: 40rem;
         z-index: 11;
         background: var(--modal-bg-color);
         color: var(--modal-text-color);
@@ -19,7 +28,30 @@
         box-shadow: var(--default-shadow);
     }
 
+    .container {
+        min-height: 10rem;
+        max-height: 39rem;
+        overflow-y: scroll;
+        margin: .5rem 0;
+        font-weight: 400;
+    }
+
+    .no-notifications {
+        text-align: center;
+        color: var(--gray4);
+        padding-top: 4rem;
+    }
+
+    .item:nth-child(even) {
+        background: #DDE4ED;
+    }
+
+    .item:hover {
+        background: #C5D6ED;
+    }
+
     /* https://leaverou.github.io/bubbly/ */
+
     #notification-history:after {
         content: '';
         position: absolute;
@@ -35,6 +67,31 @@
         border-right: 0;
     }
 
+    .item {
+        line-height: var(--toolbar-height);
+        padding: 0 1rem;
+    }
+
+    .question {
+        color: var(--darker-blue);
+        border-left: 1rem solid var(--blue);
+    }
+
+    .success {
+        color: var(--darker-green);
+        border-left: 1rem solid var(--green);
+    }
+
+    .warning {
+        color: var(--darker-yellow);
+        border-left: 1rem solid var(--yellow);
+    }
+
+    .error {
+        color: var(--darker-red);
+        border-left: 1rem solid var(--red);
+    }
+
 </style>
 
 
@@ -43,9 +100,19 @@
 
     export default {
         components: {},
-        oncreate() {},
+        oncreate() {
+            g.notificationHistory = this
+        },
         data() {
-            return {}
+            return {
+                open: false,
+                items: [
+                    // {
+                    //     level: 'success',
+                    //     message: 'looking good'
+                    // }
+                ]
+            }
         },
         methods: {}
     }

@@ -1,0 +1,49 @@
+<div ref:button class="tool-bar-button {{on?'on':''}}">
+    <i class="{{iconClass}}" on:click="onClick()"></i>
+</div> 
+
+<style>
+    .tool-bar-button {
+        color: var(--basic-ui-font-color);
+        font-size: var(--basic-ui-font-size);
+        background: transparent;
+        width: var(--basic-ui-line-height);
+        border: none;
+        text-align: center;
+        padding-top: .5rem;
+        padding-bottom: .2rem;
+    }
+
+    .tool-bar-button:hover {
+        background: var(--main-bg-color);
+    }
+    
+    .tool-bar-button.on {
+        border-bottom: .2rem solid var(--ui-highlight-color);
+    }
+
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {},
+        data() {
+            return {
+                // iconClass: 'fas fa-fw fa-bell',
+                 on: false,
+                // callback: () => {console.log('yo')}
+            }
+        },
+        methods: {
+            onClick() {
+                this.get('callback')()
+            }
+        }
+    }
+
+</script>

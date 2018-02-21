@@ -1,5 +1,5 @@
 <div ref:notificationBar id="notification-bar" class="{{level}}" style="{{active?'':'display:none'}}">
-    {{{text}}} {{#each actions as action}}
+    {{{message}}} {{#each actions as action}}
     <span class="action" on:click="doAction(action)">
         {{action.name}}
     </span> {{/each}}
@@ -78,7 +78,7 @@
         data() {
             return {
                 active: false,
-                text: "Notification",
+                message: "Notification",
                 level: 'question',
                 actions: [{
                     name: 'test',
@@ -93,12 +93,18 @@
                 action.callback()
                 this.showNext()
             },
-            show(level, text, actions) {
-                this.queue.push({
+            show(level, message, actions) {
+                const item = {
                     level,
-                    text,
+                    message,
                     actions
-                })
+                }
+                this.queue.push(item)
+                const items = g.notificationHistory.get('items')
+                items.unshift(item)
+                if (items.length > 10)
+                    items.pop()
+                g.notificationHistory.set({items})
                 if (!this.get('active'))
                     this.showNext()
             },

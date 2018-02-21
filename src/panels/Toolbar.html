@@ -1,0 +1,81 @@
+<div id="toolbar">
+    <div id="buttons">
+        <ToolBarButton ref:notificationHistory iconClass="fas fa-fw fa-bell"></ToolBarButton>
+        <!--
+        <button ref:notificationHistory id="notification-history-button" on:click="toggleNotificationHistory()">
+            <i class="fas fa-fw fa-bell"></i>
+        </button>
+-->
+    </div>
+</div>
+<NotificationBar></NotificationBar>
+<NotificationHistory></NotificationHistory>
+
+<style>
+    #toolbar {
+        height: var(--toolbar-height);
+        background: var(--panel-color);
+        border-bottom: 0.07rem solid var(--panel-delimiter-color);
+        box-sizing: border-box;
+        z-index: 10;
+    }
+
+    #buttons {
+        position: absolute;
+        right: 0;
+    }
+
+    /*
+    button {
+        color: var(--basic-ui-font-color);
+        font-size: var(--basic-ui-font-size);
+        background: transparent;
+        height: var(--basic-ui-line-height);
+        border: none;
+        
+    }
+
+    button:hover {
+        background: var(--main-bg-color);
+    }
+*/
+
+</style>
+
+<script>
+    import g from '../lib/Globals'
+    import NotificationBar from '../panels/NotificationBar.html'
+    import NotificationHistory from '../panels/NotificationHistory.html'
+    import ToolBarButton from './ToolBarButton.html'
+
+    export default {
+        components: {
+            NotificationBar,
+            NotificationHistory,
+            ToolBarButton
+        },
+        oncreate() {
+            g.notificationHistory.observe('open', on => {
+                this.refs.notificationHistory.set({on})
+            })
+            this.refs.notificationHistory.set({
+                callback: () => {
+                    g.notificationHistory.set({
+                        open: !g.notificationHistory.get('open')
+                    })
+                }
+            })
+        },
+        data() {
+            return {}
+        },
+        methods: {
+//            toggleNotificationHistory() {
+//                g.notificationHistory.set({
+//                    open: !g.notificationHistory.get('open')
+//                })
+//            }
+        }
+    }
+
+</script>
