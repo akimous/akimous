@@ -31,6 +31,11 @@ class CMEventDispatcher {
             })
         })
 
+        cm.on('focus', () => {
+            editor.ws.send({
+                cmd: 'mtime'
+            })
+        })
 
         function setHighlightSelectionMatches(cm, newValue) {
             if (cm.options['highlightSelectionMatches'] !== newValue)
@@ -62,16 +67,17 @@ class CMEventDispatcher {
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
-            if (editor.clean == doc.isClean()) return
+            if (editor.clean === doc.isClean()) return
             editor.clean = !editor.clean
             if (editor.clean) g.tabBar.setClean(editor.get('filePath'))
             else g.tabBar.setDirty(editor.get('filePath'))
         })
 
         cm.on('changes', (cm, c) => {
+            if (c[0].origin === 'setValue') return
             const indent = this.ensureIndent
             this.ensureIndent = undefined
-            if (indent != undefined) {
+            if (indent !== undefined) {
                 const pos = doc.getCursor()
                 const diff = indent - pos.ch
                 if (diff > 0)

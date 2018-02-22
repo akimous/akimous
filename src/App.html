@@ -123,11 +123,13 @@
 
                 // dismiss any pop-up elements
                 document.onmousedown = e => {
-                    if (!g.contextMenu.refs.contextMenu.contains(e.target))
+                    if (g.contextMenu.get('open') && !g.contextMenu.refs.contextMenu.contains(e.target))
                         g.contextMenu.set({
                             open: false
                         })
-                    if (!g.notificationHistory.refs.notificationHistory.contains(e.target))
+                    if (g.notificationHistory.get('open') &&
+                        !g.notificationHistory.refs.notificationHistory.contains(e.target) &&
+                        !g.toolBar.refs.notificationHistory.refs.button.contains(e.target))
                         g.notificationHistory.set({
                             open: false
                         })

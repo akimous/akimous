@@ -89,7 +89,6 @@
                     resolve(data) // <-- exit here
                 })
                 this.ws.connect(() => {
-                    console.log('ws editor connected')
                     this.ws.send({
                         cmd: 'openFile',
                         filePath: this.get('filePath')
@@ -122,6 +121,7 @@
                         "Cmd-J": "joinLines",
                     }
                 })
+                this.mtime = data.mtime
             })
 
             // Step 3: Do the rest of things
@@ -139,13 +139,10 @@
                 //                            this.completionEventDispatcher = new CompletionEventDispatcher(this)
                 this.completion.bindReferences(this)
                 this.ws.addHandler('saveFile-ok', data => {
-                    this.clean = true
-                    if (this.shouldClose) {
+                    this.markClean()
+                    this.mtime = data.mtime
+                    if (this.shouldClose)
                         g.panelMiddle.closeFile(this.get('filePath'))
-                        return
-                    }
-                    this.cm.doc.markClean()
-                    g.tabBar.setClean(this.get('filePath'))
                 })
                 this.ws.addHandler('predict-result', data => {
                     this.predictor.receive(data)
@@ -160,7 +157,42 @@
                         e.preventDefault()
                     }
                 }
-            }))
+
+                // prompt to reload if modified by another program
+                this.ws.addHandler('reload-ok', data => {
+                    this.cm.setValue(data.content)
+                    this.markClean()
+                })
+                this.ws.addHandler('mtime', data => {
+                    if (this.mtime === data.mtime) return
+                    this.mtime = data.mtime
+                    g.notificationBar.show(
+                        'question',
+                        `The file "<b>${this.get('fileName')}</b>" has been modified by another program. Do you want to reload it?`, [{
+                            name: 'Reload',
+                            callback: () => {
+                                this.ws.send({
+                                    cmd: 'reload'
+                                })
+                            }
+                        }]
+                    )
+                })
+                
+                // prompt to reload if deleted or moved
+                this.ws.addHandler('event-FileDeleted', data => {
+                    g.notificationBar.show(
+                        'question',
+                        `The file "<b>${this.get('fileName')}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
+                            name: 'Close',
+                            callback: () => {
+                                this.markClean()
+                                g.panelMiddle.closeFile(this.get('filePath'))
+                            }
+                        }]
+                    )
+                })
+            }), 16)
         },
         data() {
             return {
@@ -173,7 +205,7 @@
             save() {
                 this.ws.send({
                     cmd: 'saveFile',
-                    filePath: this.get('filePath'),
+                    // filePath: this.get('filePath'),
                     content: this.cm.getValue()
                 })
             },
@@ -181,6 +213,11 @@
                 g.activeEditor && g.activeEditor.cm.hasFocus()
                 if (g.activeEditor != this || !this.cm.hasFocus()) return
                 this.cm.doc.replaceRange(text, this.cm.doc.getCursor('from'), this.cm.doc.getCursor('to'), '+input')
+            },
+            markClean() {
+                this.clean = true
+                this.cm.doc.markClean()
+                g.tabBar.setClean(this.get('filePath'))
             }
         }
     }

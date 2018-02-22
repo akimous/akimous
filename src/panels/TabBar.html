@@ -28,13 +28,14 @@
             g.tabBar = this
             this.pathToTab = {} // /path/to/a/file.py -> <Tab>
             this.observe('activeFilePath', (activeFilePath, inactiveFilePath) => {
+                console.log({activeFilePath, inactiveFilePath})
                 const activeTab = this.pathToTab[activeFilePath]
                 const inactiveTab = this.pathToTab[inactiveFilePath]
-                activeTab && activeTab.set({
-                    active: true
-                })
                 inactiveTab && inactiveTab.set({
                     active: false
+                })
+                activeTab && activeTab.set({
+                    active: true
                 })
             })
             this.sortable = Sortable.create(this.refs.tabBar, {

@@ -33,12 +33,37 @@ async def open_file(msg, send, context):
     })
 
 
+@register('reload')
+async def reload(msg, send, context):
+    with open(context.path) as f:
+        content = f.read()
+    context.doc = content.splitlines()
+    await send({
+        'cmd': 'reload-ok',
+        'content': content
+    })
+
+
+@register('mtime')
+async def modification_time(msg, send, context):
+    try:
+        await send({
+            'cmd': 'mtime',
+            'mtime': str(context.path.stat().st_mtime)
+        })
+    except FileNotFoundError:
+        await send({
+            'cmd': 'event-FileDeleted'
+        })
+
+
 @register('saveFile')
 async def save_file(msg, send, context):
-    with open(msg['filePath'], 'w') as f:
+    with open(context.path, 'w') as f:
         f.write(msg['content'])
     await send({
-        'cmd': 'saveFile-ok'
+        'cmd': 'saveFile-ok',
+        'mtime': str(context.path.stat().st_mtime)
     })
 
 
