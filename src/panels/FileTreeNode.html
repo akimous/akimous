@@ -255,7 +255,7 @@
                 this.refs.input.focus()
                 this.refs.input.onkeydown = e => {
                     if (e.key === 'Enter')
-                        this.commitRename()
+                        this.refs.input.blur()
                     else if (e.key === 'Escape')
                         this.set({
                             renaming: false

@@ -72,13 +72,6 @@
                     selected: true
                 })
             })
-
-            document.onmousedown = e => {
-                if (!this.refs.contextMenu.contains(e.target))
-                    g.contextMenu.set({
-                        open: false
-                    })
-            }
         },
         data() {
             return {
