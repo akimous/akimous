@@ -28,7 +28,6 @@
             g.tabBar = this
             this.pathToTab = {} // /path/to/a/file.py -> <Tab>
             this.observe('activeFilePath', (activeFilePath, inactiveFilePath) => {
-                console.log({activeFilePath, inactiveFilePath})
                 const activeTab = this.pathToTab[activeFilePath]
                 const inactiveTab = this.pathToTab[inactiveFilePath]
                 inactiveTab && inactiveTab.set({

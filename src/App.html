@@ -98,6 +98,7 @@
         },
 
         oncreate() {
+            g.app = this
             setTimeout(() => {
                 this.refs.splitBarL.onmousedown = e => {
                     e.preventDefault()

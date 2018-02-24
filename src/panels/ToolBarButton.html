@@ -1,4 +1,4 @@
-<div ref:button class="tool-bar-button {{on?'on':''}}">
+<div ref:button class="tool-bar-button {{on?'indicator-on':''}}">
     <i class="{{iconClass}}" on:click="onClick()"></i>
 </div> 
 
@@ -8,7 +8,6 @@
         font-size: var(--basic-ui-font-size);
         background: transparent;
         width: var(--basic-ui-line-height);
-        border: none;
         text-align: center;
         padding-top: .5rem;
         padding-bottom: .2rem;

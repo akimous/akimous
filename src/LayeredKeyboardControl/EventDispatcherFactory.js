@@ -54,10 +54,10 @@ function EventDispatcherFactory(options) {
                 target.move(-5)
                 return true
             case 'bottom':
-                target.move(9999)
+                target.move(999999)
                 return true
             case 'top':
-                target.move(-9999)
+                target.move(-999999)
                 return true
             case 'commit':
                 target.enter()

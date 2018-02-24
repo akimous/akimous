@@ -34,6 +34,17 @@
             setTimeout(() => {
                 this.openFile(['demo', 'demo.py'], 'demo.py')
             })
+            this.observe('focus', (newFocus, oldFocus) => {
+                if (newFocus === oldFocus) return
+                if (!newFocus) g.setFocus([g.fileTree])
+                else g.setFocus([this, newFocus])
+                g.activeEditor = newFocus
+            })
+        },
+        data() {
+            return {
+                focus: undefined
+            }
         },
         methods: {
             openFile(filePath, fileName) {
@@ -60,8 +71,6 @@
                         filePath: newPath
                     })
                     g.tabBar.renameDir(newPath, oldPath)
-                    console.log('renamed editor', editor)
-                    console.log('renamed tab', g.tabBar)
                 }
             },
             activateFile(filePath) {
@@ -78,8 +87,10 @@
                     active: false
                 }))
                 const editor = this.pathToEditor[filePath]
-                g.activeEditor = editor
                 if (!editor) return
+                this.set({
+                    focus: editor
+                })
                 editor.set({
                     active: true
                 })
@@ -114,7 +125,6 @@
                     })
                     return
                 }
-                g.activeEditor = undefined
                 g.tabBar.closeTab(filePath)
                 editor.destroy()
                 delete this.pathToEditor[filePath]
@@ -126,7 +136,7 @@
                 // activate previous file
                 for (var i = this.activationHistoryIndex; i > this.activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
                     const previouslyActivatedFilePath = this.activationHistory[i % MAX_ACTIVATION_HISTORY]
-                    if (previouslyActivatedFilePath != undefined) {
+                    if (previouslyActivatedFilePath) {
                         this.activateFile(previouslyActivatedFilePath)
                         return
                     }
@@ -135,7 +145,12 @@
                 let tabs = g.tabBar.refs.tabBar.getElementsByClassName('tab')
                 if (tabs.length > 0) {
                     this.activateFile(tabs[tabs.length - 1].dataset.filepath)
+                    return
                 }
+                // if no files opened, clear focus
+                this.set({
+                    focus: undefined
+                })
             }
         }
     }

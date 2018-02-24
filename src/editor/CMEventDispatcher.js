@@ -43,7 +43,6 @@ class CMEventDispatcher {
         }
         cm.on('cursorActivity', (cm) => {
             if (shouldDismissCompletionOnCursorActivity) {
-                //                completion.close()
                 completion.set({
                     open: false
                 })

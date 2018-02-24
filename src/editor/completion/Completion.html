@@ -31,6 +31,10 @@
     export default {
         components: {},
         oncreate() {
+            this.observe('open', open => {
+                if (open) g.pushFocus(this)
+                else g.popFocus(this)
+            })
             const completion = this.refs.completion
             this.onClickHandler = (event) => {
                 this.set({
