@@ -126,3 +126,8 @@ async def rename(msg, send, context):
         except OSError as e:
             result.update(cmd='rename-failed', reason=e.strerror)
     await send(result)
+
+@register('newfile')
+async def newfile(msg, send, context):
+    path = Path(context.fileRoot, *msg['path'])
+    log.info('new a file in %s', str(path))

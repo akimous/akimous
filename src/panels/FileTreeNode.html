@@ -66,8 +66,9 @@
     const contextMenu = [{
         text: 'New File',
         icon: 'far fa-file',
-        callback: () => {
+        callback: (target) => {
             console.log('new file clicked')
+            target.newfile()
         }
     }, {
         text: 'New Folder',
@@ -276,6 +277,8 @@
                 this.set({
                     renaming: false
                 })
+            },
+            newfile(){
             }
         }
     }
