@@ -109,7 +109,7 @@
                 if (oldValue) delete parent.children[oldValue]
                 parent.children[newValue] = this
             })
-            
+
             // set icon
             const name = this.get('name')
             let icon
@@ -278,7 +278,11 @@
                     renaming: false
                 })
             },
-            newfile(){
+            newfile() {
+                g.fileTree.ws.send({
+                    cmd: 'newfile',
+                    path: this.getPath().slice(0, -1),
+                })
             }
         }
     }
