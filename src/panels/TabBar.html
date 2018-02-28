@@ -26,67 +26,27 @@
         components: {},
         oncreate() {
             g.tabBar = this
-            this.pathToTab = {} // /path/to/a/file.py -> <Tab>
-            this.observe('activeFilePath', (activeFilePath, inactiveFilePath) => {
-                const activeTab = this.pathToTab[activeFilePath]
-                const inactiveTab = this.pathToTab[inactiveFilePath]
-                inactiveTab && inactiveTab.set({
-                    active: false
-                })
-                activeTab && activeTab.set({
-                    active: true
-                })
-            })
             this.sortable = Sortable.create(this.refs.tabBar, {
                 animation: 0,
             })
         },
+        data() {
+            return {
+            }  
+        },
         methods: {
-            openTab(filePath, fileName) {
-                const tab = new Tab({
+            openTab(fileName, editor) {
+                return new Tab({
                     target: this.refs.tabBar,
                     data: {
-                        filePath,
                         fileName,
+                        editor,
                         active: true
                     }
                 })
             },
-            closeTab(filePath) {
-                this.pathToTab[filePath].destroy()
-                delete this.pathToTab[filePath]
-            },
-            renameDir(newPath, oldPath) {
-                const tab = this.pathToTab[oldPath]
-                tab.set({
-                    filePath: newPath,
-                })
-                const activeFilePath = this.get('activeFilePath')
-                if (activeFilePath && activeFilePath.indexOf(oldPath) === 0)
-                    this.set({
-                        activeFilePath: activeFilePath.replace(oldPath, newPath)
-                    })
-            },
-            renameFile(newPath, newName) {
-                // must renameDir first befor calling this
-                const tab = this.pathToTab[newPath]
-                if (!tab) return
-
-                tab.set({
-                    fileName: newName,
-                })
-            },
-            setClean(filePath) {
-                this.pathToTab[filePath].set({
-                    clean: true
-                })
-            },
-            setDirty(filePath) {
-                this.pathToTab[filePath].set({
-                    clean: false
-                })
-            }
         }
+        
     }
 
 </script>

@@ -46,6 +46,10 @@ async def reload(msg, send, context):
 
 @register('mtime')
 async def modification_time(msg, send, context):
+    new_path = msg.get('newPath', None)
+    if new_path is not None:
+        print('path modified', context.path, new_path)
+        context.path = Path(*new_path)
     try:
         await send({
             'cmd': 'mtime',

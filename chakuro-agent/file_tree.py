@@ -41,9 +41,9 @@ class ChangeHandler(FileSystemEventHandler):
             'newName': Path(event.dest_path).name
         })
         for k in tuple(self.context.observed_watches.keys()):
-            if k.startswith(event.src_path):
+            if k.startswith(event.src_path + '/'):
                 stop_monitor(k, self.context)
-                start_monitor(k.replace(event.src_path, event.dest_path), self.context)
+                start_monitor(k.replace(event.src_path + '/', event.dest_path + '/'), self.context)
 
 
 register = partial(WS.register, 'fileTree')
