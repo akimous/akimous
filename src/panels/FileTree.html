@@ -71,15 +71,21 @@
                 const parent = node.get('parent')
                 const oldName = data.path[data.path.length - 1]
                 const target = data.cmd === 'event-FileRenamed' ? 'files' : 'dirs'
+                const destPath = [...data.path]
+                destPath[destPath.length - 1] = data.newName
                 node.set({
                     name: data.newName
                 })
                 // change paths to opened files
                 parent.get(target).find(x => x.name == oldName).name = data.newName
                 sortChildren(parent, target)
-                g.panelMiddle.renameDir(data.destPath, data.srcPath)
-
-                if (target === 'files') g.tabBar.renameFile(data.destPath, data.newName)
+                if (target === 'files') {
+                    const editor = g.panelMiddle.getEditor(data.path)
+                    editor && editor.set({
+                        fileName: data.newName
+                    })
+                }
+                g.panelMiddle.renameDir(destPath, data.path)
             }
             this.ws.addHandler('event-FileRenamed', renamingEventHandler)
             this.ws.addHandler('event-DirRenamed', renamingEventHandler)

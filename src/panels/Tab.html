@@ -1,4 +1,4 @@
-<span class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" data-filepath="{{filePath}}" on:click="activate()" on:dblclick="close()">
+<span class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" on:click="activate()" on:dblclick="close()">
     <span class="icon l-python-icon"></span>
     <span class="text">{{fileName}}</span>
 </span>
@@ -60,25 +60,21 @@
     export default {
         components: {},
         oncreate() {
-            this.observe('filePath', (newValue, oldValue) => {
-                g.tabBar.pathToTab[newValue] = this
-                if (oldValue) delete g.tabBar.pathToTab[oldValue]
-            })
         },
         data() {
             return {
                 fileName: '',
-                filePath: '',
                 active: false,
+                editor: null,
                 clean: true
             }
         },
         methods: {
             activate() {
-                g.panelMiddle.activateFile(this.get('filePath'))
+                g.panelMiddle.activateFile(this.get('editor').get('filePath'))
             },
             close() {
-                g.panelMiddle.closeFile(this.get('filePath'))
+                g.panelMiddle.closeFile(this.get('editor').get('filePath'))
             }
         }
     }

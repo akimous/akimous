@@ -66,10 +66,11 @@ class CMEventDispatcher {
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
-            if (editor.clean === doc.isClean()) return
-            editor.clean = !editor.clean
-            if (editor.clean) g.tabBar.setClean(editor.get('filePath'))
-            else g.tabBar.setDirty(editor.get('filePath'))
+            const clean = editor.get('clean')
+            if (clean === doc.isClean()) return
+            editor.set({
+                clean: !clean
+            })
         })
 
         cm.on('changes', (cm, c) => {

@@ -28,7 +28,7 @@
         },
         oncreate() {
             g.panelMiddle = this
-            this.pathToEditor = {} // /path/to/a/file.py -> <CodeEditor>
+            this._pathToEditor = {}
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
             this.activationHistoryIndex = 0
             setTimeout(() => {
@@ -43,35 +43,25 @@
         },
         data() {
             return {
-                focus: undefined
+                focus: null
             }
         },
         methods: {
+            getEditor(filePath) {
+                return this._pathToEditor[filePath.join('/')]
+            },
             openFile(filePath, fileName) {
-                let editor = this.pathToEditor[filePath]
+                let editor = this.getEditor(filePath)
                 if (!editor) {
                     new CodeEditor({
                         target: this.refs.panelMiddle,
                         data: {
                             filePath,
                             fileName,
-                            active: true
                         }
                     })
-                    g.tabBar.openTab(filePath, fileName)
                 }
                 this.activateFile(filePath)
-            },
-            renameDir(newDirPath, oldDirPath) {
-                for (const oldPath in this.pathToEditor) {
-                    if (oldPath.indexOf(oldDirPath) !== 0) continue
-                    const editor = this.pathToEditor[oldPath]
-                    const newPath = oldPath.replace(oldDirPath, newDirPath)
-                    editor.set({
-                        filePath: newPath
-                    })
-                    g.tabBar.renameDir(newPath, oldPath)
-                }
             },
             activateFile(filePath) {
                 // write to activation history
@@ -79,27 +69,34 @@
                     this.activationHistoryIndex = (this.activationHistoryIndex + 1) % MAX_ACTIVATION_HISTORY
                     this.activationHistory[this.activationHistoryIndex] = filePath
                 }
-                g.tabBar.set({
-                    activeFilePath: filePath
-                })
                 // activate editor
                 g.activeEditor && (g.activeEditor.set({
                     active: false
                 }))
-                const editor = this.pathToEditor[filePath]
-                if (!editor) return
+                const editor = this.getEditor(filePath)
                 this.set({
                     focus: editor
                 })
+                if (!editor) return
                 editor.set({
                     active: true
                 })
                 editor.cm && editor.cm.focus()
             },
+            renameDir(newDirPath, oldDirPath) {
+                const oldDirPathString = oldDirPath.join('/')
+                for (const oldPathString in this._pathToEditor) {
+                    if (oldPathString.indexOf(oldDirPathString) !== 0) continue
+                    const editor = this._pathToEditor[oldPathString]
+                    editor.set({
+                        filePath: [...newDirPath, ...editor.get('filePath').slice(newDirPath.length)]
+                    })
+                }
+            },
             closeFile(filePath) {
-                const editor = this.pathToEditor[filePath]
+                const editor = this.getEditor(filePath)
                 // if the file has been edited, prompt for saving
-                if (!editor.clean) {
+                if (!editor.get('clean')) {
                     // todo: close completion, blur editor
                     g.prompt.open({
                         icon: 'far fa-hdd',
@@ -108,7 +105,9 @@
                             text: `Don't Save`,
                             style: 'danger',
                             action: () => {
-                                editor.clean = true
+                                editor.set({
+                                    clean: true
+                                })
                                 this.closeFile(filePath)
                             }
                         }, {
@@ -125,18 +124,16 @@
                     })
                     return
                 }
-                g.tabBar.closeTab(filePath)
                 editor.destroy()
-                delete this.pathToEditor[filePath]
 
                 // clear activation history
                 for (var i = 0; i < MAX_ACTIVATION_HISTORY; i++)
                     if (this.activationHistory[i] === filePath)
-                        this.activationHistory[i] = undefined
+                        this.activationHistory[i] = null
                 // activate previous file
                 for (var i = this.activationHistoryIndex; i > this.activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
                     const previouslyActivatedFilePath = this.activationHistory[i % MAX_ACTIVATION_HISTORY]
-                    if (previouslyActivatedFilePath) {
+                    if (previouslyActivatedFilePath && this.getEditor(previouslyActivatedFilePath)) {
                         this.activateFile(previouslyActivatedFilePath)
                         return
                     }
@@ -149,7 +146,7 @@
                 }
                 // if no files opened, clear focus
                 this.set({
-                    focus: undefined
+                    focus: null
                 })
             }
         }

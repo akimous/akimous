@@ -71,17 +71,43 @@
             Completion
         },
         oncreate() {
-            this.observe('filePath', (newValue, oldValue) => {
-                g.panelMiddle.pathToEditor[newValue] = this
-                if (oldValue) delete g.panelMiddle.pathToEditor[oldValue]
+            // properties
+            this.tab = g.tabBar.openTab(this.get('fileName'), this)
+            
+            // observers
+            this.observe('filePath', (newPath, oldPath) => {
+                g.panelMiddle._pathToEditor[newPath.join('/')] = this
+                console.log({newPath, oldPath})
+                if (oldPath) {
+                    delete g.panelMiddle._pathToEditor[oldPath.join('/')]
+                    this.ws.send({
+                        cmd: 'mtime', 
+                        newPath
+                    })
+                }
             })
+            this.observe('fileName', fileName => {
+                this.tab.set({
+                    fileName
+                })
+            })
+            this.observe('clean', clean => {
+                this.tab.set({
+                    clean
+                })
+            })
+            this.observe('active', active => {
+                this.tab.set({
+                    active
+                })
+            })
+            
             const fileName = this.get('fileName')
             const mode = CodeMirror.findModeByFileName(fileName)
 
             // Step 1: Connect to websocket and read file
             const readFile = new Promise(resolve => {
                 let startTime = performance.now()
-                this.clean = true
                 this.shouldClose = false
                 this.ws = new WSClient('ws://127.0.0.1:3179/editor')
                 this.ws.addHandler('openFile', data => {
@@ -194,18 +220,22 @@
                 })
             }), 16)
         },
+        ondestroy() {
+            this.tab.destroy()
+            delete g.panelMiddle._pathToEditor[this.get('filePath').join('/')]
+        },
         data() {
             return {
                 fileName: '',
-                filePath: '',
+                filePath: null,
                 active: false,
+                clean: true
             }
         },
         methods: {
             save() {
                 this.ws.send({
                     cmd: 'saveFile',
-                    // filePath: this.get('filePath'),
                     content: this.cm.getValue()
                 })
             },
@@ -215,9 +245,10 @@
                 this.cm.doc.replaceRange(text, this.cm.doc.getCursor('from'), this.cm.doc.getCursor('to'), '+input')
             },
             markClean() {
-                this.clean = true
+                this.set({
+                    clean: true
+                })
                 this.cm.doc.markClean()
-                g.tabBar.setClean(this.get('filePath'))
             }
         }
     }
