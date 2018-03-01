@@ -1,18 +1,17 @@
-<div ref:panelRight id="panel-right">
+<div ref:panelRight id="panel-right" class="{{focused?'indicator-on':''}}">
     <Console ref:console id="console"></Console>
 </div>
 
 
 <style>
     #panel-right {
-        border-left: 0.07rem solid var(--panel-delimiter-color);
         position: fixed;
         top: var(--toolbar-height);
         left: calc(100% - var(--panel-right-width));
         height: calc(100% - var(--toolbar-height));
         width: var(--panel-right-width);
         background: var(--panel-color);
-        border-left: 0.07rem solid var(--panel-delimiter-color);
+        border-left: var(--panel-border);
         box-sizing: border-box;
         z-index: -5;
     }
@@ -28,9 +27,13 @@
         components: {
             Console
         },
-        oncreate() {},
+        oncreate() {
+            g.panelRight = this
+        },
         data() {
-            return {}
+            return {
+                focused: false
+            }
         },
         methods: {}
     }

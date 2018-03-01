@@ -37,9 +37,14 @@
                 this.set({
                     selectedRow: undefined
                 })
-                if (open) g.activeEditor.completion.set({
-                    open: false
-                })
+                if (open) {
+                    g.activeEditor.completion.set({
+                        open: false
+                    })
+                    g.pushFocus(this)
+                } else {
+                    g.popFocus(this)
+                }
             })
             this.observe('items', items => {
                 for (const i of this.rows)

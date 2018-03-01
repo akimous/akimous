@@ -196,6 +196,8 @@
                 this.set({
                     selected: !selected
                 })
+                console.log('filetreenode on click')
+                g.setFocus([g.panelLeft, g.fileTree, this])
             },
             onDoubleClick() {
                 if (this.get('isFolder')) {

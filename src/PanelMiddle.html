@@ -1,4 +1,4 @@
-<div ref:panelMiddle id="panel-middle">
+<div ref:panelMiddle id="panel-middle" class="{{focused?'indicator-on':''}}">
     <TabBar id="tab-bar"></TabBar>
 </div>
 
@@ -10,6 +10,7 @@
         height: calc(100% - var(--toolbar-height));
         left: calc(var(--panel-left-width) + 1px);
         width: calc(100% - var(--panel-left-width) - var(--panel-right-width) - 1px);
+        box-sizing: border-box;
     }
 
 </style>
@@ -35,6 +36,7 @@
                 this.openFile(['demo', 'demo.py'], 'demo.py')
             })
             this.observe('focus', (newFocus, oldFocus) => {
+                console.warn('focus change in panelMiddle')
                 if (newFocus === oldFocus) return
                 if (!newFocus) g.setFocus([g.fileTree])
                 else g.setFocus([this, newFocus])
@@ -43,7 +45,8 @@
         },
         data() {
             return {
-                focus: null
+                focus: null,
+                focused: false
             }
         },
         methods: {

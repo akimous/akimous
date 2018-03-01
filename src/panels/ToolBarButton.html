@@ -6,11 +6,11 @@
     .tool-bar-button {
         color: var(--basic-ui-font-color);
         font-size: var(--basic-ui-font-size);
-        background: transparent;
         width: var(--basic-ui-line-height);
         text-align: center;
-        padding-top: .5rem;
-        padding-bottom: .2rem;
+        line-height: var(--toolbar-height);
+        box-sizing: border-box;
+        height: calc(var(--toolbar-height) - var(--panel-border-thickness));
     }
 
     .tool-bar-button:hover {

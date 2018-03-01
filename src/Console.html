@@ -6,6 +6,7 @@
         height: 100%;
         width: 100%;
         padding: 0.4rem;
+        box-sizing: border-box;
     }
 
     .terminal,
@@ -38,6 +39,9 @@
             })
             this.terminal.open(this.refs.terminal, false)
             this.terminal.write('blabla')
+            this.terminal.on('focus', () => {
+                g.setFocus([g.panelRight, this])
+            })
         },
         data() {
             return {}

@@ -11,12 +11,11 @@ const g = {
         for (let i = 0; i < focusStack.length; i++) {
             if (focusStack[i] === root) {
                 focusStack.splice(i, 9999, ...x)
-                console.warn('focus changed', this.focusStack)
-                return
+                return this.onFocusChanged()
             }
         }
         this.focusStack = x
-        console.warn('focus changed', this.focusStack)
+        this.onFocusChanged()
     },
     pushFocus(x) {
         const focusStack = this.focusStack
@@ -24,16 +23,24 @@ const g = {
             if (focusStack[i] === x) return
         }
         focusStack.push(x)
-        console.warn('focus changed', this.focusStack)
+        this.onFocusChanged()
     },
     popFocus(x) {
         const focusStack = this.focusStack
         for (let i = focusStack.length - 1; i >= 0; i--) {
             if (focusStack[i] === x) {
                 focusStack.splice(i, 9999)
-                console.warn('focus changed', this.focusStack)
-                return
+                return this.onFocusChanged()
             }
+        }
+    },
+    onFocusChanged() {
+        console.warn('focus changed', this.focusStack)
+        const focusedPanel = this.focusStack[0]
+        for (const panel of [g.panelLeft, g.panelMiddle, g.panelRight]) {
+            panel && panel.set({
+                focused: panel === focusedPanel
+            })
         }
     },
     saveFile() {

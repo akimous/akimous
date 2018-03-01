@@ -1,4 +1,4 @@
-<div id="panel-left">
+<div id="panel-left" class="{{focused?'indicator-on':''}}">
     <FileTree></FileTree>
 </div>
 
@@ -11,7 +11,7 @@
         height: calc(100% - var(--toolbar-height));
         width: var(--panel-left-width);
         background: var(--panel-color);
-        border-right: 0.07rem solid var(--panel-delimiter-color);
+        border-right: var(--panel-border);
         box-sizing: border-box;
         z-index: -5;
     }
@@ -23,7 +23,16 @@
     export default {
         components: {
             FileTree
-        }
+        },
+        oncreate() {
+            g.panelLeft = this
+        },
+        data() {
+            return {
+                focusd: false
+            }
+        },
+        methods: {}
     }
 
 </script>

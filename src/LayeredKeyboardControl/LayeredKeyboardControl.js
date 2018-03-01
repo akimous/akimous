@@ -14,22 +14,23 @@ class LayeredKeyboardControl {
         const code = e.code
         this.commandSent = true
         const command = Keymap.genericCommandKeymap[code]
-        if (!g.activeEditor || !g.activeEditor.cm.hasFocus()) {
-            if (command)
-                this.contextMenuKeyHandler.handleCommand(command)
-            return false
-        }
-        if (command && g.activeEditor.completion.get('open')) {
-            this.completionKeyHandler.handleCommand(command)
-        } else {
-            const extending = e.shiftKey
-            if (extending) this.sendEditorCommand('setExtending')
-            else this.sendEditorCommand('unsetExtending')
-            const command = Keymap.editorCommandKeymap[code]
-            this.sendEditorCommand(command)
-            if (extending) this.sendEditorCommand('unsetExtending')
-        }
-        return false
+        console.log('sendCommand', command, g.focus)
+//        if (!g.activeEditor || !g.activeEditor.cm.hasFocus()) {
+//            if (command)
+//                this.contextMenuKeyHandler.handleCommand(command)
+//            return false
+//        }
+//        if (command && g.activeEditor.completion.get('open')) {
+//            this.completionKeyHandler.handleCommand(command)
+//        } else {
+//            const extending = e.shiftKey
+//            if (extending) this.sendEditorCommand('setExtending')
+//            else this.sendEditorCommand('unsetExtending')
+//            const command = Keymap.editorCommandKeymap[code]
+//            this.sendEditorCommand(command)
+//            if (extending) this.sendEditorCommand('unsetExtending')
+//        }
+//        return false
     }
     stopPropagation(event) {
         event.preventDefault()

@@ -25,9 +25,12 @@ body {
 
     --default-shadow: 0 .1rem 1rem .1rem rgba(0, 0, 0, .7);
     --small-shadow: 0 0 1rem 0 rgba(0, 0, 0, .3);
+    --panel-border-thickness: 0.07rem;
+    --panel-border: var(--panel-border-thickness) solid var(--panel-delimiter-color);
 
     --toolbar-height: 2rem;
     --tab-bar-height: 2rem;
+    --indicator-height: .2rem;
     --panel-left-width: calc(8rem + 7vw);
     --panel-right-width: 3rem;
     --prompt-width: 40rem;
@@ -97,7 +100,7 @@ body {
 }
 
 .indicator-on {
-    border-bottom: .2rem solid var(--ui-highlight-color);
+    border-bottom: var(--indicator-height) solid var(--ui-highlight-color);
 }
 
 .l-python-icon {

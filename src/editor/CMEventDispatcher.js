@@ -35,6 +35,7 @@ class CMEventDispatcher {
             editor.ws.send({
                 cmd: 'mtime'
             })
+            g.setFocus([g.panelMiddle, editor])
         })
 
         function setHighlightSelectionMatches(cm, newValue) {
