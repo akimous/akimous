@@ -11,12 +11,11 @@ const production = !process.env.ROLLUP_WATCH
 export default {
     input: 'src/main.js',
     output: {
-        sourcemap: !production, // enable sourcemap when in production
+        sourcemap: !production, // enable sourcemap when not in production
         format: 'iife',
         name: 'app',
         file: 'dist/bundle.js'
     },
-
     plugins: [
         svelte({
             dev: !production, // enable run-time checks when not in production
@@ -27,15 +26,13 @@ export default {
         }),
 
         resolve(),
-        commonjs({
-            namedExports: {}
-        }),
+        commonjs(),
         // postcss({
         //     plugins: [],
         //     minimize: true
         // }),
         production && babel(),
         production && strip(),
-        sizes()
+        production && sizes()
     ]
 }

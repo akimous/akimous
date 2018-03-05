@@ -25,14 +25,15 @@ export default class {
         }
         
         this.socket.onopen = () => {
-            console.log(`WebSocket opened on ${this.path}`)
+            if (this.path.indexOf('fileTree') > 0)
+                g.notificationBar.show('success', 'Connected to Python agent.')
             if (callback != null)
                 callback(this)
         }
         
         this.socket.onclose = () => {
-            console.warn(`WebSocket unexpectedly dropped on ${this.path}`)
-            // TODO: should show warning on UI
+            if (this.path.indexOf('fileTree') > 0)
+                g.notificationBar.show('warning', 'Connection to Python agent unexpectedly dropped.')
             setTimeout(() => {
                 this.connect(callback)
             }, 3000)

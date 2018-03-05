@@ -143,7 +143,9 @@
                 this.set({
                     active: true
                 })
-                //                g.activeEditor && g.activeEditor.completion.close()
+                g.activeEditor && g.activeEditor.completion.set({
+                    open: false
+                })
             },
             onClickButton(button) {
                 button.action && button.action()

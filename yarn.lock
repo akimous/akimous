@@ -103,7 +103,11 @@ acorn@^3.0.4, acorn@^3.1.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-3.3.0.tgz#45e37fb39e8da3f25baee3ff5369e2bb5f22017a"
 
-acorn@^5.2.1, acorn@^5.4.0:
+acorn@^5.2.1:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.5.0.tgz#1abb587fbf051f94e3de20e6b26ef910b1828298"
+
+acorn@^5.4.0:
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.4.1.tgz#fdc58d9d17f4a4e98d102ded826a9b9759125102"
 
@@ -2895,9 +2899,9 @@ rollup-plugin-babel@^3.0.3:
   dependencies:
     rollup-pluginutils "^1.5.0"
 
-rollup-plugin-commonjs@^8.2.6:
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-commonjs/-/rollup-plugin-commonjs-8.3.0.tgz#91b4ba18f340951e39ed7b1901f377a80ab3f9c3"
+rollup-plugin-commonjs@8.2.6:
+  version "8.2.6"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-commonjs/-/rollup-plugin-commonjs-8.2.6.tgz#27e5b9069ff94005bb01e01bb46a1e4873784677"
   dependencies:
     acorn "^5.2.1"
     estree-walker "^0.5.0"
@@ -3276,8 +3280,8 @@ svelte@^1:
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.55.0.tgz#16494fc8e56ae83da705e1333b2146b5acbba884"
 
 svelte@^1.50.0:
-  version "1.56.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.56.0.tgz#7fad7cdba560bdb89189ad3e5fb1bb9ce6efaaff"
+  version "1.56.1"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.56.1.tgz#5b926d96ca6e050e3cea3f3e61f6f46202c90ffa"
 
 symbol-observable@1.0.1:
   version "1.0.1"
