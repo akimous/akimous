@@ -25,15 +25,15 @@ export default class {
         }
         
         this.socket.onopen = () => {
-            if (this.path.indexOf('fileTree') > 0)
-                g.notificationBar.show('success', 'Connected to Python agent.')
+            if (this.path.includes('fileTree'))
+                g.notificationBar.show('success', 'Connected to Python agent')
             if (callback != null)
                 callback(this)
         }
         
         this.socket.onclose = () => {
-            if (this.path.indexOf('fileTree') > 0)
-                g.notificationBar.show('warning', 'Connection to Python agent unexpectedly dropped.')
+            if (this.path.includes('fileTree'))
+                g.notificationBar.show('warning', 'Connection to Python agent unexpectedly dropped')
             setTimeout(() => {
                 this.connect(callback)
             }, 3000)

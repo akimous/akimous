@@ -6,15 +6,28 @@ const g = {
         return stack[stack.length - 1]
     },
     setFocus(x) {
-        const root = x[0]
+//        const root = x[0]
         const focusStack = this.focusStack
-        for (let i = 0; i < focusStack.length; i++) {
-            if (focusStack[i] === root) {
-                focusStack.splice(i, 9999, ...x)
-                return this.onFocusChanged()
-            }
+//        for (let i = 0; i < focusStack.length; i++) {
+//            if (focusStack[i] === root) {
+//                focusStack.splice(i, 9999, ...x)
+//                return this.onFocusChanged()
+//            }
+//        }
+        // backup original focus stack
+        const originalRoot = focusStack[0]
+        if (originalRoot && originalRoot !== x[0] && focusStack.length > 1) {
+            originalRoot.set({
+                focusStack: focusStack.slice(1)
+            })
         }
+        
         this.focusStack = x
+        // restore focus stack
+        if (x.length === 1) {
+            const originalFocusStack = x[0].get('focusStack')
+            originalFocusStack && this.focusStack.push(...originalFocusStack)
+        }
         this.onFocusChanged()
     },
     pushFocus(x) {

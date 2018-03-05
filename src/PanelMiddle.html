@@ -36,11 +36,17 @@
                 this.openFile(['demo', 'demo.py'], 'demo.py')
             })
             this.observe('focus', (newFocus, oldFocus) => {
-                console.warn('focus change in panelMiddle')
                 if (newFocus === oldFocus) return
-                if (!newFocus) g.setFocus([g.fileTree])
+                if (!newFocus) g.setFocus([g.panelLeft, g.fileTree])
                 else g.setFocus([this, newFocus])
                 g.activeEditor = newFocus
+            })
+            this.observe('focused', focused => {
+                const editor = this.get('focus')
+                if (focused)
+                    editor && editor.cm && editor.cm.focus()
+                else
+                    editor && editor.cm && editor.cm.getInputField().blur()
             })
         },
         data() {

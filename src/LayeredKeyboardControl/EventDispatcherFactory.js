@@ -2,12 +2,13 @@ import g from '../lib/Globals'
 
 function EventDispatcherFactory(options) {
     const extraKeyHandler = options.extraKeyHandler
-    const dispatchTarget = options.dispatchTarget
+//    const dispatchTarget = options.dispatchTarget
     const closable = options.closable || true
-    if (!dispatchTarget) console.error('dispatchTarget is null')
+//    if (!dispatchTarget) console.error('dispatchTarget is null')
 
     const handleKeyEvent = event => {
-        const target = dispatchTarget.length > 1 ? g[dispatchTarget[0]][dispatchTarget[1]] : g[dispatchTarget[0]]
+        const target = g.focus
+//        const target = dispatchTarget.length > 1 ? g[dispatchTarget[0]][dispatchTarget[1]] : g[dispatchTarget[0]]
         if (!target) return true
         if (closable && !target.get('open')) return true
 
@@ -38,7 +39,8 @@ function EventDispatcherFactory(options) {
     }
 
     const handleCommand = command => {
-        const target = dispatchTarget.length > 1 ? g[dispatchTarget[0]][dispatchTarget[1]] : g[dispatchTarget[0]]
+//        const target = dispatchTarget.length > 1 ? g[dispatchTarget[0]][dispatchTarget[1]] : g[dispatchTarget[0]]
+        const target = g.focus
         if (closable && !target.get('open')) return false
         switch (command) {
             case 'down':

@@ -1,6 +1,9 @@
 import g from '../lib/Globals'
 import Keymap from './Keymap'
-import EventDispatcherFactory from './EventDispatcherFactory.js'
+import EventDispatcherFactory from './EventDispatcherFactory'
+import CodeEditor from '../editor/CodeEditor.html'
+import Completion from '../editor/completion/Completion.html'
+import ContextMenu from '../lib/ContextMenu.html'
 
 class LayeredKeyboardControl {
     sendEditorCommand(command) {
@@ -14,23 +17,45 @@ class LayeredKeyboardControl {
         const code = e.code
         this.commandSent = true
         const command = Keymap.genericCommandKeymap[code]
-        console.log('sendCommand', command, g.focus)
-//        if (!g.activeEditor || !g.activeEditor.cm.hasFocus()) {
-//            if (command)
-//                this.contextMenuKeyHandler.handleCommand(command)
-//            return false
-//        }
-//        if (command && g.activeEditor.completion.get('open')) {
-//            this.completionKeyHandler.handleCommand(command)
-//        } else {
-//            const extending = e.shiftKey
-//            if (extending) this.sendEditorCommand('setExtending')
-//            else this.sendEditorCommand('unsetExtending')
-//            const command = Keymap.editorCommandKeymap[code]
-//            this.sendEditorCommand(command)
-//            if (extending) this.sendEditorCommand('unsetExtending')
-//        }
-//        return false
+        switch (command) {
+            case 'panelLeft':
+                g.setFocus([g.panelLeft])
+                break
+            case 'panelMiddle':
+                g.setFocus([g.panelMiddle])
+                break
+            case 'panelRight':
+                g.setFocus([g.panelRight])
+                break
+            default:
+                if (g.focus instanceof CodeEditor) {
+                    const extending = e.shiftKey
+                    if (extending) this.sendEditorCommand('setExtending')
+                    else this.sendEditorCommand('unsetExtending')
+                    this.sendEditorCommand(Keymap.editorCommandKeymap[code])
+                    if (extending) this.sendEditorCommand('unsetExtending')
+                } else if (g.focus instanceof Completion) {
+                    this.completionKeyHandler.handleCommand(command)
+                } else if (g.focus instanceof ContextMenu) {
+                    this.contextMenuKeyHandler.handleCommand(command)
+                }
+        }
+        //        if (!g.activeEditor || !g.activeEditor.cm.hasFocus()) {
+        //            if (command)
+        //                this.contextMenuKeyHandler.handleCommand(command)
+        //            return false
+        //        }
+        //        if (command && g.activeEditor.completion.get('open')) {
+        //            this.completionKeyHandler.handleCommand(command)
+        //        } else {
+        //            const extending = e.shiftKey
+        //            if (extending) this.sendEditorCommand('setExtending')
+        //            else this.sendEditorCommand('unsetExtending')
+        //            const command = Keymap.editorCommandKeymap[code]
+        //            this.sendEditorCommand(command)
+        //            if (extending) this.sendEditorCommand('unsetExtending')
+        //        }
+        //        return false
     }
     stopPropagation(event) {
         event.preventDefault()
@@ -44,7 +69,7 @@ class LayeredKeyboardControl {
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
 
         this.completionKeyHandler = EventDispatcherFactory({
-            dispatchTarget: ['activeEditor', 'completion'],
+//            dispatchTarget: ['activeEditor', 'completion'],
             extraKeyHandler(event, target) {
                 if (/[.,()[\]:+\-*/|&^~%@><!]/.test(event.key))
                     target.enter()
@@ -56,7 +81,7 @@ class LayeredKeyboardControl {
             }
         })
         this.contextMenuKeyHandler = EventDispatcherFactory({
-            dispatchTarget: ['contextMenu'],
+//            dispatchTarget: ['contextMenu'],
         })
 
         document.addEventListener('keydown', e => {
@@ -72,7 +97,7 @@ class LayeredKeyboardControl {
                 this.textSent = false
             } else {
                 this.textSent = true
-                return this.completionKeyHandler.handleKeyEvent(e) && 
+                return this.completionKeyHandler.handleKeyEvent(e) &&
                     this.contextMenuKeyHandler.handleKeyEvent(e)
             }
             return this.stopPropagation(e)
