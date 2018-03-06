@@ -4,7 +4,7 @@ import commonjs from 'rollup-plugin-commonjs'
 import babel from 'rollup-plugin-babel'
 import strip from 'rollup-plugin-strip'
 import sizes from 'rollup-plugin-sizes'
-//import postcss from 'rollup-plugin-postcss'
+import postcss from 'rollup-plugin-postcss'
 
 const production = !process.env.ROLLUP_WATCH
 
@@ -20,17 +20,18 @@ export default {
         svelte({
             dev: !production, // enable run-time checks when not in production
             css: css => {
-                css.write('dist/bundle.css', !production) // enable sourcemap when in production
+                css.write('dist/bundle.css', !production) // enable sourcemap when not in production
             },
             cascade: true
         }),
 
         resolve(),
         commonjs(),
-        // postcss({
-        //     plugins: [],
-        //     minimize: true
-        // }),
+        postcss({
+            plugins: [],
+            minimize: production,
+            extract: 'dist/vendor.css'
+        }),
         production && babel(),
         production && strip(),
         production && sizes()
