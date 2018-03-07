@@ -19,9 +19,9 @@ export default {
     plugins: [
         svelte({
             dev: !production, // enable run-time checks when not in production
-            css: css => {
-                css.write('dist/bundle.css', !production) // enable sourcemap when not in production
-            },
+            // css: css => {
+            //     css.write('dist/bundle.css', !production) // enable sourcemap when not in production
+            // },
             cascade: true
         }),
 
@@ -30,7 +30,7 @@ export default {
         postcss({
             plugins: [],
             minimize: production,
-            extract: 'dist/vendor.css'
+            // extract: 'dist/vendor.css'
         }),
         production && babel(),
         production && strip(),

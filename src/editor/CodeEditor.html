@@ -76,10 +76,10 @@
             
             // observers
             this.observe('filePath', (newPath, oldPath) => {
-                g.panelMiddle._pathToEditor[newPath.join('/')] = this
+                g.panelMiddle.pathToEditor[newPath.join('/')] = this
                 console.log({newPath, oldPath})
                 if (oldPath) {
-                    delete g.panelMiddle._pathToEditor[oldPath.join('/')]
+                    delete g.panelMiddle.pathToEditor[oldPath.join('/')]
                     this.ws.send({
                         cmd: 'mtime', 
                         newPath
@@ -222,7 +222,7 @@
         },
         ondestroy() {
             this.tab.destroy()
-            delete g.panelMiddle._pathToEditor[this.get('filePath').join('/')]
+            delete g.panelMiddle.pathToEditor[this.get('filePath').join('/')]
         },
         data() {
             return {

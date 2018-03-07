@@ -46,8 +46,8 @@
     import Toolbar from './panels/Toolbar.html'
     import Prompt from './panels/Prompt.html'
     import ContextMenu from './lib/ContextMenu.html'
-    import Keymap from './lib/Keymap'
-    import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl.js'
+    import Hotkeys from './LayeredKeyboardControl/Hotkeys'
+    import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
 
     // register service worker
     if ('serviceWorker' in navigator) {
@@ -136,6 +136,17 @@
                         })
                 }
 
+                window.addEventListener('beforeunload', e => {
+                    const message = 'You have unsaved changes. Do you really want to leave?'
+                    for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
+                        if (!editor.get('clean')) {
+                            e.returnValue = message
+                            return message
+                        }
+                    }
+                })
+
+                Hotkeys.bindHotkeys()
                 g.layeredKeyboardControl = new LayeredKeyboardControl()
             }, 300)
         }
