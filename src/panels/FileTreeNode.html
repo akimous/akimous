@@ -282,7 +282,9 @@
                 g.fileTree.ws.send({
                     cmd: 'newfile',
                     path: this.getPath().slice(0, -1),
+                    newName: 'newFile1' //send newfile name
                 })
+                //TODO: focus on new file and rename?                
             }
         }
     }

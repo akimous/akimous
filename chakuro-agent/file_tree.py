@@ -129,5 +129,9 @@ async def rename(msg, send, context):
 
 @register('newfile')
 async def newfile(msg, send, context):
-    path = Path(context.fileRoot, *msg['path'])
-    log.info('new a file in %s', str(path))
+    old_path = Path(context.fileRoot, *msg['path'])
+    
+    f = open(str(old_path) + '/' + msg['newName'], 'w')
+    f.close()
+    log.info('%s is created in %s', msg['newName'], str(old_path))
+
