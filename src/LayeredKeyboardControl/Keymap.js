@@ -37,6 +37,8 @@ const genericCommandKeymap = {
     'KeyH': 'top',
     'Semicolon': 'bottom',
     
+    'Space': 'commit',
+    
     'KeyM': 'panelLeft',
     'Comma': 'panelMiddle',
     'Period': 'panelRight',

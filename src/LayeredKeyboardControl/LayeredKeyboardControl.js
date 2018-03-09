@@ -92,11 +92,8 @@ class LayeredKeyboardControl {
                 // bypass shift
             } else if (e.key === ' ') {
                 this.spacePressed = false
-                if (!this.commandSent) {
-                    this.completionKeyHandler.handleCommand('commit') ||
-                        this.contextMenuKeyHandler.handleCommand('commit') ||
-                        g.activeEditor.insertText(' ')
-                }
+                if (!this.commandSent) 
+                    this.sendCommand(e) && g.activeEditor.insertText(' ')
                 return this.stopPropagation(e)
             } else if (this.spacePressed && !this.textSent && !this.commandSent &&
                 (e.key.length === 1 || keysRequireHandling.has(e.key))) {

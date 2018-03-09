@@ -31,6 +31,7 @@ function EventDispatcherFactory(options) {
     }
 
     const handleCommand = command => {
+        console.log('handleCommand', command)
         switch (command) {
             case 'down':
                 target.move(1)
