@@ -77,7 +77,6 @@
             // observers
             this.observe('filePath', (newPath, oldPath) => {
                 g.panelMiddle.pathToEditor[newPath.join('/')] = this
-                console.log({newPath, oldPath})
                 if (oldPath) {
                     delete g.panelMiddle.pathToEditor[oldPath.join('/')]
                     this.ws.send({
