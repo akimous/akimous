@@ -25,6 +25,7 @@
     import g from './Globals'
     import ContextMenuRow from './ContextMenuRow.html'
     import ContextMenuDivider from './ContextMenuDivider.html'
+    import EventDispatcherFactory from '../LayeredKeyboardControl/EventDispatcherFactory'
 
     export default {
         components: {},
@@ -76,6 +77,10 @@
                 if (newValue) newValue.set({
                     selected: true
                 })
+            })
+
+            this.keyEventHandler = EventDispatcherFactory({
+                target: this
             })
         },
         data() {

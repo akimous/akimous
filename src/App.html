@@ -136,15 +136,15 @@
                         })
                 }
 
-                window.addEventListener('beforeunload', e => {
-                    const message = 'You have unsaved changes. Do you really want to leave?'
-                    for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
-                        if (!editor.get('clean')) {
-                            e.returnValue = message
-                            return message
-                        }
-                    }
-                })
+                //                window.addEventListener('beforeunload', e => {
+                //                    const message = 'You have unsaved changes. Do you really want to leave?'
+                //                    for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
+                //                        if (!editor.get('clean')) {
+                //                            e.returnValue = message
+                //                            return message
+                //                        }
+                //                    }
+                //                })
 
                 Hotkeys.bindHotkeys()
                 g.layeredKeyboardControl = new LayeredKeyboardControl()

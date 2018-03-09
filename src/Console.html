@@ -10,13 +10,11 @@
     }
 
     .terminal,
-    .xterm-viewport{
+    .xterm-viewport {
         background: var(--panel-color);
         height: 100%;
         width: 100%;
         color: var(--basic-monospace-font-color);
-/*        font-family: var(--basic-monospace-font-family);*/
-/*        font-size: var(--basic-monospace-font-size);*/
         line-height: var(--basic-monospace-line-height);
     }
 
@@ -25,35 +23,37 @@
 
 <script>
     import g from './lib/Globals'
-    import {Terminal} from 'xterm'
+    import {
+        Terminal
+    } from 'xterm'
     import fit from 'xterm/lib/addons/fit/fit'
     import attach from 'xterm/lib/addons/attach/attach'
-    
-    
+
+
     export default {
         components: {},
         oncreate() {
             g.console = this
-            Terminal.applyAddon(fit)
-            const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-            this.terminal = new Terminal({
-                tabStopWidth: 4,
-                fontSize: 1.2 * rem,
-                fontFamily: 'Source Code Pro',
-                theme: {
-                    foreground: '#CCC',
-                    background: '#3F3F3F'
-                }
-            })
-            this.terminal.open(this.refs.terminal, false)
-            this.terminal.write('blabla')
-            this.terminal.on('focus', () => {
-                g.setFocus([g.panelRight, this])
-            })
-            
             setTimeout(() => {
+                Terminal.applyAddon(fit)
+                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+                this.terminal = new Terminal({
+                    tabStopWidth: 4,
+                    fontSize: 1.2 * rem,
+                    fontFamily: 'Source Code Pro',
+                    theme: {
+                        foreground: '#CCC',
+                        background: '#3F3F3F'
+                    }
+                })
+                this.terminal.open(this.refs.terminal, false)
+                this.terminal.write('blabla')
+                this.terminal.on('focus', () => {
+                    g.setFocus([g.panelRight, this])
+                })
+
                 this.terminal.fit()
-            }, 300)
+            }, 500)
         },
         data() {
             return {}

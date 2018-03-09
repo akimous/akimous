@@ -27,6 +27,7 @@
 <script>
     import g from '../../lib/Globals'
     import CompletionRow from './CompletionRow.html'
+    import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
 
     export default {
         components: {},
@@ -99,6 +100,19 @@
                     selected: true
                 })
             })
+
+            this.keyEventHandler = EventDispatcherFactory({
+                target: this,
+                extraKeyHandler(event, target) {
+                    if (/[.,()[\]:+\-*/|&^~%@><!]/.test(event.key))
+                        target.enter()
+                    else if (/[=[\](){}]/.test(event.key))
+                        target.set({
+                            open: false
+                        })
+                    return true
+                }
+            })
         },
         data() {
             return {
@@ -155,14 +169,14 @@
 
                 const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get('selectedCompletionRow')
                 if (!completion) return console.error('no selected completion')
-                
+
                 const type = completion.get('type')
                 const cursor = this.cm.doc.getCursor()
                 this.set({
-                        open: false
-                    })
+                    open: false
+                })
                 if (type === 'instruction') return
-                
+
                 let text = completion.get('c')
                 if (type === 'keyword') text += ' '
 
@@ -177,11 +191,11 @@
             move(nRows) {
                 const currentIndex = this.get('selectedCompletionRow').get('index')
                 const length = this.completionRows.length
-                
+
                 let targetIndex = currentIndex + nRows
                 if (targetIndex >= length) targetIndex = length - 1
                 else if (targetIndex < 0) targetIndex = 0
-                
+
                 const targetRow = this.completionRows[targetIndex]
                 this.set({
                     selectedCompletionRow: targetRow

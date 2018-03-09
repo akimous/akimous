@@ -2,16 +2,10 @@ import g from '../lib/Globals'
 
 function EventDispatcherFactory(options) {
     const extraKeyHandler = options.extraKeyHandler
-//    const dispatchTarget = options.dispatchTarget
     const closable = options.closable || true
-//    if (!dispatchTarget) console.error('dispatchTarget is null')
+    const target = options.target
 
     const handleKeyEvent = event => {
-        const target = g.focus
-//        const target = dispatchTarget.length > 1 ? g[dispatchTarget[0]][dispatchTarget[1]] : g[dispatchTarget[0]]
-        if (!target) return true
-        if (closable && !target.get('open')) return true
-
         switch (event.key) {
             case 'ArrowDown':
                 target.move(1)
@@ -33,37 +27,32 @@ function EventDispatcherFactory(options) {
                 if (!extraKeyHandler) return true
                 return extraKeyHandler(event, target)
         }
-        event.preventDefault()
-        event.stopPropagation()
         return false
     }
 
     const handleCommand = command => {
-//        const target = dispatchTarget.length > 1 ? g[dispatchTarget[0]][dispatchTarget[1]] : g[dispatchTarget[0]]
-        const target = g.focus
-        if (closable && !target.get('open')) return false
         switch (command) {
             case 'down':
                 target.move(1)
-                return true
+                return false
             case 'up':
                 target.move(-1)
-                return true
+                return false
             case 'down5X':
                 target.move(5)
-                return true
+                return false
             case 'up5X':
                 target.move(-5)
-                return true
+                return false
             case 'bottom':
                 target.move(999999)
-                return true
+                return false
             case 'top':
                 target.move(-999999)
-                return true
+                return false
             case 'commit':
                 target.enter()
-                return true
+                return false
             case '1':
             case '2':
             case '3':
@@ -73,9 +62,9 @@ function EventDispatcherFactory(options) {
             case '7':
             case '8':
                 target.enter(+command)
-                return true
+                return false
         }
-        console.error('unhandled command')
+        return true
     }
 
     return {

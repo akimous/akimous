@@ -9,7 +9,6 @@ class LayeredKeyboardControl {
     sendEditorCommand(command) {
         this.commandSent = true
         if (g.activeEditor && g.activeEditor.cm.hasFocus()) {
-            console.warn('command sent', command)
             g.activeEditor.cm.execCommand(command)
         }
     }
@@ -28,34 +27,27 @@ class LayeredKeyboardControl {
                 g.setFocus([g.panelRight])
                 break
             default:
-                if (g.focus instanceof CodeEditor) {
-                    const extending = e.shiftKey
-                    if (extending) this.sendEditorCommand('setExtending')
-                    else this.sendEditorCommand('unsetExtending')
-                    this.sendEditorCommand(Keymap.editorCommandKeymap[code])
-                    if (extending) this.sendEditorCommand('unsetExtending')
-                } else if (g.focus instanceof Completion) {
-                    this.completionKeyHandler.handleCommand(command)
-                } else if (g.focus instanceof ContextMenu) {
-                    this.contextMenuKeyHandler.handleCommand(command)
+                for (let i = g.focusStack.length - 1; i >= 0; i--) {
+                    const focus = g.focusStack[i]
+                    if (focus instanceof CodeEditor) {
+                        const extending = e.shiftKey
+                        const editorCommand = Keymap.editorCommandKeymap[code]
+                        if (!editorCommand) continue
+                        if (extending) this.sendEditorCommand('setExtending')
+                        else this.sendEditorCommand('unsetExtending')
+                        this.sendEditorCommand(editorCommand)
+                        if (extending) this.sendEditorCommand('unsetExtending')
+                        return false
+                    } else {
+                        const handler = focus.keyEventHandler
+                        if (handler === undefined) continue
+                        const shouldPropagate = handler.handleCommand(command)
+                        if (shouldPropagate) continue
+                        return false
+                    }
                 }
+                return true
         }
-        //        if (!g.activeEditor || !g.activeEditor.cm.hasFocus()) {
-        //            if (command)
-        //                this.contextMenuKeyHandler.handleCommand(command)
-        //            return false
-        //        }
-        //        if (command && g.activeEditor.completion.get('open')) {
-        //            this.completionKeyHandler.handleCommand(command)
-        //        } else {
-        //            const extending = e.shiftKey
-        //            if (extending) this.sendEditorCommand('setExtending')
-        //            else this.sendEditorCommand('unsetExtending')
-        //            const command = Keymap.editorCommandKeymap[code]
-        //            this.sendEditorCommand(command)
-        //            if (extending) this.sendEditorCommand('unsetExtending')
-        //        }
-        //        return false
     }
     stopPropagation(event) {
         event.preventDefault()
@@ -67,22 +59,6 @@ class LayeredKeyboardControl {
         this.commandSent = false
         this.textSent = false
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
-
-        this.completionKeyHandler = EventDispatcherFactory({
-//            dispatchTarget: ['activeEditor', 'completion'],
-            extraKeyHandler(event, target) {
-                if (/[.,()[\]:+\-*/|&^~%@><!]/.test(event.key))
-                    target.enter()
-                else if (/[=[\](){}]/.test(event.key))
-                    target.set({
-                        open: false
-                    })
-                return true
-            }
-        })
-        this.contextMenuKeyHandler = EventDispatcherFactory({
-//            dispatchTarget: ['contextMenu'],
-        })
 
         document.addEventListener('keydown', e => {
             if (e.key === 'Shift') {
@@ -97,8 +73,14 @@ class LayeredKeyboardControl {
                 this.textSent = false
             } else {
                 this.textSent = true
-                return this.completionKeyHandler.handleKeyEvent(e) &&
-                    this.contextMenuKeyHandler.handleKeyEvent(e)
+                for (let i = g.focusStack.length - 1; i >= 0; i--) {
+                    const handler = g.focusStack[i].keyEventHandler
+                    if (handler === undefined) continue
+                    const shouldPropagate = handler.handleKeyEvent(e)
+                    if (shouldPropagate) continue
+                    return this.stopPropagation(e)
+                }
+                return true // if not handled, just propagate
             }
             return this.stopPropagation(e)
         }, {
