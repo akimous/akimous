@@ -1,4 +1,3 @@
-@import url(theme.css);
 .cm-s-legato.CodeMirror {
     background: var(--main-bg-color);
     color: var(--basic-monospace-font-color);

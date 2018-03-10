@@ -1,4 +1,4 @@
-<div ref:panelMiddle id="panel-middle" class="{{focused?'indicator-on':''}}">
+<div ref:panelMiddle id="panel-middle" class=" {{focused?'indicator-on':''}} ">
     <TabBar id="tab-bar"></TabBar>
 </div>
 
@@ -34,7 +34,7 @@
             this.activationHistoryIndex = 0
             setTimeout(() => {
                 this.openFile(['demo', 'demo.py'], 'demo.py')
-            })
+            }, 400)
             this.observe('focus', (newFocus, oldFocus) => {
                 if (newFocus === oldFocus) return
                 if (!newFocus) g.setFocus([g.panelLeft, g.fileTree])
@@ -43,16 +43,16 @@
             })
             this.observe('focused', focused => {
                 const editor = this.get('focus')
-                if (focused)
+                if (focused) {
                     editor && editor.cm && editor.cm.focus()
-                else
+                } else
                     editor && editor.cm && editor.cm.getInputField().blur()
             })
         },
         data() {
             return {
                 focus: null,
-                focused: false
+                focused: false,
             }
         },
         methods: {

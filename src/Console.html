@@ -51,9 +51,10 @@
                 this.terminal.on('focus', () => {
                     g.setFocus([g.panelRight, this])
                 })
-
-                this.terminal.fit()
-            }, 300)
+                window.requestAnimationFrame(() => {
+                    this.terminal.fit()
+                })
+            }, 500)
         },
         data() {
             return {}
