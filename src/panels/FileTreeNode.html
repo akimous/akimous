@@ -2,8 +2,11 @@
     <span class="icon {{icon}}"></span> {{#if !renaming}}
     <span class="display-name"> 
         {{name}}
-    </span> {{else}}
+    </span> {{#if newfileing}}
+    <input ref:input id="newfileName" type="text" value="" on:blur="commitNewfile()"> {{/if}}
+    {{else}}
     <input ref:input class="display-name" type="text" value="{{name}}" on:blur="commitRename()"> {{/if}}
+
 </div>
 <div ref:children>
     {{#each dirs as i @uid}}
@@ -279,12 +282,36 @@
                 })
             },
             newfile() {
-                g.fileTree.ws.send({
-                    cmd: 'newfile',
-                    path: this.getPath().slice(0, -1),
-                    newName: 'newFile1' //send newfile name
+                this.set({
+                    newfileing: true
                 })
-                //TODO: focus on new file and rename?                
+                this.refs.input.focus()
+                this.refs.input.onkeydown = e => {
+                    if (e.key === 'Enter')
+                        this.refs.input.blur()
+                    else if (e.key === 'Escape')
+                        this.set({
+                            newfileing: false
+                        })
+                    else return true
+                    e.preventDefault()
+                    e.stopPropagation()
+                    return false
+                }
+            },
+            commitNewfile() {
+                var name_element = document.getElementById('newfileName');
+                var name = name_element.value;
+                if (name != '')
+                    g.fileTree.ws.send({
+                        cmd: 'newfile',
+                        path: this.getPath().slice(0, -1),
+                        newfileName: name //send newfile name
+                    })
+                this.set({
+                    newfileing: false
+                })
+                //TODO: focus on new file             
             }
         }
     }

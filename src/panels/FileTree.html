@@ -89,6 +89,13 @@
             this.ws.addHandler('rename-failed', data => {
                 g.notificationBar.show('warning', `Failed to rename "<b>${data.oldName}</b>". ${data.reason}.`)
             })
+            
+            this.ws.addHandler('newfile-ok', data => {
+                g.notificationBar.show('success', `"new file: <b>${data.newfileName}</b>"`)
+            })
+            this.ws.addHandler('newfile-failed', data => {
+                g.notificationBar.show('warning', `"Failed to new file: <b>${data.newfileName}</b>". ${data.reason}.`)
+            })
 
             // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
             function binarySearch(array, target) {
