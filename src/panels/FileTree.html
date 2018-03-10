@@ -34,6 +34,7 @@
     import g from '../lib/Globals'
     import WSClient from '../lib/WSClient'
     import FileTreeNode from './FileTreeNode.html'
+//    import EventDispatcherFactory from '../LayeredKeyboardControl/EventDispatcherFactory'
 
     export default {
         components: {
@@ -141,6 +142,10 @@
                     isRoot: true
                 })
             })
+            
+//            this.keyEventHandler = EventDispatcherFactory({
+//                target: this,
+//            })
         },
         data() {
             return {
