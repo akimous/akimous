@@ -306,7 +306,8 @@
                 if (name != '')
                     g.fileTree.ws.send({
                         cmd: 'newfile',
-                        path: this.getPath().slice(0, -1),
+                        path: this.getPath(),//.slice(0, -1),
+                        parentpath: this.getPath().slice(0, -1),
                         newfileName: name //send newfile name
                     })
                 this.set({
