@@ -1,7 +1,7 @@
 <div ref:fileTree class="file-tree">
     <div class="container" ref:children>
         {{#each dirs as i @uid}}
-        <FileTreeNode name={{i.name}} parent={{self}} isFolder></FileTreeNode>
+        <FileTreeNode name={{i.name}} parent={{self}} isDir></FileTreeNode>
         {{/each}} {{#each files as i @uid}}
         <FileTreeNode name={{i.name}} parent={{self}}></FileTreeNode>
         {{/each}}
@@ -34,7 +34,10 @@
     import g from '../lib/Globals'
     import WSClient from '../lib/WSClient'
     import FileTreeNode from './FileTreeNode.html'
-//    import EventDispatcherFactory from '../LayeredKeyboardControl/EventDispatcherFactory'
+    import EventDispatcherFactory from '../LayeredKeyboardControl/EventDispatcherFactory'
+    import {
+        binarySearch
+    } from '../lib/Utils'
 
     export default {
         components: {
@@ -96,18 +99,7 @@
             this.ws.addHandler('rename-failed', data => {
                 g.notificationBar.show('warning', `Failed to rename "<b>${data.oldName}</b>". ${data.reason}.`)
             })
-
-            // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
-            function binarySearch(array, target) {
-                let lo = -1,
-                    hi = array.length
-                while (1 + lo !== hi) {
-                    const mi = lo + ((hi - lo) >> 1);
-                    if (array[mi].name >= target) hi = mi;
-                    else lo = mi
-                }
-                return hi;
-            }
+            
             const handlerFactory = (target, eventType) => {
                 return data => {
                     const node = this.getNode(data.path.slice(0, -1))
@@ -142,10 +134,10 @@
                     isRoot: true
                 })
             })
-            
-//            this.keyEventHandler = EventDispatcherFactory({
-//                target: this,
-//            })
+
+            this.keyEventHandler = EventDispatcherFactory({
+                target: this,
+            })
         },
         data() {
             return {
@@ -163,6 +155,19 @@
                 }
                 return node
             },
+            move(n) {
+                console.log('file tree move', n)
+                const currentFocus = g.focus
+                if (currentFocus.constructor.name === 'FileTreeNode') {
+                    let currentNode = currentFocus
+                    for (let i = Math.abs(n); i > 0; i--) {
+                        const nextNode = currentFocus.nextNode(n)
+                        if (!nextNode) break
+                        currentNode = nextNode
+                    }
+                    currentNode && currentNode !== currentFocus && currentNode.onClick()
+                }
+            }
         }
     }
 

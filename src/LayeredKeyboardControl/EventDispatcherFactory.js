@@ -2,7 +2,7 @@ import g from '../lib/Globals'
 
 function EventDispatcherFactory(options) {
     const extraKeyHandler = options.extraKeyHandler
-    const closable = options.closable || true
+    const closable = options.closable
     const target = options.target
 
     const handleKeyEvent = event => {

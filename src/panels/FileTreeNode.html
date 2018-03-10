@@ -7,7 +7,7 @@
 </div>
 <div ref:children>
     {{#each dirs as i @uid}}
-    <:Self level={{level+1}} name={{i.name}} parent={{self}} isFolder/> {{/each}} {{#each files as i @uid}}
+    <:Self level={{level+1}} name={{i.name}} parent={{self}} isDir/> {{/each}} {{#each files as i @uid}}
     <:Self level={{level+1}} name={{i.name}} parent={{self}} /> {{/each}}
 </div>
 
@@ -55,6 +55,10 @@
 
 <script>
     import g from '../lib/Globals'
+    import {
+        binarySearch
+    } from '../lib/Utils'
+
     import {
         fileTypeToIcon,
         defaultIcon,
@@ -113,7 +117,7 @@
             // set icon
             const name = this.get('name')
             let icon
-            if (this.get('isFolder')) {
+            if (this.get('isDir')) {
                 icon = fileTypeToIcon['folder']
             } else {
                 try {
@@ -130,7 +134,7 @@
             })
 
             // register folder
-            if (this.get('isFolder')) {
+            if (this.get('isDir')) {
                 this.observe('open', open => {
                     if (open) {
                         this.set({
@@ -167,7 +171,7 @@
                 name: '',
                 icon: '',
                 level: 0,
-                isFolder: false,
+                isDir: false,
                 open: false,
                 selected: false,
                 renaming: false,
@@ -201,7 +205,7 @@
                 g.setFocus([g.panelLeft, g.fileTree, this])
             },
             onDoubleClick() {
-                if (this.get('isFolder')) {
+                if (this.get('isDir')) {
                     this.set({
                         open: !this.get('open')
                     })
@@ -285,6 +289,33 @@
                     cmd: 'newfile',
                     path: this.getPath().slice(0, -1),
                 })
+            },
+            nextNode(direction) {
+                const parent = this.get('parent')
+                const isDir = this.get('isDir')
+                const files = parent.get('files')
+                const dirs = parent.get('dirs')
+                const list = isDir ? dirs : files
+                const currentIndex = binarySearch(list, this.get('name'))
+
+                let newList = list
+                let newIndex = currentIndex + direction
+                if (direction > 0 && newIndex >= list.length) {
+                    if (!isDir) this
+                    if (files.length) {
+                        newList = files
+                        newIndex = 0
+                    } else return this
+                } else if (direction < 0 && newIndex < 0) {
+                    if (isDir) return this
+                    if (dirs.length) {
+                        newList = dirs
+                        newIndex = dirs.length - 1
+                    } else return this
+                }
+                const nextNodeName = newList[newIndex].name
+                const nextNode = parent.children[nextNodeName]
+                return nextNode
             }
         }
     }
