@@ -132,8 +132,8 @@ async def newfile(msg, send, context):
     src_path = Path(context.fileRoot, *msg['path'])
     if src_path.is_dir():
         newfile_path = Path(src_path, msg['newfileName'])
-    else:
-        newfile_path = Path(context.fileRoot, *msg['parentpath'], msg['newfileName'])
+    elif src_path.is_file():
+        newfile_path = Path(src_path.parents[0], msg['newfileName'])
     result = {
         'newfilePath': str(newfile_path),
         'newfileName': msg['newfileName']

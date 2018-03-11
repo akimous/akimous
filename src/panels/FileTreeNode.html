@@ -3,7 +3,7 @@
     <span class="display-name"> 
         {{name}}
     </span> {{#if newfileing}}
-    <input ref:input id="newfileName" type="text" value="" on:blur="commitNewfile()"> {{/if}}
+    <input ref:input id="inputNewfileName" type="text" value="" on:blur="commitNewfile()"> {{/if}}
     {{else}}
     <input ref:input class="display-name" type="text" value="{{name}}" on:blur="commitRename()"> {{/if}}
 
@@ -301,19 +301,18 @@
                 }
             },
             commitNewfile() {
-                var name_element = document.getElementById('newfileName');
+                var name_element = document.getElementById('inputNewfileName');
                 var name = name_element.value;
                 if (name != '')
                     g.fileTree.ws.send({
                         cmd: 'newfile',
-                        path: this.getPath(),//.slice(0, -1),
-                        parentpath: this.getPath().slice(0, -1),
+                        path: this.getPath(),
                         newfileName: name //send newfile name
                     })
                 this.set({
                     newfileing: false
                 })
-                //TODO: focus on new file             
+                //TODO: focus on new file
             }
         }
     }
