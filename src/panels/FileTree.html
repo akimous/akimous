@@ -101,6 +101,13 @@
             this.ws.addHandler('rename-failed', data => {
                 g.notificationBar.show('warning', `Failed to rename "<b>${data.oldName}</b>". ${data.reason}.`)
             })
+            
+            this.ws.addHandler('newfile-ok', data => {
+                g.notificationBar.show('success', `"new file: <b>${data.newfileName}</b>"`)
+            })
+            this.ws.addHandler('newfile-failed', data => {
+                g.notificationBar.show('warning', `"Failed to new file: <b>${data.newfileName}</b>". ${data.reason}.`)
+            })
 
             const handlerFactory = (target, eventType) => {
                 return data => {
