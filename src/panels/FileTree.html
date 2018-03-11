@@ -62,6 +62,8 @@
                     dirs: sortAndAddUid(data.dirs),
                     files: sortAndAddUid(data.files)
                 })
+                if (this.scheduledMoveToChildrenAfterOpening)
+                    this.moveToChildrenAfterOpening()
             })
 
             const sortChildren = (node, type) => {
@@ -99,7 +101,7 @@
             this.ws.addHandler('rename-failed', data => {
                 g.notificationBar.show('warning', `Failed to rename "<b>${data.oldName}</b>". ${data.reason}.`)
             })
-            
+
             const handlerFactory = (target, eventType) => {
                 return data => {
                     const node = this.getNode(data.path.slice(0, -1))
@@ -135,9 +137,66 @@
                 })
             })
 
-            this.keyEventHandler = EventDispatcherFactory({
-                target: this,
-            })
+            const target = this
+            this.keyEventHandler = {
+                handleKeyEvent(event) {
+                    switch (event.key) {
+                        case 'ArrowDown':
+                            target.moveToSiblin(1)
+                            break
+                        case 'ArrowUp':
+                            target.moveToSiblin(-1)
+                            break
+                        case 'ArrowLeft':
+                            target.moveToParent()
+                            break
+                        case 'ArrowRight':
+                            target.moveToChildren()
+                            break
+                        case ' ':
+                        case 'Enter':
+                            target.enter()
+                            break
+                        default:
+                            return true // if not handled
+                    }
+                    return false
+                },
+                handleCommand(command) {
+                    switch (command) {
+                        case 'down':
+                            target.moveToSiblin(1)
+                            break
+                        case 'up':
+                            target.moveToSiblin(-1)
+                            break
+                        case 'down5X':
+                            target.moveToSiblin(5)
+                            break
+                        case 'up5X':
+                            target.moveToSiblin(-5)
+                            break
+                        case 'left':
+                            target.moveToParent()
+                            break
+                        case 'right':
+                            target.moveToChildren()
+                            break
+                        case 'end':
+                            target.move(999999)
+                            break
+                        case 'home':
+                            target.move(-999999)
+                            break
+                        case 'commit':
+                            target.contextMenu()
+                            break
+                        default:
+                            return true // if not handled
+                    }
+                    return false
+                }
+            }
         },
         data() {
             return {
@@ -155,18 +214,65 @@
                 }
                 return node
             },
-            move(n) {
-                console.log('file tree move', n)
+            moveToSiblin(n) {
                 const currentFocus = g.focus
-                if (currentFocus.constructor.name === 'FileTreeNode') {
-                    let currentNode = currentFocus
-                    for (let i = Math.abs(n); i > 0; i--) {
-                        const nextNode = currentFocus.nextNode(n)
-                        if (!nextNode) break
-                        currentNode = nextNode
-                    }
-                    currentNode && currentNode !== currentFocus && currentNode.onClick()
+                if (currentFocus.constructor.name !== 'FileTreeNode') return
+                let currentNode = currentFocus
+                for (let i = Math.abs(n); i > 0; i--) {
+                    const nextNode = currentNode.nextNode(n)
+                    if (!nextNode) break
+                    currentNode = nextNode
                 }
+                if (!currentNode && currentNode === currentFocus) return
+                if (!currentNode.get('selected')) currentNode.onClick()
+                currentNode.refs.row.scrollIntoViewIfNeeded(false)
+            },
+            moveToChildren() {
+                const currentNode = g.focus
+                if (currentNode.constructor.name !== 'FileTreeNode') return
+                if (!currentNode.get('isDir')) return
+                if (currentNode.get('open')) {
+                    this.moveToChildrenAfterOpening()
+                    return
+                }
+                currentNode.onDoubleClick()
+                this.scheduledMoveToChildrenAfterOpening = true
+            },
+            moveToChildrenAfterOpening() {
+                const currentNode = g.focus
+                const dirs = currentNode.get('dirs')
+                const files = currentNode.get('files')
+                let firstChildName = dirs.length ? dirs[0].name : (files.length ? files[0].name : null)
+                if (!firstChildName) return
+                const firstChildNode = currentNode.children[firstChildName]
+                firstChildNode.onClick()
+                firstChildNode.refs.row.scrollIntoViewIfNeeded(false)
+                this.scheduledMoveToChildrenAfterOpening = false
+            },
+            moveToParent() {
+                const currentNode = g.focus
+                if (currentNode.constructor.name !== 'FileTreeNode') return
+                const parent = currentNode.get('parent')
+                if (!parent) return
+                parent.onClick()
+                parent.refs.row.scrollIntoViewIfNeeded(false)
+            },
+            enter() {
+                const currentNode = g.focus
+                if (currentNode.constructor.name !== 'FileTreeNode') return
+                currentNode.onDoubleClick()
+            },
+            contextMenu() {
+                const focus = g.focus
+                if (focus.constructor.name !== 'FileTreeNode') return
+                    
+                const x = this.refs.fileTree.getBoundingClientRect().right
+                const y = focus.refs.row.getBoundingClientRect().top
+                focus.onContextMenu({
+                    clientX: x - 10,
+                    clientY: y + 10,
+                    preventDefault() {}
+                })
             }
         }
     }

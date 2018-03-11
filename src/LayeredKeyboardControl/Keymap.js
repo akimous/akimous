@@ -32,10 +32,12 @@ const genericCommandKeymap = {
     'KeyK': 'down',
     'KeyU': 'up5X',
     'KeyO': 'down5X',
+    'KeyJ': 'left',
+    'KeyL': 'right',
     'KeyY': 'top',
     'KeyP': 'bottom',
-    'KeyH': 'top',
-    'Semicolon': 'bottom',
+    'KeyH': 'home',
+    'Semicolon': 'end',
     
     'Space': 'commit',
     

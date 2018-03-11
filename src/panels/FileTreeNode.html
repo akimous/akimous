@@ -299,9 +299,9 @@
                 const currentIndex = binarySearch(list, this.get('name'))
 
                 let newList = list
-                let newIndex = currentIndex + direction
+                let newIndex = currentIndex + (direction > 0 ? 1 : -1)
                 if (direction > 0 && newIndex >= list.length) {
-                    if (!isDir) this
+                    if (!isDir) return this
                     if (files.length) {
                         newList = files
                         newIndex = 0

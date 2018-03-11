@@ -46,9 +46,11 @@ function EventDispatcherFactory(options) {
                 target.move(-5)
                 return false
             case 'bottom':
+            case 'end':
                 target.move(999999)
                 return false
             case 'top':
+            case 'home':
                 target.move(-999999)
                 return false
             case 'commit':
