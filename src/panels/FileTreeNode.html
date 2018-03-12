@@ -2,8 +2,9 @@
     <span class="icon {{icon}}"></span> {{#if !renaming}}
     <span class="display-name"> 
         {{name}}
-    </span> {{#if newfileing}}
-    <input ref:input id="inputNewfileName" type="text" value="" on:blur="commitNewfile()"> {{/if}}
+    </span> 
+    <!-- {{#if newfileing}}
+    <input ref:input id="inputNewfileName" type="text" value="" on:blur="commitNewfile()"> {{/if}} -->
     {{else}}
     <input ref:input class="display-name" type="text" value="{{name}}" on:blur="commitRename()"> {{/if}}
 
@@ -12,6 +13,10 @@
     {{#each dirs as i @uid}}
     <:Self level={{level+1}} name={{i.name}} parent={{self}} isDir/> {{/each}} {{#each files as i @uid}}
     <:Self level={{level+1}} name={{i.name}} parent={{self}} /> {{/each}}
+    
+    {{#if newfileing}}
+    <:Self name="" parent={{self}} />
+    <input ref:input id="inputNewfileName" class="display-name" type="text" value="" on:blur="commitNewfile()" >{{/if}}
 </div>
 
 
