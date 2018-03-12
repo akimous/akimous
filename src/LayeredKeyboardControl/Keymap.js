@@ -39,6 +39,9 @@ const genericCommandKeymap = {
     'KeyH': 'home',
     'Semicolon': 'end',
     
+    'KeyE': 'scrollUp',
+    'KeyD': 'scrollDown',
+    
     'Space': 'commit',
     
     'KeyM': 'panelLeft',

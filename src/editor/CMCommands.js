@@ -157,8 +157,8 @@ function registerCMCommands(CodeMirror) {
         const scrollInfo = cm.getScrollInfo()
         const vh = scrollInfo.clientHeight * amount
         const x = scrollInfo.left
-        let y = scrollInfo.top
         let d = 1.
+        let y = scrollInfo.top - vh * d
         const step = () => {
             cm.scrollTo(x, y)
             if (d > 0.1) {
@@ -170,10 +170,10 @@ function registerCMCommands(CodeMirror) {
         step()
     }
     commands.scrollDown = cm => {
-        scroll(cm, -0.14)
+        scroll(cm, -0.1)
     }
     commands.scrollUp = cm => {
-        scroll(cm, 0.14)
+        scroll(cm, 0.1)
     }
 
     commands.selectLine = cm => {

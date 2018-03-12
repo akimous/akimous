@@ -101,7 +101,7 @@
             this.ws.addHandler('rename-failed', data => {
                 g.notificationBar.show('warning', `Failed to rename "<b>${data.oldName}</b>". ${data.reason}.`)
             })
-            
+
             this.ws.addHandler('newfile-ok', data => {
                 g.notificationBar.show('success', `"new file: <b>${data.newfileName}</b>"`)
             })
@@ -198,6 +198,12 @@
                         case 'commit':
                             target.contextMenu()
                             break
+                        case 'scrollUp':
+                            target.scroll(-0.1)
+                            break
+                        case 'scrollDown':
+                            target.scroll(0.1)
+                            break
                         default:
                             return true // if not handled
                     }
@@ -272,7 +278,7 @@
             contextMenu() {
                 const focus = g.focus
                 if (focus.constructor.name !== 'FileTreeNode') return
-                    
+
                 const x = this.refs.fileTree.getBoundingClientRect().right
                 const y = focus.refs.row.getBoundingClientRect().top
                 focus.onContextMenu({
@@ -280,6 +286,20 @@
                     clientY: y + 10,
                     preventDefault() {}
                 })
+            },
+            scroll(amount) {
+                window.cancelAnimationFrame(this.currentAnimationId)
+                const fileTree = this.refs.fileTree
+                const vh = fileTree.getBoundingClientRect().height * amount
+                let d = 1.
+                const step = () => {
+                    fileTree.scrollTop += vh * d
+                    if (d > 0.1) {
+                        d -= 0.1
+                        this.currentAnimationId = window.requestAnimationFrame(step)
+                    }
+                }
+                step()
             }
         }
     }
