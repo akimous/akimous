@@ -325,7 +325,7 @@
                 })
                 //TODO: focus on new file
             },
-            nextNode(direction) {
+            siblin(direction) {
                 const parent = this.get('parent')
                 const isDir = this.get('isDir')
                 const files = parent.get('files')
@@ -349,8 +349,35 @@
                     } else return this
                 }
                 const nextNodeName = newList[newIndex].name
-                const nextNode = parent.children[nextNodeName]
-                return nextNode
+                return parent.children[nextNodeName]
+            },
+            neighbor(direction) {
+                const parent = this.get('parent')
+                const isDir = this.get('isDir')
+                const files = this.get('files')
+                const dirs = this.get('dirs')
+//                debugger
+                if (direction > 0) {
+//                    console.log('dirs', dirs)
+                    if (dirs.length > 0) return this.children[dirs[0].name]
+                    if (files.length > 0) return this.children[files[0].name]
+                    const siblin = this.siblin(1)
+                    if (siblin && siblin !== this) return siblin
+                    if (!parent.siblin) return null
+                    return parent.siblin(1)
+                } else {
+                    const siblin = this.siblin(-1)
+                    if (!siblin || siblin === this) return parent
+                    let node = siblin
+                    while (Object.keys(node.children).length) {
+                        const f = node.get('files')
+                        const d = node.get('dirs')
+                        if (f.length) node = node.children[f[f.length - 1].name]
+                        else if (d.length) node = node.children[d[d.length - 1].name]
+                        else break
+                    }
+                    return node
+                }
             }
         }
     }

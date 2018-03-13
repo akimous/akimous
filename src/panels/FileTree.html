@@ -149,10 +149,12 @@
                 handleKeyEvent(event) {
                     switch (event.key) {
                         case 'ArrowDown':
-                            target.moveToSiblin(1)
+                            //                            target.moveToSiblin(1)
+                            target.moveToNeighbor(1)
                             break
                         case 'ArrowUp':
-                            target.moveToSiblin(-1)
+                            //                            target.moveToSiblin(-1)
+                            target.moveToNeighbor(-1)
                             break
                         case 'ArrowLeft':
                             target.moveToParent()
@@ -195,6 +197,12 @@
                         case 'home':
                             target.move(-999999)
                             break
+                        case 'top':
+                            target.top()
+                            break
+                        case 'bottom':
+                            target.bottom()
+                            break
                         case 'commit':
                             target.contextMenu()
                             break
@@ -232,13 +240,19 @@
                 if (currentFocus.constructor.name !== 'FileTreeNode') return
                 let currentNode = currentFocus
                 for (let i = Math.abs(n); i > 0; i--) {
-                    const nextNode = currentNode.nextNode(n)
-                    if (!nextNode) break
-                    currentNode = nextNode
+                    const siblin = currentNode.siblin(n)
+                    if (!siblin) break
+                    currentNode = siblin
                 }
                 if (!currentNode && currentNode === currentFocus) return
                 if (!currentNode.get('selected')) currentNode.onClick()
                 currentNode.refs.row.scrollIntoViewIfNeeded(false)
+            },
+            moveToNeighbor(direction) {
+                const currentFocus = g.focus
+                if (currentFocus.constructor.name !== 'FileTreeNode') return
+                const neighbor = currentFocus.neighbor(direction)
+                neighbor && neighbor.onClick && neighbor.onClick()
             },
             moveToChildren() {
                 const currentNode = g.focus
@@ -300,6 +314,24 @@
                     }
                 }
                 step()
+            },
+            top() {
+                let item
+                if (!this.get('dirs').length) {
+                    if (!this.get('files').length) return
+                    item = this.get('files')[0]
+                } else item = this.get('dirs')[0]
+                this.children[item.name].onClick()
+            },
+            bottom() {
+                let item
+                const files = this.get('files')
+                const dirs = this.get('dirs')
+                if (!files.length) {
+                    if (!dirs.length) return
+                    item = dirs[dirs.length - 1]
+                } else item = files[files.length - 1]
+                this.children[item.name].onClick()
             }
         }
     }
