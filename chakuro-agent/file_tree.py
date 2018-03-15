@@ -127,24 +127,21 @@ async def rename(msg, send, context):
             result.update(cmd='rename-failed', reason=e.strerror)
     await send(result)
 
-@register('newfile')
-async def newfile(msg, send, context):
-    src_path = Path(context.fileRoot, *msg['path'])
-    if src_path.is_dir():
-        newfile_path = Path(src_path, msg['newfileName'])
-    elif src_path.is_file():
-        newfile_path = Path(src_path.parents[0], msg['newfileName'])
+
+@register('newFile')
+async def new_file(msg, send, context):
+    path = Path(context.fileRoot, *msg['path'])
     result = {
-        'newfilePath': str(newfile_path),
-        'newfileName': msg['newfileName']
+        'path': msg['path'],
     }
-    if newfile_path.exists():
-        result.update(cmd='newfile-failed', reason='existed')
+    if path.exists():
+        result.update(cmd='newFile-failed', reason='existed')
     else:
         try:
-            newfile_path.open('w')
-            result.update(cmd='newfile-ok')
+            with path.open('w'):
+                pass
+            result.update(cmd='newFile-ok')
         except OSError as e:
-            result.update(cmd='newfile-failed', reason=e.strerror)    
+            result.update(cmd='newFile-failed', reason=e.strerror)
     await send(result)
 

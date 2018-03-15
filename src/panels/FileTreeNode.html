@@ -2,25 +2,18 @@
     <span class="icon {{icon}}"></span> {{#if !renaming}}
     <span class="display-name"> 
         {{name}}
-    </span> 
-    {{#if newfileing}}
-    <span class="icon {{icon}}"></span>
-    <input ref:input id="inputNewfileName" type="text" value="" on:blur="commitNewfile()"> {{/if}}
-    {{else}}
-    <input ref:input class="input.display-name" type="text" value="{{name}}" on:blur="commitRename()" > {{/if}}
+    </span> {{else}}
+    <input ref:input class="display-name" type="text" value="{{name}}" on:blur="commitRename()"> {{/if}}
 
 </div>
+
+{{#if newNode}}
+<:Self ref:placeholderNode placeholderMode={{true}} level={{level+isDir}} parent={{self}} isDir={{newNode==='dir' }}/> {{/if}}
+
 <div ref:children>
     {{#each dirs as i @uid}}
     <:Self level={{level+1}} name={{i.name}} parent={{self}} isDir/> {{/each}} {{#each files as i @uid}}
     <:Self level={{level+1}} name={{i.name}} parent={{self}} /> {{/each}}
-    
-    {{#if newfileing}}
-    <!-- <:Self name="" parent={{self}} /> -->
-    <div style="padding-left: {{0.3 + level + 1}}rem; display: inline-block;" >
-        <span class="icon {{icon}}"></span>
-        <input ref:input id="inputNewfileName" type="text" value="" on:blur="commitNewfile()" >
-    </div>{{/if}}
 </div>
 
 
@@ -83,7 +76,6 @@
         text: 'New File',
         icon: 'far fa-file',
         callback: (target) => {
-            console.log('new file clicked')
             target.newfile()
         }
     }, {
@@ -115,6 +107,26 @@
         icon: 'fas fa-link',
         callback: () => {}
     }]
+
+    const keyEventHandler = {
+        handleKeyEvent(e, target) {
+            if (!target.get('renaming')) return true
+            switch (e.key) {
+                case 'Enter':
+                    target.commitRename()
+                    break
+                case 'Escape':
+                    target.endRenaming()
+                    break
+                default:
+                    return true // if not handled
+            }
+            return false
+        },
+        handleCommand(command, target) {
+            return true
+        }
+    }
 
     export default {
         components: {},
@@ -174,6 +186,11 @@
                     this.rename()
                 }
             })
+
+            if (this.get('placeholderMode'))
+                this.onClick() // select this node if it is a placeholder
+
+            this.keyEventHandler = keyEventHandler
         },
         ondestroy() {
             this.removeChildren()
@@ -187,13 +204,20 @@
                 open: false,
                 selected: false,
                 renaming: false,
-                newfileing: false,
+
+                // for creating new files or new directories
+                newNode: null, // either null, 'file' or 'dir'
+                placeholderMode: false, // whether this is just a placeholder for naming a new file or a new dir 
+
                 // children
                 dirs: [],
                 files: [],
                 self: this,
                 parent: undefined,
             }
+        },
+        computed: {
+            allowWhiteSpace: renaming => renaming,
         },
         methods: {
             getPath() {
@@ -214,7 +238,6 @@
                 this.set({
                     selected: !selected
                 })
-                console.log('filetreenode on click')
                 g.setFocus([g.panelLeft, g.fileTree, this])
             },
             onDoubleClick() {
@@ -273,60 +296,44 @@
                     renaming: true
                 })
                 this.refs.input.focus()
-                this.refs.input.onkeydown = e => {
-                    if (e.key === 'Enter')
-                        this.refs.input.blur()
-                    else if (e.key === 'Escape')
-                        this.set({
-                            renaming: false
-                        })
-                    else return true
-                    e.preventDefault()
-                    e.stopPropagation()
-                    return false
-                }
             },
             commitRename() {
-                if (this.refs.input.value !== this.get('name') && this.refs.input.value.length > 0)
-                    g.fileTree.ws.send({
+                if (this.refs.input.value !== this.get('name') && this.refs.input.value.length > 0) {
+                    if (this.get('placeholderMode')) {
+                        this.set({
+                            name: this.refs.input.value
+                        })
+                        let path = this.getPath()
+                        if (!this.get('parent').get('isDir'))
+                            path.splice(-2, 1) // remove if its parent is a file, not the real parent
+                        g.fileTree.ws.send({
+                            cmd: 'newFile',
+                            path
+                        })
+                    } else g.fileTree.ws.send({
                         cmd: 'rename',
                         path: this.getPath(),
                         newName: this.refs.input.value
                     })
-                this.set({
-                    renaming: false
-                })
+                }
+                this.endRenaming()
+            },
+            endRenaming() {
+                if (this.get('placeholderMode')) {
+                    this.get('parent').set({
+                        newNode: null
+                    })
+                } else {
+                    this.set({
+                        renaming: false
+                    })
+                }
             },
             newfile() {
                 this.set({
-                    newfileing: true
+                    newNode: 'file'
                 })
-                this.refs.input.focus()
-                this.refs.input.onkeydown = e => {
-                    if (e.key === 'Enter')
-                        this.refs.input.blur()
-                    else if (e.key === 'Escape')
-                        this.set({
-                            newfileing: false
-                        })
-                    else return true
-                    e.preventDefault()
-                    e.stopPropagation()
-                    return false
-                }
-            },
-            commitNewfile() {
-                var name_element = document.getElementById('inputNewfileName');
-                var name = name_element.value;
-                if (name != '')
-                    g.fileTree.ws.send({
-                        cmd: 'newfile',
-                        path: this.getPath(),
-                        newfileName: name //send newfile name
-                    })
-                this.set({
-                    newfileing: false
-                })
+                this.refs.placeholderNode.rename()
                 //TODO: focus on new file
             },
             siblin(direction) {
@@ -360,9 +367,7 @@
                 const isDir = this.get('isDir')
                 const files = this.get('files')
                 const dirs = this.get('dirs')
-//                debugger
                 if (direction > 0) {
-//                    console.log('dirs', dirs)
                     if (dirs.length > 0) return this.children[dirs[0].name]
                     if (files.length > 0) return this.children[files[0].name]
                     const siblin = this.siblin(1)

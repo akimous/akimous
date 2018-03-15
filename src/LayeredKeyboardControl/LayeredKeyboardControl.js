@@ -41,7 +41,7 @@ class LayeredKeyboardControl {
                     } else {
                         const handler = focus.keyEventHandler
                         if (handler === undefined) continue
-                        const shouldPropagate = handler.handleCommand(command)
+                        const shouldPropagate = handler.handleCommand(command, focus)
                         if (shouldPropagate) continue
                         return false
                     }
@@ -64,6 +64,7 @@ class LayeredKeyboardControl {
             if (e.key === 'Shift') {
                 // bypass shift
             } else if (e.key === ' ') {
+                if (g.focus.get('allowWhiteSpace')) return true
                 this.spacePressed = true
                 this.commandSent = false
             } else if (this.spacePressed && !this.textSent && this.commandSent &&
@@ -74,9 +75,10 @@ class LayeredKeyboardControl {
             } else {
                 this.textSent = true
                 for (let i = g.focusStack.length - 1; i >= 0; i--) {
-                    const handler = g.focusStack[i].keyEventHandler
+                    const target = g.focusStack[i]
+                    const handler = target.keyEventHandler
                     if (handler === undefined) continue
-                    const shouldPropagate = handler.handleKeyEvent(e)
+                    const shouldPropagate = handler.handleKeyEvent(e, target)
                     if (shouldPropagate) continue
                     return this.stopPropagation(e)
                 }
@@ -92,6 +94,7 @@ class LayeredKeyboardControl {
                 // bypass shift
             } else if (e.key === ' ') {
                 this.spacePressed = false
+                if (g.focus.get('allowWhiteSpace')) return true
                 if (!this.commandSent) 
                     this.sendCommand(e) && g.activeEditor.insertText(' ')
                 return this.stopPropagation(e)

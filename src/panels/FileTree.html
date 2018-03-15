@@ -144,16 +144,15 @@
                 })
             })
 
-            const target = this
             this.keyEventHandler = {
-                handleKeyEvent(event) {
+                handleKeyEvent(event, target) {
+                    if (g.focus.constructor.name === 'FileTreeNode' && g.focus.get('renaming'))
+                        return true
                     switch (event.key) {
                         case 'ArrowDown':
-                            //                            target.moveToSiblin(1)
                             target.moveToNeighbor(1)
                             break
                         case 'ArrowUp':
-                            //                            target.moveToSiblin(-1)
                             target.moveToNeighbor(-1)
                             break
                         case 'ArrowLeft':
@@ -171,7 +170,7 @@
                     }
                     return false
                 },
-                handleCommand(command) {
+                handleCommand(command, target) {
                     switch (command) {
                         case 'down':
                             target.moveToSiblin(1)
