@@ -3,10 +3,11 @@
     <span class="display-name"> 
         {{name}}
     </span> 
-    <!-- {{#if newfileing}}
-    <input ref:input id="inputNewfileName" type="text" value="" on:blur="commitNewfile()"> {{/if}} -->
+    {{#if newfileing}}
+    <span class="icon {{icon}}"></span>
+    <input ref:input id="inputNewfileName" type="text" value="" on:blur="commitNewfile()"> {{/if}}
     {{else}}
-    <input ref:input class="display-name" type="text" value="{{name}}" on:blur="commitRename()"> {{/if}}
+    <input ref:input class="input.display-name" type="text" value="{{name}}" on:blur="commitRename()" > {{/if}}
 
 </div>
 <div ref:children>
@@ -15,8 +16,11 @@
     <:Self level={{level+1}} name={{i.name}} parent={{self}} /> {{/each}}
     
     {{#if newfileing}}
-    <:Self name="" parent={{self}} />
-    <input ref:input id="inputNewfileName" class="display-name" type="text" value="" on:blur="commitNewfile()" >{{/if}}
+    <!-- <:Self name="" parent={{self}} /> -->
+    <div style="padding-left: {{0.3 + level + 1}}rem; display: inline-block;" >
+        <span class="icon {{icon}}"></span>
+        <input ref:input id="inputNewfileName" type="text" value="" on:blur="commitNewfile()" >
+    </div>{{/if}}
 </div>
 
 
