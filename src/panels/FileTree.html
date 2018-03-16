@@ -62,8 +62,7 @@
                     dirs: sortAndAddUid(data.dirs),
                     files: sortAndAddUid(data.files)
                 })
-                if (this.scheduledMoveToChildrenAfterOpening)
-                    this.moveToChildrenAfterOpening()
+                this.moveToFirstChild()
             })
 
             const sortChildren = (node, type) => {
@@ -159,9 +158,8 @@
                             target.moveToParent()
                             break
                         case 'ArrowRight':
-                            target.moveToChildren()
+                            target.moveToFirstChild()
                             break
-                        case ' ':
                         case 'Enter':
                             target.enter()
                             break
@@ -188,13 +186,13 @@
                             target.moveToParent()
                             break
                         case 'right':
-                            target.moveToChildren()
+                            target.moveToFirstChild()
                             break
                         case 'end':
-                            target.move(999999)
+                            target.moveToSiblin(999999)
                             break
                         case 'home':
-                            target.move(-999999)
+                            target.moveToSiblin(-999999)
                             break
                         case 'top':
                             target.top()
@@ -253,27 +251,19 @@
                 const neighbor = currentFocus.neighbor(direction)
                 neighbor && neighbor.onClick && neighbor.onClick()
             },
-            moveToChildren() {
+            moveToFirstChild() {
                 const currentNode = g.focus
                 if (currentNode.constructor.name !== 'FileTreeNode') return
                 if (!currentNode.get('isDir')) return
                 if (currentNode.get('open')) {
-                    this.moveToChildrenAfterOpening()
+                    const firstChild = currentNode.firstChild()
+                    if (firstChild) {
+                        firstChild.onClick()
+                        firstChild.refs.row.scrollIntoViewIfNeeded(false)
+                    }
                     return
                 }
                 currentNode.onDoubleClick()
-                this.scheduledMoveToChildrenAfterOpening = true
-            },
-            moveToChildrenAfterOpening() {
-                const currentNode = g.focus
-                const dirs = currentNode.get('dirs')
-                const files = currentNode.get('files')
-                let firstChildName = dirs.length ? dirs[0].name : (files.length ? files[0].name : null)
-                if (!firstChildName) return
-                const firstChildNode = currentNode.children[firstChildName]
-                firstChildNode.onClick()
-                firstChildNode.refs.row.scrollIntoViewIfNeeded(false)
-                this.scheduledMoveToChildrenAfterOpening = false
             },
             moveToParent() {
                 const currentNode = g.focus

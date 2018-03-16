@@ -232,11 +232,10 @@
             },
             onClick() {
                 const selected = this.get('selected')
-                if (!selected) {
-                    g.fileTree.fire('cancelAllSelection')
-                }
+                if (selected) return
+                g.fileTree.fire('cancelAllSelection')
                 this.set({
-                    selected: !selected
+                    selected: true
                 })
                 g.setFocus([g.panelLeft, g.fileTree, this])
             },
@@ -362,14 +361,25 @@
                 const nextNodeName = newList[newIndex].name
                 return parent.children[nextNodeName]
             },
-            neighbor(direction) {
-                const parent = this.get('parent')
-                const isDir = this.get('isDir')
+            firstChild() {
                 const files = this.get('files')
                 const dirs = this.get('dirs')
+                if (dirs.length) return this.children[dirs[0].name]
+                if (files.length) return this.children[files[0].name]
+                return null
+            },
+            lastChild() {
+                const files = this.get('files')
+                const dirs = this.get('dirs')
+                if (files.length) return this.children[files[files.length - 1].name]
+                if (dirs.length) return this.children[dirs[dirs.length - 1].name]
+                return null
+            },
+            neighbor(direction) {
+                const parent = this.get('parent')
                 if (direction > 0) {
-                    if (dirs.length > 0) return this.children[dirs[0].name]
-                    if (files.length > 0) return this.children[files[0].name]
+                    const firstChild = this.firstChild()
+                    if (firstChild) return firstChild
                     const siblin = this.siblin(1)
                     if (siblin && siblin !== this) return siblin
                     if (!parent.siblin) return null
@@ -379,11 +389,9 @@
                     if (!siblin || siblin === this) return parent
                     let node = siblin
                     while (Object.keys(node.children).length) {
-                        const f = node.get('files')
-                        const d = node.get('dirs')
-                        if (f.length) node = node.children[f[f.length - 1].name]
-                        else if (d.length) node = node.children[d[d.length - 1].name]
-                        else break
+                        const lastChild = node.lastChild()
+                        if (!lastChild) break
+                        node = lastChild
                     }
                     return node
                 }
