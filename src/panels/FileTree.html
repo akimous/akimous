@@ -234,49 +234,49 @@
             },
             moveToSiblin(n) {
                 const currentFocus = g.focus
-                if (currentFocus.constructor.name !== 'FileTreeNode') return
-                let currentNode = currentFocus
+                if (this.moveToTopIfNothingSelected()) return
+                let node = currentFocus
                 for (let i = Math.abs(n); i > 0; i--) {
-                    const siblin = currentNode.siblin(n)
+                    const siblin = node.siblin(n)
                     if (!siblin) break
-                    currentNode = siblin
+                    node = siblin
                 }
-                if (!currentNode && currentNode === currentFocus) return
-                if (!currentNode.get('selected')) currentNode.onClick()
-                currentNode.refs.row.scrollIntoViewIfNeeded(false)
+                if (!node && node === currentFocus) return
+                if (!node.get('selected')) node.onClick()
+                node.refs.row.scrollIntoViewIfNeeded(false)
             },
             moveToNeighbor(direction) {
-                const currentFocus = g.focus
-                if (currentFocus.constructor.name !== 'FileTreeNode') return
-                const neighbor = currentFocus.neighbor(direction)
+                const node = g.focus
+                if (this.moveToTopIfNothingSelected()) return
+                const neighbor = node.neighbor(direction)
                 neighbor && neighbor.onClick && neighbor.onClick()
             },
             moveToFirstChild() {
-                const currentNode = g.focus
-                if (currentNode.constructor.name !== 'FileTreeNode') return
-                if (!currentNode.get('isDir')) return
-                if (currentNode.get('open')) {
-                    const firstChild = currentNode.firstChild()
+                const node = g.focus
+                if (this.moveToTopIfNothingSelected()) return
+                if (!node.get('isDir')) return
+                if (node.get('open')) {
+                    const firstChild = node.firstChild()
                     if (firstChild) {
                         firstChild.onClick()
                         firstChild.refs.row.scrollIntoViewIfNeeded(false)
                     }
                     return
                 }
-                currentNode.onDoubleClick()
+                node.onDoubleClick()
             },
             moveToParent() {
-                const currentNode = g.focus
-                if (currentNode.constructor.name !== 'FileTreeNode') return
-                const parent = currentNode.get('parent')
+                const node = g.focus
+                if (this.moveToTopIfNothingSelected()) return
+                const parent = node.get('parent')
                 if (!parent) return
                 parent.onClick()
                 parent.refs.row.scrollIntoViewIfNeeded(false)
             },
             enter() {
-                const currentNode = g.focus
-                if (currentNode.constructor.name !== 'FileTreeNode') return
-                currentNode.onDoubleClick()
+                const node = g.focus
+                if (node.constructor.name !== 'FileTreeNode') return
+                node.onDoubleClick()
             },
             contextMenu() {
                 const focus = g.focus
@@ -304,23 +304,21 @@
                 }
                 step()
             },
+            moveToTopIfNothingSelected() {
+                if (g.focus.constructor.name !== 'FileTreeNode' || !g.focus.get('parent')) {
+                    this.top()
+                    return true
+                }
+            },
             top() {
-                let item
-                if (!this.get('dirs').length) {
-                    if (!this.get('files').length) return
-                    item = this.get('files')[0]
-                } else item = this.get('dirs')[0]
-                this.children[item.name].onClick()
+                const anyNode = Object.values(this.children)[0]
+                if (!anyNode) return
+                anyNode.firstChild.bind(this)().onClick()
             },
             bottom() {
-                let item
-                const files = this.get('files')
-                const dirs = this.get('dirs')
-                if (!files.length) {
-                    if (!dirs.length) return
-                    item = dirs[dirs.length - 1]
-                } else item = files[files.length - 1]
-                this.children[item.name].onClick()
+                const anyNode = Object.values(this.children)[0]
+                if (!anyNode) return
+                anyNode.lastChild.bind(this)().onClick()
             }
         }
     }

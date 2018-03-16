@@ -194,6 +194,17 @@
         },
         ondestroy() {
             this.removeChildren()
+            if (this.get('selected')) {
+                try {
+                    let node = this.siblin(-1)
+                    if (node && node !== this) return node.onClick()
+                    node = this.siblin(1)
+                    if (node && node !== this) return node.onClick()
+                    node = this.get('parent')
+                    if (node) return node.onClick()
+                } catch (e) {}
+            }
+            g.popFocus(this)
         },
         data() {
             return {
