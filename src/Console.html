@@ -23,9 +23,7 @@
 
 <script>
     import g from './lib/Globals'
-    import {
-        Terminal
-    } from 'xterm'
+    import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
     import attach from 'xterm/lib/addons/attach/attach'
 
@@ -54,7 +52,7 @@
                 window.requestAnimationFrame(() => {
                     this.terminal.fit()
                 })
-            }, 500)
+            }, 700)
         },
         data() {
             return {}
