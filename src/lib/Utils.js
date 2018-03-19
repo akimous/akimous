@@ -3,11 +3,11 @@ function binarySearch(array, target) {
     let lo = -1,
         hi = array.length
     while (1 + lo !== hi) {
-        const mi = lo + ((hi - lo) >> 1);
-        if (array[mi].name >= target) hi = mi;
+        const mi = lo + ((hi - lo) >> 1)
+        if (array[mi].name >= target) hi = mi
         else lo = mi
     }
-    return hi;
+    return hi
 }
 
 export {

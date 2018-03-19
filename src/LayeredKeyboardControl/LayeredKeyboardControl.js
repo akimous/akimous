@@ -1,9 +1,6 @@
 import g from '../lib/Globals'
 import Keymap from './Keymap'
-import EventDispatcherFactory from './EventDispatcherFactory'
 import CodeEditor from '../editor/CodeEditor.html'
-import Completion from '../editor/completion/Completion.html'
-import ContextMenu from '../lib/ContextMenu.html'
 
 class LayeredKeyboardControl {
     sendEditorCommand(command) {

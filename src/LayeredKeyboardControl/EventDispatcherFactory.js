@@ -1,4 +1,4 @@
-import g from '../lib/Globals'
+//import g from '../lib/Globals'
 
 function EventDispatcherFactory(options) {
     const extraKeyHandler = options.extraKeyHandler

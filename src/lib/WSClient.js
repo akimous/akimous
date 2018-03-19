@@ -1,3 +1,4 @@
+import g from './Globals'
 export default class {
     constructor(path) {
         this.path = path
