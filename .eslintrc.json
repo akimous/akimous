@@ -32,5 +32,8 @@
     },
     "globals": {
         "process": false
-    }
+    },
+    "plugins": [
+        "html"
+    ]
 }

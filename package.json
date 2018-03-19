@@ -14,6 +14,7 @@
         "browser-sync": "^2.23.1",
         "codemirror": "^5.33.0",
         "eslint": "^4.19.0",
+        "eslint-plugin-html": "^4.0.2",
         "http-server": "^0.11.1",
         "keyboardjs": "^2.4.1",
         "normalize.css": "^8.0.0",
@@ -28,13 +29,14 @@
         "rollup-plugin-strip": "^1.1.1",
         "rollup-plugin-svelte": "^4.0.0",
         "sortablejs": "^1.7.0",
-        "svelte": "^1.57.4",
+        "svelte": "^1.58.0",
         "svelte-cli": "^2.0.0",
         "xterm": "^3.2.0"
     },
     "dependencies": {},
     "scripts": {
         "dev": "browser-sync start --server 'dist' --files 'dist' & rollup -c -w",
+        "lint": "eslint --ext .html,.js .",
         "build": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c",
         "copystatic": "cp -r src/index.html resources/* dist/",
         "release": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c && cd dist/ && zopfli bundle.* && brotli bundle.js",
