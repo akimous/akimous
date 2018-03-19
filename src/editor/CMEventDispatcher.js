@@ -38,10 +38,10 @@ class CMEventDispatcher {
             g.setFocus([g.panelMiddle, editor])
         })
 
-        function setHighlightSelectionMatches(cm, newValue) {
-            if (cm.options['highlightSelectionMatches'] !== newValue)
-                cm.setOption('highlightSelectionMatches', newValue)
-        }
+//        function setHighlightSelectionMatches(cm, newValue) {
+//            if (cm.options['highlightSelectionMatches'] !== newValue)
+//                cm.setOption('highlightSelectionMatches', newValue)
+//        }
         cm.on('cursorActivity', (cm) => {
             if (shouldDismissCompletionOnCursorActivity) {
                 completion.set({
@@ -52,18 +52,18 @@ class CMEventDispatcher {
 
             // patches HighlightSelectionMatches plugin behaviour
             // should not highlight if multiple tokens are selected
-            if (cm.somethingSelected()) {
-                const selections = cm.listSelections()
-                if (selections.length > 1) return setHighlightSelectionMatches(cm, false)
-                const selection = selections[0]
-                const from = selection.from()
-                const to = selection.to()
-                if (from.line !== to.line) return setHighlightSelectionMatches(cm, false)
-                const token = cm.getTokenAt(to)
-                if (token.start !== from.ch || token.end !== to.ch)
-                    return setHighlightSelectionMatches(cm, false)
-                return setHighlightSelectionMatches(cm, true)
-            }
+//            if (cm.somethingSelected()) {
+//                const selections = cm.listSelections()
+//                if (selections.length > 1) return setHighlightSelectionMatches(cm, false)
+//                const selection = selections[0]
+//                const from = selection.from()
+//                const to = selection.to()
+//                if (from.line !== to.line) return setHighlightSelectionMatches(cm, false)
+//                const token = cm.getTokenAt(to)
+//                if (token.start !== from.ch || token.end !== to.ch)
+//                    return setHighlightSelectionMatches(cm, false)
+//                return setHighlightSelectionMatches(cm, true)
+//            }
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {

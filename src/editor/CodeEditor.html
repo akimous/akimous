@@ -62,7 +62,7 @@
     import closebrackets from 'codemirror/addon/edit/closebrackets'
     import comment from 'codemirror/addon/comment/comment'
     import activeline from 'codemirror/addon/selection/active-line'
-    import matchhighlighter from 'codemirror/addon/search/match-highlighter'
+    import matchhighlighter from './match-highlighter'
 
     registerCMCommands(CodeMirror)
 
@@ -73,14 +73,14 @@
         oncreate() {
             // properties
             this.tab = g.tabBar.openTab(this.get('fileName'), this)
-            
+
             // observers
             this.observe('filePath', (newPath, oldPath) => {
                 g.panelMiddle.pathToEditor[newPath.join('/')] = this
                 if (oldPath) {
                     delete g.panelMiddle.pathToEditor[oldPath.join('/')]
                     this.ws.send({
-                        cmd: 'mtime', 
+                        cmd: 'mtime',
                         newPath
                     })
                 }
@@ -100,7 +100,7 @@
                     active
                 })
             })
-            
+
             const fileName = this.get('fileName')
             const mode = CodeMirror.findModeByFileName(fileName)
 
@@ -133,7 +133,15 @@
                     // addons
                     matchBrackets: true, // edit/matchbrackets
                     autoCloseBrackets: true, // edit/closebrackets
-                    highlightSelectionMatches: false, // search/match-highlighter
+                    highlightSelectionMatches: { // search/match-highlighter
+                        style: "matchhighlight",
+                        minChars: 1,
+                        delay: 100,
+                        wordsOnly: true,
+                        annotateScrollbar: false,
+                        showToken: false,
+                        trim: true
+                    },
                     styleActiveLine: true, // selection/active-line
 
                     // keymap
@@ -203,7 +211,7 @@
                         }]
                     )
                 })
-                
+
                 // prompt to reload if deleted or moved
                 this.ws.addHandler('event-FileDeleted', data => {
                     g.notificationBar.show(
