@@ -8,7 +8,7 @@
 }
 
 .cm-s-legato div.CodeMirror-selected {
-    background: rgb(34, 71, 129);
+    background: rgb(26, 81, 155);
 }
 
 .cm-s-legato .CodeMirror-line::selection,
@@ -125,7 +125,7 @@
 }
 
 .cm-matchhighlight {
-    box-shadow: inset 0 0 .2rem white;
+    box-shadow: 0 0 0 0.1rem #777;
 }
 
 .CodeMirror-activeline-gutter > .CodeMirror-linenumber {

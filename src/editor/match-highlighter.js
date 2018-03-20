@@ -86,9 +86,9 @@
     state.timeout = setTimeout(function() {highlightMatches(cm);}, state.options.delay);
   }
 
-  function addOverlay(cm, query, hasBoundary, style) {
+  function addOverlay(cm, query, hasBoundary, style, tokenMode, originPos) {
     var state = cm.state.matchHighlighter;
-    cm.addOverlay(state.overlay = makeOverlay(query, hasBoundary, style));
+    cm.addOverlay(state.overlay = makeOverlay(query, hasBoundary, style, tokenMode, cm, originPos));
     if (state.options.annotateScrollbar && cm.showMatchesOnScrollbar) {
       var searchFor = hasBoundary ? new RegExp("\\b" + query.replace(/[\\\[+*?(){|^$]/g, "\\$&") + "\\b") : query;
       state.matchesonscroll = cm.showMatchesOnScrollbar(searchFor, false,
@@ -126,8 +126,15 @@
       if (state.options.wordsOnly && !isWord(cm, from, to)) return;
       var selection = cm.getRange(from, to)
       if (state.options.trim) selection = selection.replace(/^\s+|\s+$/g, "")
+        
+        const selections = cm.listSelections()
+        if (selections.length > 1) return
+        if (from.line !== to.line) return
+        const token = cm.getTokenAt(to)
+        const tokenMode = token.start === from.ch && token.end === to.ch
+        
       if (selection.length >= state.options.minChars)
-        addOverlay(cm, selection, false, state.options.style);
+        addOverlay(cm, selection, false, state.options.style, tokenMode, to);
     });
   }
 
@@ -153,11 +160,19 @@
       (stream.pos == stream.string.length || !re.test(stream.string.charAt(stream.pos)));
   }
 
-  function makeOverlay(query, hasBoundary, style) {
+  function makeOverlay(query, hasBoundary, style, tokenMode, cm, originPos) {
     return {token: function(stream) {
       if (stream.match(query) &&
-          (!hasBoundary || boundariesAround(stream, hasBoundary)))
-        return style;
+          (!hasBoundary || boundariesAround(stream, hasBoundary))) {
+          const line = stream.lineOracle.line
+          const ch = stream.pos
+          const token = cm.getTokenAt({
+              line, ch
+          })
+          if (!tokenMode || token.string === query) 
+              if (originPos.line !== line || originPos.ch !== ch)
+            return style;
+      }
       stream.next();
       stream.skipTo(query.charAt(0)) || stream.skipToEnd();
     }};
