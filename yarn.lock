@@ -789,6 +789,10 @@ cliui@^3.0.3, cliui@^3.2.0:
     strip-ansi "^3.0.1"
     wrap-ansi "^2.0.0"
 
+cloc@^2.3.3:
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/cloc/-/cloc-2.3.3.tgz#acbd677659d9ba7f67f6269aafeab727154d7fd8"
+
 clone@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.3.tgz#298d7e2231660f40c003c2ed3140decf3f53085f"
