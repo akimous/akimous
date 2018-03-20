@@ -67,8 +67,6 @@
     import {
         fileTypeToIcon,
         defaultIcon,
-        folderIcon,
-        folderOpenIcon
     } from '../lib/FileTypeToIcon'
     import pressure from 'pressure'
 
@@ -123,7 +121,7 @@
             }
             return false
         },
-        handleCommand(command, target) {
+        handleCommand(/*command, target*/) {
             return true
         }
     }
@@ -182,7 +180,7 @@
 
             // todo: find a way to move event handler outside
             pressure.set(this.refs.row, {
-                startDeepPress: e => {
+                startDeepPress: () => {
                     this.rename()
                 }
             })
@@ -202,7 +200,9 @@
                     if (node && node !== this) return node.onClick()
                     node = this.get('parent')
                     if (node) return node.onClick()
-                } catch (e) {}
+                } catch (e) {
+                    // swallow exception
+                }
             }
             g.popFocus(this)
         },
@@ -233,11 +233,12 @@
         methods: {
             getPath() {
                 const path = [this.get('name')]
-                let node = this.get('parent'),
-                    name
-                while (name = node.get('name')) {
+                let node = this.get('parent')
+                let name = node.get('name')
+                while (name) {
                     path.push(name)
                     node = node.get('parent')
+                    name = node.get('name')
                 }
                 return path.reverse()
             },

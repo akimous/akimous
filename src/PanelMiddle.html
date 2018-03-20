@@ -111,7 +111,7 @@
                         icon: 'far fa-hdd',
                         content: `Do you want to save the changes you made in <em>${editor.get('fileName')}</em> ?`,
                         buttons: [{
-                            text: `Don't Save`,
+                            text: 'Don\'t Save',
                             style: 'danger',
                             action: () => {
                                 editor.set({
@@ -120,10 +120,10 @@
                                 this.closeFile(filePath)
                             }
                         }, {
-                            text: `Cancel`,
+                            text: 'Cancel',
                             style: 'dismiss',
                         }, {
-                            text: `Save`,
+                            text: 'Save',
                             style: 'success',
                             action: () => {
                                 editor.save()
@@ -136,11 +136,11 @@
                 editor.destroy()
 
                 // clear activation history
-                for (var i = 0; i < MAX_ACTIVATION_HISTORY; i++)
+                for (let i = 0; i < MAX_ACTIVATION_HISTORY; i++)
                     if (this.activationHistory[i] === filePath)
                         this.activationHistory[i] = null
                 // activate previous file
-                for (var i = this.activationHistoryIndex; i > this.activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
+                for (let i = this.activationHistoryIndex; i > this.activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
                     const previouslyActivatedFilePath = this.activationHistory[i % MAX_ACTIVATION_HISTORY]
                     if (previouslyActivatedFilePath && this.getEditor(previouslyActivatedFilePath)) {
                         this.activateFile(previouslyActivatedFilePath)

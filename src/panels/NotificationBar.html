@@ -78,14 +78,15 @@
         data() {
             return {
                 active: false,
-                message: "Notification",
+                message: '',
                 level: 'question',
-                actions: [{
-                    name: 'test',
-                    callback() {
-                        console.log('action called...')
-                    }
-                }]
+                actions: []
+                // actions: [{
+                //     name: 'test',
+                //     callback() {
+                //         console.log('action called...')
+                //     }
+                // }]
             }
         },
         methods: {
@@ -104,7 +105,9 @@
                 items.unshift(item)
                 if (items.length > 10)
                     items.pop()
-                g.notificationHistory.set({items})
+                g.notificationHistory.set({
+                    items
+                })
                 if (!this.get('active'))
                     this.showNext()
             },
@@ -122,7 +125,7 @@
                 if (timeout) {
                     this.timer = setTimeout(() => this.showNext(), timeout)
                 }
-                
+
                 notification.actions = notification.actions || []
                 notification.active = true
                 this.set(notification)

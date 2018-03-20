@@ -1,6 +1,6 @@
 <div ref:button class="tool-bar-button {{on?'indicator-on':''}}">
     <i class="{{iconClass}}" on:click="onClick()"></i>
-</div> 
+</div>
 
 <style>
     .tool-bar-button {
@@ -16,17 +16,16 @@
     .tool-bar-button:hover {
         background: var(--main-bg-color);
     }
-    
+
     .tool-bar-button.on {
         border-bottom: .2rem solid var(--ui-highlight-color);
     }
-
 
 </style>
 
 
 <script>
-    import g from '../lib/Globals'
+    // import g from '../lib/Globals'
 
     export default {
         components: {},
@@ -34,8 +33,8 @@
         data() {
             return {
                 // iconClass: 'fas fa-fw fa-bell',
-                 on: false,
-                // callback: () => {console.log('yo')}
+                on: false,
+                // callback: () => {}
             }
         },
         methods: {

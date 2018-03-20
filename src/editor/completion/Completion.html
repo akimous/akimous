@@ -132,7 +132,7 @@
                 if (this.get('passive') && row.c.length < 3) return false
                 return row.sortScore > 0
             },
-            setCompletions(completions) {
+            setCompletions() {
                 const filteredCompletion = this.predictor.currentCompletions.filter(
                     this.shouldDisplayCompletionRow, this)
                 if (filteredCompletion.length) {
@@ -171,7 +171,6 @@
                 if (!completion) return console.error('no selected completion')
 
                 const type = completion.get('type')
-                const cursor = this.cm.doc.getCursor()
                 this.set({
                     open: false
                 })

@@ -21,7 +21,8 @@
     import RealtimeFormatter from './RealtimeFormatter'
     import Predictor from './completion/Predictor'
     import Completion from './completion/Completion.html'
-
+    
+    /* eslint-disable */
     import CodeMirror from 'codemirror'
     import python from '../lib/python'
 
@@ -63,6 +64,7 @@
     import comment from 'codemirror/addon/comment/comment'
     import activeline from 'codemirror/addon/selection/active-line'
     import matchhighlighter from './match-highlighter'
+    /* eslint-enable */
 
     registerCMCommands(CodeMirror)
 
@@ -134,9 +136,9 @@
                     matchBrackets: true, // edit/matchbrackets
                     autoCloseBrackets: true, // edit/closebrackets
                     highlightSelectionMatches: { // search/match-highlighter
-                        style: "matchhighlight",
+                        style: 'matchhighlight',
                         minChars: 1,
-                        delay: 100,
+                        delay: 50,
                         wordsOnly: false,
                         annotateScrollbar: false,
                         showToken: false,
@@ -151,7 +153,7 @@
                         'Cmd-/': 'toggleCommentIndented',
                         'Cmd-Backspace': 'deleteLineAndGoLineEnd',
                         'Cmd-D': 'duplicateLine',
-                        "Cmd-J": "joinLines",
+                        'Cmd-J': 'joinLines',
                     }
                 })
                 this.mtime = data.mtime
@@ -213,7 +215,7 @@
                 })
 
                 // prompt to reload if deleted or moved
-                this.ws.addHandler('event-FileDeleted', data => {
+                this.ws.addHandler('event-FileDeleted', () => {
                     g.notificationBar.show(
                         'question',
                         `The file "<b>${this.get('fileName')}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
