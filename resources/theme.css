@@ -2,9 +2,18 @@
 /*https://flatuicolors.com*/
 
 body {
+    background-color: var(--main-bg-color);
     color: var(--basic-ui-font-color);
     font-family: var(--basic-ui-font-family);
     font-weight: 300;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.tab-view {
+/*    position: absolute;*/
+    height: calc(100% - var(--toolbar-height));
+/*    top: var(--toolbar-height);*/
+    width: 100%;
 }
 
 :root {
@@ -92,10 +101,6 @@ body {
     --gray4: #47637F;
     --gray5: #34495e;
     --gray6: #2c3e50;
-}
-
-body {
-    background-color: var(--main-bg-color);
 }
 
 .indicator-on {

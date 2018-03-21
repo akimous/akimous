@@ -1,14 +1,9 @@
-<div ref:codeEditor class="code-editor" style="display: {{active ? 'block' : 'none'}}" />
+<div ref:codeEditor class="tab-view" style="display: {{active ? 'block' : 'none'}}" />
 <Completion ref:completion></Completion>
 
 
 <style>
-    .code-editor {
-        position: absolute;
-        height: calc(100% - var(--toolbar-height));
-        top: var(--toolbar-height);
-        width: 100%;
-    }
+
 
 </style>
 
@@ -21,7 +16,8 @@
     import RealtimeFormatter from './RealtimeFormatter'
     import Predictor from './completion/Predictor'
     import Completion from './completion/Completion.html'
-    
+    import {getIconByFileName} from '../lib/FileTypeToIcon'
+
     /* eslint-disable */
     import CodeMirror from 'codemirror'
     import python from '../lib/python'
@@ -73,9 +69,9 @@
             Completion
         },
         oncreate() {
-            // properties
             this.parent = this.get('parent')
-            this.tab = this.parent.tabBar.openTab(this.get('fileName'), this)
+            const fileName = this.get('fileName')
+            this.tab = this.parent.tabBar.openTab(this, this.get('fileName'), getIconByFileName(fileName))
 
             // observers
             this.observe('filePath', (newPath, oldPath) => {
@@ -104,7 +100,6 @@
                 })
             })
 
-            const fileName = this.get('fileName')
             const mode = CodeMirror.findModeByFileName(fileName)
 
             // Step 1: Connect to websocket and read file

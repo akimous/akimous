@@ -1,5 +1,6 @@
 <div id="panel-left" class="{{focused?'indicator-on':''}}">
-    <FileTree></FileTree>
+    <TabBar ref:tabBar id="tab-bar"></TabBar>
+    <FileTree ref:fileTree></FileTree>
 </div>
 
 
@@ -15,18 +16,28 @@
         box-sizing: border-box;
         z-index: -5;
     }
+
 </style>
 
 
 <script>
     import g from './lib/Globals'
+    import TabBar from './panels/TabBar.html'
     import FileTree from './panels/FileTree.html'
     export default {
         components: {
+            TabBar,
             FileTree
         },
         oncreate() {
             g.panelLeft = this
+            this.tabBar = this.refs.tabBar
+            this.refs.tabBar.set({
+                parent: this
+            })
+            this.refs.fileTree.set({
+                parent: this
+            })
         },
         data() {
             return {

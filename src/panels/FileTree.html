@@ -1,4 +1,4 @@
-<div ref:fileTree class="file-tree">
+<div ref:fileTree class="file-tree tab-view">
     <div class="container" ref:children>
         {{#each dirs as i @uid}}
         <FileTreeNode name={{i.name}} parent={{self}} isDir></FileTreeNode>
@@ -10,19 +10,16 @@
 
 <style>
     .file-tree {
-        width: 100%;
-        height: calc(100% - .8rem);
-        padding: .4rem 0;
         color: var(--basic-ui-font-color);
         font-family: var(--basic-ui-font-family);
         font-size: var(--basic-ui-font-size);
-        -webkit-font-smoothing: subpixel-antialiased;
         user-select: none;
         -webkit-user-select: none;
         overflow-x: scroll;
     }
 
     .container {
+        padding: .4rem 0;
         min-width: 100%;
         display: inline-block;
     }
@@ -43,8 +40,13 @@
             FileTreeNode
         },
         oncreate() {
-            this.children = {}
             g.fileTree = this
+            setTimeout(() => {
+                this.parent = this.get('parent')
+                this.tab = this.parent.tabBar.openTab(this, 'File Tree', 'fas fa-sitemap')
+            })
+
+            this.children = {}
             this.set({
                 self: this,
             })

@@ -1,5 +1,5 @@
 <span class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" on:click="activate()" on:dblclick="close()">
-    <span class="icon l-python-icon"></span>
+    <span class="icon {{icon}}"></span>
     <span class="text">{{name}}</span>
 </span>
 
@@ -7,27 +7,26 @@
 <style>
     .tab {
         border-right: 0.1rem solid var(--panel-delimiter-color);
-        padding: .5rem .5rem .4rem .2rem;
+        padding: 0 .4rem;
         height: var(--tab-bar-height);
         cursor: default;
         user-select: none;
         -webkit-user-select: none;
+        display: inline-block;
     }
 
     .icon {
-        top: calc((var(--tab-bar-height) - var(--tab-bar-icon-size))/2);
-        height: var(--tab-bar-icon-size);
-        width: var(--tab-bar-icon-size);
-        display: inline-block;
         position: relative;
+        width: 1rem;
+        min-height: 1rem;
+        display: inline-block;
+        background-size: 100% 100% !important;
     }
 
     .text {
-        color: var(--basic-ui-font-color);
-        font-family: var(--basic-ui-font-family);
-        font-size: var(--basic-ui-font-size);
-        -webkit-font-smoothing: subpixel-antialiased;
-        position: relative;
+        display: inline-block;
+        padding-top: .5rem;
+        padding-left: .2rem;
     }
 
     .tab:hover .text {
@@ -63,6 +62,7 @@
         },
         data() {
             return {
+                icon: 'l-python-icon',
                 name: '',
                 active: false,
                 view: null,

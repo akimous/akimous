@@ -93,9 +93,22 @@ const defaultIcon = fileTypeToIcon['default']
 const folderIcon = fileTypeToIcon['folder']
 const folderOpenIcon = fileTypeToIcon['folder-open']
 
+function getIconByFileName(fileName) {
+    let icon
+    try {
+        const fileType = fileName.substring(fileName.lastIndexOf('.') + 1)
+        icon = fileTypeToIcon[fileType]
+        if (!icon) icon = defaultIcon
+    } catch (e) {
+        icon = defaultIcon
+    }
+    return icon
+}
+
 export {
     fileTypeToIcon,
     defaultIcon,
     folderIcon,
-    folderOpenIcon
+    folderOpenIcon,
+    getIconByFileName
 }

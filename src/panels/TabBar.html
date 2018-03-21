@@ -1,17 +1,16 @@
-<div ref:tabBar id="tab-bar">
+<div ref:tabBar class="tab-bar">
 
 </div>
 
 
 <style>
-    #tab-bar {
+    .tab-bar {
         width: 100%;
         height: var(--tab-bar-height);
-        position: absolute;
         background: var(--panel-color);
         border-bottom: var(--panel-border);
-        margin: 0;
-        z-index: -1;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
 </style>
@@ -35,10 +34,11 @@
             }  
         },
         methods: {
-            openTab(name, view) {
+            openTab(view, name, icon) {
                 return new Tab({
                     target: this.refs.tabBar,
                     data: {
+                        icon,
                         name,
                         view,
                         active: true,
