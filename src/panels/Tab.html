@@ -1,6 +1,6 @@
 <span class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" on:click="activate()" on:dblclick="close()">
     <span class="icon l-python-icon"></span>
-    <span class="text">{{fileName}}</span>
+    <span class="text">{{name}}</span>
 </span>
 
 
@@ -55,7 +55,7 @@
 
 
 <script>
-    import g from '../lib/Globals'
+    // import g from '../lib/Globals'
 
     export default {
         components: {},
@@ -63,18 +63,20 @@
         },
         data() {
             return {
-                fileName: '',
+                name: '',
                 active: false,
-                editor: null,
-                clean: true
+                view: null,
+                panel: null,
+                clean: true,
+                closable: true,
             }
         },
         methods: {
             activate() {
-                g.panelMiddle.activateFile(this.get('editor').get('filePath'))
+                this.get('panel').activateView(this.get('view'))
             },
             close() {
-                g.panelMiddle.closeFile(this.get('editor').get('filePath'))
+                this.get('panel').closeView(this.get('view'))
             }
         }
     }

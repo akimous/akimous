@@ -18,30 +18,31 @@
 
 
 <script>
-    import g from '../lib/Globals'
+    // import g from '../lib/Globals'
     import Tab from './Tab.html'
     import Sortable from 'sortablejs'
 
     export default {
         components: {},
         oncreate() {
-            g.tabBar = this
             this.sortable = Sortable.create(this.refs.tabBar, {
                 animation: 0,
             })
         },
         data() {
             return {
+                parent: null
             }  
         },
         methods: {
-            openTab(fileName, editor) {
+            openTab(name, view) {
                 return new Tab({
                     target: this.refs.tabBar,
                     data: {
-                        fileName,
-                        editor,
-                        active: true
+                        name,
+                        view,
+                        active: true,
+                        panel: this.get('parent')
                     }
                 })
             },

@@ -74,7 +74,8 @@
         },
         oncreate() {
             // properties
-            this.tab = g.tabBar.openTab(this.get('fileName'), this)
+            this.parent = this.get('parent')
+            this.tab = this.parent.tabBar.openTab(this.get('fileName'), this)
 
             // observers
             this.observe('filePath', (newPath, oldPath) => {
@@ -87,9 +88,9 @@
                     })
                 }
             })
-            this.observe('fileName', fileName => {
+            this.observe('fileName', name => {
                 this.tab.set({
-                    fileName
+                    name
                 })
             })
             this.observe('clean', clean => {

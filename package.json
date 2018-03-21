@@ -13,7 +13,7 @@
         "babel-minify": "^0.3.0",
         "browser-sync": "^2.23.1",
         "cloc": "^2.3.3",
-        "codemirror": "^5.33.0",
+        "codemirror": "^5.36.0",
         "eslint": "^4.19.0",
         "eslint-plugin-html": "^4.0.2",
         "http-server": "^0.11.1",

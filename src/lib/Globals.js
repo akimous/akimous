@@ -1,7 +1,3 @@
-//import Completion from '../editor/completion/Completion.html'
-//import ContextMenu from './ContextMenu.html'
-//import PanelMiddle from '../PanelMiddle.html'
-
 let _uid = 0
 const g = {
     focusStack: [],
@@ -24,14 +20,14 @@ const g = {
             originalRoot.set({
                 focusStack: focusStack.slice(1)
             })
-            
+
             // if we don't force refresh CM on Safari, it will not show panelMiddle indicator
             // try remove this if newer versions of Safari fix this
-            if (x[0].constructor.name === 'PanelMiddle' && this.activeEditor) {
-                window.requestAnimationFrame(() => {
-                    this.activeEditor.cm.refresh()
-                })
-            }
+            //            if (x[0].constructor.name === 'PanelMiddle' && this.activeEditor) {
+            //                window.requestAnimationFrame(() => {
+            //                    this.activeEditor.cm.refresh()
+            //                })
+            //            }
         }
 
         this.focusStack = x

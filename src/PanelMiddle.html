@@ -1,5 +1,5 @@
 <div ref:panelMiddle id="panel-middle" class=" {{focused?'indicator-on':''}} ">
-    <TabBar id="tab-bar"></TabBar>
+    <TabBar ref:tabBar id="tab-bar"></TabBar>
 </div>
 
 
@@ -29,6 +29,10 @@
         },
         oncreate() {
             g.panelMiddle = this
+            this.tabBar = this.refs.tabBar
+            this.tabBar.set({
+                parent: this
+            })
             this.pathToEditor = {}
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
             this.activationHistoryIndex = 0
@@ -67,10 +71,14 @@
                         data: {
                             filePath,
                             fileName,
+                            parent: this
                         }
                     })
                 }
                 this.activateFile(filePath)
+            },
+            activateView(editor) {
+                this.activateFile(editor.get('filePath'))
             },
             activateFile(filePath) {
                 // write to activation history
@@ -101,6 +109,9 @@
                         filePath: [...newDirPath, ...editor.get('filePath').slice(newDirPath.length)]
                     })
                 }
+            },
+            closeView(editor) {
+                this.closeFile(editor.get('filePath'))
             },
             closeFile(filePath) {
                 const editor = this.getEditor(filePath)
@@ -148,7 +159,7 @@
                     }
                 }
                 // if history is exhausted, select the last editor
-                let tabs = g.tabBar.refs.tabBar.getElementsByClassName('tab')
+                let tabs = this.tabBar.refs.tabBar.getElementsByClassName('tab')
                 if (tabs.length > 0) {
                     this.activateFile(tabs[tabs.length - 1].dataset.filepath)
                     return
