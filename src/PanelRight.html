@@ -1,5 +1,6 @@
 <div ref:panelRight id="panel-right" class="{{focused?'indicator-on':''}}">
-    <Console ref:console id="console"></Console>
+    <TabBar ref:tabBar></TabBar>
+    <Console ref:console></Console>
 </div>
 
 
@@ -15,20 +16,29 @@
         box-sizing: border-box;
         z-index: -5;
     }
-
+    
 </style>
 
 
 <script>
     import g from './lib/Globals'
+    import TabBar from './panels/TabBar.html'
     import Console from './Console.html'
 
     export default {
         components: {
+            TabBar,
             Console
         },
         oncreate() {
             g.panelRight = this
+            this.tabBar = this.refs.tabBar
+            this.refs.tabBar.set({
+                parent: this
+            })
+            this.refs.console.set({
+                parent: this
+            })
         },
         data() {
             return {
