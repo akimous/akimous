@@ -1,4 +1,4 @@
-<div class="container" >
+<div class="container">
     <div ref:terminal class="tab-view"></div>
 </div>
 
@@ -14,6 +14,9 @@
 
 <script>
     import g from './lib/Globals'
+    import {
+        onIdle
+    } from './lib/Utils'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
     // import attach from 'xterm/lib/addons/attach/attach'
@@ -23,11 +26,9 @@
         components: {},
         oncreate() {
             g.console = this
-            setTimeout(() => {
+            onIdle(() => {
                 this.parent = this.get('parent')
                 this.tab = this.parent.tabBar.openTab(this, 'Console', 'fas fa-desktop l-olive')
-            })
-            setTimeout(() => {
                 Terminal.applyAddon(fit)
                 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
                 this.terminal = new Terminal({
@@ -40,16 +41,17 @@
                     }
                 })
                 this.terminal.open(this.refs.terminal, false)
-                
+
                 this.terminal.on('focus', () => {
                     g.setFocus([g.panelRight, this])
                 })
-                window.requestAnimationFrame(() => {
+                
+                onIdle(() => {
                     this.terminal.fit()
-                    for (let i = 0; i < 100; i++)
+                    for (let i = 0; i < 3; i++)
                         this.terminal.write('blabla')
                 })
-            }, 700)
+            }, 5000)
         },
         data() {
             return {}

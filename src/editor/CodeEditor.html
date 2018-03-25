@@ -16,8 +16,13 @@
     import RealtimeFormatter from './RealtimeFormatter'
     import Predictor from './completion/Predictor'
     import Completion from './completion/Completion.html'
-    import {getIconByFileName} from '../lib/FileTypeToIcon'
-
+    import {
+        getIconByFileName
+    } from '../lib/FileTypeToIcon'
+    import {
+        onIdle
+    } from '../lib/Utils'
+    
     /* eslint-disable */
     import CodeMirror from 'codemirror'
     import python from '../lib/python'
@@ -155,8 +160,8 @@
                 this.mtime = data.mtime
             })
 
-            // Step 3: Do the rest of things
-            initializeCM.then(() => setTimeout(() => {
+            // Step 3: Do the rest of things (about 20 ms)
+            initializeCM.then(() => onIdle(() => {
                 this.completion = this.refs.completion
                 this.cm.refresh() // prevent CM occasionally shifts to the right
 
@@ -223,7 +228,7 @@
                         }]
                     )
                 })
-            }), 5)
+            }), 500)
         },
         ondestroy() {
             this.tab.destroy()

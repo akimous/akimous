@@ -3762,9 +3762,9 @@ svelte@^1:
   version "1.55.0"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.55.0.tgz#16494fc8e56ae83da705e1333b2146b5acbba884"
 
-svelte@^1.58.0:
-  version "1.58.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.58.0.tgz#3e3409539f17625c2e36728a9c02cec265e53a78"
+svelte@^1.58.2:
+  version "1.58.2"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.58.2.tgz#d69096059254e6cfb30804df4cc07b9930558bbe"
 
 svgo@^0.7.0:
   version "0.7.2"
