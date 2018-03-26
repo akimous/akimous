@@ -58,28 +58,38 @@ class LayeredKeyboardControl {
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
 
         document.addEventListener('keydown', e => {
-            if (e.key === 'Shift') {
-                // bypass shift
-            } else if (e.key === ' ') {
-                if (g.focus.get('allowWhiteSpace')) return true
-                this.spacePressed = true
-                this.commandSent = false
-            } else if (this.spacePressed && !this.textSent && this.commandSent &&
-                (e.key.length === 1 || keysRequireHandling.has(e.key))) {
-                this.sendCommand(e)
-            } else if (this.spacePressed) {
-                this.textSent = false
-            } else {
-                this.textSent = true
-                for (let i = g.focusStack.length - 1; i >= 0; i--) {
-                    const target = g.focusStack[i]
-                    const handler = target.keyEventHandler
-                    if (handler === undefined) continue
-                    const shouldPropagate = handler.handleKeyEvent(e, target)
-                    if (shouldPropagate) continue
-                    return this.stopPropagation(e)
-                }
-                return true // if not handled, just propagate
+            switch (e.key) {
+                case 'Shift':
+                    break
+                case 'Meta':
+                case 'Control':
+                    g.tabNumberHint.set({
+                        active: true
+                    })
+                    return true // let it propagate
+                case ' ':
+                    if (g.focus.get('allowWhiteSpace')) return true
+                    this.spacePressed = true
+                    this.commandSent = false
+                    break
+                default:
+                    if (this.spacePressed && !this.textSent && this.commandSent &&
+                        (e.key.length === 1 || keysRequireHandling.has(e.key))) {
+                        this.sendCommand(e)
+                    } else if (this.spacePressed) {
+                        this.textSent = false
+                    } else {
+                        this.textSent = true
+                        for (let i = g.focusStack.length - 1; i >= 0; i--) {
+                            const target = g.focusStack[i]
+                            const handler = target.keyEventHandler
+                            if (handler === undefined) continue
+                            const shouldPropagate = handler.handleKeyEvent(e, target)
+                            if (shouldPropagate) continue
+                            return this.stopPropagation(e)
+                        }
+                        return true // if not handled, just propagate
+                    }
             }
             return this.stopPropagation(e)
         }, {
@@ -87,21 +97,31 @@ class LayeredKeyboardControl {
         })
 
         document.addEventListener('keyup', e => {
-            if (e.key === 'Shift') {
-                // bypass shift
-            } else if (e.key === ' ') {
-                this.spacePressed = false
-                if (g.focus.get('allowWhiteSpace')) return true
-                if (!this.commandSent) 
-                    this.sendCommand(e) && g.activeEditor.insertText(' ')
-                return this.stopPropagation(e)
-            } else if (this.spacePressed && !this.textSent && !this.commandSent &&
-                (e.key.length === 1 || keysRequireHandling.has(e.key))) {
-                this.sendCommand(e)
-                return this.stopPropagation(e)
-            } else if (!this.commandSent && !this.textSent) {
-                g.activeEditor.insertText(e.key)
-                this.textSent = true
+            switch (e.key) {
+                case 'Shift':
+                    break
+                case 'Meta':
+                case 'Control':
+                    if (!e.metaKey && !e.ctrlKey)
+                        g.tabNumberHint.set({
+                            active: false
+                        })
+                    return true // let it propagate
+                case ' ':
+                    this.spacePressed = false
+                    if (g.focus.get('allowWhiteSpace')) return true
+                    if (!this.commandSent)
+                        this.sendCommand(e) && g.activeEditor.insertText(' ')
+                    return this.stopPropagation(e)
+                default:
+                    if (this.spacePressed && !this.textSent && !this.commandSent &&
+                        (e.key.length === 1 || keysRequireHandling.has(e.key))) {
+                        this.sendCommand(e)
+                        return this.stopPropagation(e)
+                    } else if (!this.commandSent && !this.textSent) {
+                        g.activeEditor.insertText(e.key)
+                        this.textSent = true
+                    }
             }
         }, {
             capture: true

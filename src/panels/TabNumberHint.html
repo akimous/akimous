@@ -1,0 +1,46 @@
+<div ref:tabNumberHint id="tab-number-hint" class="" style="{{active?'':'display:none'}}">
+    
+</div>
+
+
+<style>
+    #tab-number-hint {
+        position: absolute;
+        top: 0;
+        height: var(--toolbar-height);
+        width: 100%;
+        z-index: 30;
+        background: gray;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.tabNumberHint = this
+            this.observe('active', active => {
+                if (!active) return
+                const activePanel = g.focusStack[0]
+                if (!activePanel) return
+                const children = activePanel.tabBar.refs.tabBar.childNodes
+                g.ccc = children
+                for (const tab of children) {
+                    console.log(tab, tab.getBoundingClientRect())
+                }
+            })
+        },
+        data() {
+            return {
+                active: false,
+            }
+        },
+        methods: {
+        }
+    }
+
+</script>

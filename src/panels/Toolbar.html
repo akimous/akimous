@@ -4,6 +4,7 @@
     </div>
 </div>
 <NotificationBar></NotificationBar>
+<TabNumberHint></TabNumberHint>
 <NotificationHistory></NotificationHistory>
 
 <style>
@@ -26,12 +27,14 @@
     import g from '../lib/Globals'
     import NotificationBar from '../panels/NotificationBar.html'
     import NotificationHistory from '../panels/NotificationHistory.html'
+    import TabNumberHint from '../panels/TabNumberHint.html'
     import ToolBarButton from './ToolBarButton.html'
 
     export default {
         components: {
             NotificationBar,
             NotificationHistory,
+            TabNumberHint,
             ToolBarButton
         },
         oncreate() {
