@@ -23,7 +23,6 @@
         "rollup": "^0.57.1",
         "rollup-plugin-babel": "^3.0.3",
         "rollup-plugin-commonjs": "^9.1.0",
-        "rollup-plugin-css-only": "^0.4.0",
         "rollup-plugin-node-resolve": "^3.3.0",
         "rollup-plugin-postcss": "^1.4.0",
         "rollup-plugin-sizes": "^0.4.2",
