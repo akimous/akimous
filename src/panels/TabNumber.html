@@ -1,5 +1,6 @@
 <div ref:tabNumberHint id="tab-number-hint" class="" style="{{active?'':'display:none'}}">
-    
+    {{#each numberOffsets as offset, i}}
+    <span class="number l-orange" style="left:{{offset}}px">{{i + 1}}</span> {{/each}}
 </div>
 
 
@@ -7,10 +8,15 @@
     #tab-number-hint {
         position: absolute;
         top: 0;
-        height: var(--toolbar-height);
+        height: calc(var(--toolbar-height) - var(--panel-border-thickness));
         width: 100%;
         z-index: 30;
-        background: gray;
+        background: var(--panel-color);
+    }
+
+    .number {
+        position: absolute;
+        line-height: var(--toolbar-height);
     }
 
 </style>
@@ -22,25 +28,27 @@
     export default {
         components: {},
         oncreate() {
-            g.tabNumberHint = this
+            g.tabNumber = this
             this.observe('active', active => {
                 if (!active) return
                 const activePanel = g.focusStack[0]
                 if (!activePanel) return
                 const children = activePanel.tabBar.refs.tabBar.childNodes
-                g.ccc = children
-                for (const tab of children) {
-                    console.log(tab, tab.getBoundingClientRect())
-                }
+                this.set({
+                    numberOffsets: [...children].map(tab => {
+                        const rect = tab.getBoundingClientRect()
+                        return (rect.left + rect.right) / 2
+                    })
+                })
             })
         },
         data() {
             return {
                 active: false,
+                numberOffsets: []
             }
         },
-        methods: {
-        }
+        methods: {}
     }
 
 </script>

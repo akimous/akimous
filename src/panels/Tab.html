@@ -1,6 +1,6 @@
-<span class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" on:click="activate()" on:dblclick="close()">
+<span ref:tab class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" on:click="activate()" on:dblclick="close()">
     <span class="icon {{icon}}"></span>
-    <span class="text">{{name}}</span>
+<span class="text">{{name}}</span>
 </span>
 
 
@@ -59,6 +59,13 @@
     export default {
         components: {},
         oncreate() {
+            this.observe('parent', (newParent, oldParent) => {
+                oldParent && oldParent.tabs.delete(this)
+                newParent && newParent.tabs.add(this)
+            })
+        },
+        ondestroy() {
+            this.get('parent').tabs.delete(this)
         },
         data() {
             return {
@@ -67,6 +74,7 @@
                 active: false,
                 view: null,
                 panel: null,
+                parent: null,
                 clean: true,
                 closable: true,
             }
@@ -77,6 +85,15 @@
             },
             close() {
                 this.get('panel').closeView(this.get('view'))
+            },
+            getIndex() {
+                let node = this.refs.tab
+                let index = 0
+                while (node) {
+                    index++
+                    node = node.previousElementSibling
+                }
+                return index
             }
         }
     }

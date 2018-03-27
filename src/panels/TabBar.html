@@ -24,6 +24,7 @@
     export default {
         components: {},
         oncreate() {
+            this.tabs = new Set()
             this.sortable = Sortable.create(this.refs.tabBar, {
                 animation: 0,
             })
@@ -42,7 +43,8 @@
                         name,
                         view,
                         active: true,
-                        panel: this.get('parent')
+                        panel: this.get('parent'),
+                        parent: this
                     }
                 })
             },

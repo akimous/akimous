@@ -63,7 +63,7 @@ class LayeredKeyboardControl {
                     break
                 case 'Meta':
                 case 'Control':
-                    g.tabNumberHint.set({
+                    g.tabNumber.set({
                         active: true
                     })
                     return true // let it propagate
@@ -103,7 +103,7 @@ class LayeredKeyboardControl {
                 case 'Meta':
                 case 'Control':
                     if (!e.metaKey && !e.ctrlKey)
-                        g.tabNumberHint.set({
+                        g.tabNumber.set({
                             active: false
                         })
                     return true // let it propagate
