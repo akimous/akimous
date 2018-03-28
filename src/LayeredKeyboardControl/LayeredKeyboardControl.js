@@ -78,6 +78,11 @@ class LayeredKeyboardControl {
                         this.sendCommand(e)
                     } else if (this.spacePressed) {
                         this.textSent = false
+                    } else if ((e.metaKey || e.ctrlKey) && !isNaN(e.key)) {  // switch tab
+                        const focusedPanel = g.focusStack[0]
+                        if (focusedPanel)
+                            focusedPanel.tabBar.switchToTab(+e.key)
+                        return this.stopPropagation(e)
                     } else {
                         this.textSent = true
                         for (let i = g.focusStack.length - 1; i >= 0; i--) {
@@ -110,6 +115,8 @@ class LayeredKeyboardControl {
                 case ' ':
                     this.spacePressed = false
                     if (g.focus.get('allowWhiteSpace')) return true
+//                    if (!this.commandSent && this.sendCommand(e))
+//                        return true
                     if (!this.commandSent)
                         this.sendCommand(e) && g.activeEditor.insertText(' ')
                     return this.stopPropagation(e)
@@ -118,9 +125,10 @@ class LayeredKeyboardControl {
                         (e.key.length === 1 || keysRequireHandling.has(e.key))) {
                         this.sendCommand(e)
                         return this.stopPropagation(e)
-                    } else if (!this.commandSent && !this.textSent) {
-                        g.activeEditor.insertText(e.key)
+                    } else if (!this.commandSent && !this.textSent && !e.metaKey && !e.ctrlKey) {
                         this.textSent = true
+//                        return true
+                        g.activeEditor.insertText(e.key)
                     }
             }
         }, {

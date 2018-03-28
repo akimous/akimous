@@ -48,6 +48,14 @@
                     }
                 })
             },
+            switchToTab(index) {
+                for (const tab of this.tabs) {
+                    if (tab.getIndex() === index) {
+                        tab.activate()
+                        return
+                    }
+                }
+            }
         }
         
     }

@@ -34,6 +34,11 @@
                 const activePanel = g.focusStack[0]
                 if (!activePanel) return
                 const children = activePanel.tabBar.refs.tabBar.childNodes
+                if (children.length < 2) {
+                    this.set({
+                        active: false
+                    })
+                }
                 this.set({
                     numberOffsets: [...children].map(tab => {
                         const rect = tab.getBoundingClientRect()
