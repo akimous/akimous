@@ -53,11 +53,11 @@ class LayeredKeyboardControl {
         return false
     }
     constructor() {
-        this.spacePressed = false
         this.commandSent = false
-        this.textSent = false
-        const keysRequireHandling = new Set(['Backspace', 'Delete'])
+        let spacePressed = false
+        let textSent = false
         let composeTimeStamp = 0
+        const keysRequireHandling = new Set(['Backspace', 'Delete'])
         
         document.addEventListener('keydown', e => {
             if (e.isComposing) return true  // do not interfere with IME
@@ -72,22 +72,22 @@ class LayeredKeyboardControl {
                     return true // let it propagate
                 case ' ':
                     if (g.focus.get('allowWhiteSpace')) return true
-                    this.spacePressed = true
+                    spacePressed = true
                     this.commandSent = false
                     break
                 default:
-                    if (this.spacePressed && !this.textSent && this.commandSent &&
+                    if (spacePressed && !textSent && this.commandSent &&
                         (e.key.length === 1 || keysRequireHandling.has(e.key))) {
                         this.sendCommand(e)
-                    } else if (this.spacePressed) {
-                        this.textSent = false
+                    } else if (spacePressed) {
+                        textSent = false
                     } else if ((e.metaKey || e.ctrlKey) && !isNaN(e.key)) {  // switch tab
                         const focusedPanel = g.focusStack[0]
                         if (focusedPanel)
                             focusedPanel.tabBar.switchToTab(+e.key)
                         return this.stopPropagation(e)
                     } else {
-                        this.textSent = true
+                        textSent = true
                         for (let i = g.focusStack.length - 1; i >= 0; i--) {
                             const target = g.focusStack[i]
                             const handler = target.keyEventHandler
@@ -117,7 +117,7 @@ class LayeredKeyboardControl {
                         })
                     return true // let it propagate
                 case ' ':
-                    this.spacePressed = false
+                    spacePressed = false
                     if (g.focus.get('allowWhiteSpace')) return true
                     if (!this.commandSent && this.sendCommand(e) 
                         && e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
@@ -125,13 +125,13 @@ class LayeredKeyboardControl {
                     }
                     return this.stopPropagation(e)
                 default:
-                    if (this.spacePressed && !this.textSent && !this.commandSent &&
+                    if (spacePressed && !textSent && !this.commandSent &&
                         (e.key.length === 1 || keysRequireHandling.has(e.key))) {
                         this.sendCommand(e)
                         return this.stopPropagation(e)
-                    } else if (!this.commandSent && !this.textSent 
+                    } else if (!this.commandSent && !textSent 
                                && e.key.length === 1 && !e.metaKey && !e.ctrlKey) {
-                        this.textSent = true
+                        textSent = true
                         g.activeEditor.insertText(e.key)
                     }
             }
