@@ -24,6 +24,16 @@ class LayeredKeyboardControl {
             case 'panelRight':
                 g.setFocus([g.panelRight])
                 break
+            case 'togglePanelLeft':
+                g.panelLeft.set({
+                    hidden: !g.panelLeft.get('hidden')
+                })
+                break
+            case 'togglePanelRight':
+                g.panelRight.set({
+                    hidden: !g.panelRight.get('hidden')
+                })
+                break
             default:
                 for (let i = g.focusStack.length - 1; i >= 0; i--) {
                     const focus = g.focusStack[i]
@@ -58,9 +68,9 @@ class LayeredKeyboardControl {
         let textSent = false
         let composeTimeStamp = 0
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
-        
+
         document.addEventListener('keydown', e => {
-            if (e.isComposing) return true  // do not interfere with IME
+            if (e.isComposing) return true // do not interfere with IME
             switch (e.key) {
                 case 'Shift':
                     break
@@ -81,7 +91,7 @@ class LayeredKeyboardControl {
                         this.sendCommand(e)
                     } else if (spacePressed) {
                         textSent = false
-                    } else if ((e.metaKey || e.ctrlKey) && !isNaN(e.key)) {  // switch tab
+                    } else if ((e.metaKey || e.ctrlKey) && !isNaN(e.key)) { // switch tab
                         const focusedPanel = g.focusStack[0]
                         if (focusedPanel)
                             focusedPanel.tabBar.switchToTab(+e.key)
@@ -105,7 +115,7 @@ class LayeredKeyboardControl {
         })
 
         document.addEventListener('keyup', e => {
-            if (e.isComposing) return true  // do not interfere with IME
+            if (e.isComposing) return true // do not interfere with IME
             switch (e.key) {
                 case 'Shift':
                     break
@@ -119,8 +129,8 @@ class LayeredKeyboardControl {
                 case ' ':
                     spacePressed = false
                     if (g.focus.get('allowWhiteSpace')) return true
-                    if (!this.commandSent && this.sendCommand(e) 
-                        && e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
+                    if (!this.commandSent && this.sendCommand(e) &&
+                        e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
                         g.activeEditor.insertText(' ')
                     }
                     return this.stopPropagation(e)
@@ -129,8 +139,8 @@ class LayeredKeyboardControl {
                         (e.key.length === 1 || keysRequireHandling.has(e.key))) {
                         this.sendCommand(e)
                         return this.stopPropagation(e)
-                    } else if (!this.commandSent && !textSent 
-                               && e.key.length === 1 && !e.metaKey && !e.ctrlKey) {
+                    } else if (!this.commandSent && !textSent &&
+                        e.key.length === 1 && !e.metaKey && !e.ctrlKey) {
                         textSent = true
                         g.activeEditor.insertText(e.key)
                     }
@@ -138,7 +148,7 @@ class LayeredKeyboardControl {
         }, {
             capture: true
         })
-        
+
         document.addEventListener('compositionstart', e => {
             composeTimeStamp = e.timeStamp
         })

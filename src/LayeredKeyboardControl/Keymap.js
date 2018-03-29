@@ -44,9 +44,11 @@ const genericCommandKeymap = {
     
     'Space': 'commit',
     
+    'KeyN': 'togglePanelLeft',
     'KeyM': 'panelLeft',
     'Comma': 'panelMiddle',
     'Period': 'panelRight',
+    'Slash': 'togglePanelRight',
     
     'Digit1': '1',
     'Digit2': '2',

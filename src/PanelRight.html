@@ -1,4 +1,4 @@
-<div ref:panelRight id="panel-right" class="{{focused?'indicator-on':''}}">
+<div ref:panelRight id="panel-right" class="{{focused?'indicator-on':''}} {{hidden?'gone':''}}">
     <TabBar ref:tabBar></TabBar>
     <Console ref:console></Console>
 </div>
@@ -14,7 +14,6 @@
         background: var(--panel-color);
         border-left: var(--panel-border);
         box-sizing: border-box;
-        z-index: -5;
     }
     
 </style>
@@ -39,10 +38,20 @@
             this.refs.console.set({
                 parent: this
             })
+            
+            let originalWidth
+            this.observe('hidden', hidden => {
+                if (hidden) {
+                    originalWidth = this.refs.panelRight.getBoundingClientRect().width
+                    document.documentElement.style.setProperty('--panel-right-width', 0)
+                } else if (originalWidth)
+                    document.documentElement.style.setProperty('--panel-right-width', originalWidth + 'px')
+            })
         },
         data() {
             return {
-                focused: false
+                focused: false,
+                hidden: false
             }
         },
         methods: {}

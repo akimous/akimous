@@ -1,4 +1,4 @@
-<div id="panel-left" class="{{focused?'indicator-on':''}}">
+<div ref:panelLeft id="panel-left" class="{{focused?'indicator-on':''}} {{hidden?'gone':''}}">
     <TabBar ref:tabBar id="tab-bar"></TabBar>
     <FileTree ref:fileTree></FileTree>
 </div>
@@ -16,7 +16,7 @@
         box-sizing: border-box;
         z-index: -5;
     }
-
+    
 </style>
 
 
@@ -38,10 +38,20 @@
             this.refs.fileTree.set({
                 parent: this
             })
+            
+            let originalWidth
+            this.observe('hidden', hidden => {
+                if (hidden) {
+                    originalWidth = this.refs.panelLeft.getBoundingClientRect().width
+                    document.documentElement.style.setProperty('--panel-left-width', 0)
+                } else if (originalWidth)
+                    document.documentElement.style.setProperty('--panel-left-width', originalWidth + 'px')
+            })
         },
         data() {
             return {
-                focused: false
+                focused: false,
+                hidden: false
             }
         },
         methods: {}
