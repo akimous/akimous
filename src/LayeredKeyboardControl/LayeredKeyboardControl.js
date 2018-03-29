@@ -10,6 +10,7 @@ class LayeredKeyboardControl {
         }
     }
     sendCommand(e) {
+        // return true if not handled or allowed to propagate
         const code = e.code
         this.commandSent = true
         const command = Keymap.genericCommandKeymap[code]
@@ -56,8 +57,10 @@ class LayeredKeyboardControl {
         this.commandSent = false
         this.textSent = false
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
-
+        let composeTimeStamp = 0
+        
         document.addEventListener('keydown', e => {
+            if (e.isComposing) return true  // do not interfere with IME
             switch (e.key) {
                 case 'Shift':
                     break
@@ -102,6 +105,7 @@ class LayeredKeyboardControl {
         })
 
         document.addEventListener('keyup', e => {
+            if (e.isComposing) return true  // do not interfere with IME
             switch (e.key) {
                 case 'Shift':
                     break
@@ -115,24 +119,34 @@ class LayeredKeyboardControl {
                 case ' ':
                     this.spacePressed = false
                     if (g.focus.get('allowWhiteSpace')) return true
-//                    if (!this.commandSent && this.sendCommand(e))
-//                        return true
-                    if (!this.commandSent)
-                        this.sendCommand(e) && g.activeEditor.insertText(' ')
+                    if (!this.commandSent && this.sendCommand(e) 
+                        && e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
+                        g.activeEditor.insertText(' ')
+                    }
                     return this.stopPropagation(e)
                 default:
                     if (this.spacePressed && !this.textSent && !this.commandSent &&
                         (e.key.length === 1 || keysRequireHandling.has(e.key))) {
                         this.sendCommand(e)
                         return this.stopPropagation(e)
-                    } else if (!this.commandSent && !this.textSent && !e.metaKey && !e.ctrlKey) {
+                    } else if (!this.commandSent && !this.textSent 
+                               && e.key.length === 1 && !e.metaKey && !e.ctrlKey) {
                         this.textSent = true
-//                        return true
                         g.activeEditor.insertText(e.key)
                     }
             }
         }, {
             capture: true
+        })
+        
+        document.addEventListener('compositionstart', e => {
+            composeTimeStamp = e.timeStamp
+        })
+        document.addEventListener('compositionend', e => {
+            composeTimeStamp = e.timeStamp
+        })
+        document.addEventListener('compositionupdate', e => {
+            composeTimeStamp = e.timeStamp
         })
     }
 }
