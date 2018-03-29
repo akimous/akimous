@@ -43,7 +43,7 @@
             this.observe('hidden', hidden => {
                 if (hidden) {
                     originalWidth = this.refs.panelRight.getBoundingClientRect().width
-                    document.documentElement.style.setProperty('--panel-right-width', 0)
+                    document.documentElement.style.setProperty('--panel-right-width', '0px')
                 } else if (originalWidth)
                     document.documentElement.style.setProperty('--panel-right-width', originalWidth + 'px')
             })
