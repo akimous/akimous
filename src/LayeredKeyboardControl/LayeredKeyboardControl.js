@@ -2,6 +2,15 @@ import g from '../lib/Globals'
 import Keymap from './Keymap'
 import CodeEditor from '../editor/CodeEditor.html'
 
+function togglePanelAutoHide(panel) {
+    const autoHide = !panel.get('autoHide')
+    panel.set({
+        autoHide,
+        hidden: autoHide
+    })
+    if (autoHide) g.setFocus([g.panelMiddle])
+}
+
 class LayeredKeyboardControl {
     sendEditorCommand(command) {
         this.commandSent = true
@@ -25,14 +34,10 @@ class LayeredKeyboardControl {
                 g.setFocus([g.panelRight])
                 break
             case 'togglePanelLeft':
-                g.panelLeft.set({
-                    hidden: !g.panelLeft.get('hidden')
-                })
+                togglePanelAutoHide(g.panelLeft)
                 break
             case 'togglePanelRight':
-                g.panelRight.set({
-                    hidden: !g.panelRight.get('hidden')
-                })
+                togglePanelAutoHide(g.panelRight)
                 break
             default:
                 for (let i = g.focusStack.length - 1; i >= 0; i--) {

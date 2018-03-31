@@ -9,25 +9,32 @@ const g = {
         const focusStack = this.focusStack
 
         // backup original focus stack
-        const originalRoot = focusStack[0]
-        if (originalRoot && originalRoot !== x[0] && focusStack.length > 1) {
-            if (this.focus.constructor.name === 'Completion' ||
-                this.focus.constructor.name === 'ContextMenu') {
-                this.focus.set({
-                    open: false
+        const oldRoot = focusStack[0]
+        const newRoot = x[0]
+
+        // if focused panel is changed
+        if (oldRoot && oldRoot !== x[0]) {
+            // hide panel if autoHide is true and losing focus
+            if (oldRoot.get('autoHide'))
+                oldRoot.set({
+                    hidden: true
                 })
-            }
-            originalRoot.set({
-                focusStack: focusStack.slice(1)
+            newRoot.set({
+                hidden: false
             })
 
-            // if we don't force refresh CM on Safari, it will not show panelMiddle indicator
-            // try remove this if newer versions of Safari fix this
-            //            if (x[0].constructor.name === 'PanelMiddle' && this.activeEditor) {
-            //                window.requestAnimationFrame(() => {
-            //                    this.activeEditor.cm.refresh()
-            //                })
-            //            }
+            // store focus stack if needed
+            if (focusStack.length > 1) {
+                if (this.focus.constructor.name === 'Completion' ||
+                    this.focus.constructor.name === 'ContextMenu') {
+                    this.focus.set({
+                        open: false
+                    })
+                }
+                oldRoot.set({
+                    focusStack: focusStack.slice(1)
+                })
+            }
         }
 
         this.focusStack = x

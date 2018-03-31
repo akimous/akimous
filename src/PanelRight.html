@@ -1,4 +1,4 @@
-<div ref:panelRight id="panel-right" class="{{focused?'indicator-on':''}} {{hidden?'gone':''}}">
+<div ref:panelRight id="panel-right" class="{{focused?'indicator-on':''}} {{hidden?'gone':''}} {{autoHide?'auto-hide':''}}">
     <TabBar ref:tabBar></TabBar>
     <Console ref:console></Console>
 </div>
@@ -51,7 +51,8 @@
         data() {
             return {
                 focused: false,
-                hidden: false
+                hidden: false,
+                autoHide: false
             }
         },
         methods: {}

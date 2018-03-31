@@ -105,6 +105,10 @@ body {
     border-bottom: var(--indicator-height) solid var(--ui-highlight-color);
 }
 
+.indicator-on.auto-hide {
+    border-bottom: var(--indicator-height) solid var(--purple);
+}
+
 .l-python-icon {
     background: url(icons/python.svg) !important;
     background-position: center !important;

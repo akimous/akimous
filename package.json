@@ -29,7 +29,7 @@
         "rollup-plugin-strip": "^1.1.1",
         "rollup-plugin-svelte": "^4.0.0",
         "sortablejs": "^1.7.0",
-        "svelte": "^1.58.4",
+        "svelte": "^1.59.0",
         "svelte-cli": "^2.0.0",
         "xterm": "^3.2.0"
     },

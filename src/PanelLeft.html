@@ -1,4 +1,4 @@
-<div ref:panelLeft id="panel-left" class="{{focused?'indicator-on':''}} {{hidden?'gone':''}}">
+<div ref:panelLeft id="panel-left" class="{{focused?'indicator-on':''}} {{hidden?'gone':''}} {{autoHide?'auto-hide':''}}">
     <TabBar ref:tabBar id="tab-bar"></TabBar>
     <FileTree ref:fileTree></FileTree>
 </div>
@@ -16,7 +16,7 @@
         box-sizing: border-box;
         z-index: -5;
     }
-    
+
 </style>
 
 
@@ -38,7 +38,7 @@
             this.refs.fileTree.set({
                 parent: this
             })
-            
+
             let originalWidth
             this.observe('hidden', hidden => {
                 if (hidden) {
@@ -51,7 +51,8 @@
         data() {
             return {
                 focused: false,
-                hidden: false
+                hidden: false,
+                autoHide: false
             }
         },
         methods: {}
