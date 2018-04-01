@@ -51,7 +51,10 @@
                 } else if (originalWidth)
                     document.documentElement.style.setProperty('--panel-left-width', originalWidth + 'px')
             })
-            setTimeout(() => this.activateView(this.refs.fileTree))
+            setTimeout(() => {
+                this.activateView(this.refs.fileTree)
+                this.tabBar.fitTabWidth()
+            })
         },
         data() {
             return {

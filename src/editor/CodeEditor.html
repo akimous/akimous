@@ -77,7 +77,7 @@
         oncreate() {
             this.parent = this.get('parent')
             const fileName = this.get('fileName')
-            this.tab = this.parent.tabBar.openTab(this, this.get('fileName'), getIconByFileName(fileName))
+            this.tab = this.parent.tabBar.openTab(this, this.get('fileName'), getIconByFileName(fileName), true)
 
             // observers
             this.observe('filePath', (newPath, oldPath) => {
