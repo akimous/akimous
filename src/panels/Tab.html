@@ -1,6 +1,6 @@
 <span ref:tab class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" style="padding:0 {{padding}}px" on:click="activate()" on:dblclick="close()">
-    <span ref:icon class="icon {{icon}} {{name?'icon-height-adjustment':''}}"></span>
-<span ref:text class="text">{{name}}</span>
+    <!-- the two spans must be at the same line, or the layout will break-->
+    <span ref:icon class="icon {{icon}} {{name?'icon-height-adjustment':''}}"></span><span ref:text class="text">{{name}}</span>
 </span>
 
 
@@ -22,6 +22,7 @@
         min-height: 1rem;
         display: inline-block;
         background-size: 100% 100% !important;
+        padding: 0 .3rem;
     }
 
     .icon-height-adjustment {
@@ -30,7 +31,6 @@
 
     .text {
         display: inline-block;
-        padding-left: .2rem;
     }
 
     .tab:hover .text {
@@ -69,7 +69,9 @@
             })
         },
         ondestroy() {
-            this.get('parent').tabs.delete(this)
+            const parent = this.get('parent')
+            parent.tabs.delete(this)
+            parent.fitTabWidth()
         },
         data() {
             return {
@@ -89,9 +91,7 @@
                 this.get('panel').activateView(this.get('view'))
             },
             close() {
-                const parent = this.get('parent')
                 this.get('panel').closeView(this.get('view'))
-                parent.fitTabWidth()
             },
             getIndex() {
                 let node = this.refs.tab
@@ -103,8 +103,7 @@
                 return index
             },
             getInternalWidth() {
-                return Math.max(this.refs.tab.clientWidth - this.get('padding') * 2,
-                                this.refs.icon.scrollWidth + this.refs.text.scrollWidth)
+                return this.refs.icon.scrollWidth + this.refs.text.scrollWidth
             },
             forceReduceWidth(x) {
                 this.set({
@@ -117,6 +116,9 @@
                     padding: 0
                 })
                 this.refs.tab.style.width = `${x}px`
+            },
+            autoWidth() {
+                this.refs.tab.style.width = ''
             }
         }
     }

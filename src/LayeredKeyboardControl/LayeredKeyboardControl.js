@@ -99,7 +99,7 @@ class LayeredKeyboardControl {
                     } else if ((e.metaKey || e.ctrlKey) && !isNaN(e.key)) { // switch tab
                         const focusedPanel = g.focusStack[0]
                         if (focusedPanel)
-                            focusedPanel.tabBar.switchToTab(+e.key)
+                            focusedPanel.tabBar.switchToTab(+e.key + 1) // resizeSensor counts 1
                         return this.stopPropagation(e)
                     } else {
                         textSent = true

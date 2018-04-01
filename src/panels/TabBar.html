@@ -75,20 +75,21 @@
                     const paddingPerSide = ((tabBarWidth - totalTabWidth) / this.tabs.size - 1) / 2
                     if (paddingPerSide < 0) {
                         const tabWidth = tabBarWidth / this.tabs.size
-                        console.warn({
-                            tabWidth, minWidth
-                        })
-                        if (tabWidth < minWidth || (-paddingPerSide * 2 > minWidth * 0.6))
+                        if (tabWidth < minWidth || (-paddingPerSide * 2 > minWidth * 0.6)) {
                             for (const tab of this.tabs)
                                 tab.forceSetWidth(tabWidth)
-                        else
+                        } else {
                             for (const tab of this.tabs)
                                 tab.forceReduceWidth(-paddingPerSide * 2)
-                    } else
-                        for (const tab of this.tabs)
+                        }
+                    } else {
+                        for (const tab of this.tabs) {
+                            tab.autoWidth()
                             tab.set({
                                 padding: paddingPerSide
                             })
+                        }
+                    }
                 })
             }
         }

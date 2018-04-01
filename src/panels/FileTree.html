@@ -42,18 +42,7 @@
         },
         oncreate() {
             g.fileTree = this
-//            setTimeout(() => {
-//                this.parent = this.get('parent')
-//                this.tab = this.parent.tabBar.openTab(this, 'File Tree', 'fas fa-tree l-green')
-//            })
             initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
-//            this.set({
-//                active: true
-//            })
-//            this.children = {}
-//            this.set({
-//                self: this,
-//            })
             this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
 
             const sortAndAddUid = arr => arr.sort().map(i => {
