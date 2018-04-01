@@ -1,0 +1,38 @@
+<div class="container {{active?'':'gone'}}">
+    <div ref:outline id="outline">Under Contruction</div>
+</div>
+
+<style>
+    .container {
+        padding: .4rem;
+        height: calc(100% - var(--indicator-height) - .1rem);
+    }
+
+    #outline {
+        background: gray;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+    import {
+        initializeTabView
+    } from '../lib/Utils'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.outline = this
+            initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')
+        },
+        data() {
+            return {
+                active: false
+            }
+        },
+        methods: {}
+    }
+
+</script>

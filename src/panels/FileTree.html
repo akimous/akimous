@@ -1,4 +1,4 @@
-<div ref:fileTree class="file-tree tab-view">
+<div ref:fileTree class="file-tree tab-view {{active?'':'gone'}}">
     <div class="container" ref:children>
         {{#each dirs as i @uid}}
         <FileTreeNode name={{i.name}} parent={{self}} isDir></FileTreeNode>
@@ -32,7 +32,8 @@
     import WSClient from '../lib/WSClient'
     import FileTreeNode from './FileTreeNode.html'
     import {
-        binarySearch
+        binarySearch,
+        initializeTabView
     } from '../lib/Utils'
 
     export default {
@@ -41,15 +42,18 @@
         },
         oncreate() {
             g.fileTree = this
-            setTimeout(() => {
-                this.parent = this.get('parent')
-                this.tab = this.parent.tabBar.openTab(this, 'File Tree', 'fas fa-tree l-green')
-            })
-
-            this.children = {}
-            this.set({
-                self: this,
-            })
+//            setTimeout(() => {
+//                this.parent = this.get('parent')
+//                this.tab = this.parent.tabBar.openTab(this, 'File Tree', 'fas fa-tree l-green')
+//            })
+            initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
+//            this.set({
+//                active: true
+//            })
+//            this.children = {}
+//            this.set({
+//                self: this,
+//            })
             this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
 
             const sortAndAddUid = arr => arr.sort().map(i => {
@@ -222,7 +226,8 @@
                 root: '.',
                 dirs: [],
                 files: [],
-                self: this
+                // active: true
+                // self: this // set in initializeTabView()
             }
         },
         methods: {

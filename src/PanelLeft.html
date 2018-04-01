@@ -1,6 +1,7 @@
 <div ref:panelLeft id="panel-left" class="{{focused?'indicator-on':''}} {{hidden?'gone':''}} {{autoHide?'auto-hide':''}}">
     <TabBar ref:tabBar id="tab-bar"></TabBar>
     <FileTree ref:fileTree></FileTree>
+    <Outline ref:outline></Outline>
 </div>
 
 
@@ -22,22 +23,25 @@
 
 <script>
     import g from './lib/Globals'
+    import {
+        setAttributeForMultipleComponent
+    } from './lib/Utils'
     import TabBar from './panels/TabBar.html'
     import FileTree from './panels/FileTree.html'
+    import Outline from './panels/Outline.html'
+
     export default {
         components: {
             TabBar,
-            FileTree
+            FileTree,
+            Outline,
         },
         oncreate() {
             g.panelLeft = this
             this.tabBar = this.refs.tabBar
-            this.refs.tabBar.set({
+            setAttributeForMultipleComponent({
                 parent: this
-            })
-            this.refs.fileTree.set({
-                parent: this
-            })
+            }, this.refs.tabBar, this.refs.fileTree, this.refs.outline)
 
             let originalWidth
             this.observe('hidden', hidden => {
@@ -47,6 +51,7 @@
                 } else if (originalWidth)
                     document.documentElement.style.setProperty('--panel-left-width', originalWidth + 'px')
             })
+            setTimeout(() => this.activateView(this.refs.fileTree))
         },
         data() {
             return {
@@ -55,7 +60,22 @@
                 autoHide: false
             }
         },
-        methods: {}
+        methods: {
+            activateView(view) {
+                const oldView = this.get('focus')
+                if (view === oldView) return
+                this.set({
+                    focus: view
+                })
+                if (!view) return
+                oldView && oldView.set({
+                    active: false
+                })
+                view.set({
+                    active: true
+                })
+            },
+        }
     }
 
 </script>

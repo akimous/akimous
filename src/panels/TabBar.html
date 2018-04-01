@@ -35,14 +35,14 @@
             }  
         },
         methods: {
-            openTab(view, name, icon) {
+            openTab(view, name, icon, active = false) {
                 return new Tab({
                     target: this.refs.tabBar,
                     data: {
                         icon,
                         name,
                         view,
-                        active: true,
+                        active,
                         panel: this.get('parent'),
                         parent: this
                     }

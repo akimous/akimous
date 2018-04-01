@@ -27,7 +27,30 @@ function onIdle(callback, timeout = 7000, delay = 1) {
     }, delay)
 }
 
+function initializeTabView(view, title, icon) {
+    view.set({
+        self: view,
+    })
+    view.children = {}
+    setTimeout(() => {
+        view.parent = view.get('parent')
+        view.tab = view.parent.tabBar.openTab(view, title, icon)
+        view.observe('active', active => {
+            view.tab.set({
+                active
+            })
+        })
+    })
+}
+
+function setAttributeForMultipleComponent(obj, ...targets) {
+    for (const i of targets)
+        i.set(obj)
+}
+
 export {
     binarySearch,
     onIdle,
+    initializeTabView,
+    setAttributeForMultipleComponent
 }
