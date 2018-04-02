@@ -39,7 +39,7 @@ body {
     --tab-bar-height: 2rem;
     --indicator-height: .2rem;
     --panel-left-width: calc(8rem + 7vw);
-    --panel-right-width: 4rem;
+    --panel-right-width: calc(8rem + 7vw);
     --prompt-width: 40rem;
     --bubble-width: 30rem;
 

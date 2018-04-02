@@ -15,7 +15,8 @@
 <script>
     import g from '../lib/Globals'
     import {
-        onIdle
+        onIdle,
+        initializeTabView
     } from '../lib/Utils'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
@@ -27,8 +28,9 @@
         oncreate() {
             g.console = this
             onIdle(() => {
-                this.parent = this.get('parent')
-                this.tab = this.parent.tabBar.openTab(this, 'Console', 'fas fa-desktop l-olive')
+//                this.parent = this.get('parent')
+//                this.tab = this.parent.tabBar.openTab(this, 'Console', 'fas fa-desktop l-olive')
+                initializeTabView(this, 'Console', 'fas fa-desktop l-olive')
                 Terminal.applyAddon(fit)
                 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
                 this.terminal = new Terminal({

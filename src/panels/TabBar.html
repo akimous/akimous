@@ -72,7 +72,7 @@
                         minWidth = Math.min(minWidth, tabWidth)
                         totalTabWidth += tabWidth
                     }
-                    const paddingPerSide = ((tabBarWidth - totalTabWidth) / this.tabs.size - 1) / 2
+                    const paddingPerSide = ((tabBarWidth - totalTabWidth) / this.tabs.size) / 2
                     if (paddingPerSide < 0) {
                         const tabWidth = tabBarWidth / this.tabs.size
                         if (tabWidth < minWidth || (-paddingPerSide * 2 > minWidth * 0.6)) {

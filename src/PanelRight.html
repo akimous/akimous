@@ -23,6 +23,10 @@
     import g from './lib/Globals'
     import TabBar from './panels/TabBar.html'
     import Console from './panels/Console.html'
+    import {
+        setAttributeForMultipleComponent,
+        activateView
+    } from './lib/Utils'
 
     export default {
         components: {
@@ -32,12 +36,9 @@
         oncreate() {
             g.panelRight = this
             this.tabBar = this.refs.tabBar
-            this.refs.tabBar.set({
+            setAttributeForMultipleComponent({
                 parent: this
-            })
-            this.refs.console.set({
-                parent: this
-            })
+            }, this.refs.tabBar, this.refs.console)
             
             let originalWidth
             this.observe('hidden', hidden => {
@@ -47,6 +48,10 @@
                 } else if (originalWidth)
                     document.documentElement.style.setProperty('--panel-right-width', originalWidth + 'px')
             })
+            
+            setTimeout(() => {
+                this.activateView(this.refs.console)
+            })
         },
         data() {
             return {
@@ -55,7 +60,11 @@
                 autoHide: false
             }
         },
-        methods: {}
+        methods: {
+            activateView(view) {
+                activateView(this, view)
+            },
+        }
     }
 
 </script>

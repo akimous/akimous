@@ -24,7 +24,8 @@
 <script>
     import g from './lib/Globals'
     import {
-        setAttributeForMultipleComponent
+        setAttributeForMultipleComponent,
+        activateView
     } from './lib/Utils'
     import TabBar from './panels/TabBar.html'
     import FileTree from './panels/FileTree.html'
@@ -64,18 +65,7 @@
         },
         methods: {
             activateView(view) {
-                const oldView = this.get('focus')
-                if (view === oldView) return
-                this.set({
-                    focus: view
-                })
-                if (!view) return
-                oldView && oldView.set({
-                    active: false
-                })
-                view.set({
-                    active: true
-                })
+                activateView(this, view)
             },
         }
     }

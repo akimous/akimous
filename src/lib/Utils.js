@@ -48,9 +48,25 @@ function setAttributeForMultipleComponent(obj, ...targets) {
         i.set(obj)
 }
 
+function activateView(parent, view) {
+    const oldView = parent.get('focus')
+    if (view === oldView) return
+    parent.set({
+        focus: view
+    })
+    if (!view) return
+    oldView && oldView.set({
+        active: false
+    })
+    view.set({
+        active: true
+    })
+}
+
 export {
     binarySearch,
     onIdle,
     initializeTabView,
-    setAttributeForMultipleComponent
+    setAttributeForMultipleComponent,
+    activateView
 }
