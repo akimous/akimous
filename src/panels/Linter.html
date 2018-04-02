@@ -1,0 +1,38 @@
+<div class="container {{active?'':'gone'}}">
+    <div ref:linter id="linter">Under Contruction</div>
+</div>
+
+<style>
+    .container {
+        padding: .4rem;
+        height: calc(100% - var(--indicator-height) - .1rem);
+    }
+
+    #linter {
+        background: gray;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+    import {
+        initializeTabView
+    } from '../lib/Utils'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.linter = this
+            initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
+        },
+        data() {
+            return {
+                active: false
+            }
+        },
+        methods: {}
+    }
+
+</script>

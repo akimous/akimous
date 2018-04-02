@@ -1,0 +1,38 @@
+<div class="container {{active?'':'gone'}}">
+    <div ref:docs id="docs">Under Contruction</div>
+</div>
+
+<style>
+    .container {
+        padding: .4rem;
+        height: calc(100% - var(--indicator-height) - .1rem);
+    }
+
+    #docs {
+        background: gray;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+    import {
+        initializeTabView
+    } from '../lib/Utils'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.docs = this
+            initializeTabView(this, 'Documentation', 'fas fa-book l-red')
+        },
+        data() {
+            return {
+                active: false
+            }
+        },
+        methods: {}
+    }
+
+</script>

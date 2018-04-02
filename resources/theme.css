@@ -132,7 +132,8 @@ body {
 }
 
 .l-blue {
-    color: royalblue;
+    /*    color: royalblue;*/
+    color: var(--light-blue);
 }
 
 .l-brown {
@@ -140,7 +141,8 @@ body {
 }
 
 .l-green {
-    color: forestgreen;
+    /*    color: forestgreen;*/
+    color: var(--green);
 }
 
 .l-slate {
@@ -152,15 +154,18 @@ body {
 }
 
 .l-orange {
-    color: orange;
+    /*    color: orange;*/
+    color: var(--yellow);
 }
 
 .l-purple {
-    color: purple;
+    /*    color: purple;*/
+    color: var(--purple);
 }
 
 .l-red {
-    color: firebrick;
+    /*    color: firebrick;*/
+    color: var(--red);
 }
 
 .l-white {
@@ -168,7 +173,8 @@ body {
 }
 
 .l-yellow {
-    color: yellow;
+    /*    color: yellow;*/
+    color: var(--brighter-yellow);
 }
 
 .l-sandybrown {

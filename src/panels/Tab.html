@@ -1,5 +1,5 @@
 <span ref:tab class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" style="padding:0 {{padding}}px" on:click="activate()" on:dblclick="close()">
-    <!-- the two spans must be at the same line, or the layout will break-->
+    <!-- if the two spans sitting on different lines means there is a space in between-->
     <span ref:icon class="icon {{icon}} {{name?'icon-height-adjustment':''}}"></span><span ref:text class="text">{{name}}</span>
 </span>
 
@@ -22,7 +22,7 @@
         min-height: 1rem;
         display: inline-block;
         background-size: 100% 100% !important;
-        padding: 0 .3rem;
+/*        padding: 0 .3rem;*/
     }
 
     .icon-height-adjustment {
@@ -31,6 +31,7 @@
 
     .text {
         display: inline-block;
+        padding-left: .3rem;
     }
 
     .tab:hover .text {

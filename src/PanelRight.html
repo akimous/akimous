@@ -1,6 +1,10 @@
 <div ref:panelRight id="panel-right" class="{{focused?'indicator-on':''}} {{hidden?'gone':''}} {{autoHide?'auto-hide':''}}">
     <TabBar ref:tabBar></TabBar>
     <Console ref:console></Console>
+    <Macro ref:macro></Macro>
+    <Docs ref:docs></Docs>
+    <Find ref:find></Find>
+    <Linter ref:linter></Linter>
 </div>
 
 
@@ -23,6 +27,10 @@
     import g from './lib/Globals'
     import TabBar from './panels/TabBar.html'
     import Console from './panels/Console.html'
+    import Macro from './panels/Macro.html'
+    import Docs from './panels/Docs.html'
+    import Find from './panels/Find.html'
+    import Linter from './panels/Linter.html'
     import {
         setAttributeForMultipleComponent,
         activateView
@@ -31,14 +39,18 @@
     export default {
         components: {
             TabBar,
-            Console
+            Console,
+            Macro,
+            Docs,
+            Find,
+            Linter
         },
         oncreate() {
             g.panelRight = this
             this.tabBar = this.refs.tabBar
             setAttributeForMultipleComponent({
                 parent: this
-            }, this.refs.tabBar, this.refs.console)
+            }, this.refs.tabBar, this.refs.console, this.refs.macro, this.refs.docs, this.refs.find, this.refs.linter)
             
             let originalWidth
             this.observe('hidden', hidden => {
@@ -64,6 +76,9 @@
             activateView(view) {
                 activateView(this, view)
             },
+            closeView(view) {
+                // not allowed to close view for now
+            }
         }
     }
 

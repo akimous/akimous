@@ -1,0 +1,38 @@
+<div class="container {{active?'':'gone'}}">
+    <div ref:find id="find">Under Contruction</div>
+</div>
+
+<style>
+    .container {
+        padding: .4rem;
+        height: calc(100% - var(--indicator-height) - .1rem);
+    }
+
+    #find {
+        background: gray;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+    import {
+        initializeTabView
+    } from '../lib/Utils'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.find = this
+            initializeTabView(this, 'Find', 'fas fa-search l-blue')
+        },
+        data() {
+            return {
+                active: false
+            }
+        },
+        methods: {}
+    }
+
+</script>

@@ -65,7 +65,7 @@ const fileTypeToIcon = {
     'mp4': 'fas fa-film l-red',
     'o': 'fas fa-object-ungroup l-white',
     'ogg': 'far fa-file-audio l-white',
-    'png': 'far fa-picture l-red',
+    'png': 'far fa-image l-red',
     'pkg': 'fas fa-cube l-purple',
     'ppt': 'far fa-file-powerpoint l-red',
     'pptx': 'far fa-file-powerpoint l-red',

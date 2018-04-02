@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container {{active?'':'gone'}}">
     <div ref:terminal class="tab-view"></div>
 </div>
 
@@ -28,9 +28,7 @@
         oncreate() {
             g.console = this
             onIdle(() => {
-//                this.parent = this.get('parent')
-//                this.tab = this.parent.tabBar.openTab(this, 'Console', 'fas fa-desktop l-olive')
-                initializeTabView(this, 'Console', 'fas fa-desktop l-olive')
+                initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
                 Terminal.applyAddon(fit)
                 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
                 this.terminal = new Terminal({
