@@ -1,4 +1,4 @@
-<div ref:button class="tool-bar-button {{on?'indicator-on':''}}" on:click="onClick()">
+<div ref:button class="tool-bar-button tooltipped tooltipped-sw {{on?'indicator-on':''}}" on:click="onClick()" aria-label="{{title}}">
     <i class="{{iconClass}}"></i>
 </div>
 
@@ -32,6 +32,7 @@
         oncreate() {},
         data() {
             return {
+                // title: ''
                 // iconClass: 'fas fa-fw fa-bell',
                 on: false,
                 // callback: () => {}
