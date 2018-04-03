@@ -3067,6 +3067,16 @@ pretty-ms@^3.1.0:
     parse-ms "^1.0.0"
     plur "^2.1.2"
 
+primer-support@4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/primer-support/-/primer-support-4.5.2.tgz#daab9a48881b6953e8e6ca01865a2f415bf777c5"
+
+primer-tooltips@^1.5.3:
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/primer-tooltips/-/primer-tooltips-1.5.3.tgz#0e666e31136bec634a84e9ecb9d76169d091e249"
+  dependencies:
+    primer-support "4.5.2"
+
 private@^0.1.7:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/private/-/private-0.1.8.tgz#2381edb3689f7a53d653190060fcf822d2f368ff"

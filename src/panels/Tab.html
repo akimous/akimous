@@ -22,7 +22,7 @@
         min-height: 1rem;
         display: inline-block;
         background-size: 100% 100% !important;
-/*        padding: 0 .3rem;*/
+        /*        padding: 0 .3rem;*/
     }
 
     .icon-height-adjustment {
@@ -106,11 +106,11 @@
             getInternalWidth() {
                 return this.refs.icon.scrollWidth + this.refs.text.scrollWidth
             },
-            forceReduceWidth(x) {
+            forceReduceWidthByRatio(x) {
                 this.set({
                     padding: 0
                 })
-                this.refs.tab.style.width = `${this.getInternalWidth() - x}px`
+                this.refs.tab.style.width = `${this.getInternalWidth() * (1-x)}px`
             },
             forceSetWidth(x) {
                 this.set({

@@ -6,7 +6,6 @@ body {
     color: var(--basic-ui-font-color);
     font-family: var(--basic-ui-font-family);
     font-weight: 300;
-    -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .tab-view {
