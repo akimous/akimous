@@ -1,18 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400|Source+Code+Pro');
 /*https://flatuicolors.com*/
 
-body {
-    background-color: var(--main-bg-color);
-    color: var(--basic-ui-font-color);
-    font-family: var(--basic-ui-font-family);
-    font-weight: 300;
-}
-
-.tab-view {
-    height: calc(100% - var(--toolbar-height) - var(--indicator-height));
-    width: 100%;
-}
-
 :root {
     --main-bg-color: rgb(36, 36, 36);
     --panel-color: rgb(63, 63, 63);
@@ -98,6 +86,25 @@ body {
     --gray4: #47637F;
     --gray5: #34495e;
     --gray6: #2c3e50;
+}
+
+
+body {
+    background-color: var(--main-bg-color);
+    color: var(--basic-ui-font-color);
+    font-family: var(--basic-ui-font-family);
+    font-weight: 300;
+}
+
+.tab-view {
+    height: calc(100% - var(--toolbar-height) - var(--indicator-height));
+    width: 100%;
+}
+
+div.tooltipped::after,
+span.tooltipped::after {
+    background: rgba(0, 0, 0, 0.7);
+    font: var(--ui-font-size-small) var(--basic-ui-font-family)
 }
 
 .indicator-on {

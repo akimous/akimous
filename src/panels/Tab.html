@@ -1,4 +1,4 @@
-<span ref:tab class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}}" style="padding:0 {{padding}}px" on:click="activate()" on:dblclick="close()">
+<span ref:tab class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}} {{padding ? '' : 'tooltipped tooltipped-n'}}" style="padding:0 {{padding}}px" on:click="activate()" on:dblclick="close()" aria-label="{{name}}">
     <!-- if the two spans sitting on different lines means there is a space in between-->
     <span ref:icon class="icon {{icon}} {{name?'icon-height-adjustment':''}}"></span><span ref:text class="text">{{name}}</span>
 </span>
@@ -12,8 +12,9 @@
         user-select: none;
         -webkit-user-select: none;
         display: inline-block;
-        overflow: hidden;
+        overflow-x: visible;
         line-height: var(--tab-bar-height);
+        background: var(--panel-color);
     }
 
     .icon {
@@ -22,7 +23,6 @@
         min-height: 1rem;
         display: inline-block;
         background-size: 100% 100% !important;
-        /*        padding: 0 .3rem;*/
     }
 
     .icon-height-adjustment {
@@ -39,7 +39,7 @@
     }
 
     .active {
-        background: linear-gradient(to bottom, transparent 0%, transparent 90%,
+        background: linear-gradient(to bottom, var(--panel-color) 0%, var(--panel-color) 90%,
         var(--ui-highlight-color) 90%, var(--ui-highlight-color) 100%);
     }
 
