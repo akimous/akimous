@@ -1,6 +1,6 @@
-<span ref:tab class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}} {{padding ? '' : 'tooltipped tooltipped-n'}}" style="padding:0 {{padding}}px" on:click="activate()" on:dblclick="close()" aria-label="{{name}}">
+<span ref:tab class="tab {{active ? 'active' : ''}} {{clean ? '' : 'dirty'}} {{(padding && labeled) ? '' : 'tooltipped tooltipped-n'}}" style="padding:0 {{padding}}px" on:click="activate()" on:dblclick="close()" aria-label="{{name}}">
     <!-- if the two spans sitting on different lines means there is a space in between-->
-    <span ref:icon class="icon {{icon}} {{name?'icon-height-adjustment':''}}"></span><span ref:text class="text">{{name}}</span>
+    <span ref:icon class="icon {{icon}} {{name?'icon-height-adjustment':''}}"></span>{{#if labeled}}<span ref:text class="text">{{name}}</span>{{/if}}
 </span>
 
 
@@ -84,6 +84,7 @@
                 parent: null,
                 clean: true,
                 closable: true,
+                labeled: true,
                 padding: 0
             }
         },
@@ -104,7 +105,8 @@
                 return index
             },
             getInternalWidth() {
-                return this.refs.icon.scrollWidth + this.refs.text.scrollWidth
+                const textWidth = this.refs.text ? this.refs.text.scrollWidth : 0
+                return this.refs.icon.scrollWidth + textWidth
             },
             forceReduceWidthByRatio(x) {
                 this.set({

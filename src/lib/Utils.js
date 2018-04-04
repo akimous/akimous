@@ -37,7 +37,8 @@ function initializeTabView(view, title, icon) {
         view.tab = view.parent.tabBar.openTab(view, title, icon)
         view.observe('active', active => {
             view.tab.set({
-                active
+                active,
+                labeled: false
             })
         })
     })

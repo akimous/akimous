@@ -107,6 +107,16 @@ span.tooltipped::after {
     font: var(--ui-font-size-small) var(--basic-ui-font-family)
 }
 
+.tooltipped:hover::before,
+.tooltipped:hover::after,
+.tooltipped:active::before,
+.tooltipped:active::after,
+.tooltipped:focus::before,
+.tooltipped:focus::after {
+    animation: none !important;
+    opacity: 1;
+}
+
 .indicator-on {
     border-bottom: var(--indicator-height) solid var(--ui-highlight-color);
 }
