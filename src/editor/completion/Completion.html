@@ -8,7 +8,7 @@
         height: 14rem;
         width: 24rem;
         z-index: 100;
-        position: relative;
+        position: absolute;
         box-shadow: var(--default-shadow);
         border-radius: var(--default-radius);
         font-family: var(--basic-monospace-font-family);
@@ -170,14 +170,14 @@
                 const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get('selectedCompletionRow')
                 if (!completion) return console.error('no selected completion')
 
-                const type = completion.get('type')
+                const type = completion.get('t')
                 this.set({
                     open: false
                 })
                 if (type === 'instruction') return
 
                 let text = completion.get('c')
-                if (type === 'keyword') text += ' '
+                if (type === 'keyword' || type === 'module') text += ' '
 
                 this.cm.doc.replaceRange(
                     text,
