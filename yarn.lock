@@ -3379,9 +3379,9 @@ rollup-plugin-node-resolve@^3.3.0:
     is-module "^1.0.0"
     resolve "^1.1.6"
 
-rollup-plugin-postcss@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-postcss/-/rollup-plugin-postcss-1.5.0.tgz#b6ded3c4c327b90f5c79b44eeda254e0e15d1b85"
+rollup-plugin-postcss@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-postcss/-/rollup-plugin-postcss-1.5.1.tgz#c041c25189e961b080644e1209799af355618cc3"
   dependencies:
     "@vue/component-compiler-utils" "^1.0.0"
     chalk "^2.0.0"
@@ -3789,9 +3789,9 @@ svelte@^1:
   version "1.55.0"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.55.0.tgz#16494fc8e56ae83da705e1333b2146b5acbba884"
 
-svelte@^1.60.0:
-  version "1.60.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.60.0.tgz#697a7be30f488135ac853ef6227ec2134339160e"
+svelte@^1.60.2:
+  version "1.60.2"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.60.2.tgz#560e9f33219203759af0ce078146c26ee135f8e9"
 
 svgo@^0.7.0:
   version "0.7.2"
