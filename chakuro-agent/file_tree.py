@@ -145,3 +145,20 @@ async def new_file(msg, send, context):
             result.update(cmd='newFile-failed', reason=e.strerror)
     await send(result)
 
+
+@register('newFolder')
+async def new_folder(msg, send, context):
+    path = Path(context.fileRoot, *msg['path'])
+    result = {
+        'path': msg['path'],
+    }
+    if path.exists():
+        result.update(cmd='newFolder-failed', reason='existed')
+    else:
+        try:
+            with path.mkdir(parents=True, exist_ok=True):
+                pass
+            result.update(cmd='newFolder-ok')
+        except OSError as e:
+            result.update(cmd='newFolder-failed', reason=e.strerror)
+    await send(result)

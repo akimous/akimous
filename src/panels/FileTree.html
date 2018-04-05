@@ -108,6 +108,12 @@
             this.ws.addHandler('newfile-failed', data => {
                 g.notificationBar.show('warning', `"Failed to new file: <b>${data.newfileName}</b>". ${data.reason}.`)
             })
+            this.ws.addHandler('newfolder-ok', data => {
+                g.notificationBar.show('success', `"new folder: <b>${data.newfileName}</b>"`)
+            })
+            this.ws.addHandler('newfolder-failed', data => {
+                g.notificationBar.show('warning', `"Failed to new folder: <b>${data.newfileName}</b>". ${data.reason}.`)
+            })
 
             const handlerFactory = (target, eventType) => {
                 return data => {
