@@ -36,8 +36,29 @@
     color: #505050;
 }
 
+.cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-folded {
+    color: var(--gray3);
+    padding-left: .4rem;
+}
+
+.cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open {
+    color: var(--gray6);
+    padding-left: .4rem;
+}
+
+.cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open:hover,
+.cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-folded:hover {
+    color: var(--gray2);
+    cursor: default;
+}
+
+.cm-s-legato .CodeMirror-foldmarker {
+    color: var(--blue);
+}
+
 .cm-s-legato .CodeMirror-linenumber {
     color: #505050;
+    padding-left: .2rem;
 }
 
 .cm-s-legato .CodeMirror-cursor {

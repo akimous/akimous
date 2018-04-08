@@ -22,7 +22,7 @@
     import {
         onIdle,
     } from '../lib/Utils'
-    
+
     /* eslint-disable */
     import CodeMirror from 'codemirror'
     import python from '../lib/python'
@@ -64,6 +64,9 @@
     import closebrackets from 'codemirror/addon/edit/closebrackets'
     import comment from 'codemirror/addon/comment/comment'
     import activeline from 'codemirror/addon/selection/active-line'
+    import foldcode from 'codemirror/addon/fold/foldcode'
+    import foldgutter from 'codemirror/addon/fold/foldgutter'
+    import indentFold from 'codemirror/addon/fold/indent-fold'
     import matchhighlighter from './match-highlighter'
     /* eslint-enable */
 
@@ -146,7 +149,10 @@
                         trim: false
                     },
                     styleActiveLine: true, // selection/active-line
-
+                    
+                    foldGutter: true, // fold/foldgutter
+                    gutters: ['CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
+                    
                     // keymap
                     extraKeys: {
                         'Tab': 'indentMore',
