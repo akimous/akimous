@@ -15,12 +15,13 @@ const editorCommandKeymap = {
     'KeyD': 'scrollDown',
     'KeyC': 'focusAtCenter',
     
-    'KeyQ': 'moveLineDown',
-    'KeyA': 'moveLineUp',
+    'KeyW': 'moveLineUp',
+    'KeyS': 'moveLineDown',
     
     'KeyR': 'selectLine',
     'KeyT': 'selectScope',
-    'KeyG': 'selectSmart',
+    'KeyF': 'selectSmart',
+    'KeyG': 'selectBetweenBrackets',
     
     'Backspace': 'delGroupBefore',
     'Delete': 'delGroupAfter',

@@ -258,6 +258,45 @@ function registerCMCommands(CodeMirror) {
         return false
     }
 
+    commands.selectBetweenBrackets = cm => {
+        const extended = []
+
+        for (const range of cm.listSelections()) {
+            const from = range.from()
+            const to = range.to()
+            // prevent unexpected result during cursor move
+            from.sticky = null
+            to.sticky = null
+
+            // priority 3: select scope
+            let left = CodeMirror.scanForRegex(cm, from, -1, /[([{]/)
+            let right = CodeMirror.scanForRegex(cm, to, 1, /[)\]}]/)
+            let compareLeft = CodeMirror.cmpPos(from, left)
+            let compareRight = CodeMirror.cmpPos(to, right)
+            let shouldExpandAgain = false
+
+            if (!(left && right)) continue
+            if (compareLeft === 1 && compareRight <= 1 && cm.getTokenAt(from).string === ' ') {
+                from.ch -= 1
+                left = CodeMirror.scanForRegex(cm, from, -1, /[([{]/)
+                shouldExpandAgain = true
+            }
+            if (shouldExpandAgain || (compareLeft === 0 && compareRight === 0)) {
+                // if all contents in brackets are selected, expand to include brackets themselves
+                if (/[([{]/.test(left.token.string) && /[)\]}]/.test(right.token.string)) {
+                    left.ch -= 1
+                    right.ch += 1
+                }
+            }
+            extended.push({
+                anchor: left,
+                head: right
+            })
+        }
+        if (extended.length)
+            cm.setSelections(extended)
+    }
+
     commands.selectSmart = cm => {
         const extended = []
 
@@ -316,7 +355,6 @@ function registerCMCommands(CodeMirror) {
                         left = CodeMirror.scanForRegex(cm, from, -1, /[([{]/)
                         shouldContinue = false
                     }
-                    console.log(right)
                     if (right.token.string === ',') {
                         to.ch += 2
                         right = CodeMirror.scanForRegex(cm, to, 1, /[)\]}]/)
