@@ -43,49 +43,6 @@ function registerCMCommands(CodeMirror) {
         })
     }
 
-    // from keymap/sublime.js, not yet arranged
-    commands.joinLines = function (cm) {
-        /* eslint-disable semi */
-        /* eslint-disable quotes */
-        var ranges = cm.listSelections(),
-            joined = [];
-        for (var i = 0; i < ranges.length; i++) {
-            var range = ranges[i],
-                from = range.from();
-            var start = from.line,
-                end = range.to().line;
-            while (i < ranges.length - 1 && ranges[i + 1].from().line == end)
-                end = ranges[++i].to().line;
-            joined.push({
-                start: start,
-                end: end,
-                anchor: !range.empty() && from
-            });
-        }
-        cm.operation(function () {
-            var offset = 0,
-                ranges = [];
-            for (var i = 0; i < joined.length; i++) {
-                var obj = joined[i];
-                var anchor = obj.anchor && Pos(obj.anchor.line - offset, obj.anchor.ch),
-                    head;
-                for (var line = obj.start; line <= obj.end; line++) {
-                    var actual = line - offset;
-                    if (line == obj.end) head = Pos(actual, cm.getLine(actual).length + 1);
-                    if (actual < cm.lastLine()) {
-                        cm.replaceRange(" ", Pos(actual), Pos(actual + 1, /^\s*/.exec(cm.getLine(actual + 1))[0].length));
-                        ++offset;
-                    }
-                }
-                ranges.push({
-                    anchor: anchor || head,
-                    head: head
-                });
-            }
-            cm.setSelections(ranges, 0);
-        });
-    };
-
     commands.focusAtCenter = cm => {
         const scrollInfo = cm.getScrollInfo()
         const x = scrollInfo.clientWidth / 2

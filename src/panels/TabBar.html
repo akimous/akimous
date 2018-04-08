@@ -39,7 +39,7 @@
             }
         },
         methods: {
-            openTab(view, name, icon, isEditor = false) {
+            openTab(view, name, icon) {
                 const tab = new Tab({
                     target: this.refs.tabBar,
                     data: {
@@ -70,7 +70,6 @@
                     const equalTabWidth = tabBarWidth / tabs.length
 
                     const originalWidths = tabs.map(tab => tab.getInternalWidth())
-                    const minWidth = Math.min(...originalWidths)
                     const totalTabWidth = originalWidths.reduce((a, b) => a + b)
                     let largerThanEqualTabWidth = 0
                     const spareTabSpace = originalWidths.reduce((a, b) => {

@@ -67,6 +67,8 @@
     import foldcode from 'codemirror/addon/fold/foldcode'
     import foldgutter from 'codemirror/addon/fold/foldgutter'
     import indentFold from 'codemirror/addon/fold/indent-fold'
+    import sublime from 'codemirror/keymap/sublime'
+    
     import matchhighlighter from './match-highlighter'
     /* eslint-enable */
 
@@ -79,7 +81,7 @@
         oncreate() {
             this.parent = this.get('parent')
             const fileName = this.get('fileName')
-            this.tab = this.parent.tabBar.openTab(this, this.get('fileName'), getIconByFileName(fileName), true)
+            this.tab = this.parent.tabBar.openTab(this, this.get('fileName'), getIconByFileName(fileName))
 
             // observers
             this.observe('filePath', (newPath, oldPath) => {
@@ -154,6 +156,7 @@
                     gutters: ['CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
                     
                     // keymap
+                    // TODO: add sublime shortcuts
                     extraKeys: {
                         'Tab': 'indentMore',
                         'Shift-Tab': 'indentLess',
@@ -161,6 +164,7 @@
                         'Cmd-Backspace': 'deleteLineAndGoLineEnd',
                         'Cmd-D': 'duplicateLine',
                         'Cmd-J': 'joinLines',
+                        'Cmd-B': 'selectNextOccurrence',
                     }
                 })
                 this.mtime = data.mtime
