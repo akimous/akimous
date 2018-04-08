@@ -319,9 +319,11 @@
                                 path
                             })
                         }else if (this.get('icon').includes('folder')){ // 'fas fa-folder l-ui-text'
-                            g.fileTree.ws.send({
-                                cmd: 'newFolder',
-                                path
+                            setTimeout(() => {
+                                g.fileTree.ws.send({
+                                    cmd: 'newFolder',
+                                    path
+                                })
                             })
                         }
                     } else g.fileTree.ws.send({
