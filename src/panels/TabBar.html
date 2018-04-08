@@ -65,31 +65,33 @@
                 cancelAnimationFrame(this.tabFittingTask)
                 this.tabFittingTask = requestAnimationFrame(() => {
                     const tabBarWidth = this.refs.tabBar.getBoundingClientRect().width
-                    let totalTabWidth = 0
-                    let minWidth = 99999
-                    for (const tab of this.tabs) {
-                        const tabWidth = tab.getInternalWidth()
-                        minWidth = Math.min(minWidth, tabWidth)
-                        totalTabWidth += tabWidth
-                    }
+                    const tabs = [...this.tabs]
+                    if (!tabs.length) return
+                    const equalTabWidth = tabBarWidth / tabs.length
+
+                    const originalWidths = tabs.map(tab => tab.getInternalWidth())
+                    const minWidth = Math.min(...originalWidths)
+                    const totalTabWidth = originalWidths.reduce((a, b) => a + b)
+                    let largerThanEqualTabWidth = 0
+                    const spareTabSpace = originalWidths.reduce((a, b) => {
+                        if (b < equalTabWidth)
+                            return equalTabWidth - b + a
+                        largerThanEqualTabWidth += 1
+                        return a
+                    }, 0)
+
+                    const paddingPerSide = Math.max((tabBarWidth - totalTabWidth) / this.tabs.size / 2, 0)
                     
-                    const paddingPerSide = ((tabBarWidth - totalTabWidth) / this.tabs.size) / 2
-                    if (paddingPerSide >= 0) {
-                        for (const tab of this.tabs) {
+                    const newTabWidth = equalTabWidth + (spareTabSpace / largerThanEqualTabWidth)
+                    for (let i = 0; i < tabs.length; i++) {
+                        const tab = tabs[i]
+                        if ((paddingPerSide > 0) || (originalWidths[i] < equalTabWidth)) {
                             tab.autoWidth()
                             tab.set({
                                 padding: paddingPerSide
                             })
-                        }
-                    } else {
-                        const equalTabWidth = tabBarWidth / this.tabs.size
-                        if (equalTabWidth < minWidth) {
-                            for (const tab of this.tabs)
-                                tab.forceSetWidth(equalTabWidth)
                         } else {
-                            const widthReductionRatio = (totalTabWidth - tabBarWidth) / totalTabWidth
-                            for (const tab of this.tabs)
-                                tab.forceReduceWidthByRatio(widthReductionRatio)
+                            tab.forceSetWidth(newTabWidth)
                         }
                     }
                 })

@@ -108,12 +108,6 @@
                 const textWidth = this.refs.text ? this.refs.text.scrollWidth : 0
                 return this.refs.icon.scrollWidth + textWidth
             },
-            forceReduceWidthByRatio(x) {
-                this.set({
-                    padding: 0
-                })
-                this.refs.tab.style.width = `${this.getInternalWidth() * (1-x)}px`
-            },
             forceSetWidth(x) {
                 this.set({
                     padding: 0
