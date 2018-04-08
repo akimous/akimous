@@ -11,6 +11,9 @@ const editorCommandKeymap = {
     'KeyY': 'goDocStart',
     'KeyP': 'goDocEnd',
     
+    'BracketLeft': 'goToPreviousBracket',
+    'BracketRight': 'goToNextBracket',
+    
     'KeyE': 'scrollUp',
     'KeyD': 'scrollDown',
     'KeyC': 'focusAtCenter',

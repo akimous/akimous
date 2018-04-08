@@ -379,6 +379,38 @@ function registerCMCommands(CodeMirror) {
         }
         cm.setSelections(extended)
     }
+
+    commands.goToPreviousBracket = cm => {
+        cm.extendSelectionsBy(range => {
+            const cursor = range.from()
+            let target = cm.findMatchingBracket(cursor)
+            let head = target && (target.forward ? target.from : target.to)
+            let tail = target && (target.forward ? target.to : target.from)
+            if (!head || CodeMirror.cmpPos(cursor, head) <= 1) {
+                cursor.ch -= 1
+                head = CodeMirror.scanForRegex(cm, cursor, -1, /[([{]/)
+            } else if (CodeMirror.cmpPos(cursor, tail) === 0) {
+                head.ch += 1
+            }
+            return head || range.from()
+        })
+    }
+
+    commands.goToNextBracket = cm => {
+        cm.extendSelectionsBy(range => {
+            const cursor = range.to()
+            let target = cm.findMatchingBracket(cursor)
+            let head = target && (target.forward ? target.from : target.to)
+            let tail = target && (target.forward ? target.to : target.from)
+            if (!tail || CodeMirror.cmpPos(cursor, tail) >= 0) {
+                cursor.ch += 1
+                tail = CodeMirror.scanForRegex(cm, cursor, 1, /[)\]}]/)
+            } else if (CodeMirror.cmpPos(cursor, head) === 0) {
+                tail.ch += 1
+            }
+            return tail || range.to()
+        })
+    }
 }
 
 export default registerCMCommands
