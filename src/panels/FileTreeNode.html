@@ -305,25 +305,22 @@
             },
             commitRename() {
                 if (this.refs.input.value !== this.get('name') && this.refs.input.value.length > 0) {
-                    if (this.get('placeholderMode')) { //&& newNode == 'file'
-                        console.log("****", this.get('icon'))
+                    if (this.get('placeholderMode')) {
                         this.set({
                             name: this.refs.input.value
                         })
                         let path = this.getPath()
                         if (!this.get('parent').get('isDir'))
                             path.splice(-2, 1) // remove if its parent is a file, not the real parent
-                        if (this.get('icon').includes('file')){ // 'far fa-file l-ui-text'
+                        if (this.get('parent').get('newNode') == 'file'){ // file or dir 
                             g.fileTree.ws.send({
                                 cmd: 'newFile',
                                 path
                             })
-                        }else if (this.get('icon').includes('folder')){ // 'fas fa-folder l-ui-text'
-                            setTimeout(() => {
-                                g.fileTree.ws.send({
-                                    cmd: 'newFolder',
-                                    path
-                                })
+                        }else if (this.get('parent').get('newNode') == 'dir'){
+                            g.fileTree.ws.send({
+                                cmd: 'newFolder',
+                                path
                             })
                         }
                     } else g.fileTree.ws.send({
