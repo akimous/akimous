@@ -1,15 +1,45 @@
 <div class="container {{active?'':'gone'}}">
-    <div ref:macro id="macro">Under Contruction</div>
+    <div ref:macro id="macro">
+        <table id="clipboard">
+            {{#each clipboard as text, i}}
+            <tr>
+                <td class="clipboard-index l-orange">{{(i+1)%10}}</td>
+                <td>{{text}}</td>
+            </tr>
+            {{/each}}
+        </table>
+    </div>
 </div>
 
 <style>
     .container {
-        padding: .4rem;
         height: calc(100% - var(--indicator-height) - .1rem);
     }
 
-    #macro {
-        background: gray;
+    #macro {}
+
+    table,
+    th,
+    td {
+        border: none;
+        padding: 0;
+        margin: 0;
+        border-spacing: 0;
+        padding: .2rem 0 .2rem .2rem;
+    }
+
+    td {
+        vertical-align: top;
+        cursor: default;
+        border-bottom: 1px solid var(--panel-delimiter-color);
+    }
+    
+    tr:hover {
+        background: var(--main-bg-color);
+    }
+
+    .clipboard-index {
+        width: 1rem;
     }
 
 </style>
@@ -24,15 +54,28 @@
     export default {
         components: {},
         oncreate() {
-            g.outline = this
+            g.macro = this
             initializeTabView(this, 'Macro', 'fas fa-magic l-orange')
         },
         data() {
             return {
-                active: false
+                active: false,
+                clipboard: [
+                    'import numpy as np',
+                    'def newTest(*b, a=2, d: int = 3, **c):\n    pass'
+                ]
             }
         },
-        methods: {}
+        methods: {
+            addClipboardItem(text) {
+                const clipboard = this.get('clipboard')
+                if (clipboard.length === 10) clipboard.pop()
+                clipboard.unshift(text)
+                this.set({
+                    clipboard
+                })
+            },
+        }
     }
 
 </script>

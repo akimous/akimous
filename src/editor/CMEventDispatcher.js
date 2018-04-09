@@ -25,6 +25,12 @@ class CMEventDispatcher {
             return tokens
         }
 
+        cm.on('copy', (cm, e) => {
+            let selection = cm.getSelection()
+            if (!selection) selection = cm.getLine(cm.getCursor().line)
+            g.macro.addClipboardItem(selection)
+        })
+        
         cm.on('scroll', () => {
             completion.set({
                 open: false
