@@ -133,9 +133,10 @@ async def new_file(msg, send, context):
     path = Path(context.fileRoot, *msg['path'])
     result = {
         'path': msg['path'],
+        'fileName': msg['path'][-1]
     }
     if path.exists():
-        result.update(cmd='newFile-failed', reason='existed')
+        result.update(cmd='newFile-failed', reason='File already exists')
     else:
         try:
             with path.open('w'):
@@ -151,9 +152,10 @@ async def new_folder(msg, send, context):
     path = Path(context.fileRoot, *msg['path'])
     result = {
         'path': msg['path'],
+        'folderName': msg['path'][-1]
     }
     if path.exists():
-        result.update(cmd='newFolder-failed', reason='existed')
+        result.update(cmd='newFolder-failed', reason='Folder already exists')
     else:
         try:
             path.mkdir(parents=True, exist_ok=False)

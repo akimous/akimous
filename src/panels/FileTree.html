@@ -95,17 +95,17 @@
                 g.notificationBar.show('warning', `Failed to rename "<b>${data.oldName}</b>". ${data.reason}.`)
             })
 
-            this.ws.addHandler('newfile-ok', data => {
-                g.notificationBar.show('success', `"new file: <b>${data.newfileName}</b>"`)
+            this.ws.addHandler('newFile-ok', data => {
+                g.notificationBar.show('success', `New file "<b>${data.fileName}</b>" created.`)
             })
-            this.ws.addHandler('newfile-failed', data => {
-                g.notificationBar.show('warning', `"Failed to new file: <b>${data.newfileName}</b>". ${data.reason}.`)
+            this.ws.addHandler('newFile-failed', data => {
+                g.notificationBar.show('warning', `Failed to create file "<b>${data.fileName}</b>". ${data.reason}.`)
             })
-            this.ws.addHandler('newfolder-ok', data => {
-                g.notificationBar.show('success', `"new folder: <b>${data.newfileName}</b>"`)
+            this.ws.addHandler('newFolder-ok', data => {
+                g.notificationBar.show('success', `New folder "<b>${data.folderName}</b>" created.`)
             })
-            this.ws.addHandler('newfolder-failed', data => {
-                g.notificationBar.show('warning', `"Failed to new folder: <b>${data.newfileName}</b>". ${data.reason}.`)
+            this.ws.addHandler('newFolder-failed', data => {
+                g.notificationBar.show('warning', `Failed to create folder "<b>${data.folderName}</b>". ${data.reason}.`)
             })
 
             const handlerFactory = (target, eventType) => {
