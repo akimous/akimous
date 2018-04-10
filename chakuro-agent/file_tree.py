@@ -156,8 +156,7 @@ async def new_folder(msg, send, context):
         result.update(cmd='newFolder-failed', reason='existed')
     else:
         try:
-            with path.mkdir(parents=True, exist_ok=True):
-                pass
+            path.mkdir(parents=True, exist_ok=False)
             result.update(cmd='newFolder-ok')
         except OSError as e:
             result.update(cmd='newFolder-failed', reason=e.strerror)
