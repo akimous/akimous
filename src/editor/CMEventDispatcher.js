@@ -25,7 +25,7 @@ class CMEventDispatcher {
             return tokens
         }
 
-        cm.on('copy', (cm, e) => {
+        cm.on('copy', cm => {
             let selection = cm.getSelection()
             if (!selection) selection = cm.getLine(cm.getCursor().line)
             g.macro.addClipboardItem(selection)

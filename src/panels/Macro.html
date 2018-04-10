@@ -2,7 +2,7 @@
     <div ref:macro id="macro">
         <table id="clipboard">
             {{#each clipboard as text, i}}
-            <tr>
+            <tr on:click="paste(text)">
                 <td class="clipboard-index l-orange">{{(i+1)%10}}</td>
                 <td>{{text}}</td>
             </tr>
@@ -17,6 +17,10 @@
     }
 
     #macro {}
+
+    #clipboard {
+        width: 100%;
+    }
 
     table,
     th,
@@ -33,7 +37,7 @@
         cursor: default;
         border-bottom: 1px solid var(--panel-delimiter-color);
     }
-    
+
     tr:hover {
         background: var(--main-bg-color);
     }
@@ -61,20 +65,32 @@
             return {
                 active: false,
                 clipboard: [
-                    'import numpy as np',
-                    'def newTest(*b, a=2, d: int = 3, **c):\n    pass'
+                    'import numpy',
+                    'def'
                 ]
             }
         },
         methods: {
             addClipboardItem(text) {
                 const clipboard = this.get('clipboard')
-                if (clipboard.length === 10) clipboard.pop()
+                if (clipboard.length >= 10) clipboard.pop()
                 clipboard.unshift(text)
                 this.set({
                     clipboard
                 })
             },
+            paste(text) {
+                const editor = g.activeEditor
+                if (!editor) return
+                editor.cm.replaceSelection(text)
+            },
+            dispatchMacro(key) {
+                let number = +key
+                if (Number.isInteger(number)) {
+                    if (number === 0) number = 10
+                    this.paste(this.get('clipboard')[number - 1])
+                }
+            }
         }
     }
 

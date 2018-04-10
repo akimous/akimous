@@ -18,6 +18,8 @@
     .number {
         position: absolute;
         line-height: var(--toolbar-height);
+        width: 30px;
+        text-align: center;
     }
 
 </style>
@@ -45,7 +47,7 @@
                 this.set({
                     numberOffsets: children.map(tab => {
                         const rect = tab.getBoundingClientRect()
-                        return (rect.left + rect.right) / 2
+                        return (rect.left + rect.right) / 2 - 15
                     })
                 })
             })

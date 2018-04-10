@@ -67,10 +67,23 @@ class LayeredKeyboardControl {
         event.stopPropagation()
         return false
     }
+    set macroMode(x) {
+        this._macroMode = x
+        if (x) {
+            this._previousPanelRightView = g.panelRight.get('focus')
+            g.panelRight.activateView(g.panelRight.refs.macro)
+        } else {
+            this._previousPanelRightView && g.panelRight.activateView(this._previousPanelRightView)
+        }
+    }
+    get macroMode() {
+        return this._macroMode
+    }
     constructor() {
         this.commandSent = false
         let spacePressed = false
         let textSent = false
+        this._macroMode = false
         let composeTimeStamp = 0
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
 
@@ -79,19 +92,33 @@ class LayeredKeyboardControl {
             switch (e.key) {
                 case 'Shift':
                     break
-                case 'Meta':
-                case 'Control':
-                    g.tabNumber.set({
-                        active: true
-                    })
-                    return true // let it propagate
                 case ' ':
                     if (g.focus.get('allowWhiteSpace')) return true
                     spacePressed = true
                     this.commandSent = false
                     break
+                case 'Meta':
+                case 'Control':
+                    if (e.altKey)
+                        this.macroMode = true
+                    else
+                        g.tabNumber.set({
+                            active: true
+                        })
+                    return true // let it propagate
+                case 'Alt':
+                    if (e.ctrlKey || e.metaKey) {
+                        this.macroMode = true
+                        g.tabNumber.set({
+                            active: false
+                        })
+                    }
+                    return true // let it propagate
                 default:
-                    if (spacePressed && !textSent && this.commandSent &&
+                    if (this.macroMode) {
+                        g.macro.dispatchMacro(e.key)
+                        return this.stopPropagation(e)
+                    } else if (spacePressed && !textSent && this.commandSent &&
                         (e.key.length === 1 || keysRequireHandling.has(e.key))) {
                         this.sendCommand(e)
                     } else if (spacePressed) {
@@ -124,13 +151,6 @@ class LayeredKeyboardControl {
             switch (e.key) {
                 case 'Shift':
                     break
-                case 'Meta':
-                case 'Control':
-                    if (!e.metaKey && !e.ctrlKey)
-                        g.tabNumber.set({
-                            active: false
-                        })
-                    return true // let it propagate
                 case ' ':
                     spacePressed = false
                     if (g.focus.get('allowWhiteSpace')) return true
@@ -139,6 +159,17 @@ class LayeredKeyboardControl {
                         g.activeEditor.insertText(' ')
                     }
                     return this.stopPropagation(e)
+                case 'Meta':
+                case 'Control':
+                    if (!e.metaKey && !e.ctrlKey)
+                        g.tabNumber.set({
+                            active: false
+                        })
+                    this.macroMode = false
+                    return true // let it propagate
+                case 'Alt':
+                    this.macroMode = false
+                    return true // let it propagate
                 default:
                     if (spacePressed && !textSent && !this.commandSent &&
                         (e.key.length === 1 || keysRequireHandling.has(e.key))) {
