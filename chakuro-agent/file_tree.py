@@ -14,8 +14,10 @@ class ChangeHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         log.info('on create %s', repr(event))
+        # do not rely on event.is_directory, it might be wrong on Windows
+        is_directory = Path(event.src_path).is_dir()
         self.context.main_thread_send({
-            'cmd': 'event-DirCreated' if event.is_directory else 'event-FileCreated',
+            'cmd': 'event-DirCreated' if is_directory else 'event-FileCreated',
             'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
         })
 
@@ -35,8 +37,10 @@ class ChangeHandler(FileSystemEventHandler):
     def on_moved(self, event):
         log.info('on moved %s', repr(event))
         print(event.event_type, event.src_path, event.dest_path)
+        # do not rely on event.is_directory, it might be wrong on Windows
+        is_directory = Path(event.dest_path).is_dir()
         self.context.main_thread_send({
-            'cmd': 'event-DirRenamed' if event.is_directory else 'event-FileRenamed',
+            'cmd': 'event-DirRenamed' if is_directory else 'event-FileRenamed',
             'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
             'newName': Path(event.dest_path).name
         })
