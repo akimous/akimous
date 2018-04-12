@@ -1408,9 +1408,9 @@ escape-string-regexp@^1.0.2, escape-string-regexp@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
 
-eslint-plugin-html@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-html/-/eslint-plugin-html-4.0.2.tgz#0e56149e42c2ffc3f0df6261a8bb96b1a9f2280d"
+eslint-plugin-html@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-html/-/eslint-plugin-html-4.0.3.tgz#97d52dcf9e22724505d02719fbd02754013c8a17"
   dependencies:
     htmlparser2 "^3.8.2"
 
@@ -3911,9 +3911,9 @@ svelte@^1:
   version "1.55.0"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.55.0.tgz#16494fc8e56ae83da705e1333b2146b5acbba884"
 
-svelte@^1.60.2:
-  version "1.60.2"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.60.2.tgz#560e9f33219203759af0ce078146c26ee135f8e9"
+svelte@^1.60.3:
+  version "1.60.3"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.60.3.tgz#657865c635e6a3b02242e10f812bd1e1920fef62"
 
 svgo@^0.7.0:
   version "0.7.2"
@@ -4185,9 +4185,9 @@ xmlhttprequest-ssl@~1.5.4:
   version "1.5.5"
   resolved "https://registry.yarnpkg.com/xmlhttprequest-ssl/-/xmlhttprequest-ssl-1.5.5.tgz#c2876b06168aadc40e57d97e81191ac8f4398b3e"
 
-xterm@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/xterm/-/xterm-3.2.0.tgz#da50f54a83d81463c0a2c9f2e0a5d14d3867df02"
+xterm@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/xterm/-/xterm-3.3.0.tgz#b09a19fc2cd5decd21112e5c9dab0b61991f6cf3"
 
 y18n@^3.2.0, y18n@^3.2.1:
   version "3.2.1"

@@ -15,7 +15,7 @@
         "codemirror": "^5.36.0",
         "css-element-queries": "^1.0.2",
         "eslint": "^4.19.1",
-        "eslint-plugin-html": "^4.0.2",
+        "eslint-plugin-html": "^4.0.3",
         "http-server": "^0.11.1",
         "keyboardjs": "^2.4.1",
         "normalize.css": "^8.0.0",
@@ -30,9 +30,9 @@
         "rollup-plugin-strip": "^1.1.1",
         "rollup-plugin-svelte": "^4.1.0",
         "sortablejs": "^1.7.0",
-        "svelte": "^1.60.2",
+        "svelte": "^1.60.3",
         "svelte-cli": "^2.0.0",
-        "xterm": "^3.2.0"
+        "xterm": "^3.3.0"
     },
     "dependencies": {},
     "scripts": {
