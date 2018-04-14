@@ -25,9 +25,11 @@ class CMEventDispatcher {
             return tokens
         }
 
+        // cut event is handled in LayeredKeyboardControl via cmd-X hotkey,
+        // because we cannot get the content just cut on the cut event.
         cm.on('copy', cm => {
             let selection = cm.getSelection()
-            if (!selection) selection = cm.getLine(cm.getCursor().line)
+            if (!selection) selection = cm.getLine(cm.getCursor().line) + '\n'
             g.macro.addClipboardItem(selection)
         })
         

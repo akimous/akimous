@@ -1,10 +1,16 @@
 <div class="container {{active?'':'gone'}}">
     <div ref:macro id="macro">
+        <div class="title">Clipboard</div>
+        {{#if clipboard.length === 0}}
+        <div class="placeholder">Empty <br>(copy or cut something to fill in the clipboard)</div>
+        {{/if}}
         <table id="clipboard">
             {{#each clipboard as text, i}}
             <tr on:click="paste(text)">
-                <td class="clipboard-index l-orange">{{(i+1)%10}}</td>
-                <td>{{text}}</td>
+                <td class="clipboard-index">{{(i+1)%10}}</td>
+                <td>
+                    <div class="clipboard-text">{{text}}</div>
+                </td>
             </tr>
             {{/each}}
         </table>
@@ -18,18 +24,39 @@
 
     #macro {}
 
+    .title {
+        padding: .3rem;
+        color: var(--gray3);
+        font-size: var(--ui-font-size-large);
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: default;
+    }
+
+    .placeholder {
+        padding: .3rem;
+        background: var(--main-bg-color);
+        color: var(--gray2);
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: default;
+    }
+
     #clipboard {
         width: 100%;
+        background: var(--main-bg-color);
+        font-family: var(--basic-monospace-font-family);
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: default;
     }
 
     table,
     th,
     td {
-        border: none;
         padding: 0;
         margin: 0;
         border-spacing: 0;
-        padding: .2rem 0 .2rem .2rem;
     }
 
     td {
@@ -39,11 +66,28 @@
     }
 
     tr:hover {
-        background: var(--main-bg-color);
+        color: white;
+        background: var(--gray4);
     }
 
     .clipboard-index {
         width: 1rem;
+        padding: .3rem;
+        text-align: center;
+        color: var(--ui-font-color);
+        background: var(--gray5);
+    }
+
+    tr:hover>.clipboard-index {
+        color: white;
+        background: var(--ui-highlight-color);
+    }
+
+    .clipboard-text {
+        padding: .3rem;
+        max-height: 3.8rem;
+        white-space: pre;
+        overflow: hidden;
     }
 
 </style>
@@ -64,10 +108,7 @@
         data() {
             return {
                 active: false,
-                clipboard: [
-                    'import numpy',
-                    'def'
-                ]
+                clipboard: []
             }
         },
         methods: {
@@ -83,6 +124,7 @@
                 const editor = g.activeEditor
                 if (!editor) return
                 editor.cm.replaceSelection(text)
+                editor.cm.focus()
             },
             dispatchMacro(key) {
                 let number = +key

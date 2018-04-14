@@ -138,6 +138,15 @@ class LayeredKeyboardControl {
                             if (shouldPropagate) continue
                             return this.stopPropagation(e)
                         }
+                        // Handle "cut" event
+                        // Cut event is handled via cmd-X hotkey,
+                        // because we cannot get the content just cut on the cut event.
+                        if (e.key === 'x' && (e.metaKey || e.ctrlKey) && g.activeEditor) {
+                            const cm = g.activeEditor.cm
+                            let selection = cm.getSelection()
+                            if (!selection) selection = cm.getLine(cm.getCursor().line) + '\n'
+                            g.macro.addClipboardItem(selection)
+                        }
                         return true // if not handled, just propagate
                     }
             }
