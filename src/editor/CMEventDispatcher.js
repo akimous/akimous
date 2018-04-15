@@ -32,7 +32,7 @@ class CMEventDispatcher {
             if (!selection) selection = cm.getLine(cm.getCursor().line) + '\n'
             g.macro.addClipboardItem(selection)
         })
-        
+
         cm.on('scroll', () => {
             completion.set({
                 open: false
@@ -44,6 +44,18 @@ class CMEventDispatcher {
                 cmd: 'mtime'
             })
             g.setFocus([g.panelMiddle, editor])
+        })
+
+        cm.on('gutterClick', (cm, line , gutter, event) => {
+            if (gutter !== 'CodeMirror-linenumbers') return
+            const lineLength = cm.getLine(line).length
+            cm.setSelection({
+                line,
+                ch: 0
+            }, {
+                line,
+                ch: lineLength
+            })
         })
 
         cm.on('cursorActivity', () => {
@@ -157,8 +169,7 @@ class CMEventDispatcher {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }
                     //                        break
-                }
-                else if (c.origin === '+delete') {
+                } else if (c.origin === '+delete') {
 
                     if (c.from.line !== c.to.line) {
                         shouldSyncAfterChange = true
