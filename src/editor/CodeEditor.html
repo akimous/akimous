@@ -68,7 +68,7 @@
     import foldgutter from 'codemirror/addon/fold/foldgutter'
     import indentFold from 'codemirror/addon/fold/indent-fold'
     import sublime from 'codemirror/keymap/sublime'
-    
+
     import matchhighlighter from './match-highlighter'
     /* eslint-enable */
 
@@ -151,10 +151,10 @@
                         trim: false
                     },
                     styleActiveLine: true, // selection/active-line
-                    
+
                     foldGutter: true, // fold/foldgutter
                     gutters: ['CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
-                    
+
                     // keymap
                     // TODO: add sublime shortcuts
                     extraKeys: {
@@ -237,6 +237,32 @@
                             }
                         }]
                     )
+                })
+
+                this.ws.addHandler('findUsages-ok', data => {
+                    const selections = []
+                    for (const pos of data.pos) {
+                        const [line, ch] = pos
+                        const startPos = {
+                            line,
+                            ch
+                        }
+                        const token = this.cm.getTokenAt(startPos)
+                        startPos.ch -= 1
+                        const endPos = {
+                            line,
+                            ch: token.end
+                        }
+                        if (token.string !== data.token) {
+                            console.warn('variable name not match', token.string, data.token)
+                            continue
+                        }
+                        selections.push({
+                            anchor: startPos,
+                            head: endPos
+                        })
+                    }
+                    this.cm.setSelections(selections)
                 })
             }), 500)
         },

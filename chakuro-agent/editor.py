@@ -112,3 +112,19 @@ async def predict(msg, send, context):
         'ch': ch,
         'result': result
     })
+
+
+@register('findUsages')
+async def find_usage(msg, send, context):
+    print(msg)
+    doc = '\n'.join(context.doc)
+    j = jedi.Script(doc, msg['line'] + 1, msg['ch'], context.path)
+    usages = j.usages()
+    print(usages)
+    await send({
+        'cmd': 'findUsages-ok',
+        'pos': [
+            (i.line - 1, i.column + 1) for i in usages
+        ],
+        'token': msg['token']
+    })
