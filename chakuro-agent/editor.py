@@ -94,6 +94,9 @@ async def predict(msg, send, context):
         log.info(completions)
         
     if completions:
+        context.currentCompletions = {
+            completion.name: completion for completion in completions
+        }
         feature_extractor.extract_online(completions, line_content, line_number, ch, doc, j.call_signatures())
         scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
         result = [
@@ -110,6 +113,17 @@ async def predict(msg, send, context):
         'cmd': 'predict-result',
         'line': line_number,
         'ch': ch,
+        'result': result
+    })
+
+
+@register('getCompletionDocstring')
+async def get_completion_docstring(msg, send, context):
+    result = context.currentCompletions.get(msg['name'], None)
+    if result:
+        result = result.docstring()
+    await send({
+        'cmd': 'getCompletionDocstring-result',
         'result': result
     })
 

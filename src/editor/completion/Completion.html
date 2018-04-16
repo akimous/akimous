@@ -1,7 +1,17 @@
-<div ref:completion class="completion" style="display:{{open?'block':'none'}}" />
-
+<div ref:completionContainer class="completion-container" style="display:{{open?'block':'none'}}" >
+    <div ref:completion class="completion"/>
+    <div ref:docstring class="docstring">{{docstring}}</div>
+</div>
 
 <style>
+    .completion-container {
+        position: absolute;
+        z-index: 99;
+        box-shadow: var(--default-shadow);
+        height: 14rem;
+        width: 50rem;
+    }
+    
     .completion {
         background: var(--main-bg-color);
         color: var(--basic-monospace-font-color);
@@ -9,7 +19,6 @@
         width: 24rem;
         z-index: 100;
         position: absolute;
-        box-shadow: var(--default-shadow);
         border-radius: var(--default-radius);
         font-family: var(--basic-monospace-font-family);
         font-size: var(--basic-monospace-font-size);
@@ -19,6 +28,17 @@
         cursor: default;
         user-select: none;
         -webkit-user-select: none;
+    }
+
+    .docstring {
+        background: var(--panel-color);
+        z-index: 99;
+        position: absolute;
+        left: 22rem;
+        padding-left: 2rem;
+        border-radius: var(--default-radius);
+        height: 14rem;
+        width: 26rem;
     }
 
 </style>
@@ -119,7 +139,8 @@
                 open: false,
                 passive: false,
                 rows: [],
-                selectedCompletionRow: undefined
+                selectedCompletionRow: undefined,
+                docstring: '',
             }
         },
         methods: {
@@ -146,7 +167,7 @@
             },
             repositionCompletionWindow() {
                 const editorElement = this.editor.refs.codeEditor
-                const completionElement = this.refs.completion
+                const completionElement = this.refs.completionContainer
 
                 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
                 const coords = this.cm.charCoords(this.predictor.firstTriggeredCharPos, 'window')
