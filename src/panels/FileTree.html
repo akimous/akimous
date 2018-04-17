@@ -31,10 +31,7 @@
     import g from '../lib/Globals'
     import WSClient from '../lib/WSClient'
     import FileTreeNode from './FileTreeNode.html'
-    import {
-        binarySearch,
-        initializeTabView
-    } from '../lib/Utils'
+    import { binarySearch, initializeTabView } from '../lib/Utils'
 
     export default {
         components: {
@@ -139,7 +136,7 @@
             }
             this.ws.addHandler('event-FileCreated', handlerFactory('files', 'created'))
             this.ws.addHandler('event-DirCreated', handlerFactory('dirs', 'created'))
-            
+
             // On Windows, directory deletion event might be reported as file deletion.
             // Thus we need to handle both
             const fileDeleteHandler = handlerFactory('files', 'deleted')
