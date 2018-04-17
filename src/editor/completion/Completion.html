@@ -1,5 +1,5 @@
-<div ref:completionContainer class="completion-container" style="display:{{open?'block':'none'}}" >
-    <div ref:completion class="completion"/>
+<div ref:completionContainer class="completion-container" style="display:{{open?'block':'none'}}">
+    <div ref:completion class="completion" />
     <div ref:docstring class="docstring">{{docstring}}</div>
 </div>
 
@@ -11,7 +11,7 @@
         height: 14rem;
         width: 50rem;
     }
-    
+
     .completion {
         background: var(--main-bg-color);
         color: var(--basic-monospace-font-color);
@@ -52,10 +52,6 @@
     export default {
         components: {},
         oncreate() {
-            this.observe('open', open => {
-                if (open) g.pushFocus(this)
-                else g.popFocus(this)
-            })
             const completion = this.refs.completion
             this.onClickHandler = (event) => {
                 this.set({
@@ -93,32 +89,30 @@
                 passive: true
             })
 
-            this.observe('rows', rows => {
-                for (const row of this.completionRows)
-                    row.destroy()
-                this.completionRows.length = 0
-                if (rows.length === 0) return
-                for (const [i, row] of rows.entries()) {
-                    row.index = i
-                    this.completionRows.push(new CompletionRow({
-                        target: completion,
-                        data: row
-                    }))
+            this.on('state', ({
+                changed,
+                current,
+                previous
+            }) => {
+                if (changed.rows) {
+                    const rows = current.rows
+                    for (const row of this.completionRows)
+                        row.destroy()
+                    this.completionRows.length = 0
+                    if (rows.length === 0) return
+                    for (const [i, row] of rows.entries()) {
+                        row.index = i
+                        this.completionRows.push(new CompletionRow({
+                            target: completion,
+                            data: row
+                        }))
+                    }
+                    lastFVI = 999
+                    this.set({
+                        selectedCompletionRow: this.completionRows[0]
+                    })
+                    this.completionRows.length && setTimeout(scrollHandler) // must defer, or we cannot get row height
                 }
-                lastFVI = 999
-                this.set({
-                    selectedCompletionRow: this.completionRows[0]
-                })
-                this.completionRows.length && setTimeout(scrollHandler) // must defer, or we cannot get row height
-            })
-
-            this.observe('selectedCompletionRow', (newValue, oldValue) => {
-                if (oldValue) oldValue.set({
-                    selected: false
-                })
-                if (newValue) newValue.set({
-                    selected: true
-                })
             })
 
             this.keyEventHandler = EventDispatcherFactory({
@@ -133,6 +127,24 @@
                     return true
                 }
             })
+        },
+        onstate({
+            changed,
+            current,
+            previous
+        }) {
+            if (changed.open) {
+                if (current.open) g.pushFocus(this)
+                else g.popFocus(this)
+            }
+            if (changed.selectedCompletionRow) {
+                if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({
+                    selected: false
+                })
+                if (current.selectedCompletionRow) current.selectedCompletionRow.set({
+                    selected: true
+                })
+            }
         },
         data() {
             return {
@@ -217,6 +229,7 @@
                 else if (targetIndex < 0) targetIndex = 0
 
                 const targetRow = this.completionRows[targetIndex]
+                console.log(targetRow.get('c'))
                 this.set({
                     selectedCompletionRow: targetRow
                 })

@@ -42,18 +42,22 @@
             setAttributeForMultipleComponent({
                 parent: this
             }, this.refs.tabBar, this.refs.fileTree, this.refs.outline)
-
-            let originalWidth
-            this.observe('hidden', hidden => {
-                if (hidden) {
-                    originalWidth = this.refs.panelLeft.getBoundingClientRect().width
-                    document.documentElement.style.setProperty('--panel-left-width', '0px')
-                } else if (originalWidth)
-                    document.documentElement.style.setProperty('--panel-left-width', originalWidth + 'px')
-            })
             setTimeout(() => {
                 this.activateView(this.refs.fileTree)
             })
+        },
+        onstate({
+            changed,
+            current,
+            previous
+        }) {
+            if (changed.hidden) {
+                if (current.hidden) {
+                    this.originalWidth = this.refs.panelLeft.getBoundingClientRect().width
+                    document.documentElement.style.setProperty('--panel-left-width', '0px')
+                } else if (this.originalWidth)
+                    document.documentElement.style.setProperty('--panel-left-width', this.originalWidth + 'px')
+            }
         },
         data() {
             return {

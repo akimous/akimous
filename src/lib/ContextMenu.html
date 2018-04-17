@@ -33,12 +33,21 @@
             g.contextMenu = this
             this.rows = []
             this.dividers = []
-
-            this.observe('open', open => {
+            this.keyEventHandler = EventDispatcherFactory({
+                target: this,
+                closable: true
+            })
+        },
+        onstate({
+            changed,
+            current,
+            previous
+        }) {
+            if (changed.open) {
                 this.set({
                     selectedRow: undefined
                 })
-                if (open) {
+                if (current.open) {
                     g.activeEditor.completion.set({
                         open: false
                     })
@@ -46,15 +55,15 @@
                 } else {
                     g.popFocus(this)
                 }
-            })
-            this.observe('items', items => {
+            }
+            if (changed.items) {
                 for (const i of this.rows)
                     i.destroy()
                 for (const i of this.dividers)
                     i.destroy()
                 this.rows.length = 0
                 this.dividers.length = 0
-                for (const i of items) {
+                for (const i of current.items) {
                     if (i.divider) {
                         const child = new ContextMenuDivider({
                             target: this.refs.contextMenu,
@@ -69,20 +78,15 @@
                         this.rows.push(child)
                     }
                 }
-            })
-            this.observe('selectedRow', (newValue, oldValue) => {
-                if (oldValue) oldValue.set({
+            }
+            if (changed.selectedRow) {
+                if (previous.selectedRow) previous.selectedRow.set({
                     selected: false
                 })
-                if (newValue) newValue.set({
+                if (current.selectedRow) current.selectedRow.set({
                     selected: true
                 })
-            })
-
-            this.keyEventHandler = EventDispatcherFactory({
-                target: this,
-                closable: true
-            })
+            }
         },
         data() {
             return {

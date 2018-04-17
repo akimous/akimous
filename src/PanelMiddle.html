@@ -38,20 +38,27 @@
             this.activationHistoryIndex = 0
             setTimeout(() => {
                 this.openFile(['demo', 'demo.py'], 'demo.py')
-            }, 400)
-            this.observe('focus', (newFocus, oldFocus) => {
-                if (newFocus === oldFocus) return
-                if (!newFocus) g.setFocus([g.panelLeft, g.fileTree])
-                else g.setFocus([this, newFocus])
-                g.activeEditor = newFocus
-            })
-            this.observe('focused', focused => {
+            }, 100)
+        },
+        onstate({
+            changed,
+            current,
+            previous
+        }) {
+            if (changed.focus) {
+                const focus = current.focus
+                if (focus === previous.focus) return
+                if (!focus) g.setFocus([g.panelLeft, g.fileTree])
+                else g.setFocus([this, focus])
+                g.activeEditor = focus
+            }
+            if (changed.focused) {
                 const editor = this.get('focus')
-                if (focused) {
+                if (current.focused) {
                     editor && editor.cm && editor.cm.focus()
                 } else
                     editor && editor.cm && editor.cm.getInputField().blur()
-            })
+            }
         },
         data() {
             return {

@@ -123,7 +123,7 @@
             }
             return false
         },
-        handleCommand(/*command, target*/) {
+        handleCommand( /*command, target*/ ) {
             return true
         }
     }
@@ -132,11 +132,6 @@
         components: {},
         oncreate() {
             this.children = {}
-            this.observe('name', (newValue, oldValue) => {
-                const parent = this.get('parent')
-                if (oldValue) delete parent.children[oldValue]
-                parent.children[newValue] = this
-            })
 
             // set icon
             let icon
@@ -149,23 +144,6 @@
                 icon,
                 self: this
             })
-
-            // register folder
-            if (this.get('isDir')) {
-                this.observe('open', open => {
-                    if (open) {
-                        this.set({
-                            icon: fileTypeToIcon['folder-open']
-                        })
-                    } else {
-                        this.set({
-                            icon: fileTypeToIcon['folder']
-                        })
-                    }
-                }, {
-                    init: false
-                })
-            }
 
             g.fileTree.on('cancelAllSelection', () => {
                 this.set({
@@ -200,6 +178,27 @@
                 }
             }
             g.popFocus(this)
+        },
+        onstate({
+            changed,
+            current,
+            previous
+        }) {
+            if (changed.name) {
+                const parent = this.get('parent')
+                if (previous && previous.name) delete parent.children[previous.name]
+                parent.children[current.name] = this
+            } else if (changed.open && current.isDir) {
+                if (current.open) {
+                    this.set({
+                        icon: fileTypeToIcon['folder-open']
+                    })
+                } else {
+                    this.set({
+                        icon: fileTypeToIcon['folder']
+                    })
+                }
+            }
         },
         data() {
             return {
@@ -312,12 +311,12 @@
                         let path = this.getPath()
                         if (!this.get('parent').get('isDir'))
                             path.splice(-2, 1) // remove if its parent is a file, not the real parent
-                        if (this.get('parent').get('newNode') == 'file'){ // file or dir 
+                        if (this.get('parent').get('newNode') == 'file') { // file or dir 
                             g.fileTree.ws.send({
                                 cmd: 'newFile',
                                 path
                             })
-                        }else if (this.get('parent').get('newNode') == 'dir'){
+                        } else if (this.get('parent').get('newNode') == 'dir') {
                             g.fileTree.ws.send({
                                 cmd: 'newFolder',
                                 path

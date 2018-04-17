@@ -43,6 +43,7 @@
         oncreate() {
             g.fileTree = this
             initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
+            g.setFocus([g.panelLeft, g.fileTree])
             this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
 
             const sortAndAddUid = arr => arr.sort().map(i => {

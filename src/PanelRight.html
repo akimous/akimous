@@ -53,19 +53,23 @@
                 parent: this
             }, this.refs.tabBar, this.refs.console, this.refs.macro, this.refs.docs, this.refs.find, this.refs.linter)
             
-            let originalWidth
-            this.observe('hidden', hidden => {
-                if (hidden) {
-                    originalWidth = this.refs.panelRight.getBoundingClientRect().width
-                    document.documentElement.style.setProperty('--panel-right-width', '0px')
-                } else if (originalWidth)
-                    document.documentElement.style.setProperty('--panel-right-width', originalWidth + 'px')
-            })
-            
             // we must activate console first, or xterm will break
             setTimeout(() => {
                 this.activateView(this.refs.console)
             })
+        },
+        onstate({
+            changed,
+            current,
+            previous
+        }) {
+            if (changed.hidden) {
+                if (current.hidden) {
+                    this.originalWidth = this.refs.panelRight.getBoundingClientRect().width
+                    document.documentElement.style.setProperty('--panel-right-width', '0px')
+                } else if (this.originalWidth)
+                    document.documentElement.style.setProperty('--panel-right-width', this.originalWidth + 'px')
+            }
         },
         data() {
             return {

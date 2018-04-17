@@ -1,6 +1,6 @@
 <div id="toolbar">
     <div id="buttons">
-        <ToolBarButton ref:notificationHistory iconClass="fas fa-fw fa-bell" title="Notification History"></ToolBarButton>
+        <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell" title="Notification History"/>
     </div>
 </div>
 <NotificationBar></NotificationBar>
@@ -28,20 +28,17 @@
     import NotificationBar from '../panels/NotificationBar.html'
     import NotificationHistory from '../panels/NotificationHistory.html'
     import TabNumber from '../panels/TabNumber.html'
-    import ToolBarButton from './ToolBarButton.html'
+    import ToolbarButton from './ToolbarButton.html'
 
     export default {
         components: {
             NotificationBar,
             NotificationHistory,
             TabNumber,
-            ToolBarButton
+            ToolbarButton
         },
         oncreate() {
-            g.toolBar = this
-            g.notificationHistory.observe('open', on => {
-                this.refs.notificationHistory.set({on})
-            })
+            g.toolbar = this
             this.refs.notificationHistory.set({
                 callback: () => {
                     g.notificationHistory.set({

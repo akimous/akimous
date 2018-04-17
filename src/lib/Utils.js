@@ -35,11 +35,19 @@ function initializeTabView(view, title, icon) {
     setTimeout(() => {
         view.parent = view.get('parent')
         view.tab = view.parent.tabBar.openTab(view, title, icon)
-        view.observe('active', active => {
-            view.tab.set({
-                active,
-                labeled: false
-            })
+        view.tab.set({
+            labeled: false
+        })
+        view.on('state', ({
+            changed,
+            current,
+            previous
+        }) => {
+            if (changed.active) {
+                view.tab.set({
+                    active: current.active
+                })
+            }
         })
     })
 }

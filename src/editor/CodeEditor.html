@@ -82,33 +82,7 @@
             this.parent = this.get('parent')
             const fileName = this.get('fileName')
             this.tab = this.parent.tabBar.openTab(this, this.get('fileName'), getIconByFileName(fileName))
-
-            // observers
-            this.observe('filePath', (newPath, oldPath) => {
-                g.panelMiddle.pathToEditor[newPath.join('/')] = this
-                if (oldPath) {
-                    delete g.panelMiddle.pathToEditor[oldPath.join('/')]
-                    this.ws.send({
-                        cmd: 'mtime',
-                        newPath
-                    })
-                }
-            })
-            this.observe('fileName', name => {
-                this.tab.set({
-                    name
-                })
-            })
-            this.observe('clean', clean => {
-                this.tab.set({
-                    clean
-                })
-            })
-            this.observe('active', active => {
-                this.tab.set({
-                    active
-                })
-            })
+            g.panelMiddle.pathToEditor[this.get('filePath').join('/')] = this
 
             const mode = CodeMirror.findModeByFileName(fileName)
 
@@ -269,6 +243,38 @@
         ondestroy() {
             this.tab.destroy()
             delete g.panelMiddle.pathToEditor[this.get('filePath').join('/')]
+        },
+        onstate({
+            changed,
+            current,
+            previous
+        }) {
+            if (changed.filePath) {
+                g.panelMiddle.pathToEditor[newPath.join('/')] = this
+                if (previous.filePath) {
+                    delete g.panelMiddle.pathToEditor[previous.filePath.join('/')]
+                    this.ws.send({
+                        cmd: 'mtime',
+                        newPath
+                    })
+                }
+            }
+            if (!this.tab) return
+            if (changed.fileName) {
+                this.tab.set({
+                    name: current.fileName
+                })
+            }
+            if (changed.clean) {
+                this.tab.set({
+                    clean: current.clean
+                })
+            }
+            if (changed.active) {
+                this.tab.set({
+                    active: current.active
+                })
+            }
         },
         data() {
             return {

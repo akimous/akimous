@@ -64,15 +64,22 @@
     export default {
         components: {},
         oncreate() {
-            this.observe('parent', (newParent, oldParent) => {
-                oldParent && oldParent.tabs.delete(this)
-                newParent && newParent.tabs.add(this)
-            })
+            this.get('parent').tabs.add(this)
         },
         ondestroy() {
             const parent = this.get('parent')
             parent.tabs.delete(this)
             parent.fitTabWidth()
+        },
+        onstate({
+            changed,
+            current,
+            previous
+        }) {
+            if (changed.parent) {
+                previous.parent && previous.parent.tabs.delete(this)
+                current.parent && current.parent.tabs.add(this)
+            }
         },
         data() {
             return {
