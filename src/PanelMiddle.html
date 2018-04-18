@@ -40,11 +40,7 @@
                 this.openFile(['demo', 'demo.py'], 'demo.py')
             }, 100)
         },
-        onstate({
-            changed,
-            current,
-            previous
-        }) {
+        onstate({ changed, current, previous }) {
             if (changed.focus) {
                 const focus = current.focus
                 if (focus === previous.focus) return
@@ -53,7 +49,7 @@
                 g.activeEditor = focus
             }
             if (changed.focused) {
-                const editor = this.get('focus')
+                const editor = this.get().focus
                 if (current.focused) {
                     editor && editor.cm && editor.cm.focus()
                 } else
@@ -85,7 +81,7 @@
                 this.activateFile(filePath)
             },
             activateView(editor) {
-                this.activateFile(editor.get('filePath'))
+                this.activateFile(editor.get().filePath)
             },
             activateFile(filePath) {
                 // write to activation history
@@ -113,21 +109,21 @@
                     if (oldPathString.indexOf(oldDirPathString) !== 0) continue
                     const editor = this.pathToEditor[oldPathString]
                     editor.set({
-                        filePath: [...newDirPath, ...editor.get('filePath').slice(newDirPath.length)]
+                        filePath: [...newDirPath, ...editor.get().filePath.slice(newDirPath.length)]
                     })
                 }
             },
             closeView(editor) {
-                this.closeFile(editor.get('filePath'))
+                this.closeFile(editor.get().filePath)
             },
             closeFile(filePath) {
                 const editor = this.getEditor(filePath)
                 // if the file has been edited, prompt for saving
-                if (!editor.get('clean')) {
+                if (!editor.get().clean) {
                     // todo: close completion, blur editor
                     g.prompt.open({
                         icon: 'far fa-hdd',
-                        content: `Do you want to save the changes you made in <em>${editor.get('fileName')}</em> ?`,
+                        content: `Do you want to save the changes you made in <em>${editor.get().fileName}</em> ?`,
                         buttons: [{
                             text: 'Don\'t Save',
                             style: 'danger',

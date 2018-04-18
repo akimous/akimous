@@ -77,10 +77,10 @@
             Completion
         },
         oncreate() {
-            this.parent = this.get('parent')
-            const fileName = this.get('fileName')
-            this.tab = this.parent.tabBar.openTab(this, this.get('fileName'), getIconByFileName(fileName))
-            g.panelMiddle.pathToEditor[this.get('filePath').join('/')] = this
+            this.parent = this.get().parent
+            const { fileName } = this.get()
+            this.tab = this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
+            g.panelMiddle.pathToEditor[this.get().filePath.join('/')] = this
 
             const mode = CodeMirror.findModeByFileName(fileName)
 
@@ -96,7 +96,7 @@
                 this.ws.connect(() => {
                     this.ws.send({
                         cmd: 'openFile',
-                        filePath: this.get('filePath')
+                        filePath: this.get().filePath
                     })
                 })
             })
@@ -160,7 +160,7 @@
                     this.markClean()
                     this.mtime = data.mtime
                     if (this.shouldClose)
-                        g.panelMiddle.closeFile(this.get('filePath'))
+                        g.panelMiddle.closeFile(this.get().filePath)
                 })
                 this.ws.addHandler('predict-result', data => {
                     this.predictor.receive(data)
@@ -186,7 +186,7 @@
                     this.mtime = data.mtime
                     g.notificationBar.show(
                         'question',
-                        `The file "<b>${this.get('fileName')}</b>" has been modified by another program. Do you want to reload it?`, [{
+                        `The file "<b>${this.get().fileName}</b>" has been modified by another program. Do you want to reload it?`, [{
                             name: 'Reload',
                             callback: () => {
                                 this.ws.send({
@@ -201,11 +201,11 @@
                 this.ws.addHandler('event-FileDeleted', () => {
                     g.notificationBar.show(
                         'question',
-                        `The file "<b>${this.get('fileName')}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
+                        `The file "<b>${this.get().fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
                             name: 'Close',
                             callback: () => {
                                 this.markClean()
-                                g.panelMiddle.closeFile(this.get('filePath'))
+                                g.panelMiddle.closeFile(this.get().filePath)
                             }
                         }]
                     )
@@ -244,7 +244,7 @@
         },
         ondestroy() {
             this.tab.destroy()
-            delete g.panelMiddle.pathToEditor[this.get('filePath').join('/')]
+            delete g.panelMiddle.pathToEditor[this.get().filePath.join('/')]
         },
         onstate({
             changed,

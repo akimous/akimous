@@ -122,11 +122,11 @@
 
                 // dismiss any pop-up elements
                 document.onmousedown = e => {
-                    if (g.contextMenu.get('open') && !g.contextMenu.refs.contextMenu.contains(e.target))
+                    if (g.contextMenu.get().open && !g.contextMenu.refs.contextMenu.contains(e.target))
                         g.contextMenu.set({
                             open: false
                         })
-                    if (g.notificationHistory.get('open') &&
+                    if (g.notificationHistory.get().open &&
                         !g.notificationHistory.refs.notificationHistory.contains(e.target) &&
                         !g.toolbar.refs.notificationHistory.refs.button.contains(e.target))
                         g.notificationHistory.set({
@@ -137,7 +137,7 @@
                 //                window.addEventListener('beforeunload', e => {
                 //                    const message = 'You have unsaved changes. Do you really want to leave?'
                 //                    for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
-                //                        if (!editor.get('clean')) {
+                //                        if (!editor.get().clean) {
                 //                            e.returnValue = message
                 //                            return message
                 //                        }

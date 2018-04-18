@@ -172,14 +172,13 @@
                 this.predictor = editor.predictor
             },
             shouldDisplayCompletionRow(row) {
-                if (this.get('passive') && row.c.length < 3) return false
+                if (this.get().passive && row.c.length < 3) return false
                 return row.sortScore > 0
             },
             setCompletions() {
                 const filteredCompletion = this.predictor.currentCompletions.filter(
                     this.shouldDisplayCompletionRow, this)
                 if (filteredCompletion.length) {
-                    console.log(filteredCompletion)
                     this.editor.ws.send({
                         cmd: 'getCompletionDocstring',
                         name: filteredCompletion[0].c
@@ -213,18 +212,18 @@
                 completionElement.style.top = `${y}px`
             },
             enter(rowNumber) {
-                if (!this.get('open')) return console.error('closed')
+                if (!this.get().open) return console.error('closed')
 
-                const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get('selectedCompletionRow')
+                const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get().selectedCompletionRow
                 if (!completion) return console.error('no selected completion')
 
-                const type = completion.get('t')
+                const type = completion.get().t
                 this.set({
                     open: false
                 })
                 if (type === 'instruction') return
 
-                let text = completion.get('c')
+                let text = completion.get().c
                 if (type === 'keyword' || type === 'module') text += ' '
 
                 this.cm.doc.replaceRange(
@@ -236,7 +235,7 @@
                 this.cm.focus()
             },
             move(nRows) {
-                const currentIndex = this.get('selectedCompletionRow').get('index')
+                const currentIndex = this.get().selectedCompletionRow.get().index
                 const length = this.completionRows.length
 
                 let targetIndex = currentIndex + nRows
@@ -244,10 +243,9 @@
                 else if (targetIndex < 0) targetIndex = 0
 
                 const targetRow = this.completionRows[targetIndex]
-                console.log(targetRow.get('c'))
                 this.editor.ws.send({
                     cmd: 'getCompletionDocstring',
-                    name: targetRow.get('c')
+                    name: targetRow.get().c
                 })
                 this.set({
                     selectedCompletionRow: targetRow
