@@ -14,15 +14,16 @@
         height: calc(100% - var(--toolbar-height));
         width: .9rem;
         cursor: col-resize;
-        z-index: 10;
     }
 
     #split-bar-l {
         left: calc(var(--panel-left-width) - .4rem);
+        z-index: 3;
     }
 
     #split-bar-r {
         left: calc(100% - var(--panel-right-width) - .4rem);
+        z-index: 0;
     }
 
     .split-bar:hover {

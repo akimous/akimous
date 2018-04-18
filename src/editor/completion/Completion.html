@@ -1,6 +1,8 @@
 <div ref:completionContainer class="completion-container" style="display:{{open?'block':'none'}}">
     <div ref:completion class="completion" />
-    <div ref:docstring class="docstring">{{docstring}}</div>
+    <div ref:docstring class="docstring-container">
+       <div class="docstring"> {{docstring}} </div>
+    </div>
 </div>
 
 <style>
@@ -30,15 +32,23 @@
         -webkit-user-select: none;
     }
 
-    .docstring {
+    .docstring-container {
         background: var(--panel-color);
         z-index: 99;
         position: absolute;
         left: 22rem;
         padding-left: 2rem;
+        padding: .5rem .5rem .5rem 3rem;
         border-radius: var(--default-radius);
-        height: 14rem;
-        width: 26rem;
+        height: 13rem;
+        width: 24.5rem;
+        overflow-y: scroll;
+/*        white-space: pre;*/
+    }
+    
+    .docstring {
+        white-space: pre-wrap;
+        width: 24.5rem;
     }
 
 </style>
@@ -169,6 +179,11 @@
                 const filteredCompletion = this.predictor.currentCompletions.filter(
                     this.shouldDisplayCompletionRow, this)
                 if (filteredCompletion.length) {
+                    console.log(filteredCompletion)
+                    this.editor.ws.send({
+                        cmd: 'getCompletionDocstring',
+                        name: filteredCompletion[0].c
+                    })
                     this.set({
                         rows: filteredCompletion,
                         open: true
@@ -230,6 +245,10 @@
 
                 const targetRow = this.completionRows[targetIndex]
                 console.log(targetRow.get('c'))
+                this.editor.ws.send({
+                    cmd: 'getCompletionDocstring',
+                    name: targetRow.get('c')
+                })
                 this.set({
                     selectedCompletionRow: targetRow
                 })

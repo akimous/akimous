@@ -236,6 +236,10 @@
                     }
                     this.cm.setSelections(selections)
                 })
+
+                this.ws.addHandler('getCompletionDocstring-result', data => {
+                    this.completion.set({ docstring: data.result })
+                })
             }), 500)
         },
         ondestroy() {
