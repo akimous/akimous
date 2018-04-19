@@ -59,7 +59,7 @@
 
             const sortChildren = (node, type) => {
                 node.set({
-                    type: node.get(type).sort((a, b) => a.name > b.name)
+                    type: node.get()[type].sort((a, b) => a.name > b.name)
                 })
             }
             const renamingEventHandler = data => {
@@ -74,7 +74,7 @@
                     name: data.newName
                 })
                 // change paths to opened files
-                parent.get(target).find(x => x.name == oldName).name = data.newName
+                parent.get()[target].find(x => x.name == oldName).name = data.newName
                 sortChildren(parent, target)
                 if (target === 'files') {
                     const editor = g.panelMiddle.getEditor(data.path)

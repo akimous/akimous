@@ -103,11 +103,7 @@
         oncreate() {
             g.notificationHistory = this
         },
-        onstate({
-            changed,
-            current,
-            previous
-        }) {
+        onstate({ changed, current }) {
             if (changed.open && g.toolbar) {
                 g.toolbar.refs.notificationHistory.set({
                     on: current.open

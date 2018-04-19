@@ -1,7 +1,7 @@
 <div ref:completionContainer class="completion-container" style="display:{{open?'block':'none'}}">
     <div ref:completion class="completion" />
     <div ref:docstring class="docstring-container">
-       <div class="docstring"> {{docstring}} </div>
+        <div class="docstring"> {{docstring}} </div>
     </div>
 </div>
 
@@ -43,9 +43,9 @@
         height: 13rem;
         width: 24.5rem;
         overflow-y: scroll;
-/*        white-space: pre;*/
+        /*        white-space: pre;*/
     }
-    
+
     .docstring {
         white-space: pre-wrap;
         width: 24.5rem;
@@ -99,11 +99,7 @@
                 passive: true
             })
 
-            this.on('state', ({
-                changed,
-                current,
-                previous
-            }) => {
+            this.on('state', ({ changed, current }) => {
                 if (changed.rows) {
                     const rows = current.rows
                     for (const row of this.completionRows)

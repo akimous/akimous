@@ -246,12 +246,9 @@
             this.tab.destroy()
             delete g.panelMiddle.pathToEditor[this.get().filePath.join('/')]
         },
-        onstate({
-            changed,
-            current,
-            previous
-        }) {
+        onstate({ changed, current, previous }) {
             if (changed.filePath) {
+                const newPath = current.filePath
                 g.panelMiddle.pathToEditor[newPath.join('/')] = this
                 if (previous.filePath) {
                     delete g.panelMiddle.pathToEditor[previous.filePath.join('/')]

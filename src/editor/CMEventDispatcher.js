@@ -46,7 +46,7 @@ class CMEventDispatcher {
             g.setFocus([g.panelMiddle, editor])
         })
 
-        cm.on('gutterClick', (cm, line, gutter, event) => {
+        cm.on('gutterClick', (cm, line, gutter /*, event*/ ) => {
             if (gutter !== 'CodeMirror-linenumbers') return
             const lineLength = cm.getLine(line).length
             cm.setSelection({

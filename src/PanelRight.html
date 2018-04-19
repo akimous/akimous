@@ -20,7 +20,7 @@
         box-sizing: border-box;
         z-index: -1;
     }
-    
+
 </style>
 
 
@@ -32,10 +32,7 @@
     import Docs from './panels/Docs.html'
     import Find from './panels/Find.html'
     import Linter from './panels/Linter.html'
-    import {
-        setAttributeForMultipleComponent,
-        activateView
-    } from './lib/Utils'
+    import { setAttributeForMultipleComponent, activateView } from './lib/Utils'
 
     export default {
         components: {
@@ -52,17 +49,13 @@
             setAttributeForMultipleComponent({
                 parent: this
             }, this.refs.tabBar, this.refs.console, this.refs.macro, this.refs.docs, this.refs.find, this.refs.linter)
-            
+
             // we must activate console first, or xterm will break
             setTimeout(() => {
                 this.activateView(this.refs.console)
             })
         },
-        onstate({
-            changed,
-            current,
-            previous
-        }) {
+        onstate({ changed, current }) {
             if (changed.hidden) {
                 if (current.hidden) {
                     this.originalWidth = this.refs.panelRight.getBoundingClientRect().width
@@ -82,7 +75,7 @@
             activateView(view) {
                 activateView(this, view)
             },
-            closeView(/*view*/) {
+            closeView( /*view*/ ) {
                 // not allowed to close view for now
             }
         }

@@ -33,11 +33,7 @@
         oncreate() {
             g.tabNumber = this
         },
-        onstate({
-            changed,
-            current,
-            previous
-        }) {
+        onstate({ changed, current }) {
             if (changed.active) {
                 if (!current.active) return
                 const activePanel = g.focusStack[0]

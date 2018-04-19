@@ -38,11 +38,7 @@ function initializeTabView(view, title, icon) {
         view.tab.set({
             labeled: false
         })
-        view.on('state', ({
-            changed,
-            current,
-            previous
-        }) => {
+        view.on('state', ({ changed, current }) => {
             if (changed.active) {
                 view.tab.set({
                     active: current.active

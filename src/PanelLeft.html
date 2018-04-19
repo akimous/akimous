@@ -22,10 +22,7 @@
 
 <script>
     import g from './lib/Globals'
-    import {
-        setAttributeForMultipleComponent,
-        activateView
-    } from './lib/Utils'
+    import { setAttributeForMultipleComponent, activateView } from './lib/Utils'
     import TabBar from './panels/TabBar.html'
     import FileTree from './panels/FileTree.html'
     import Outline from './panels/Outline.html'
@@ -46,11 +43,7 @@
                 this.activateView(this.refs.fileTree)
             })
         },
-        onstate({
-            changed,
-            current,
-            previous
-        }) {
+        onstate({ changed, current }) {
             if (changed.hidden) {
                 if (current.hidden) {
                     this.originalWidth = this.refs.panelLeft.getBoundingClientRect().width
@@ -70,7 +63,7 @@
             activateView(view) {
                 activateView(this, view)
             },
-            closeView(/*view*/) {
+            closeView( /*view*/ ) {
                 // not allowed to close view for now
             }
         }
