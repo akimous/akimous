@@ -103,7 +103,7 @@
         },
         methods: {
             move(nRows) {
-                const currentIndex = this.rows.indexOf(this.get('selectedRow'))
+                const currentIndex = this.rows.indexOf(this.get().selectedRow)
                 const length = this.rows.length
 
                 let targetIndex = currentIndex + nRows
@@ -117,7 +117,7 @@
                 })
             },
             enter(rowNumber) {
-                const row = rowNumber ? this.rows[rowNumber - 1] : this.get('selectedRow')
+                const row = rowNumber ? this.rows[rowNumber - 1] : this.get().selectedRow
                 if (row) row.click()
                 else this.set({
                     open: false

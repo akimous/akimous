@@ -59,7 +59,7 @@
                 })
             },
             click() {
-                this.get('callback')(this.parent.get('caller'))
+                this.get().callback(this.parent.get().caller)
                 this.parent.set({
                     open: false
                 })

@@ -15,7 +15,7 @@ const g = {
         // if focused panel is changed
         if (oldRoot && oldRoot !== x[0]) {
             // hide panel if autoHide is true and losing focus
-            if (oldRoot.get('autoHide'))
+            if (oldRoot.get().autoHide)
                 oldRoot.set({
                     hidden: true
                 })
@@ -40,7 +40,7 @@ const g = {
         this.focusStack = x
         // restore focus stack
         if (x.length === 1) {
-            const originalFocusStack = x[0].get('focusStack')
+            const originalFocusStack = x[0].get().focusStack
             originalFocusStack && this.focusStack.push(...originalFocusStack)
         }
         this.onFocusChanged()

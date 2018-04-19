@@ -42,7 +42,7 @@
             this.refs.notificationHistory.set({
                 callback: () => {
                     g.notificationHistory.set({
-                        open: !g.notificationHistory.get('open')
+                        open: !g.notificationHistory.get().open
                     })
                 }
             })

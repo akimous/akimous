@@ -110,7 +110,7 @@
 
     const keyEventHandler = {
         handleKeyEvent(e, target) {
-            if (!target.get('renaming')) return true
+            if (!target.get().renaming) return true
             switch (e.key) {
                 case 'Enter':
                     target.commitRename()
@@ -135,10 +135,10 @@
 
             // set icon
             let icon
-            if (this.get('isDir')) {
+            if (this.get().isDir) {
                 icon = fileTypeToIcon['folder']
             } else {
-                icon = getIconByFileName(this.get('name'))
+                icon = getIconByFileName(this.get().name)
             }
             this.set({
                 icon,
@@ -158,20 +158,20 @@
                 }
             })
 
-            if (this.get('placeholderMode'))
+            if (this.get().placeholderMode)
                 this.onClick() // select this node if it is a placeholder
 
             this.keyEventHandler = keyEventHandler
         },
         ondestroy() {
             this.removeChildren()
-            if (this.get('selected')) {
+            if (this.get().selected) {
                 try {
                     let node = this.siblin(-1)
                     if (node && node !== this) return node.onClick()
                     node = this.siblin(1)
                     if (node && node !== this) return node.onClick()
-                    node = this.get('parent')
+                    node = this.get().parent
                     if (node) return node.onClick()
                 } catch (e) {
                     // swallow exception
@@ -185,7 +185,7 @@
             previous
         }) {
             if (changed.name) {
-                const parent = this.get('parent')
+                const { parent } = this.get()
                 if (previous && previous.name) delete parent.children[previous.name]
                 parent.children[current.name] = this
             } else if (changed.open && current.isDir) {
@@ -226,18 +226,18 @@
         },
         methods: {
             getPath() {
-                const path = [this.get('name')]
-                let node = this.get('parent')
-                let name = node.get('name')
+                const path = [this.get().name]
+                let { parent } = this.get()
+                let { name } = parent.get()
                 while (name) {
                     path.push(name)
-                    node = node.get('parent')
-                    name = node.get('name')
+                    parent = parent.get().parent
+                    name = parent.get().name
                 }
                 return path.reverse()
             },
             onClick() {
-                const selected = this.get('selected')
+                const { selected } = this.get()
                 if (selected) return
                 g.fileTree.fire('cancelAllSelection')
                 this.set({
@@ -246,11 +246,11 @@
                 g.setFocus([g.panelLeft, g.fileTree, this])
             },
             onDoubleClick() {
-                if (this.get('isDir')) {
-                    this.set({
-                        open: !this.get('open')
-                    })
-                    if (this.get('open')) {
+                if (this.get().isDir) {
+                    let { open } = this.get()
+                    open = !open
+                    this.set({ open })
+                    if (open) {
                         g.fileTree.ws.send({
                             cmd: 'openFolder',
                             path: this.getPath(),
@@ -266,7 +266,7 @@
                         })
                     }
                 } else {
-                    g.panelMiddle.openFile(this.getPath(), this.get('name'))
+                    g.panelMiddle.openFile(this.getPath(), this.get().name)
                 }
 
             },
@@ -285,9 +285,10 @@
                 e.preventDefault()
             },
             redraw() {
+                const { dirs, files } = this.get()
                 this.set({
-                    dirs: this.get('dirs').sort((a, b) => a.name > b.name),
-                    files: this.get('files').sort((a, b) => a.name > b.name)
+                    dirs: dirs.sort((a, b) => a.name > b.name),
+                    files: files.sort((a, b) => a.name > b.name)
                 })
             },
             removeChildren() {
@@ -303,20 +304,19 @@
                 this.refs.input.focus()
             },
             commitRename() {
-                if (this.refs.input.value !== this.get('name') && this.refs.input.value.length > 0) {
-                    if (this.get('placeholderMode')) {
-                        this.set({
-                            name: this.refs.input.value
-                        })
-                        let path = this.getPath()
-                        if (!this.get('parent').get('isDir'))
+                if (this.refs.input.value !== this.get().name && this.refs.input.value.length > 0) {
+                    if (this.get().placeholderMode) {
+                        this.set({ name: this.refs.input.value })
+                        const path = this.getPath()
+                        const { parent } = this.get()
+                        if (!parent.get().isDir)
                             path.splice(-2, 1) // remove if its parent is a file, not the real parent
-                        if (this.get('parent').get('newNode') == 'file') { // file or dir 
+                        if (parent.get().newNode == 'file') { // file or dir 
                             g.fileTree.ws.send({
                                 cmd: 'newFile',
                                 path
                             })
-                        } else if (this.get('parent').get('newNode') == 'dir') {
+                        } else if (parent.get().newNode == 'dir') {
                             g.fileTree.ws.send({
                                 cmd: 'newFolder',
                                 path
@@ -331,8 +331,8 @@
                 this.endRenaming()
             },
             endRenaming() {
-                if (this.get('placeholderMode')) {
-                    this.get('parent').set({
+                if (this.get().placeholderMode) {
+                    this.get().parent.set({
                         newNode: null
                     })
                 } else {
@@ -355,12 +355,10 @@
                 this.refs.placeholderNode.rename()
             },
             siblin(direction) {
-                const parent = this.get('parent')
-                const isDir = this.get('isDir')
-                const files = parent.get('files')
-                const dirs = parent.get('dirs')
+                const { parent, isDir } = this.get()
+                const { files, dirs } = parent.get()
                 const list = isDir ? dirs : files
-                const currentIndex = binarySearch(list, this.get('name'))
+                const currentIndex = binarySearch(list, this.get().name)
 
                 let newList = list
                 let newIndex = currentIndex + (direction > 0 ? 1 : -1)
@@ -381,21 +379,19 @@
                 return parent.children[nextNodeName]
             },
             firstChild() {
-                const files = this.get('files')
-                const dirs = this.get('dirs')
+                const { files, dirs } = this.get()
                 if (dirs.length) return this.children[dirs[0].name]
                 if (files.length) return this.children[files[0].name]
                 return null
             },
             lastChild() {
-                const files = this.get('files')
-                const dirs = this.get('dirs')
+                const { files, dirs } = this.get()
                 if (files.length) return this.children[files[files.length - 1].name]
                 if (dirs.length) return this.children[dirs[dirs.length - 1].name]
                 return null
             },
             neighbor(direction) {
-                const parent = this.get('parent')
+                const { parent } = this.get()
                 if (direction > 0) {
                     const firstChild = this.firstChild()
                     if (firstChild) return firstChild

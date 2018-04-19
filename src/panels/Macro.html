@@ -113,7 +113,7 @@
         },
         methods: {
             addClipboardItem(text) {
-                const clipboard = this.get('clipboard')
+                const {clipboard} = this.get()
                 if (clipboard.length >= 10) clipboard.pop()
                 clipboard.unshift(text)
                 this.set({
@@ -130,7 +130,7 @@
                 let number = +key
                 if (Number.isInteger(number)) {
                     if (number === 0) number = 10
-                    this.paste(this.get('clipboard')[number - 1])
+                    this.paste(this.get().clipboard[number - 1])
                 }
             }
         }

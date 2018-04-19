@@ -64,10 +64,10 @@
     export default {
         components: {},
         oncreate() {
-            this.get('parent').tabs.add(this)
+            this.get().parent.tabs.add(this)
         },
         ondestroy() {
-            const parent = this.get('parent')
+            const { parent } = this.get()
             parent.tabs.delete(this)
             parent.fitTabWidth()
         },
@@ -97,10 +97,10 @@
         },
         methods: {
             activate() {
-                this.get('panel').activateView(this.get('view'))
+                this.get().panel.activateView(this.get().view)
             },
             close() {
-                this.get('panel').closeView(this.get('view'))
+                this.get().panel.closeView(this.get().view)
             },
             getIndex() {
                 let node = this.refs.tab

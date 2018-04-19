@@ -3,12 +3,12 @@ import Keymap from './Keymap'
 import CodeEditor from '../editor/CodeEditor.html'
 
 function togglePanelAutoHide(panel) {
-    const autoHide = !panel.get('autoHide')
+    const { autoHide } = panel.get()
     panel.set({
         autoHide,
-        hidden: autoHide
+        hidden: !autoHide
     })
-    if (autoHide) g.setFocus([g.panelMiddle])
+    if (!autoHide) g.setFocus([g.panelMiddle])
 }
 
 class LayeredKeyboardControl {
@@ -70,7 +70,7 @@ class LayeredKeyboardControl {
     set macroMode(x) {
         this._macroMode = x
         if (x) {
-            this._previousPanelRightView = g.panelRight.get('focus')
+            this._previousPanelRightView = g.panelRight.get().focus
             g.panelRight.activateView(g.panelRight.refs.macro)
         } else {
             this._previousPanelRightView && g.panelRight.activateView(this._previousPanelRightView)
@@ -93,7 +93,7 @@ class LayeredKeyboardControl {
                 case 'Shift':
                     break
                 case ' ':
-                    if (g.focus.get('allowWhiteSpace')) return true
+                    if (g.focus.get().allowWhiteSpace) return true
                     spacePressed = true
                     this.commandSent = false
                     break
@@ -162,7 +162,7 @@ class LayeredKeyboardControl {
                     break
                 case ' ':
                     spacePressed = false
-                    if (g.focus.get('allowWhiteSpace')) return true
+                    if (g.focus.get().allowWhiteSpace) return true
                     if (!this.commandSent && this.sendCommand(e) &&
                         e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
                         g.activeEditor.insertText(' ')

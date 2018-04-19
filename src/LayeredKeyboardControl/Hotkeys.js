@@ -17,7 +17,7 @@ function bindHotkeys() {
 
     hotkey('mod + `', () => {
         if (!g.activeEditor) return
-        const filePath = g.activeEditor.get('filePath')
+        const { filePath } = g.activeEditor.get()
         filePath && g.panelMiddle.closeFile(filePath)
     })
 

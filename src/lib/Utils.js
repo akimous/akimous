@@ -33,7 +33,7 @@ function initializeTabView(view, title, icon) {
     })
     view.children = {}
     setTimeout(() => {
-        view.parent = view.get('parent')
+        view.parent = view.get().parent
         view.tab = view.parent.tabBar.openTab(view, title, icon)
         view.tab.set({
             labeled: false
@@ -58,7 +58,7 @@ function setAttributeForMultipleComponent(obj, ...targets) {
 }
 
 function activateView(parent, view) {
-    const oldView = parent.get('focus')
+    const oldView = parent.get().focus
     if (view === oldView) return
     parent.set({
         focus: view

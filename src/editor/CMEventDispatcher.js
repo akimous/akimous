@@ -46,7 +46,7 @@ class CMEventDispatcher {
             g.setFocus([g.panelMiddle, editor])
         })
 
-        cm.on('gutterClick', (cm, line , gutter, event) => {
+        cm.on('gutterClick', (cm, line, gutter, event) => {
             if (gutter !== 'CodeMirror-linenumbers') return
             const lineLength = cm.getLine(line).length
             cm.setSelection({
@@ -68,7 +68,7 @@ class CMEventDispatcher {
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
-            const clean = editor.get('clean')
+            const { clean } = editor.get()
             if (clean === doc.isClean()) return
             editor.set({
                 clean: !clean
@@ -170,14 +170,12 @@ class CMEventDispatcher {
                     }
                     //                        break
                 } else if (c.origin === '+delete') {
-
                     if (c.from.line !== c.to.line) {
                         shouldSyncAfterChange = true
                     } else {
                         formatter.deleteHandler()
                     }
-                    if (!completion.get('open'))
-                        return
+                    if (!completion.get().open) return
                     if (predictor.firstTriggeredCharPos.ch === cursor.ch) {
                         completion.set({
                             open: false

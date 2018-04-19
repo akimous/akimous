@@ -65,7 +65,7 @@
             const renamingEventHandler = data => {
                 // change file tree names
                 const node = this.getNode(data.path)
-                const parent = node.get('parent')
+                const { parent } = node.get()
                 const oldName = data.path[data.path.length - 1]
                 const target = data.cmd === 'event-FileRenamed' ? 'files' : 'dirs'
                 const destPath = [...data.path]
@@ -149,14 +149,14 @@
             this.ws.connect(() => {
                 this.ws.send({
                     cmd: 'openFolder',
-                    path: this.get('root'),
+                    path: this.get().root,
                     isRoot: true
                 })
             })
 
             this.keyEventHandler = {
                 handleKeyEvent(event, target) {
-                    if (g.focus.constructor.name === 'FileTreeNode' && g.focus.get('renaming'))
+                    if (g.focus.constructor.name === 'FileTreeNode' && g.focus.get().renaming)
                         return true
                     switch (event.key) {
                         case 'ArrowDown':
@@ -254,7 +254,7 @@
                     node = siblin
                 }
                 if (!node && node === currentFocus) return
-                if (!node.get('selected')) node.onClick()
+                if (!node.get().selected) node.onClick()
                 node.refs.row.scrollIntoViewIfNeeded(false)
             },
             moveToNeighbor(direction) {
@@ -266,8 +266,8 @@
             moveToFirstChild() {
                 const node = g.focus
                 if (this.moveToTopIfNothingSelected()) return
-                if (!node.get('isDir')) return
-                if (node.get('open')) {
+                if (!node.get().isDir) return
+                if (node.get().open) {
                     const firstChild = node.firstChild()
                     if (firstChild) {
                         firstChild.onClick()
@@ -280,7 +280,7 @@
             moveToParent() {
                 const node = g.focus
                 if (this.moveToTopIfNothingSelected()) return
-                const parent = node.get('parent')
+                const { parent } = node.get()
                 if (!parent) return
                 parent.onClick()
                 parent.refs.row.scrollIntoViewIfNeeded(false)
@@ -317,7 +317,7 @@
                 step()
             },
             moveToTopIfNothingSelected() {
-                if (g.focus.constructor.name !== 'FileTreeNode' || !g.focus.get('parent')) {
+                if (g.focus.constructor.name !== 'FileTreeNode' || !g.focus.get().parent) {
                     this.top()
                     return true
                 }
