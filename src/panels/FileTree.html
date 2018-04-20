@@ -1,10 +1,10 @@
-<div ref:fileTree class="file-tree tab-view {{active?'':'gone'}}">
+<div ref:fileTree class="file-tree tab-view {active?'':'gone'}">
     <div class="container" ref:children>
-        {{#each dirs as i @uid}}
-        <FileTreeNode name={{i.name}} parent={{self}} isDir></FileTreeNode>
-        {{/each}} {{#each files as i @uid}}
-        <FileTreeNode name={{i.name}} parent={{self}}></FileTreeNode>
-        {{/each}}
+        {#each dirs as i (i.uid)}
+        <FileTreeNode name={i.name} parent={self} isDir></FileTreeNode>
+        {/each} {#each files as i (i.uid)}
+        <FileTreeNode name={i.name} parent={self}></FileTreeNode>
+        {/each}
     </div>
 </div>
 

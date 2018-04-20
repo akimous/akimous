@@ -1,13 +1,13 @@
-<div class="modal" style="display: {{active ? 'block' : 'none'}}">
+<div class="modal" style="display: {active ? 'block' : 'none'}">
     <div class="icon-area">
-        <i class="icon {{icon}}" aria-hidden="true"></i>
+        <i class="icon {icon}" aria-hidden="true"></i>
     </div>
-    <div class="text">{{{content}}}</div>
+    <div class="text">{@html content}</div>
     <table>
         <tr>
-            {{#each buttons as button}}
-            <td class="td {{button.style}}" on:click="onClickButton(button)"> {{button.text}} </td>
-            {{/each}}
+            {#each buttons as button}
+            <td class="td {button.style}" on:click="onClickButton(button)"> {button.text} </td>
+            {/each}
         </tr>
     </table>
 </div>
@@ -66,11 +66,6 @@
         -webkit-user-select: none;
         -webkit-border-horizontal-spacing: 0;
         -webkit-border-vertical-spacing: 0;
-    }
-
-    tbody {
-        padding: 0;
-        margin: 0;
     }
 
     td {

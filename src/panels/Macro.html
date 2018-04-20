@@ -1,18 +1,18 @@
-<div class="container {{active?'':'gone'}}">
+<div class="container {active?'':'gone'}">
     <div ref:macro id="macro">
         <div class="title">Clipboard</div>
-        {{#if clipboard.length === 0}}
+        {#if clipboard.length === 0}
         <div class="placeholder">Empty <br>(copy or cut something to fill in the clipboard)</div>
-        {{/if}}
+        {/if}
         <table id="clipboard">
-            {{#each clipboard as text, i}}
+            {#each clipboard as text, i}
             <tr on:click="paste(text)">
-                <td class="clipboard-index">{{(i+1)%10}}</td>
+                <td class="clipboard-index">{(i+1)%10}</td>
                 <td>
-                    <div class="clipboard-text">{{text}}</div>
+                    <div class="clipboard-text">{text}</div>
                 </td>
             </tr>
-            {{/each}}
+            {/each}
         </table>
     </div>
 </div>
@@ -21,8 +21,6 @@
     .container {
         height: calc(100% - var(--indicator-height) - .1rem);
     }
-
-    #macro {}
 
     .title {
         padding: .3rem;
@@ -52,7 +50,6 @@
     }
 
     table,
-    th,
     td {
         padding: 0;
         margin: 0;

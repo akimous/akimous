@@ -1,8 +1,8 @@
-<div ref:notificationBar id="notification-bar" class="{{level}}" style="{{active?'':'display:none'}}">
-    {{{message}}} {{#each actions as action}}
+<div ref:notificationBar id="notification-bar" class="{level}" style="{active?'':'display:none'}">
+    {@html message} {#each actions as action}
     <span class="action" on:click="doAction(action)">
-        {{action.name}}
-    </span> {{/each}}
+        {action.name}
+    </span> {/each}
     <div class="dismiss" on:click="showNext()">
         <i class="fas fa-times"></i>
     </div>

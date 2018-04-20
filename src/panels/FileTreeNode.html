@@ -1,19 +1,19 @@
-<div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node {{selected?'selected':''}}" style="padding-left: {{0.3 + level}}rem;">
-    <span class="icon {{icon}}"></span> {{#if !renaming}}
+<div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node {selected?'selected':''}" style="padding-left: {0.3 + level}rem;">
+    <span class="icon {icon}"></span> {#if !renaming}
     <span class="display-name"> 
-        {{name}}
-    </span> {{else}}
-    <input ref:input class="display-name" type="text" value="{{name}}" on:blur="commitRename()"> {{/if}}
+        {name}
+    </span> {:else}
+    <input ref:input class="display-name" type="text" value="{name}" on:blur="commitRename()"> {/if}
 
 </div>
 
-{{#if newNode}}
-<:Self ref:placeholderNode placeholderMode={{true}} level={{level+isDir}} parent={{self}} isDir={{newNode==='dir' }}/> {{/if}}
+{#if newNode}
+<svelte:self ref:placeholderNode placeholderMode={true} level={level+isDir} parent={self} isDir={newNode==='dir' }/> {/if}
 
 <div ref:children>
-    {{#each dirs as i @uid}}
-    <:Self level={{level+1}} name={{i.name}} parent={{self}} isDir/> {{/each}} {{#each files as i @uid}}
-    <:Self level={{level+1}} name={{i.name}} parent={{self}} /> {{/each}}
+    {#each dirs as i (i.uid)}
+    <svelte:self level={level+1} name={i.name} parent={self} isDir/> {/each} {#each files as i (i.uid)}
+    <svelte:self level={level+1} name={i.name} parent={self} /> {/each}
 </div>
 
 
@@ -222,7 +222,7 @@
             }
         },
         computed: {
-            allowWhiteSpace: renaming => renaming,
+            allowWhiteSpace: ({ renaming }) => renaming,
         },
         methods: {
             getPath() {

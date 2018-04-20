@@ -22,7 +22,7 @@ export default {
             // css: css => {
             //     css.write('dist/bundle.css', !production) // enable sourcemap when not in production
             // },
-            cascade: true
+//            cascade: true
         }),
 
         resolve(),

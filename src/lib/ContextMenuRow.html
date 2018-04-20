@@ -1,8 +1,8 @@
-<div class="context-menu-row {{selected?'selected':''}}" on:mouseover="mouseover()" on:click="click()">
+<div class="context-menu-row {selected?'selected':''}" on:mouseover="mouseover()" on:click="click()">
     <span class="icon">
-        <i class="{{icon}}" aria-hidden="true"></i>
+        <i class="{icon}" aria-hidden="true"></i>
     </span>
-    {{{text}}}
+    {@html text}
 </div>
 
 

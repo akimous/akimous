@@ -1,15 +1,15 @@
-{{#if open}}
+{#if open}
 <div ref:notificationHistory id="notification-history">
     <div class="container">
-        {{#if items.length===0}}
+        {#if items.length===0}
         <div class="no-notifications">
             No Notifications
-        </div> {{/if}} {{#each items as item}}
-        <div class="item {{item.level}}">{{{item.message}}}</div>
-        {{/each}}
+        </div> {/if} {#each items as item}
+        <div class="item {item.level}">{@html item.message}</div>
+        {/each}
     </div>
 </div>
-{{/if}}
+{/if}
 
 
 <style>
