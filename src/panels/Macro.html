@@ -92,9 +92,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import {
-        initializeTabView
-    } from '../lib/Utils'
+    import { initializeTabView } from '../lib/Utils'
 
     export default {
         components: {},
@@ -110,7 +108,7 @@
         },
         methods: {
             addClipboardItem(text) {
-                const {clipboard} = this.get()
+                const { clipboard } = this.get()
                 if (clipboard.length >= 10) clipboard.pop()
                 clipboard.unshift(text)
                 this.set({
