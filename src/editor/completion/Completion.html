@@ -120,9 +120,10 @@
             this.keyEventHandler = EventDispatcherFactory({
                 target: this,
                 extraKeyHandler(event, target) {
-                    if (/[.,()[\]:+\-*/|&^~%@><!]/.test(event.key))
-                        target.enter()
-                    else if (/[=[\](){}]/.test(event.key))
+                    const { key } = event
+                    if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key))
+                        target.enter(null, key)
+                    else if (/[=[\](){}]/.test(key))
                         target.set({
                             open: false
                         })
@@ -199,9 +200,8 @@
                 completionElement.style.left = `${x}px`
                 completionElement.style.top = `${y}px`
             },
-            enter(rowNumber) {
+            enter(rowNumber, key) {
                 if (!this.get().open) return console.error('closed')
-
                 const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get().selectedCompletionRow
                 if (!completion) return console.error('no selected completion')
 
@@ -212,7 +212,8 @@
                 if (type === 'instruction') return
 
                 let text = completion.get().c
-                if (type === 'keyword' || type === 'module') text += ' '
+                if (key === 'commit' && (type === 'keyword' || type === 'module'))
+                    text += ' '
 
                 this.cm.doc.replaceRange(
                     text,

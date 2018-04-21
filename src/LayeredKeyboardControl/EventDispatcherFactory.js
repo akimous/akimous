@@ -20,7 +20,7 @@ function EventDispatcherFactory(options) {
                 break
             case ' ':
             case 'Enter':
-                target.enter()
+                target.enter(null, event.key)
                 break
 
             default:
@@ -31,7 +31,6 @@ function EventDispatcherFactory(options) {
     }
 
     const handleCommand = command => {
-        console.log('handleCommand', command)
         switch (command) {
             case 'down':
                 target.move(1)
@@ -54,7 +53,7 @@ function EventDispatcherFactory(options) {
                 target.move(-999999)
                 return false
             case 'commit':
-                target.enter()
+                target.enter(null, command)
                 return false
             case '1':
             case '2':
@@ -64,7 +63,7 @@ function EventDispatcherFactory(options) {
             case '6':
             case '7':
             case '8':
-                target.enter(+command)
+                target.enter(+command, command)
                 return false
         }
         return true
