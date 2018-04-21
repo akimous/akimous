@@ -1,10 +1,10 @@
 <div class="container {active?'':'gone'}">
     <div ref:macro id="macro">
-        <div class="title">Clipboard</div>
+        <div class="title non-selectable">Clipboard</div>
         {#if clipboard.length === 0}
-        <div class="placeholder">Empty <br>(copy or cut something to fill in the clipboard)</div>
+        <div class="placeholder non-selectable">Empty <br>(copy or cut something to fill in the clipboard)</div>
         {/if}
-        <table id="clipboard">
+        <table id="clipboard" class="non-selectable">
             {#each clipboard as text, i}
             <tr on:click="paste(text)">
                 <td class="clipboard-index">{(i+1)%10}</td>
@@ -26,27 +26,18 @@
         padding: .3rem;
         color: var(--gray3);
         font-size: var(--ui-font-size-large);
-        -webkit-user-select: none;
-        user-select: none;
-        cursor: default;
     }
 
     .placeholder {
         padding: .3rem;
         background: var(--main-bg-color);
         color: var(--gray2);
-        -webkit-user-select: none;
-        user-select: none;
-        cursor: default;
     }
 
     #clipboard {
         width: 100%;
         background: var(--main-bg-color);
         font-family: var(--basic-monospace-font-family);
-        -webkit-user-select: none;
-        user-select: none;
-        cursor: default;
     }
 
     table,

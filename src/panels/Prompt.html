@@ -3,7 +3,7 @@
         <i class="icon {icon}" aria-hidden="true"></i>
     </div>
     <div class="text">{@html content}</div>
-    <table>
+    <table class="non-selectable">
         <tr>
             {#each buttons as button}
             <td class="td {button.style}" on:click="onClickButton(button)"> {button.text} </td>
@@ -62,8 +62,6 @@
         height: 3rem;
         position: absolute;
         border-radius: .5rem;
-        user-select: none;
-        -webkit-user-select: none;
         -webkit-border-horizontal-spacing: 0;
         -webkit-border-vertical-spacing: 0;
     }

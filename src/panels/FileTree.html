@@ -1,4 +1,4 @@
-<div ref:fileTree class="file-tree tab-view {active?'':'gone'}">
+<div ref:fileTree class="file-tree non-selectable tab-view {active?'':'gone'}">
     <div class="container" ref:children>
         {#each dirs as i (i.uid)}
         <FileTreeNode name={i.name} parent={self} isDir></FileTreeNode>
@@ -13,8 +13,6 @@
         color: var(--basic-ui-font-color);
         font-family: var(--basic-ui-font-family);
         font-size: var(--basic-ui-font-size);
-        user-select: none;
-        -webkit-user-select: none;
         overflow-x: scroll;
     }
 

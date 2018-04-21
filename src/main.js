@@ -1,4 +1,5 @@
 import App from './App.html'
+import './lib/common.css'
 import 'normalize.css/normalize.css'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/fold/foldgutter.css'

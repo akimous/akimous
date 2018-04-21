@@ -1,5 +1,5 @@
 <div ref:completionContainer class="completion-container" style="display:{open?'block':'none'}">
-    <div ref:completion class="completion" />
+    <div ref:completion class="completion non-selectable" />
     <div ref:docstring class="docstring-container">
         <div class="docstring"> {docstring} </div>
     </div>
@@ -25,11 +25,7 @@
         font-family: var(--basic-monospace-font-family);
         font-size: var(--basic-monospace-font-size);
         line-height: 2rem;
-
         overflow-x: scroll;
-        cursor: default;
-        user-select: none;
-        -webkit-user-select: none;
     }
 
     .docstring-container {

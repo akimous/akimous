@@ -1,4 +1,4 @@
-<div class="context-menu-row {selected?'selected':''}" on:mouseover="mouseover()" on:click="click()">
+<div class="context-menu-row non-selectable {selected?'selected':''}" on:mouseover="mouseover()" on:click="click()">
     <span class="icon">
         <i class="{icon}" aria-hidden="true"></i>
     </span>
@@ -13,9 +13,6 @@
         padding: 0 1rem;
         line-height: var(--basic-ui-line-height);
         font-weight: 400;
-        -webkit-user-select: none;
-        user-select: none;
-        cursor: default;
     }
     
     .selected {
