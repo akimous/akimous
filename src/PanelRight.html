@@ -26,22 +26,16 @@
 
 <script>
     import g from './lib/Globals'
-    import TabBar from './panels/TabBar.html'
-    import Console from './panels/Console.html'
-    import Macro from './panels/Macro.html'
-    import Docs from './panels/Docs.html'
-    import Find from './panels/Find.html'
-    import Linter from './panels/Linter.html'
     import { setAttributeForMultipleComponent, activateView } from './lib/Utils'
 
     export default {
         components: {
-            TabBar,
-            Console,
-            Macro,
-            Docs,
-            Find,
-            Linter
+            TabBar: './panels/TabBar.html',
+            Console: './panels/Console.html',
+            Macro: './panels/Macro.html',
+            Docs: './panels/Docs.html',
+            Find: './panels/Find.html',
+            Linter: './panels/Linter.html'
         },
         oncreate() {
             g.panelRight = this

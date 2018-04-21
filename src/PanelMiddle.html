@@ -18,14 +18,13 @@
 
 <script>
     import g from './lib/Globals'
-    import TabBar from './panels/TabBar.html'
     import CodeEditor from './editor/CodeEditor.html'
 
     const MAX_ACTIVATION_HISTORY = 32
 
     export default {
         components: {
-            TabBar
+            TabBar: './panels/TabBar.html'
         },
         oncreate() {
             g.panelMiddle = this

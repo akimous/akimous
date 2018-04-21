@@ -25,17 +25,13 @@
 
 <script>
     import g from '../lib/Globals'
-    import NotificationBar from '../panels/NotificationBar.html'
-    import NotificationHistory from '../panels/NotificationHistory.html'
-    import TabNumber from '../panels/TabNumber.html'
-    import ToolbarButton from './ToolbarButton.html'
 
     export default {
         components: {
-            NotificationBar,
-            NotificationHistory,
-            TabNumber,
-            ToolbarButton
+            NotificationBar: '../panels/NotificationBar.html',
+            NotificationHistory: '../panels/NotificationHistory.html',
+            TabNumber: '../panels/TabNumber.html',
+            ToolbarButton: './ToolbarButton.html',
         },
         oncreate() {
             g.toolbar = this

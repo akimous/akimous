@@ -15,10 +15,7 @@
     import registerCMCommands from './CMCommands'
     import RealtimeFormatter from './RealtimeFormatter'
     import Predictor from './completion/Predictor'
-    import Completion from './completion/Completion.html'
-    import {
-        getIconByFileName
-    } from '../lib/FileTypeToIcon'
+    import { getIconByFileName } from '../lib/FileTypeToIcon'
     import { onIdle } from '../lib/Utils'
 
     /* eslint-disable */
@@ -74,7 +71,7 @@
 
     export default {
         components: {
-            Completion
+            Completion: './completion/Completion.html'
         },
         oncreate() {
             this.parent = this.get().parent

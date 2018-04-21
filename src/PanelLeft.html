@@ -23,15 +23,12 @@
 <script>
     import g from './lib/Globals'
     import { setAttributeForMultipleComponent, activateView } from './lib/Utils'
-    import TabBar from './panels/TabBar.html'
-    import FileTree from './panels/FileTree.html'
-    import Outline from './panels/Outline.html'
 
     export default {
         components: {
-            TabBar,
-            FileTree,
-            Outline,
+            TabBar: './panels/TabBar.html',
+            FileTree: './panels/FileTree.html',
+            Outline: './panels/Outline.html',
         },
         oncreate() {
             g.panelLeft = this

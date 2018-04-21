@@ -14,10 +14,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import {
-        onIdle,
-        initializeTabView
-    } from '../lib/Utils'
+    import { onIdle, initializeTabView } from '../lib/Utils'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
     // import attach from 'xterm/lib/addons/attach/attach'
@@ -44,7 +41,7 @@
                 this.terminal.on('focus', () => {
                     g.setFocus([g.panelRight, this])
                 })
-                
+
                 onIdle(() => {
                     this.terminal.fit()
                     for (let i = 0; i < 3; i++)

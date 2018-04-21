@@ -30,12 +30,11 @@
 <script>
     import g from '../lib/Globals'
     import WSClient from '../lib/WSClient'
-    import FileTreeNode from './FileTreeNode.html'
     import { binarySearch, initializeTabView } from '../lib/Utils'
 
     export default {
         components: {
-            FileTreeNode
+            FileTreeNode: './FileTreeNode.html'
         },
         oncreate() {
             g.fileTree = this
