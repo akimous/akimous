@@ -8,9 +8,11 @@
     "license": "MIT",
     "private": true,
     "devDependencies": {
+        "autoprefixer": "^8.3.0",
         "babel-core": "6",
         "babel-minify": "^0.4.0",
         "browser-sync": "^2.23.7",
+        "browserslist": "^3.2.4",
         "cloc": "^2.3.3",
         "codemirror": "^5.37.0",
         "css-element-queries": "^1.0.2",
@@ -30,7 +32,7 @@
         "rollup-plugin-strip": "^1.1.1",
         "rollup-plugin-svelte": "^4.1.0",
         "sortablejs": "^1.7.0",
-        "svelte": "^2.0.0",
+        "svelte": "^2.1.0",
         "svelte-cli": "^2.0.0",
         "xterm": "^3.3.0"
     },
@@ -42,5 +44,12 @@
         "copystatic": "cp -r src/index.html resources/* dist/",
         "release": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c && cloc src/ && cd dist/ && zopfli bundle.* && brotli bundle.js",
         "start": "http-server ./dist -p 5000 -g"
-    }
+    },
+    "browserslist": [
+        "last 2 Safari versions",
+        "last 2 Chrome versions",
+        "last 2 Firefox versions",
+        "last 1 Edge versions",
+        "last 1 ChromeAndroid versions"
+    ]
 }

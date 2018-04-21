@@ -5,6 +5,7 @@ import babel from 'rollup-plugin-babel'
 //import strip from 'rollup-plugin-strip'
 import sizes from 'rollup-plugin-sizes'
 import postcss from 'rollup-plugin-postcss'
+// import autoprefixer from 'autoprefixer'
 
 const production = !process.env.ROLLUP_WATCH
 
@@ -24,8 +25,8 @@ export default {
         resolve(),
         commonjs(),
         postcss({
-            plugins: [],
-            minimize: production,
+            // plugins: [autoprefixer()], // not effective for svelte component
+            minimize: true,
             // extract: 'dist/vendor.css'
         }),
         production && babel(),

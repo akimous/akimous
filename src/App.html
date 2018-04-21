@@ -38,12 +38,6 @@
 
 <script>
     import g from './lib/Globals'
-    import PanelLeft from './PanelLeft.html'
-    import PanelMiddle from './PanelMiddle.html'
-    import PanelRight from './PanelRight.html'
-    import Toolbar from './panels/Toolbar.html'
-    import Prompt from './panels/Prompt.html'
-    import ContextMenu from './lib/ContextMenu.html'
     import Hotkeys from './LayeredKeyboardControl/Hotkeys'
     import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
 
@@ -87,12 +81,12 @@
 
     export default {
         components: {
-            Toolbar,
-            PanelLeft,
-            PanelMiddle,
-            PanelRight,
-            Prompt,
-            ContextMenu
+            Toolbar: './panels/Toolbar.html',
+            PanelLeft: './PanelLeft.html',
+            PanelMiddle: './PanelMiddle.html',
+            PanelRight: './PanelRight.html',
+            Prompt: './panels/Prompt.html',
+            ContextMenu: './lib/ContextMenu.html',
         },
 
         oncreate() {
