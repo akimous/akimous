@@ -38,6 +38,7 @@
                     }
                 })
                 this.terminal.open(this.refs.terminal, false)
+
                 this.terminal.on('focus', () => {
                     g.setFocus([g.panelRight, this])
                 })
@@ -46,6 +47,8 @@
                     this.terminal.fit()
                     for (let i = 0; i < 3; i++)
                         this.terminal.write('blabla')
+                    this.tab.set({ active: false })
+                    this.tab.set({ active: true })
                 }, 5000, 500)
             }, 5000, 500)
         },
