@@ -3,12 +3,12 @@ import Keymap from './Keymap'
 import CodeEditor from '../editor/CodeEditor.html'
 
 function togglePanelAutoHide(panel) {
-    const { autoHide } = panel.get()
+    const autoHide = !panel.get().autoHide
     panel.set({
         autoHide,
-        hidden: !autoHide
+        hidden: autoHide
     })
-    if (!autoHide) g.setFocus([g.panelMiddle])
+    if (autoHide) g.setFocus([g.panelMiddle])
 }
 
 class LayeredKeyboardControl {
