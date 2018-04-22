@@ -18,7 +18,7 @@
     .completion {
         display: inline-block;
         position: relative;
-        
+
         background: var(--main-bg-color);
         color: var(--basic-monospace-font-color);
         height: 14rem;
@@ -35,7 +35,7 @@
         display: inline-block;
         position: relative;
         margin-left: -2rem;
-        
+
         background: var(--panel-color);
         z-index: 99;
         border-radius: var(--default-radius);
@@ -149,7 +149,7 @@
                 open: false,
                 passive: false,
                 rows: [],
-                selectedCompletionRow: undefined,
+                selectedCompletionRow: null,
                 docstring: '',
                 closable: true
             }
@@ -164,14 +164,19 @@
                 if (this.get().passive && row.c.length < 3) return false
                 return row.sortScore > 0
             },
+            requestCompletionDocstring(name) {
+                if (name === this.lastRequestedCompletionForDocstring) return
+                this.lastRequestedCompletionForDocstring = name
+                this.editor.ws.send({
+                    cmd: 'getCompletionDocstring',
+                    name
+                })
+            },
             setCompletions() {
                 const filteredCompletion = this.predictor.currentCompletions.filter(
                     this.shouldDisplayCompletionRow, this)
                 if (filteredCompletion.length) {
-                    this.editor.ws.send({
-                        cmd: 'getCompletionDocstring',
-                        name: filteredCompletion[0].c
-                    })
+                    this.requestCompletionDocstring(filteredCompletion[0].c)
                     this.set({
                         rows: filteredCompletion,
                         open: true
@@ -232,10 +237,7 @@
                 else if (targetIndex < 0) targetIndex = 0
 
                 const targetRow = this.completionRows[targetIndex]
-                this.editor.ws.send({
-                    cmd: 'getCompletionDocstring',
-                    name: targetRow.get().c
-                })
+                this.requestCompletionDocstring(targetRow.get().c)
                 this.set({
                     selectedCompletionRow: targetRow
                 })
