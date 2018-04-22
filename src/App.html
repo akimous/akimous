@@ -23,7 +23,7 @@
 
     #split-bar-r {
         left: calc(100% - var(--panel-right-width) - .4rem);
-        z-index: 0;
+        z-index: 2;
     }
 
     .split-bar:hover {
@@ -96,7 +96,9 @@
                     e.preventDefault()
                     document.onmousemove = e => {
                         const width = e.pageX + 'px'
-                        document.documentElement.style.setProperty('--panel-left-width', width)
+                        requestAnimationFrame(() => {
+                            document.documentElement.style.setProperty('--panel-left-width', width)
+                        })
                     }
                 }
                 this.refs.splitBarR.onmousedown = e => {
@@ -104,7 +106,9 @@
                     document.onmousemove = e => {
                         const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
                         const width = (viewportWidth - e.pageX) + 'px'
-                        document.documentElement.style.setProperty('--panel-right-width', width)
+                        requestAnimationFrame(() => {
+                            document.documentElement.style.setProperty('--panel-right-width', width)
+                        })
                     }
                 }
                 this.refs.splitBarR.onmouseup = () => {
