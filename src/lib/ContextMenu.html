@@ -35,7 +35,6 @@
             this.dividers = []
             this.keyEventHandler = EventDispatcherFactory({
                 target: this,
-                closable: true
             })
         },
         onstate({
@@ -48,7 +47,7 @@
                     selectedRow: undefined
                 })
                 if (current.open) {
-                    g.activeEditor.completion.set({
+                    g.activeEditor && g.activeEditor.completion.set({
                         open: false
                     })
                     g.pushFocus(this)
@@ -94,11 +93,12 @@
                     text: '',
                     callback: () => {}
                 }],
-                selectedRow: undefined,
+                selectedRow: null,
                 open: false,
                 x: 0,
                 y: 0,
-                caller: undefined,
+                caller: null,
+                closable: true,
             }
         },
         methods: {

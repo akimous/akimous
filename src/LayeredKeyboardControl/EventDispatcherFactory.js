@@ -2,7 +2,6 @@
 
 function EventDispatcherFactory(options) {
     const extraKeyHandler = options.extraKeyHandler
-    const closable = options.closable
     const target = options.target
 
     const handleKeyEvent = event => {
@@ -14,7 +13,7 @@ function EventDispatcherFactory(options) {
                 target.move(-1)
                 break
             case 'Escape':
-                closable && target.set({
+                target.get().closable && target.set({
                     open: false
                 })
                 break
