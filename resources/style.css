@@ -28,6 +28,10 @@
     border-right: 0px;
 }
 
+.cm-s-legato .padding-gutter {
+    width: .5rem;
+}
+
 .cm-s-legato .CodeMirror-guttermarker {
     color: #ac4142;
 }
@@ -38,12 +42,10 @@
 
 .cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-folded {
     color: var(--gray3);
-    padding-left: .4rem;
 }
 
 .cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open {
     color: var(--gray6);
-    padding-left: .4rem;
 }
 
 .cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open:hover,
