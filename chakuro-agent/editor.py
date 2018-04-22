@@ -121,7 +121,7 @@ async def predict(msg, send, context):
 async def get_completion_docstring(msg, send, context):
     result = context.currentCompletions.get(msg['name'], None)
     if result:
-        result = result.docstring()
+        result = result.docstring(fast=False)
     await send({
         'cmd': 'getCompletionDocstring-result',
         'docstring': result

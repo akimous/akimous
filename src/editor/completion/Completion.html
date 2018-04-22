@@ -1,10 +1,8 @@
 <div ref:completionContainer class="completion-container" style="display:{open?'block':'none'}">
     <div ref:completion class="completion non-selectable" />
-    {#if docstring}
-    <div ref:docstring class="docstring-container">
+    <div ref:docstring class="docstring-container {docstring? '': 'gone'}">
         <div class="docstring"> {docstring} </div>
     </div>
-    {/if}
 </div>
 
 <style>
@@ -47,6 +45,7 @@
     }
 
     .docstring {
+        min-height: 14rem;
         white-space: pre-wrap;
         width: 23rem;
         margin: .5rem .5rem .5rem 2.5rem;
