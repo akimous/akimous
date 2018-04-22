@@ -235,7 +235,9 @@
                 })
 
                 this.ws.addHandler('getCompletionDocstring-result', data => {
-                    this.completion.set({ docstring: data.result })
+                    let { docstring } = data
+                    if (docstring.length === 0) docstring = null
+                    this.completion.set({ docstring })
                 })
             }), 500)
         },

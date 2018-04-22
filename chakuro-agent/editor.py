@@ -124,7 +124,7 @@ async def get_completion_docstring(msg, send, context):
         result = result.docstring()
     await send({
         'cmd': 'getCompletionDocstring-result',
-        'result': result
+        'docstring': result
     })
 
 
