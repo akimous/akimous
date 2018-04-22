@@ -1,4 +1,4 @@
-<div ref:completionRow class="row {selected?'selected':''}">
+<div on:click="click()" ref:completionRow class="row {selected?'selected':''}">
     <div class="row-number"> {rowNumber} </div>
     <div class="row-content">{@html highlight}</div>
     <div class="type-indicator {t}"> {t.substring(0, 1).toUpperCase()} </div>
@@ -23,18 +23,18 @@
         color: var(--ui-font-color);
         background: var(--gray5);
     }
-    
+
     .selected .row-number {
         color: white;
         background: var(--gray4);
     }
-    
+
     .row-content {
         position: absolute;
         left: 3rem;
         overflow-x: hidden;
     }
-    
+
     .type-indicator {
         display: inline-block;
         height: 2rem;
@@ -130,15 +130,21 @@
         oncreate() {},
         data() {
             return {
-                c: '',  // completion text
-                t: '',  // completion type
+                c: '', // completion text
+                t: '', // completion type
                 highlight: '',
                 rowNumber: 0,
                 selected: false,
                 index: 0
             }
         },
-        methods: {}
+        methods: {
+            click() {
+                const { parent } = this.get()
+                parent.set({ selectedCompletionRow: this })
+                parent.enter()
+            }
+        }
     }
 
 </script>

@@ -68,11 +68,7 @@
             parent.tabs.delete(this)
             parent.fitTabWidth()
         },
-        onstate({
-            changed,
-            current,
-            previous
-        }) {
+        onstate({ changed, current, previous }) {
             if (changed.parent) {
                 previous.parent && previous.parent.tabs.delete(this)
                 current.parent && current.parent.tabs.add(this)

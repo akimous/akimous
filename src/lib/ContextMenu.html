@@ -37,11 +37,7 @@
                 target: this,
             })
         },
-        onstate({
-            changed,
-            current,
-            previous
-        }) {
+        onstate({ changed, current, previous }) {
             if (changed.open) {
                 this.set({
                     selectedRow: undefined

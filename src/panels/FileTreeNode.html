@@ -174,11 +174,7 @@
             }
             g.popFocus(this)
         },
-        onstate({
-            changed,
-            current,
-            previous
-        }) {
+        onstate({ changed, current, previous }) {
             if (changed.name) {
                 const { parent } = this.get()
                 if (previous && previous.name) delete parent.children[previous.name]
