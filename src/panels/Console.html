@@ -24,40 +24,53 @@
         components: {},
         oncreate() {
             g.console = this
-            onIdle(() => {
-                initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
-                Terminal.applyAddon(fit)
-                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                this.terminal = new Terminal({
-                    tabStopWidth: 4,
-                    fontSize: 1.2 * rem,
-                    fontFamily: 'Source Code Pro',
-                    theme: {
-                        foreground: '#CCC',
-                        background: '#3F3F3F'
-                    }
-                })
-                this.terminal.open(this.refs.terminal, false)
+            initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
+            this.initialized = false
+        },
+        onupdate({ changed, current }) {
+            if (changed.active) {
+                if (!this.initialized && current.active) {
+                    this.initializeTerminal()
+                    this.initialized = true
+                }
 
-                this.terminal.on('focus', () => {
-                    g.setFocus([g.panelRight, this])
-                })
-
-                onIdle(() => {
-                    this.terminal.fit()
-                    for (let i = 0; i < 3; i++)
-                        this.terminal.write('blabla')
-                    this.tab.set({ active: false })
-                    this.tab.set({ active: true })
-                }, 5000, 500)
-            }, 5000, 500)
+            }
         },
         data() {
             return {
                 active: false
             }
         },
-        methods: {}
+        methods: {
+            initializeTerminal() {
+                requestAnimationFrame(() => {
+                    Terminal.applyAddon(fit)
+                    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+                    this.terminal = new Terminal({
+                        tabStopWidth: 4,
+                        fontSize: 1.2 * rem,
+                        fontFamily: 'Source Code Pro',
+                        theme: {
+                            foreground: '#CCC',
+                            background: '#3F3F3F'
+                        }
+                    })
+                    this.terminal.open(this.refs.terminal, false)
+                    this.terminal.on('focus', () => {
+                        g.setFocus([g.panelRight, this])
+                    })
+
+                    onIdle(() => {
+                        this.terminal.fit()
+                        for (let i = 0; i < 3; i++)
+                            this.terminal.write('blabla')
+                        this.tab.set({ active: false })
+                        this.tab.set({ active: true })
+                    }, 5000, 500)
+                })
+
+            }
+        }
     }
 
 </script>

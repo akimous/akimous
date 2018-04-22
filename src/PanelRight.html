@@ -1,10 +1,10 @@
 <div ref:panelRight id="panel-right" class="{focused?'indicator-on':''} {hidden?'gone':''} {autoHide?'auto-hide':''}">
     <TabBar ref:tabBar></TabBar>
     <Console ref:console></Console>
-    <Macro ref:macro></Macro>
-    <Docs ref:docs></Docs>
     <Find ref:find></Find>
     <Linter ref:linter></Linter>
+    <Macro ref:macro></Macro>
+    <Docs ref:docs></Docs>
 </div>
 
 
@@ -44,9 +44,9 @@
                 parent: this
             }, this.refs.tabBar, this.refs.console, this.refs.macro, this.refs.docs, this.refs.find, this.refs.linter)
 
-            // we must activate console first, or xterm will break
+            // we must activate console upon initialization, or xterm will break
             setTimeout(() => {
-                this.activateView(this.refs.console)
+                this.activateView(this.refs.docs)
             })
         },
         onstate({ changed, current }) {
