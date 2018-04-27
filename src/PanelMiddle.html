@@ -40,6 +40,7 @@
             }, 100)
         },
         onstate({ changed, current, previous }) {
+            if (!previous) return
             if (changed.focus) {
                 const focus = current.focus
                 if (focus === previous.focus) return

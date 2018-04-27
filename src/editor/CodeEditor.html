@@ -246,6 +246,7 @@
             delete g.panelMiddle.pathToEditor[this.get().filePath.join('/')]
         },
         onstate({ changed, current, previous }) {
+            if (!previous) return
             if (changed.filePath) {
                 const newPath = current.filePath
                 g.panelMiddle.pathToEditor[newPath.join('/')] = this
