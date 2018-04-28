@@ -44,7 +44,7 @@
     #quick-ref-container {
         position: absolute;
         top: var(--doc-usage-height);
-        height: calc(100% - var(--doc-usage-height));
+        height: calc(100% - var(--doc-usage-height) - var(--tab-bar-height));
         width: 100%;
         overflow-y: scroll;
     }
@@ -52,6 +52,7 @@
     #quick-ref {
         white-space: pre-wrap;
         margin: .5rem;
+        margin-bottom: 1rem;
     }
 
 </style>
@@ -81,7 +82,7 @@
         data() {
             return {
                 active: false,
-                quickRef: 'abc'
+                quickRef: null
             }
         },
         methods: {}

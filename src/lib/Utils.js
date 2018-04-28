@@ -70,27 +70,55 @@ function activateView(parent, view) {
 
 function reformatDocstring(doc) {
     if (!doc) return doc
-    console.log(doc)
-    const lines = doc.split(/\r?\n/)
+    const lines = doc.split(/\r?\n/).map(line => line.trim())
     const maxLineLength = lines.reduce((accumlator, line) => {
         return Math.max(accumlator, line.length)
-    }, 1)
-    console.log('splitted', doc.split(/\r?\n/))
-    console.log('max length', maxLineLength)
-    
+    }, 0) - 1
+
     const result = []
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]
-        const currentLineLength = line.length
-        if (currentLineLength < maxLineLength * .7) {
+    const temp = []
+    const insertLine = line => {
+        if (temp.length) {
+            if (line.startsWith('>>>')) {
+                result.push(temp.join(' '))
+                result.push(line)
+                console.warn('start with >>>')
+            }
+            temp.push(line)
+            result.push(temp.join(' '))
+            temp.length = 0
+        } else {
             result.push(line)
-            continue
         }
     }
-    
-    console.log('result', result)
-    
-    return doc
+    for (let i = 0; i < lines.length - 1; i++) {
+        const line = lines[i]
+        const currentLineLength = line.length
+
+        // current line is short, almost for sure it is not wrapped
+        if (currentLineLength < maxLineLength * .7) {
+            insertLine(line)
+            continue
+        }
+        const nextLine = lines[i + 1].trim()
+        let nextWordLength = nextLine.indexOf(' ')
+        if (nextWordLength < 0) nextWordLength = nextLine.length
+
+        // current line is wrapped
+        if (currentLineLength + nextWordLength >= maxLineLength) {
+            if (nextLine.startsWith('>>>')) {
+                insertLine(line)
+            } else
+                temp.push(line)
+            continue
+        }
+        // current line is not wrapped
+        insertLine(line)
+    }
+    if (lines.length > 0) { // process last line
+        insertLine(lines[lines.length - 1])
+    }
+    return result.join('\n')
 }
 
 export {
