@@ -16,7 +16,7 @@
     import RealtimeFormatter from './RealtimeFormatter'
     import Predictor from './completion/Predictor'
     import { getIconByFileName } from '../lib/FileTypeToIcon'
-    import { onIdle } from '../lib/Utils'
+    import { onIdle, reformatDocstring } from '../lib/Utils'
 
     /* eslint-disable */
     import CodeMirror from 'codemirror'
@@ -212,16 +212,10 @@
                     const selections = []
                     for (const pos of data.pos) {
                         const [line, ch] = pos
-                        const startPos = {
-                            line,
-                            ch
-                        }
+                        const startPos = { line, ch }
                         const token = this.cm.getTokenAt(startPos)
                         startPos.ch -= 1
-                        const endPos = {
-                            line,
-                            ch: token.end
-                        }
+                        const endPos = { line, ch: token.end }
                         if (token.string !== data.token) {
                             console.warn('variable name not match', token.string, data.token)
                             continue
@@ -237,7 +231,7 @@
                 this.ws.addHandler('getCompletionDocstring-result', data => {
                     let { docstring } = data
                     if (docstring.length === 0) docstring = null
-                    this.completion.set({ docstring })
+                    g.docs.set({ quickRef: reformatDocstring(docstring) })
                 })
             }), 500)
         },

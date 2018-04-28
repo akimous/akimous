@@ -1,15 +1,57 @@
-<div class="container {active?'':'gone'}">
-    <div ref:docs id="docs">Under Contruction</div>
+<div ref:container class="container {active?'':'gone'}">
+    <div ref:usage id="usage">Under Contruction</div>
+    <div ref:splitBar id="split-bar-doc" class="split-bar"></div>
+    <div id="quick-ref-container">
+        {#if quickRef}
+        <div ref:quickRef id="quick-ref"> {quickRef} </div>
+        {/if}
+    </div>
+
 </div>
 
 <style>
     .container {
-        padding: .4rem;
+        position: absolute;
         height: calc(100% - var(--indicator-height) - .1rem);
+        width: 100%;
     }
 
-    #docs {
-        background: gray;
+    .split-bar {
+        position: absolute;
+        top: calc(var(--doc-usage-height) - .4rem);
+        left: 0;
+        height: .9rem;
+        width: 100%;
+        cursor: row-resize;
+        z-index: 3;
+    }
+
+    .split-bar:hover {
+        background: var(--panel-delimiter-hover-color);
+        background: linear-gradient(to bottom,
+        transparent 30%, var(--panel-delimiter-hover-color) 30%,
+        var(--panel-delimiter-hover-color) 70%,
+        transparent 70%);
+    }
+
+    #usage {
+        position: absolute;
+        height: var(--doc-usage-height);
+        width: 100%;
+        border-bottom: var(--panel-border);
+    }
+
+    #quick-ref-container {
+        position: absolute;
+        top: var(--doc-usage-height);
+        height: calc(100% - var(--doc-usage-height));
+        width: 100%;
+        overflow-y: scroll;
+    }
+    
+    #quick-ref {
+        white-space: pre-wrap;
+        margin: .5rem;
     }
 
 </style>
@@ -17,17 +59,29 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView } from '../lib/Utils'
+    import { initializeTabView, onIdle } from '../lib/Utils'
 
     export default {
         components: {},
         oncreate() {
             g.docs = this
             initializeTabView(this, 'Documentation', 'fas fa-book l-red')
+            onIdle(() => {
+                this.refs.splitBar.onmousedown = e => {
+                    e.preventDefault()
+                    document.onmousemove = e => {
+                        const height = (e.pageY - this.refs.container.getBoundingClientRect().y) + 'px'
+                        requestAnimationFrame(() => {
+                            document.documentElement.style.setProperty('--doc-usage-height', height)
+                        })
+                    }
+                }
+            })
         },
         data() {
             return {
-                active: false
+                active: false,
+                quickRef: 'abc'
             }
         },
         methods: {}

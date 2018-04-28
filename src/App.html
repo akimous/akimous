@@ -112,7 +112,7 @@
                     }
                 }
                 this.refs.splitBarR.onmouseup = () => {
-                    g.console.terminal.fit()
+                    g.console.terminal && g.console.terminal.fit()
                 }
                 document.onmouseup = () => {
                     document.onmousemove = null

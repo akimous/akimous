@@ -11,6 +11,7 @@
         left: calc(var(--panel-left-width) + 1px);
         width: calc(100% - var(--panel-left-width) - var(--panel-right-width) - 1px);
         box-sizing: border-box;
+        z-index: 2; /* should be higher than that of PanelRight, or Completion will be blocked */
     }
 
 </style>

@@ -68,10 +68,36 @@ function activateView(parent, view) {
     })
 }
 
+function reformatDocstring(doc) {
+    if (!doc) return doc
+    console.log(doc)
+    const lines = doc.split(/\r?\n/)
+    const maxLineLength = lines.reduce((accumlator, line) => {
+        return Math.max(accumlator, line.length)
+    }, 1)
+    console.log('splitted', doc.split(/\r?\n/))
+    console.log('max length', maxLineLength)
+    
+    const result = []
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        const currentLineLength = line.length
+        if (currentLineLength < maxLineLength * .7) {
+            result.push(line)
+            continue
+        }
+    }
+    
+    console.log('result', result)
+    
+    return doc
+}
+
 export {
     binarySearch,
     onIdle,
     initializeTabView,
     setAttributeForMultipleComponent,
-    activateView
+    activateView,
+    reformatDocstring
 }
