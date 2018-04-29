@@ -1,5 +1,9 @@
 <div ref:container class="container {active?'':'gone'}">
-    <div ref:usage id="usage">Under Contruction</div>
+    <div id="function-doc-container">
+        {#if functionDoc}
+        <div ref:functionDoc id="function-doc"> {functionDoc} </div>
+        {/if}
+    </div>
     <div ref:splitBar id="split-bar-doc" class="split-bar"></div>
     <div id="quick-ref-container">
         {#if quickRef}
@@ -18,7 +22,7 @@
 
     .split-bar {
         position: absolute;
-        top: calc(var(--doc-usage-height) - .4rem);
+        top: calc(var(--function-doc-height) - .4rem);
         left: 0;
         height: .9rem;
         width: 100%;
@@ -34,19 +38,26 @@
         transparent 70%);
     }
 
-    #usage {
+    #function-doc-container {
         position: absolute;
-        height: var(--doc-usage-height);
+        height: var(--function-doc-height);
         width: 100%;
         border-bottom: var(--panel-border);
+        overflow-y: scroll;
     }
 
     #quick-ref-container {
         position: absolute;
-        top: var(--doc-usage-height);
-        height: calc(100% - var(--doc-usage-height) - var(--tab-bar-height));
+        top: var(--function-doc-height);
+        height: calc(100% - var(--function-doc-height) - var(--tab-bar-height));
         width: 100%;
         overflow-y: scroll;
+    }
+    
+    #function-doc {
+        white-space: pre-wrap;
+        margin: .5rem;
+        margin-bottom: 1rem;
     }
     
     #quick-ref {
@@ -82,7 +93,8 @@
         data() {
             return {
                 active: false,
-                quickRef: null
+                quickRef: null,
+                functionDoc: null,
             }
         },
         methods: {}

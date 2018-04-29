@@ -58,13 +58,32 @@ class CMEventDispatcher {
             })
         })
 
-        cm.on('cursorActivity', () => {
+        let lastTokenStart = {line: 0, ch: 0}
+        cm.on('cursorActivity', cm => {
             if (shouldDismissCompletionOnCursorActivity) {
                 completion.set({
                     open: false
                 })
             }
             shouldDismissCompletionOnCursorActivity = true
+            
+            // get function documentation
+            if (cm.somethingSelected()) return
+            
+            const cursor = cm.getCursor()
+            const token = cm.getTokenAt(cursor)
+            // don't do anything if the cursor is moving on the same token
+            if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
+            lastTokenStart.line = cursor.line
+            lastTokenStart.ch = token.start
+            console.log('cursor', cursor, token)
+            
+            editor.ws.send({
+                cmd: 'getFunctionDocumentation',
+                line: cursor.line,
+                ch: cursor.ch,
+                text: cm.getLine(cursor.line)
+            })
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {

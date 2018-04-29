@@ -8,7 +8,6 @@ from online_feature_extractor import OnlineFeatureExtractor
 from sklearn.externals import joblib
 from logzero import logger as log
 
-
 DEBUG = False
 feature_extractor = OnlineFeatureExtractor()
 
@@ -76,23 +75,25 @@ async def sync(msg, send, context):
     context.doc = msg['doc'].splitlines()
 
 
+def set_line(context, line_number, line_content):
+    while len(context.doc) <= line_number:
+        context.doc.append('')
+    context.doc[line_number] = line_content
+
+
 @register('predict')
 async def predict(msg, send, context):
     line_content = msg['text']
     line_number = msg['line']
     ch = msg['ch']
-
-    while len(context.doc) <= line_number:
-        context.doc.append('')
-    context.doc[line_number] = line_content
+    set_line(context, line_number, line_content)
     doc = '\n'.join(context.doc)
     j = jedi.Script(doc, line_number + 1, ch, context.path)
     completions = j.completions()
 
     if DEBUG:
-        log.info(doc)
-        log.info(completions)
-        
+        print('completions:', completions)
+
     if completions:
         context.currentCompletions = {
             completion.name: completion for completion in completions
@@ -106,7 +107,7 @@ async def predict(msg, send, context):
                 's': int(s)  # score
             } for c, s in zip(completions, scores)
         ]
-    else: 
+    else:
         result = []
 
     await send({
@@ -128,13 +129,32 @@ async def get_completion_docstring(msg, send, context):
     })
 
 
+@register('getFunctionDocumentation')
+async def get_function_documentation(msg, send, context):
+    line_content = msg['text']
+    line_number = msg['line']
+    ch = msg['ch']
+
+    set_line(context, line_number, line_content)
+    doc = '\n'.join(context.doc)
+
+    j = jedi.Script(doc, line_number + 1, ch, context.path)
+    call_signatures = j.call_signatures()
+    if not call_signatures:
+        return
+    signature = call_signatures[0]
+    await send({
+        'cmd': 'getFunctionDocumentation-result',
+        'docstring': signature.docstring(),
+        'fullName': signature.full_name
+    })
+
+
 @register('findUsages')
 async def find_usage(msg, send, context):
-    print(msg)
     doc = '\n'.join(context.doc)
     j = jedi.Script(doc, msg['line'] + 1, msg['ch'], context.path)
     usages = j.usages()
-    print(usages)
     await send({
         'cmd': 'findUsages-ok',
         'pos': [

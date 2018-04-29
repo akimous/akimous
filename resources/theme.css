@@ -27,7 +27,7 @@
     --indicator-height: .2rem;
     --panel-left-width: calc(8rem + 7vw);
     --panel-right-width: calc(8rem + 7vw);
-    --doc-usage-height: 61.8%;
+    --function-doc-height: 61.8%;
     --prompt-width: 40rem;
     --bubble-width: 30rem;
 

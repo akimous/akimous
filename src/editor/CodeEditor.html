@@ -233,6 +233,12 @@
                     if (docstring.length === 0) docstring = null
                     g.docs.set({ quickRef: reformatDocstring(docstring) })
                 })
+                
+                this.ws.addHandler('getFunctionDocumentation-result', data => {
+                    let { docstring } = data
+                    if (docstring.length === 0) docstring = null
+                    g.docs.set({ functionDoc: reformatDocstring(docstring) })
+                })
             }), 500)
         },
         ondestroy() {
