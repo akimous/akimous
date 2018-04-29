@@ -84,7 +84,7 @@
                     document.onmousemove = e => {
                         const height = (e.pageY - this.refs.container.getBoundingClientRect().y) + 'px'
                         requestAnimationFrame(() => {
-                            document.documentElement.style.setProperty('--doc-usage-height', height)
+                            document.documentElement.style.setProperty('--function-doc-height', height)
                         })
                     }
                 }
