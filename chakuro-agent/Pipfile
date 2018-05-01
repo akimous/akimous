@@ -17,6 +17,7 @@ python-levenshtein = "*"
 tqdm = "*"
 scipy = "*"
 watchdog = "*"
+docutils = "*"
 
 
 [dev-packages]

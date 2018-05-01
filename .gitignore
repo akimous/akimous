@@ -2,6 +2,7 @@ dist/**
 **/.DS_Store
 cert.pem
 key.pem
+chakuro-agent/scripts/cpython
 
 # Logs
 logs
