@@ -3,6 +3,9 @@ import re
 import docutils.core
 from docutils.writers.html5_polyglot import Writer
 import sqlite3
+import os
+from pathlib import Path
+
 # call(['git', 'clone', 'https://github.com/python/cpython.git'])
 
 
@@ -21,12 +24,20 @@ indentation = re.compile('^\s+')
 def dedent_lines(lines):
     if not lines:
         return lines
-    amount = indentation.match(lines[0]).end()
+    indent = indentation.match(lines[0])
+    if not indent:
+        return lines
+    amount = indent.end()
     result = []
     for i, line in enumerate(lines):
-        if indentation.match(line).end() < amount:
+        indent = indentation.match(line)
+        indent = indent.end() if indent else 0
+        if line.strip() == '':
+            result.append(line)
+        elif indent < amount:
             break
-        result.append(line[amount:])
+        else:
+            result.append(line[amount:])
     return result
 
 
@@ -53,6 +64,10 @@ def process_file(path):
             if pattern.match(line):
                 signature_line = lines[start_line]
                 if 'index:: ' not in signature_line and '::' in signature_line:
+                    if start_line == 0:
+                        start_line = i
+                        continue
+
                     entry_name = signature_line[pattern.match(signature_line).end():]
                     if '(' in entry_name:
                         entry_name = entry_name[:entry_name.find('(')]
@@ -60,16 +75,45 @@ def process_file(path):
                     start_line += 1
                     while blank_line.match(lines[start_line]):
                         start_line += 1
-
-                    paragraph = ''.join(dedent_lines(lines[start_line:i]))
+                    for xxx in lines[start_line:i]:
+                        if '::' in xxx:
+                            print(xxx)
+                    paragraph_lines = [
+                        line for line in lines[start_line:i]
+                        # if '::' not in line
+                    ]
+                    paragraph_lines = dedent_lines(paragraph_lines)
+                    paragraph = ''.join(paragraph_lines)
                     # print(define_roles(paragraph))
                     paragraphs[entry_name] = define_roles(paragraph)
 
+
+
+
+
+                    # if entry_name == 'AbstractEventLoop.call_soon':
+                    if True:
+                        # print(lines[start_line:i], flush=True)
+                        print(paragraph, flush=True)
+                        html = convert_to_html(define_roles(paragraph))
+                        print('TITLE', entry_name, flush=True)
+                        print(html, flush=True)
+
                 start_line = i
-        for k, v in paragraphs.items():
-            print('>>>', k)
-            print(v)
-            print(convert_to_html(v))
+        # for k, v in paragraphs.items():
+            # print('>>>', k)
+            # print(v)
+            # print(convert_to_html(v))
+            # convert_to_html(v)
 
 
-process_file('cpython/Doc/library/array.rst')
+# process_file('cpython/Doc/library/array.rst')
+for dirpath, dirnames, filenames in os.walk('cpython/Doc/library'):
+    for file in filenames:
+        path = Path('cpython/Doc/library') / Path(file)
+        if not file.endswith('.rst'):
+            continue
+        print(path)
+        process_file(path)
+        break
+    break

@@ -3,6 +3,7 @@ dist/**
 cert.pem
 key.pem
 chakuro-agent/scripts/cpython
+chakuro-agent/scripts/sphinx_input
 
 # Logs
 logs

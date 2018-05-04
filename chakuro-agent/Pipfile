@@ -18,6 +18,7 @@ tqdm = "*"
 scipy = "*"
 watchdog = "*"
 docutils = "*"
+sphinx = "*"
 
 
 [dev-packages]
