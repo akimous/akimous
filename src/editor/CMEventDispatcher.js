@@ -76,7 +76,6 @@ class CMEventDispatcher {
             if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
             lastTokenStart.line = cursor.line
             lastTokenStart.ch = token.start
-            console.log('cursor', cursor, token)
             
             editor.ws.send({
                 cmd: 'getFunctionDocumentation',

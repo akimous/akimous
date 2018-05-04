@@ -21,31 +21,18 @@ app = Sphinx(absolute_path, absolute_path, absolute_path, absolute_path, 'html',
 
 
 
-docnames = [absolute_path + '/pathlib.rst']
 
-self = app.builder
-updated_docnames = set(self.env.update(self.config, self.srcdir, self.doctreedir))
+updated_docnames = set(app.builder.env.update(app.builder.config, app.builder.srcdir, app.builder.doctreedir))
+# env.update
 
-doccount = len(updated_docnames)
-for docname in self.env.check_dependents(self.app, updated_docnames):
-    updated_docnames.add(docname)
-outdated = len(updated_docnames) - doccount
+
+print('updated_docnames:', updated_docnames)
 
 if updated_docnames:
-    self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-    self.env.check_consistency()
-    print('updated_docnames:', updated_docnames)
+    app.builder.env.topickle(path.join(app.builder.doctreedir, ENV_PICKLE_FILENAME))
 
-if docnames and docnames != ['__all__']:
-    docnames = set(docnames) & self.env.found_docs
+app.builder.write(set(), list(updated_docnames), 'update')
 
-self.parallel_ok = False
-self.finish_tasks = SerialTasks()
-
-self.write(docnames, list(updated_docnames), 'update')
-
-self.finish()
-self.finish_tasks.join()
 
 
 
