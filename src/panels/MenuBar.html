@@ -1,0 +1,32 @@
+<div ref:MenuBar id="menu-bar">
+    <MenuItem name="File"></MenuItem>
+    <MenuItem name="Edit"></MenuItem>
+</div>
+
+
+<style>
+    #menu-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: var(--toolbar-height);
+    }
+
+</style>
+
+
+<script>
+    // import g from './lib/Globals'
+
+    export default {
+        components: {
+            'MenuItem': './MenuItem.html'
+        },
+        oncreate() {},
+        data() {
+            return {}
+        },
+        methods: {}
+    }
+
+</script>

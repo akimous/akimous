@@ -1,8 +1,9 @@
 <div id="toolbar">
     <div id="buttons">
-        <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell" title="Notification History"/>
+        <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell" title="Notification History" />
     </div>
 </div>
+<MenuBar></MenuBar>
 <NotificationBar></NotificationBar>
 <TabNumber></TabNumber>
 <NotificationHistory></NotificationHistory>
@@ -32,6 +33,7 @@
             NotificationHistory: '../panels/NotificationHistory.html',
             TabNumber: '../panels/TabNumber.html',
             ToolbarButton: './ToolbarButton.html',
+            MenuBar: '../panels/MenuBar.html',
         },
         oncreate() {
             g.toolbar = this
@@ -46,8 +48,7 @@
         data() {
             return {}
         },
-        methods: {
-        }
+        methods: {}
     }
 
 </script>
