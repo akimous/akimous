@@ -1,10 +1,16 @@
-<div ref:MenuItem class="menu-item">{name}</div>
+<div ref:MenuItem class="menu-item non-selectable">{name}</div>
 
 
 <style>
     .menu-item {
         display: inline-block;
         font-size: var(--basic-ui-font-size);
+        line-height: var(--toolbar-height);
+        padding: 0 .5rem;
+    }
+    
+    .menu-item:hover {
+        color: white;
     }
 
 </style>

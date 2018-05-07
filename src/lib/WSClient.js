@@ -26,8 +26,8 @@ export default class {
         }
         
         this.socket.onopen = () => {
-            if (this.path.includes('fileTree'))
-                g.notificationBar.show('success', 'Connected to Python agent')
+            // if (this.path.includes('fileTree'))
+            //    g.notificationBar.show('success', 'Connected to Python agent')
             if (callback != null)
                 callback(this)
         }
