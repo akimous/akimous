@@ -121,11 +121,16 @@ function reformatDocstring(doc) {
     return result.join('\n')
 }
 
+function getRem() {
+    return parseFloat(getComputedStyle(document.documentElement).fontSize)
+}
+
 export {
     binarySearch,
     onIdle,
     initializeTabView,
     setAttributeForMultipleComponent,
     activateView,
-    reformatDocstring
+    reformatDocstring,
+    getRem
 }

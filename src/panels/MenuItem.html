@@ -1,4 +1,4 @@
-<div ref:MenuItem class="menu-item non-selectable">{name}</div>
+<div ref:menuItem on:mousedown="click(event, name)" class="menu-item non-selectable">{name}</div>
 
 
 <style>
@@ -8,7 +8,7 @@
         line-height: var(--toolbar-height);
         padding: 0 .5rem;
     }
-    
+
     .menu-item:hover {
         color: white;
     }
@@ -17,7 +17,14 @@
 
 
 <script>
-    // import g from './lib/Globals'
+    import { getRem } from '../lib/Utils'
+    const menus = {
+        File: [{
+            text: 'Open Folder',
+            icon: 'far fa-file',
+            callback: (target) => {}
+        }]
+    }
 
     export default {
         components: {},
@@ -25,7 +32,19 @@
         data() {
             return {}
         },
-        methods: {}
+        methods: {
+            click(e, name) {
+                const { left, bottom } = this.refs.menuItem.getBoundingClientRect()
+                g.contextMenu.set({
+                    open: true,
+                    x: left,
+                    y: bottom + .5 * getRem(),
+                    items: menus[name],
+                    caller: this
+                })
+                e.stopPropagation()
+            }
+        }
     }
 
 </script>

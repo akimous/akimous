@@ -20,13 +20,15 @@
 
 
 <script>
-    // import g from './lib/Globals'
+     import g from '../lib/Globals'
 
     export default {
         components: {
             'MenuItem': './MenuItem.html'
         },
-        oncreate() {},
+        oncreate() {
+            g.menuBar = this
+        },
         data() {
             return {}
         },
