@@ -11,7 +11,9 @@ from os import path
 from sphinx.io import read_doc
 from sphinx.util.parallel import SerialTasks
 from sphinx.application import ENV_PICKLE_FILENAME
+from docutils.core import publish_parts
 from time import time
+from docutils import io
 
 absolute_path = str(Path('sphinx_input').absolute())
 
@@ -23,6 +25,15 @@ app = Sphinx(absolute_path, absolute_path, absolute_path, absolute_path, 'html',
 
 
 
+# publish_parts(None)
+
+rst_input_string = '''Basic use
+---------
+
+Importing the main class::
+
+   >>> from pathlib import Path
+'''
 
 
 # updated_docnames = set(app.builder.env.update(app.builder.config, app.builder.srcdir, app.builder.doctreedir))
@@ -44,6 +55,7 @@ app.builder.env.app.emit('env-before-read-docs', app.builder.env, docnames)
 start_time = time()
 # app.builder.env._read_serial(docnames, app.builder.env.app)
 for docname in docnames:
+    print('docname', docname)
     app.emit('env-purge-doc', app.builder.env, docname)
     app.builder.env.clear_doc(docname)
     # app.builder.env.read_doc(docname, app)
@@ -75,6 +87,7 @@ docnames = set(updated_docnames)
 app.builder.prepare_writing(docnames)
 # app.builder._write_serial(sorted(docnames))
 for docname in docnames:
+    print('docname:', docname)
     doctree = app.builder.env.get_and_resolve_doctree(docname, app.builder, doctree)
     app.builder.write_doc_serialized(docname, doctree)
     # app.builder.write_doc(docname, doctree)
@@ -84,7 +97,7 @@ for docname in docnames:
     app.builder.secnumbers = app.builder.env.toc_secnumbers.get(docname, {})
     app.builder.fignumbers = app.builder.env.toc_fignumbers.get(docname, {})
     app.builder.imgpath = relative_uri(app.builder.get_target_uri(docname), '_images')
-    app.builder.dlpath = relative_uri(app.builder.get_target_uri(docname), '_downloads')  # type: unicode
+    app.builder.dlpath = relative_uri(app.builder.get_target_uri(docname), '_downloads')
     app.builder.current_docname = docname
     app.builder.docwriter.write(doctree, destination)
     app.builder.docwriter.assemble_parts()
