@@ -235,9 +235,9 @@
                 })
                 
                 this.ws.addHandler('getFunctionDocumentation-result', data => {
-                    let { docstring } = data
-                    if (docstring.length === 0) docstring = null
-                    g.docs.set({ functionDoc: reformatDocstring(docstring) })
+                    let { html } = data
+                    if (html.length === 0) html = null
+                    g.docs.set({ functionDoc: html })
                 })
             }), 500)
         },

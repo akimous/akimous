@@ -1,5 +1,3 @@
-import os
-import time
 from ws import WS
 from functools import partial
 from pathlib import Path
@@ -7,9 +5,11 @@ import jedi
 from online_feature_extractor import OnlineFeatureExtractor
 from sklearn.externals import joblib
 from logzero import logger as log
+from doc_generator import DocGenerator
 
 DEBUG = False
 feature_extractor = OnlineFeatureExtractor()
+doc_generator = DocGenerator()
 
 register = partial(WS.register, 'editor')
 # MODEL_PATH = '/Users/ray/Code/Working/train10.model'
@@ -143,10 +143,18 @@ async def get_function_documentation(msg, send, context):
     if not call_signatures:
         return
     signature = call_signatures[0]
+    docstring = signature.docstring()
+    if not docstring:
+        return
+    try:
+        html = doc_generator.make_html(docstring)
+    except Exception as e:
+        print(e)
     await send({
         'cmd': 'getFunctionDocumentation-result',
         'docstring': signature.docstring(),
-        'fullName': signature.full_name
+        'fullName': signature.full_name,
+        'html': html
     })
 
 

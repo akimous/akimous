@@ -1,8 +1,13 @@
 import this
 import numpy as np
 from sklearn.datasets import load_iris
+from scipy.fftpack import fft
 
 hello = 'world'
+np.array([1, 2, 3])
+load_iris(True)
+fft()
+print('')
 
 def newTest(*b, a=2, d: int = 3, **c):
     b[2:3+3] = 4

@@ -1,7 +1,7 @@
-<div ref:container class="container {active?'':'gone'}">
+<div ref:container id="docs" class="container {active?'':'gone'}">
     <div id="function-doc-container">
         {#if functionDoc}
-        <div ref:functionDoc id="function-doc"> {functionDoc} </div>
+        <div ref:functionDoc id="function-doc"> {@html functionDoc} </div>
         {/if}
     </div>
     <div ref:splitBar id="split-bar-doc" class="split-bar"></div>
@@ -53,15 +53,15 @@
         width: 100%;
         overflow-y: scroll;
     }
-    
+
     #function-doc {
-        white-space: pre-wrap;
+        /*        white-space: pre-wrap;*/
         margin: .5rem;
         margin-bottom: 1rem;
     }
-    
+
     #quick-ref {
-        white-space: pre-wrap;
+        /*        white-space: pre-wrap;*/
         margin: .5rem;
         margin-bottom: 1rem;
     }
