@@ -4,6 +4,7 @@
 :root {
     --main-bg-color: rgb(36, 36, 36);
     --panel-color: rgb(63, 63, 63);
+    --dark-color: rgb(54, 54, 54);
     --darker-color: #151515;
     --darkest-color: #111;
     --panel-delimiter-color: rgb(88, 88, 88);
@@ -34,6 +35,7 @@
     --tab-bar-icon-size: 1.4rem;
 
     --basic-ui-font-color: #ccc;
+    --darker-ui-font-color: #aaa;
     --brighter-ui-font-color: #eee;
     --basic-ui-font-family: 'Roboto', 'Lucida Grande', 'Helvetica Neue', sans-serif;
     --basic-ui-font-size: 1rem;
