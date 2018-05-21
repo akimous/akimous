@@ -21,7 +21,7 @@ class Timer:
 
     def __exit__(self, *args):
         self.end = time.perf_counter()
-        print(self.description, 'took', self.end - self.start)
+        # print(self.description, 'took', self.end - self.start)
 
 
 class DocGenerator:

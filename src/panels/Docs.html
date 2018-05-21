@@ -1,13 +1,17 @@
 <div ref:container id="docs" class="container {active?'':'gone'}">
     <div id="function-doc-container">
         {#if functionDoc}
-        <div ref:functionDoc id="function-doc"> {@html functionDoc} </div>
+        <div ref:functionDoc id="function-doc" class="{functionDocType==='html'?'':'text-docstring'}">
+            {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if}
+        </div>
         {/if}
     </div>
     <div ref:splitBar id="split-bar-doc" class="split-bar"></div>
-    <div id="quick-ref-container">
-        {#if quickRef}
-        <div ref:quickRef id="quick-ref"> {quickRef} </div>
+    <div class="mask"></div>
+    <div id="completion-doc-container">
+        {#if completionDoc}
+        <div ref:completionDoc id="completion-doc" class="{completionDocType==='html'?'':'text-docstring'}">
+            {#if completionDocType==='html'} {@html completionDoc} {:else} {completionDoc} {/if} </div>
         {/if}
     </div>
 
@@ -30,6 +34,15 @@
         z-index: 3;
     }
 
+    .mask {
+        position: absolute;
+        top: calc(var(--function-doc-height) - .4rem);
+        z-index: 2;
+        width: 100%;
+        background: linear-gradient(to bottom, transparent 0%, var(--panel-color) 45%, var(--gray3) 45%, var(--gray4) 55%, var(--panel-color) 55%, transparent 100%);
+        height: .9rem;
+    }
+
     .split-bar:hover {
         background: var(--panel-delimiter-hover-color);
         background: linear-gradient(to bottom,
@@ -46,7 +59,7 @@
         overflow-y: scroll;
     }
 
-    #quick-ref-container {
+    #completion-doc-container {
         position: absolute;
         top: var(--function-doc-height);
         height: calc(100% - var(--function-doc-height) - var(--tab-bar-height));
@@ -60,10 +73,15 @@
         margin-bottom: 1rem;
     }
 
-    #quick-ref {
+    #completion-doc {
         /*        white-space: pre-wrap;*/
         margin: .5rem;
         margin-bottom: 1rem;
+    }
+
+    .text-docstring {
+        white-space: pre-wrap;
+        font-family: var(--basic-monospace-font-family);
     }
 
 </style>
@@ -93,8 +111,10 @@
         data() {
             return {
                 active: false,
-                quickRef: null,
+                completionDoc: null,
+                completionDocType: 'html',
                 functionDoc: null,
+                functionDocType: 'html',
             }
         },
         methods: {}

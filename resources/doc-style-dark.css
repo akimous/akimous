@@ -257,14 +257,14 @@ table.two-column {
 div.footer {
     padding: 25px;
     font-size: 14px;
-    color: #888;
+    color: var(--darker-ui-font-color);
     text-align: right;
     max-width: 1200px;
     width: 100%;
 }
 
 div.footer a {
-    color: #888;
+    color: var(--darker-ui-font-color);
 }
 
 /* -- relbar ---------------------------------------------------------------- */

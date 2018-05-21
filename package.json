@@ -33,7 +33,7 @@
         "rollup-plugin-svelte": "^4.1.0",
         "sortablejs": "^1.7.0",
         "svelte": "^2.6.3",
-        "xterm": "^3.3.0"
+        "xterm": "^3.4.0"
     },
     "dependencies": {},
     "scripts": {

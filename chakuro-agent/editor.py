@@ -6,6 +6,7 @@ from online_feature_extractor import OnlineFeatureExtractor
 from sklearn.externals import joblib
 from logzero import logger as log
 from doc_generator import DocGenerator
+from utils import detect_doc_type
 
 DEBUG = False
 feature_extractor = OnlineFeatureExtractor()
@@ -120,12 +121,23 @@ async def predict(msg, send, context):
 
 @register('getCompletionDocstring')
 async def get_completion_docstring(msg, send, context):
-    result = context.currentCompletions.get(msg['name'], None)
-    if result:
-        result = result.docstring(fast=False)
+    completion = context.currentCompletions.get(msg['name'], None)
+    if not completion:
+        return
+    docstring = completion.docstring(fast=False)
+    if not docstring:
+        return
+    doc_type = detect_doc_type(docstring)
+    html = None
+    if doc_type != 'text':
+        try:
+            html = doc_generator.make_html(docstring)
+        except Exception as e:
+            print(e)
     await send({
         'cmd': 'getCompletionDocstring-result',
-        'docstring': result
+        'doc': html if html else docstring,
+        'type': 'html' if html else 'text'
     })
 
 
@@ -146,15 +158,19 @@ async def get_function_documentation(msg, send, context):
     docstring = signature.docstring()
     if not docstring:
         return
-    try:
-        html = doc_generator.make_html(docstring)
-    except Exception as e:
-        print(e)
+    doc_type = detect_doc_type(docstring)
+    html = None
+    if doc_type != 'text':
+        try:
+            html = doc_generator.make_html(docstring)
+        except Exception as e:
+            print(e)
+
     await send({
         'cmd': 'getFunctionDocumentation-result',
-        'docstring': signature.docstring(),
+        'doc': html if html else docstring,
         'fullName': signature.full_name,
-        'html': html
+        'type': 'html' if html else 'text'
     })
 
 

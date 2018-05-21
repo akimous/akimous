@@ -229,15 +229,18 @@
                 })
 
                 this.ws.addHandler('getCompletionDocstring-result', data => {
-                    let { docstring } = data
-                    if (docstring.length === 0) docstring = null
-                    g.docs.set({ quickRef: reformatDocstring(docstring) })
+                    let { doc, type } = data
+                    if (doc.length === 0) doc = null
+                    g.docs.set({ completionDoc: doc, completionDocType: type })
+//                    let { docstring } = data
+//                    if (docstring.length === 0) docstring = null
+//                    g.docs.set({ quickRef: reformatDocstring(docstring) })
                 })
                 
                 this.ws.addHandler('getFunctionDocumentation-result', data => {
-                    let { html } = data
-                    if (html.length === 0) html = null
-                    g.docs.set({ functionDoc: html })
+                    let { doc, type } = data
+                    if (doc.length === 0) doc = null
+                    g.docs.set({ functionDoc: doc, functionDocType: type })
                 })
             }), 500)
         },
