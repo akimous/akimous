@@ -4,7 +4,7 @@
 <style>
     .menu-item {
         display: inline-block;
-        font-size: var(--basic-ui-font-size);
+        font-size: var(--ui-font-size-small);
         line-height: var(--toolbar-height);
         padding: 0 .5rem;
     }
@@ -35,13 +35,17 @@
         methods: {
             click(e, name) {
                 const { left, bottom } = this.refs.menuItem.getBoundingClientRect()
-                g.contextMenu.set({
-                    open: true,
-                    x: left,
-                    y: bottom + .5 * getRem(),
-                    items: menus[name],
-                    caller: this
-                })
+                const { items, open } = g.contextMenu.get()
+                if (items === menus[name] && open)
+                    g.contextMenu.set({ open: false })
+                else
+                    g.contextMenu.set({
+                        open: true,
+                        x: left,
+                        y: bottom + .5 * getRem(),
+                        items: menus[name],
+                        caller: this
+                    })
                 e.stopPropagation()
             }
         }

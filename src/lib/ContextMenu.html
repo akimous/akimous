@@ -59,6 +59,7 @@
                     i.destroy()
                 this.rows.length = 0
                 this.dividers.length = 0
+                if (!current.items) return
                 for (const i of current.items) {
                     if (i.divider) {
                         const child = new ContextMenuDivider({
