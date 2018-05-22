@@ -7,13 +7,13 @@
         width: 24rem;
         z-index: 100;
         background: var(--main-bg-color);
-        
+
         color: var(--basic-monospace-font-color);
         white-space: nowrap;
         font-family: var(--basic-monospace-font-family);
         font-size: var(--basic-monospace-font-size);
         line-height: 2rem;
-        
+
         overflow-x: scroll;
         border-radius: var(--default-radius);
         box-shadow: var(--default-shadow);
@@ -102,7 +102,10 @@
             if (!previous) return
             if (changed.open) {
                 if (current.open) g.pushFocus(this)
-                else g.popFocus(this)
+                else {
+                    g.popFocus(this)
+                    g.docs.set({ completionDoc: null })
+                }
             }
             if (changed.selectedCompletionRow) {
                 if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({

@@ -7,6 +7,7 @@ from sklearn.externals import joblib
 from logzero import logger as log
 from doc_generator import DocGenerator
 from utils import detect_doc_type
+from contextlib import suppress
 
 DEBUG = False
 feature_extractor = OnlineFeatureExtractor()
@@ -121,12 +122,25 @@ async def predict(msg, send, context):
 
 @register('getCompletionDocstring')
 async def get_completion_docstring(msg, send, context):
+    # get docstring
     completion = context.currentCompletions.get(msg['name'], None)
     if not completion:
         return
     docstring = completion.docstring(fast=False)
+
+    # try to follow definition if it fails to get docstring
     if not docstring:
-        return
+        try:
+            definition = completion.follow_definition()
+        except NotImplementedError:
+            return
+        if not definition:
+            return
+        docstring = definition[0].docstring()
+        if not docstring:
+            return
+
+    # render doc
     doc_type = detect_doc_type(docstring)
     html = None
     if doc_type != 'text':
