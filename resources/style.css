@@ -80,7 +80,7 @@
 
 .cm-s-legato span.cm-property,
 .cm-s-legato span.cm-attribute {
-    color: var(--ao);
+    color: #16a085;
 }
 
 .cm-s-legato span.cm-keyword {
@@ -106,7 +106,7 @@
 }
 
 .cm-s-legato span.cm-function {
-    color: var(--gray2);
+    color: #bdc3c7;
 }
 
 .cm-s-legato span.cm-def {
@@ -114,7 +114,7 @@
 }
 
 .cm-s-legato span.cm-bracket {
-    color: var(--gray3);
+    color: #95a5a6;
 }
 
 .cm-s-legato span.cm-tag {

@@ -17,6 +17,7 @@ export default {
         name: 'app',
         file: 'dist/bundle.js'
     },
+    perf: false,
     plugins: [
         svelte({
             dev: !production, // enable run-time checks when not in production

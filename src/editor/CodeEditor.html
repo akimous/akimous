@@ -16,7 +16,7 @@
     import RealtimeFormatter from './RealtimeFormatter'
     import Predictor from './completion/Predictor'
     import { getIconByFileName } from '../lib/FileTypeToIcon'
-    import { onIdle, reformatDocstring } from '../lib/Utils'
+    import { onIdle } from '../lib/Utils'
 
     /* eslint-disable */
     import CodeMirror from 'codemirror'
@@ -232,11 +232,8 @@
                     let { doc, type } = data
                     if (doc.length === 0) doc = null
                     g.docs.set({ completionDoc: doc, completionDocType: type })
-//                    let { docstring } = data
-//                    if (docstring.length === 0) docstring = null
-//                    g.docs.set({ quickRef: reformatDocstring(docstring) })
                 })
-                
+
                 this.ws.addHandler('getFunctionDocumentation-result', data => {
                     let { doc, type } = data
                     if (doc.length === 0) doc = null

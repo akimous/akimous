@@ -37,7 +37,7 @@
     },
     "dependencies": {},
     "scripts": {
-        "dev": "browser-sync start --server 'dist' --files 'dist' & rollup -c -w",
+        "dev": "browser-sync start --server 'dist' --files 'dist/bundle.js' & rollup -c -w",
         "lint": "eslint --ext .html,.js .",
         "build": "mkdir -p dist && rm -rf dist/* && cp -r src/index.html resources/* dist/ && rollup -c",
         "copystatic": "cp -r src/index.html resources/* dist/",
