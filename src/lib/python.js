@@ -177,6 +177,7 @@
       }
 
       if (stream.peek() === '(') return 'function'; // modified
+
       // Handle non-detected items
       stream.next();
       return ERRORCLASS;
