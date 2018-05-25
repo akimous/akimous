@@ -152,7 +152,6 @@ span.tooltipped::after {
 }
 
 .l-blue {
-    /*    color: royalblue;*/
     color: var(--light-blue);
 }
 
@@ -161,7 +160,6 @@ span.tooltipped::after {
 }
 
 .l-green {
-    /*    color: forestgreen;*/
     color: var(--green);
 }
 
@@ -174,17 +172,14 @@ span.tooltipped::after {
 }
 
 .l-orange {
-    /*    color: orange;*/
     color: var(--yellow);
 }
 
 .l-purple {
-    /*    color: purple;*/
     color: var(--purple);
 }
 
 .l-red {
-    /*    color: firebrick;*/
     color: var(--red);
 }
 
@@ -193,7 +188,6 @@ span.tooltipped::after {
 }
 
 .l-yellow {
-    /*    color: yellow;*/
     color: var(--brighter-yellow);
 }
 

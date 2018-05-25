@@ -67,58 +67,72 @@
     border-left: 1px solid #b0b0b0;
 }
 
+
+:root {
+    --c-comment: #415B75;
+    --c-number: #aa759f;
+    --c-attribute: #16a085;
+    --c-keyword: #ac4142;
+    --c-string: #f4bf75;
+    --c-variable: #9EB274;
+    --c-builtin: #6a9fb5;
+    --c-self: #7D79B5;
+    --c-function: #bdc3c7;
+    --c-def: #d28445;
+    --c-bracket: #95a5a6;
+    --c-tag: #ac4142;
+}
+
 .cm-s-legato span.cm-comment {
-    color: #415B75;
+    color: var(--c-comment);
 }
 
 .cm-s-legato span.cm-meta,
 .cm-s-legato span.cm-link,
 .cm-s-legato span.cm-number,
 .cm-s-legato span.cm-atom {
-    color: #aa759f;
+    color: var(--c-number);
 }
 
 .cm-s-legato span.cm-property,
 .cm-s-legato span.cm-attribute {
-    color: #16a085;
+    color: var(--c-attribute);
 }
 
 .cm-s-legato span.cm-keyword {
-    color: #ac4142;
+    color: var(--c-keyword);
 }
 
 .cm-s-legato span.cm-string {
-    color: #f4bf75;
+    color: var(--c-string);
 }
 
 .cm-s-legato span.cm-variable {
-/*    color: #90a959;*/
-/*    color: #92A66C;*/
-    color: #9EB274;
+    color: var(--c-variable);
 }
 
 .cm-s-legato span.cm-builtin {
-    color: #6a9fb5;
+    color: var(--c-builtin);
 }
 
 .cm-s-legato span.cm-variable-2 {
-    color: #7D79B5;
+    color: var(--c-self);
 }
 
 .cm-s-legato span.cm-function {
-    color: #bdc3c7;
+    color: var(--c-function);
 }
 
 .cm-s-legato span.cm-def {
-    color: #d28445;
+    color: var(--c-def);
 }
 
 .cm-s-legato span.cm-bracket {
-    color: #95a5a6;
+    color: var(--c-bracket);
 }
 
 .cm-s-legato span.cm-tag {
-    color: #ac4142;
+    color: var(--c-tag);
 }
 
 .cm-s-legato span.cm-error {
