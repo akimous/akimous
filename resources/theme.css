@@ -39,7 +39,7 @@
     --brighter-ui-font-color: #eee;
     --basic-ui-font-family: 'Roboto', 'Lucida Grande', 'Helvetica Neue', sans-serif;
     --basic-ui-font-size: 1rem;
-    --ui-font-size-small: .8rem;
+    --ui-font-size-small: .85rem;
     --ui-font-size-large: 1.6rem;
     --basic-ui-line-height: 1.6rem;
 
@@ -107,7 +107,8 @@ body {
 div.tooltipped::after,
 span.tooltipped::after {
     background: rgba(0, 0, 0, 0.7);
-    font: var(--ui-font-size-small) var(--basic-ui-font-family)
+    font: var(--ui-font-size-small) var(--basic-ui-font-family);
+    padding: .3em .75em;
 }
 
 .tooltipped:hover::before,
