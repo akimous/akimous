@@ -69,22 +69,28 @@
 
 
 :root {
-    --c-comment: #415B75;
-    --c-number: #aa759f;
-    --c-attribute: #16a085;
-    --c-keyword: #ac4142;
-    --c-string: #f4bf75;
-    --c-variable: #9EB274;
-    --c-builtin: #6a9fb5;
-    --c-self: #7D79B5;
-    --c-function: #bdc3c7;
-    --c-def: #d28445;
-    --c-bracket: #95a5a6;
+    --c-comment: #999999;
+    --c-variable: #ccc;
+    --c-number: #fac8b3;
+    --c-def: #f4bf75;
+    --c-string: #d28445;
     --c-tag: #ac4142;
+    --c-builtin: #fc929e;
+    --c-keyword: #d5a5c5;
+    --c-punctuation: #79b6f2;
+    --c-function: #79b6f2;
+    --c-bracket: #79b6f2;
+    --c-attribute: #5fb3b3;
+    --c-self: #8dc891;
 }
 
 .cm-s-legato span.cm-comment {
     color: var(--c-comment);
+}
+
+.cm-s-legato span.cm-operator,
+.cm-s-legato span.cm-punctuation {
+    color: var(--c-punctuation);
 }
 
 .cm-s-legato span.cm-meta,
