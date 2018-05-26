@@ -5,6 +5,7 @@ import babel from 'rollup-plugin-babel'
 //import strip from 'rollup-plugin-strip'
 import sizes from 'rollup-plugin-sizes'
 import postcss from 'rollup-plugin-postcss'
+import progress from 'rollup-plugin-progress';
 import autoprefixer from 'autoprefixer'
 
 const production = !process.env.ROLLUP_WATCH
@@ -30,6 +31,7 @@ export default {
             minimize: true,
             // extract: 'dist/vendor.css'
         }),
+        production && progress(),
         production && babel(),
         // production && strip(),  // this can break xterm
         production && sizes()
