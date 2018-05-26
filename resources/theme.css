@@ -9,12 +9,9 @@
     --darkest-color: #111;
     --panel-delimiter-color: rgb(88, 88, 88);
     --panel-delimiter-hover-color: var(--gray4);
-    /*    --ui-highlight-color: rgb(48, 109, 199);*/
     --ui-highlight-color: var(--blue);
     --ui-selected-item: rgb(35, 106, 210);
-    /*    --ui-danger-color: rgb(237, 70, 47);*/
     --ui-danger-color: var(--brighter-red);
-    /*    --ui-prompt-color: rgb(59, 138, 116);*/
     --default-radius: .5rem;
     --small-radius: .3rem;
 
