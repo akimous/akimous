@@ -11,6 +11,7 @@
         "autoprefixer": "^8.5.1",
         "babel-core": "6.26.3",
         "babel-minify": "^0.4.3",
+        "babel-plugin-transform-remove-console": "^6.9.4",
         "browser-sync": "^2.24.4",
         "browserslist": "^3.2.8",
         "cloc": "^2.3.3",
@@ -32,7 +33,7 @@
         "rollup-plugin-strip": "^1.1.1",
         "rollup-plugin-svelte": "^4.1.0",
         "sortablejs": "^1.7.0",
-        "svelte": "^2.6.5",
+        "svelte": "^2.6.6",
         "xterm": "^3.4.1"
     },
     "dependencies": {},

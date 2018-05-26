@@ -3936,9 +3936,9 @@ supports-color@^5.4.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.6.5:
-  version "2.6.5"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.6.5.tgz#561a8199e2fa7bdbfadcdf500c01a39bb752ec0f"
+svelte@^2.6.6:
+  version "2.6.6"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.6.6.tgz#b7a1261fbb8ef42b58cba856ba584cead2bf569e"
 
 svgo@^0.7.0:
   version "0.7.2"
