@@ -170,9 +170,12 @@
 
 /* ----- my ------ */
 
-#docs dt {
+#docs dt,
+#docs dt a {
     color: var(--brighter-blue);
     font-weight: 500;
+    cursor: default;
+    text-decoration: none;
 }
 
 #docs dt span.classifier,

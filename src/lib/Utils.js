@@ -153,7 +153,7 @@ function inSomething(cm, cursor, open, close) {
                     ch = token.start - 1
                     pos.ch = ch
                     continue
-                } 
+                }
                 braceStackCounter += 1
             } else if (char === close) {
                 pos.ch = ch
@@ -162,9 +162,9 @@ function inSomething(cm, cursor, open, close) {
                     ch = token.start - 1
                     pos.ch = ch
                     continue
-                } 
+                }
                 braceStackCounter -= 1
-            } 
+            }
             if (braceStackCounter > 0) {
                 return pos
             }
@@ -202,5 +202,5 @@ export {
     inSomething,
     inParentheses,
     inBrackets,
-    inBraces
+    inBraces,
 }

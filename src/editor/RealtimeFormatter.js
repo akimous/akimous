@@ -1,3 +1,5 @@
+import { inParentheses, inBrackets, inBraces } from '../lib/Utils'
+
 const RealtimeFormatter = (editor, CodeMirror) => {
     let cm, c
     const Pos = CodeMirror.Pos
@@ -6,46 +8,9 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const compoundOperators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->))$/
     const operatorChars = /[=+\-*/|&^~%@><!]$/
     const idendifier = /^[^\d\W]\w*$/
-
-    // TODO: should use the one in Utils
-    const inString = (pos) => cm.getTokenTypeAt(pos) === 'string'
-    const inSomething = (open, close) => {
-        const searchNLines = 20
-        let line = c.from.line
-        let lineContent = cm.doc.getRange(Pos(line, 0), c.from)
-
-        let braceStackCounter = 0
-        let startCh = c.from.ch
-        let pos = Pos(0, 0)
-        for (; line >= 0 && line > c.from.line - searchNLines; line--) {
-            pos.line = line
-            for (let ch = startCh; ch >= 0; ch--) {
-                let char = lineContent.charAt(ch - 1)
-                if (char === open) {
-                    pos.ch = ch
-                    if (inString(pos, char)) continue
-                    braceStackCounter += 1
-                } else if (char === close) {
-                    pos.ch = ch
-                    if (inString(pos, char)) continue
-                    braceStackCounter -= 1
-                }
-                if (braceStackCounter > 0) {
-                    return pos
-                }
-            }
-            // if it is already top level statement, stop searching
-            if (lineContent.charAt(0) !== ' ') {
-                return false
-            }
-            lineContent = cm.doc.getLine(line - 1)
-            startCh = lineContent.length
-        }
-        return false
-    }
-    const inParentheses = () => inSomething('(', ')')
-    const inBrackets = () => inSomething('[', ']')
-    const inBraces = () => inSomething('{', '}')
+    const _inParentheses = () => inParentheses(cm, c.from)
+    const _inBrackets = () => inBrackets(cm, c.from)
+    const _inBraces = () => inBraces(cm, c.from)
 
     const ensureSpaceBefore = (t0) => {
         if (/\s+/.test(t0.string)) return // don't duplicate spaces
@@ -97,7 +62,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         if (currentText === '') { // new line
             stripTrailingSpaces(line)
             line = cm.doc.getLine(c.from.line)
-            const inScope = inParentheses() || inBrackets() || inBraces()
+            const inScope = _inParentheses() || _inBrackets() || _inBraces()
             let tr = ''
             if (inScope) {
                 try {
@@ -112,7 +77,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 )
             } else if ((/^\s*(if|def|for|while|with|class)\s.+[^\\:;]$/.test(line) ||
                     /^\s*(try|except|finally)/.test(line)
-            ) && !/(:\s)|;$/.test(line) &&
+                ) && !/(:\s)|;$/.test(line) &&
                 t0.string !== ':'
             ) { // add : if needed
                 c.text[0] = c.text[0] + ':'
@@ -121,7 +86,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 const openBracketLine = cm.doc.getLine(openBracket.to.line)
                 if ((/^\s*(if|def|for|while|with|class)\s/.test(openBracketLine) ||
                         /^\s*(try|except|finally)/.test(openBracketLine)
-                ) && t0.string !== ':') {
+                    ) && t0.string !== ':') {
                     c.text[0] = c.text[0] + ':'
                 }
             } else if (currentState.lastToken === 'break') {
@@ -133,7 +98,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             return
         } else if (t0.string === ',' && !/^[)}\]]/.test(currentText)) {
             c.text[0] = ' ' + c.text[0]
-        } else if (t0.string === ':' && !inBrackets()) {
+        } else if (t0.string === ':' && !_inBrackets()) {
             c.text[0] = ' ' + c.text[0]
         } else if (currentText === '=') {
             if (lastChar === '=' && leftText[leftText.length - 2] !== ' ') { // == case
@@ -156,7 +121,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         } else if (currentTextIsOperator) {
             if (currentTextIsPartOfTheOperator) return
             if (/[(,]/.test(t0.string)) return
-            if (inBrackets()) return
+            if (_inBrackets()) return
             if (isInFunctionSignatureDefinition) return // def a(n=|-1) should not add space at |
             if (t0.string === 'e' && /[0-9]$/.test(t1.string)) return
             ensureSpaceBefore(t0)
@@ -253,7 +218,6 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             cm = codemirror
             c = changeObj
         },
-        inParentheses
     }
 }
 
