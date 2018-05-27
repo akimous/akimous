@@ -58,7 +58,8 @@ class CMEventDispatcher {
             })
         })
 
-        let lastTokenStart = {line: 0, ch: 0}
+        let lastTokenStart = { line: 0, ch: 0 }
+        let lastTriggeredBracePosition = null
         cm.on('cursorActivity', cm => {
             if (shouldDismissCompletionOnCursorActivity) {
                 completion.set({
@@ -66,17 +67,27 @@ class CMEventDispatcher {
                 })
             }
             shouldDismissCompletionOnCursorActivity = true
-            
+
             // get function documentation
             if (cm.somethingSelected()) return
-            
+
             const cursor = cm.getCursor()
             const token = cm.getTokenAt(cursor)
-            // don't do anything if the cursor is moving on the same token
+            // don't request function doc if the cursor is moving on the same token
             if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
             lastTokenStart.line = cursor.line
             lastTokenStart.ch = token.start
-            
+
+            // don't request function doc if the cursor is moving on the same token
+            const pos = cm.scanForBracket(cursor, -1, undefined, {
+                bracketRegex: /[()]/
+            }).pos
+            if (lastTriggeredBracePosition && pos 
+                && lastTriggeredBracePosition.ch === pos.ch 
+                && lastTriggeredBracePosition.line === pos.line)
+                return
+            lastTriggeredBracePosition = pos 
+
             editor.ws.send({
                 cmd: 'getFunctionDocumentation',
                 line: cursor.line,
