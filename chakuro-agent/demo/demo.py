@@ -1,6 +1,7 @@
 import this
 import numpy as np
 from sklearn.datasets import load_iris
+from sklearn.ensemble import RandomForestClassifier
 from scipy.fftpack import fft
 from tqdm import tqdm
 import Levenshtein
@@ -12,6 +13,9 @@ fft()
 print('')
 tqdm()
 Levenshtein.jaro()
+r = RandomForestClassifier(n_estimators=10,
+                           max_features='auto',
+                           n_jobs=3)
 
 def newTest(*b, a=2, d: int = 3, **c):
     b[2:3+3] = 4

@@ -125,6 +125,72 @@ function getRem() {
     return parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
 
+function Pos(line, ch) {
+    return { line, ch }
+}
+
+function shouldIgnoreToken(cm, pos) {
+    const type = cm.getTokenTypeAt(pos)
+    return type === 'string' || type === 'comment'
+}
+
+function inSomething(cm, cursor, open, close) {
+    const searchNLines = 20
+    let line = cursor.line
+    let lineContent = cm.doc.getLine(line)
+
+    let braceStackCounter = 0
+    let startCh = cursor.ch
+    let pos = Pos(0, 0)
+    for (; line >= 0 && line > cursor.line - searchNLines; line--) {
+        pos.line = line
+        for (let ch = startCh - 1; ch > -1; ch--) {
+            let char = lineContent.charAt(ch)
+            if (char === open) {
+                pos.ch = ch
+                if (shouldIgnoreToken(cm, pos)) {
+                    const token = cm.getTokenAt(pos)
+                    ch = token.start - 1
+                    pos.ch = ch
+                    continue
+                } 
+                braceStackCounter += 1
+            } else if (char === close) {
+                pos.ch = ch
+                if (shouldIgnoreToken(cm, pos)) {
+                    const token = cm.getTokenAt(pos)
+                    ch = token.start - 1
+                    pos.ch = ch
+                    continue
+                } 
+                braceStackCounter -= 1
+            } 
+            if (braceStackCounter > 0) {
+                return pos
+            }
+        }
+        // if it is already top level statement, stop searching
+        if (lineContent.charAt(0) !== ' ') {
+            return false
+        }
+        lineContent = cm.doc.getLine(line - 1)
+        startCh = lineContent.length
+    }
+    return false
+}
+
+function inParentheses(cm, cursor) {
+    return inSomething(cm, cursor, '(', ')')
+}
+
+function inBrackets(cm, cursor) {
+    return inSomething(cm, cursor, '[', ']')
+}
+
+function inBraces(cm, cursor) {
+    return inSomething(cm, cursor, '{', '}')
+}
+
 export {
     binarySearch,
     onIdle,
@@ -132,5 +198,9 @@ export {
     setAttributeForMultipleComponent,
     activateView,
     reformatDocstring,
-    getRem
+    getRem,
+    inSomething,
+    inParentheses,
+    inBrackets,
+    inBraces
 }

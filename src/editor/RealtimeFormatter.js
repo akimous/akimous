@@ -7,6 +7,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const operatorChars = /[=+\-*/|&^~%@><!]$/
     const idendifier = /^[^\d\W]\w*$/
 
+    // TODO: should use the one in Utils
     const inString = (pos) => cm.getTokenTypeAt(pos) === 'string'
     const inSomething = (open, close) => {
         const searchNLines = 20
@@ -64,8 +65,6 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         // skip if there are no characters before cursor 
         if (c.to.ch === 0) return
 
-        // const pos = Pos(c.to.line, c.to.ch)
-        // const leftText = cm.doc.getRange(pos, c.to)
         const leftText = t0.string
         const lastChar = leftText.slice(-1)
         const currentText = c.text[0]
@@ -253,7 +252,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         setContext: (codemirror, changeObj) => {
             cm = codemirror
             c = changeObj
-        }
+        },
+        inParentheses
     }
 }
 
