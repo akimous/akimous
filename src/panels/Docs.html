@@ -93,6 +93,8 @@
     import g from '../lib/Globals'
     import { initializeTabView, onIdle } from '../lib/Utils'
 
+    let lastTokenStart = { line: 0, ch: 0 }
+
     export default {
         components: {},
         oncreate() {
@@ -117,9 +119,42 @@
                 completionDocType: 'html',
                 functionDoc: null,
                 functionDocType: 'html',
+                functionDocTriggeredFile: '',
+                functionDocTriggeredPos: null,
             }
         },
-        methods: {}
+        methods: {
+            getFunctionDocIfNeeded(cm, editor) {
+                if (cm.somethingSelected()) return
+
+                const cursor = cm.getCursor()
+                const token = cm.getTokenAt(cursor)
+                // don't request function doc if the cursor is moving on the same token
+                if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
+                lastTokenStart.line = cursor.line
+                lastTokenStart.ch = token.start
+
+                // don't request function doc if the cursor is moving within the same braces
+                const pos = cm.scanForBracket(cursor, -1, undefined, {
+                    bracketRegex: /[()]/
+                }).pos
+                const { filePath } = editor.get()
+                const { functionDocTriggeredFile, functionDocTriggeredPos } = this.get()
+                if (functionDocTriggeredPos && pos &&
+                    functionDocTriggeredPos.ch === pos.ch &&
+                    functionDocTriggeredPos.line === pos.line &&
+                    functionDocTriggeredFile === filePath)
+                    return
+                this.set({ functionDocTriggeredPos: pos, functionDocTriggeredFile: filePath })
+
+                editor.ws.send({
+                    cmd: 'getFunctionDocumentation',
+                    line: cursor.line,
+                    ch: cursor.ch,
+                    text: cm.getLine(cursor.line)
+                })
+            }
+        }
     }
 
 </script>

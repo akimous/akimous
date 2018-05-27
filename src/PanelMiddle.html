@@ -102,7 +102,11 @@
                 editor.set({
                     active: true
                 })
-                editor.cm && editor.cm.focus()
+                
+                const cm = editor.cm
+                if (!cm) return
+                cm.focus()
+                g.docs.getFunctionDocIfNeeded(cm, editor)
             },
             renameDir(newDirPath, oldDirPath) {
                 const oldDirPathString = oldDirPath.join('/')
