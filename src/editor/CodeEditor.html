@@ -238,6 +238,7 @@
                     let { doc, type } = data
                     if (doc.length === 0) doc = null
                     g.docs.set({ functionDoc: doc, functionDocType: type })
+                    g.docs.highlightActiveParameter(this.cm)
                 })
             }), 500)
         },

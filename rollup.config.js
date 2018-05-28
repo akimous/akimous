@@ -28,6 +28,7 @@ export default {
         postcss({
             plugins: [autoprefixer()], // not effective for svelte component
             minimize: true,
+            sourcemap: !production
             // extract: 'dist/vendor.css'
         }),
         production && progress(),

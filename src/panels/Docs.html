@@ -91,10 +91,11 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView, onIdle, inParentheses } from '../lib/Utils'
+    import { initializeTabView, onIdle, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
 
     let lastTokenStart = { line: 0, ch: 0 }
-    const matching = {'(': ')>', ')': '(<', '[': ']>', ']': '[<', '{': '}>', '}': '{<'}
+    const matchingForward = { '(': ')', '[': ']', '{': '}' }
+    const matchingBackward = { ')': '(', ']': '[', '}': '{' }
 
     export default {
         components: {},
@@ -137,14 +138,14 @@
 
                 // don't request function doc if the cursor is moving within the same braces
                 const pos = inParentheses(cm, cursor)
-                
+
                 const { filePath } = editor.get()
                 const { functionDocTriggeredFile, functionDocTriggeredPos } = this.get()
                 if (functionDocTriggeredPos && pos &&
                     functionDocTriggeredPos.ch === pos.ch &&
                     functionDocTriggeredPos.line === pos.line &&
                     functionDocTriggeredFile === filePath) {
-                    this.getActiveParameter(cm, cursor, pos)
+                    this.highlightActiveParameter(cm, cursor)
                     return
                 }
                 this.set({ functionDocTriggeredPos: pos, functionDocTriggeredFile: filePath })
@@ -155,28 +156,76 @@
                     ch: cursor.ch,
                     text: cm.getLine(cursor.line)
                 })
-                
-                
+                return true
+
             },
-            getActiveParameter(cm, cursor, startBracket) {
-//                const stack = []
-//                for (let lineNo = cursor.line; lineNo >= Math.max(0, cursor.line - 50); lineNo--) {
-//                    let line = cm.getLine(lineNo)
-//                    if (!line) continue
-//                    let pos = line.length - 1, end = -1
-//                    if (line.length > 300) continue
-//                    if (lineNo === cursor.line) pos = cursor.ch - 1
-//                    for (; pos != end; pos--) {
-//                    var ch = line.charAt(pos)
-//        if (re.test(ch) && (style === undefined || cm.getTokenTypeAt(Pos(lineNo, pos + 1)) == style)) {
-//          var match = matching[ch];
-//          if ((match.charAt(1) == ">") == (dir > 0)) stack.push(ch);
-//          else if (!stack.length) return {pos: Pos(lineNo, pos), ch: ch};
-//          else stack.pop();
-//        }
-//      }
-//    }
+            highlightActiveParameter(cm, cursor) {
+                if (!cursor) cursor = cm.getCursor()
+                this.getActiveParameter(cm, cursor)
+            },
+            getActiveParameter(cm, cursor) {
+                const pos = Pos(cursor)
+                let kwarg = this.findParameterNameInSameLevelOfBraces(cm, pos)
+                if (!kwarg) {
+                    const token = cm.getTokenAt(pos)
+                    if (token.type === 'variable') {
+                        pos.ch = token.end + 1
+                        const nextToken = cm.getTokenAt(pos)
+                        if (nextToken.string === '=')
+                            kwarg = token.string
+                    }
+                }
+                console.warn('result', kwarg)
+            },
+            findParameterNameInSameLevelOfBraces(cm, cursor) {
+                const stack = []
+                let stackTop
+                const pos = Pos(0, 0)
+                for (let line = cursor.line; line >= Math.max(0, cursor.line - 1); line--) {
+                    const lineContent = cm.getLine(line)
+                    pos.line = line
+                    if (!lineContent) continue
+                    let ch = lineContent.length - 1,
+                        end = -1
+                    if (line === cursor.line) ch = cursor.ch - 1
+
+                    for (; ch > end; ch--) {
+                        pos.ch = ch
+                        const char = lineContent.charAt(ch)
+                        const opening = matchingBackward[char]
+                        if (opening) {
+                            if (isStringOrComment(cm, pos)) {
+                                const token = cm.getTokenAt(pos)
+                                ch = token.start
+                                continue
+                            }
+                            stack.push(opening)
+                            stackTop = opening
+                            continue
+                        }
+                        if (char === stackTop) {
+                            if (isStringOrComment(cm, pos)) {
+                                const token = cm.getTokenAt(pos)
+                                ch = token.start
+                                continue
+                            }
+                            stackTop = stack.pop()
+                            continue
+                        }
+                        if (stack.length === 0) {
+                            if (char === '=') {
+                                const token = cm.getTokenAt(pos)
+                                if (token.type === 'variable')
+                                    return token.string
+                            } else if (char === ',' && !isStringOrComment(cm, Pos(pos.line, pos.ch + 1))) {
+                                return false
+                            }
+                        }
+                    }
+                }
+                return false
             }
+
         }
     }
 

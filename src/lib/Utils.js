@@ -126,10 +126,15 @@ function getRem() {
 }
 
 function Pos(line, ch) {
-    return { line, ch }
+    if (ch)
+        return { line, ch }
+    return {
+        line: line.line,
+        ch: line.ch
+    }
 }
 
-function shouldIgnoreToken(cm, pos) {
+function isStringOrComment(cm, pos) {
     const type = cm.getTokenTypeAt(pos)
     return type === 'string' || type === 'comment'
 }
@@ -148,18 +153,18 @@ function inSomething(cm, cursor, open, close) {
             let char = lineContent.charAt(ch)
             if (char === open) {
                 pos.ch = ch
-                if (shouldIgnoreToken(cm, pos)) {
+                if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
-                    ch = token.start - 1
+                    ch = token.start
                     pos.ch = ch
                     continue
                 }
                 braceStackCounter += 1
             } else if (char === close) {
                 pos.ch = ch
-                if (shouldIgnoreToken(cm, pos)) {
+                if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
-                    ch = token.start - 1
+                    ch = token.start
                     pos.ch = ch
                     continue
                 }
@@ -199,6 +204,8 @@ export {
     activateView,
     reformatDocstring,
     getRem,
+    Pos,
+    isStringOrComment,
     inSomething,
     inParentheses,
     inBrackets,
