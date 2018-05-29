@@ -1,8 +1,10 @@
 {
     "presets": [["minify", {
         "mergeVars": false,
-        "keepFnName": true,
-        "keepClassName": true,
+        "mangle": {
+            "keepClassName": true,
+            "keepFnName": true
+        },
         "removeConsole": true
     }]],
 }
