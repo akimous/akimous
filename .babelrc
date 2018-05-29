@@ -1,4 +1,8 @@
 {
-    "presets": ["minify"],
-    "plugins": ["transform-remove-console"]
+    "presets": [["minify", {
+        "mergeVars": false,
+        "keepFnName": true,
+        "keepClassName": true,
+        "removeConsole": true
+    }]],
 }

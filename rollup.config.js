@@ -28,10 +28,12 @@ export default {
         postcss({
             plugins: [autoprefixer()], // not effective for svelte component
             minimize: true,
-            sourcemap: !production
-            // extract: 'dist/vendor.css'
+            sourcemap: !production,
+            // extract: 'dist/bundle.css'
         }),
         production && progress(),
+        // NOTE: be careful that babel-plugin-transform-merge-sibling-variables 
+        // is breaking codemirror code folding, should be disabled in .babelrc (mergeVars)
         production && babel(),
         production && sizes(),
     ]

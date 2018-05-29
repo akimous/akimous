@@ -2774,6 +2774,10 @@ osenv@^0.1.4:
     os-homedir "^1.0.0"
     os-tmpdir "^1.0.0"
 
+p-queue@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/p-queue/-/p-queue-2.4.2.tgz#03609826682b743be9a22dba25051bd46724fc34"
+
 parse-glob@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/parse-glob/-/parse-glob-3.0.4.tgz#b2c376cfb11f35513badd173ef0bb6e3a388391c"
@@ -3529,9 +3533,9 @@ rollup-plugin-node-resolve@^3.3.0:
     is-module "^1.0.0"
     resolve "^1.1.6"
 
-rollup-plugin-postcss@^1.6.1:
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-postcss/-/rollup-plugin-postcss-1.6.1.tgz#8251104b9d9eedacbb56e87fb8fb9f226daaf716"
+rollup-plugin-postcss@^1.6.2:
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-postcss/-/rollup-plugin-postcss-1.6.2.tgz#f3422a56dab21bcb2e9b7182763733d4ff2c1b4c"
   dependencies:
     "@vue/component-compiler-utils" "^1.0.0"
     chalk "^2.0.0"
@@ -3539,6 +3543,7 @@ rollup-plugin-postcss@^1.6.1:
     cssnano "^3.10.0"
     fs-extra "^5.0.0"
     import-cwd "^2.1.0"
+    p-queue "^2.4.2"
     pify "^3.0.0"
     postcss "^6.0.21"
     postcss-load-config "^1.2.0"
@@ -3587,9 +3592,9 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup@^0.59.3:
-  version "0.59.3"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.59.3.tgz#15dae74cb1b6a6b39a63c7096c1d6f47d8f2a5bd"
+rollup@^0.59.4:
+  version "0.59.4"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.59.4.tgz#6f80f7017c22667ff1bf3e62adf8624a44cc44aa"
   dependencies:
     "@types/estree" "0.0.39"
     "@types/node" "*"
@@ -3928,9 +3933,9 @@ supports-color@^5.4.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.6.6:
-  version "2.6.6"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.6.6.tgz#b7a1261fbb8ef42b58cba856ba584cead2bf569e"
+svelte@^2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.7.0.tgz#abad5b4dbfe5d69ead89b4ab8fff1f7b58eacd3a"
 
 svgo@^0.7.0:
   version "0.7.2"
