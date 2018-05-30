@@ -14,7 +14,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import { onIdle, initializeTabView } from '../lib/Utils'
+    import { initializeTabView } from '../lib/Utils'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
     // import attach from 'xterm/lib/addons/attach/attach'
@@ -43,6 +43,9 @@
         },
         methods: {
             initializeTerminal() {
+                this.tab.set({ active: false })
+                this.tab.set({ active: true })
+                
                 requestAnimationFrame(() => {
                     Terminal.applyAddon(fit)
                     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
@@ -60,13 +63,12 @@
                         g.setFocus([g.panelRight, this])
                     })
 
-                    onIdle(() => {
+                    requestAnimationFrame(() => {
                         this.terminal.fit()
                         for (let i = 0; i < 3; i++)
                             this.terminal.write('blabla')
-                        this.tab.set({ active: false })
-                        this.tab.set({ active: true })
-                    }, 5000, 500)
+                    })
+
                 })
 
             }

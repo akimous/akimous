@@ -77,7 +77,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 )
             } else if ((/^\s*(if|def|for|while|with|class)\s.+[^\\:;]$/.test(line) ||
                     /^\s*(try|except|finally)/.test(line)
-                ) && !/(:\s)|;$/.test(line) &&
+            ) && !/(:\s)|;$/.test(line) &&
                 t0.string !== ':'
             ) { // add : if needed
                 c.text[0] = c.text[0] + ':'
@@ -86,7 +86,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 const openBracketLine = cm.doc.getLine(openBracket.to.line)
                 if ((/^\s*(if|def|for|while|with|class)\s/.test(openBracketLine) ||
                         /^\s*(try|except|finally)/.test(openBracketLine)
-                    ) && t0.string !== ':') {
+                ) && t0.string !== ':') {
                     c.text[0] = c.text[0] + ':'
                 }
             } else if (currentState.lastToken === 'break') {

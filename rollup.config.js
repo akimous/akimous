@@ -4,7 +4,7 @@ import commonjs from 'rollup-plugin-commonjs'
 import babel from 'rollup-plugin-babel'
 import sizes from 'rollup-plugin-sizes'
 import postcss from 'rollup-plugin-postcss'
-import progress from 'rollup-plugin-progress';
+import progress from 'rollup-plugin-progress'
 import autoprefixer from 'autoprefixer'
 
 const production = !process.env.ROLLUP_WATCH

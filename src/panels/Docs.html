@@ -97,6 +97,18 @@
     const matchingForward = { '(': ')', '[': ']', '{': '}' }
     const matchingBackward = { ')': '(', ']': '[', '}': '{' }
 
+    function findParameterName(cm, char, pos) {
+        if (char === '=') {
+            const token = cm.getTokenAt(pos)
+            if (token.type === 'variable')
+                return token.string
+        } else if (char === ',' && !isStringOrComment(cm, Pos(pos.line, pos.ch + 1))) {
+            return false
+        } else if (matchingForward[char]) {
+            return false
+        }
+    }
+
     export default {
         components: {},
         oncreate() {
@@ -161,11 +173,12 @@
             },
             highlightActiveParameter(cm, cursor) {
                 if (!cursor) cursor = cm.getCursor()
-                this.getActiveParameter(cm, cursor)
+                const activeParameter = this.getActiveParameter(cm, cursor)
+                console.log({ activeParameter })
             },
             getActiveParameter(cm, cursor) {
                 const pos = Pos(cursor)
-                let kwarg = this.findParameterNameInSameLevelOfBraces(cm, pos)
+                let kwarg = this.scanInSameLevelOfBraces(cm, cursor, findParameterName)
                 if (!kwarg) {
                     const token = cm.getTokenAt(pos)
                     if (token.type === 'variable') {
@@ -175,13 +188,40 @@
                             kwarg = token.string
                     }
                 }
-                console.warn('result', kwarg)
+                if (kwarg)
+                    return kwarg
+
+                let index = 0
+                let findParameterIndex = (cm, char, pos) => {
+                    if (!isStringOrComment(cm, Pos(pos.line, pos.ch + 1))) {
+                        if (char === '(') {
+                            const token = cm.getTokenAt(pos)
+                            if (token.type === 'function' || token.type === 'builtin')
+                                return index
+                            else index = 0
+                        } else if (char === ',') {
+                            ++index
+                        } else if (char === '{' || char === '[') {
+                            index = 0
+                        }
+                    }
+
+                }
+                let argIndex = this.scanInSameLevelOfBraces(cm, cursor, findParameterIndex)
+                return argIndex
             },
-            findParameterNameInSameLevelOfBraces(cm, cursor) {
+            /**
+             * Backward scan in braces
+             * @param   {object}   cm       CodeMirror instance
+             * @param   {object}   cursor   {line, ch}
+             * @param   {function} callback (cm, char, pos) => {false|string} to run for every character
+             * @returns {object}   returns what the callback returns, or false
+             */
+            scanInSameLevelOfBraces(cm, cursor, callback) {
                 const stack = []
                 let stackTop
                 const pos = Pos(0, 0)
-                for (let line = cursor.line; line >= Math.max(0, cursor.line - 1); line--) {
+                for (let line = cursor.line; line >= Math.max(0, cursor.line - 10); line--) {
                     const lineContent = cm.getLine(line)
                     pos.line = line
                     if (!lineContent) continue
@@ -213,19 +253,13 @@
                             continue
                         }
                         if (stack.length === 0) {
-                            if (char === '=') {
-                                const token = cm.getTokenAt(pos)
-                                if (token.type === 'variable')
-                                    return token.string
-                            } else if (char === ',' && !isStringOrComment(cm, Pos(pos.line, pos.ch + 1))) {
-                                return false
-                            }
+                            const result = callback(cm, char, pos)
+                            if (result !== undefined) return result
                         }
                     }
                 }
                 return false
-            }
-
+            },
         }
     }
 

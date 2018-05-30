@@ -7,7 +7,7 @@ from tqdm import tqdm
 import Levenshtein
 
 hello = 'world'
-np.array([1, 2, 3])
+np.array([1, 2, 3], dtype=int)
 load_iris(True)
 fft()
 print('')
