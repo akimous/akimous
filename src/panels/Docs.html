@@ -86,6 +86,10 @@
         font-family: var(--basic-monospace-font-family);
     }
 
+    :global(.highlight-parameter) {
+        background: var(--gray1);
+    }
+
 </style>
 
 
@@ -173,8 +177,74 @@
             },
             highlightActiveParameter(cm, cursor) {
                 if (!cursor) cursor = cm.getCursor()
-                const activeParameter = this.getActiveParameter(cm, cursor)
-                console.log({ activeParameter })
+                let activeParameter = this.getActiveParameter(cm, cursor)
+                const oldHighlights = document.querySelectorAll('#function-doc dt.highlight-parameter')
+                for (const node of oldHighlights)
+                    node.classList.remove('highlight-parameter')
+                if (activeParameter === false) return
+
+                if (Number.isInteger(activeParameter)) {
+
+                    try {
+                        const { functionDoc, functionDocType } = this.get()
+                        let functionSignature
+                        if (functionDocType === 'html') {
+                            functionSignature = document.querySelector('#function-doc p').innerText
+                        } else {
+                            functionSignature = functionDoc.substring(0, functionDoc.indexOf('\n\n'))
+                        }
+                        activeParameter = this.getParameterFromFunctionSignature(functionSignature, activeParameter)
+                    } catch (e) {
+                        console.error(e)
+                        return
+                    }
+                }
+                for (const node of document.querySelectorAll('#function-doc dt')) {
+                    if (node.innerText.startsWith(activeParameter)) {
+                        node.scrollIntoView(true)
+                        node.classList.add('highlight-parameter')
+                        break
+                    }
+                }
+
+
+            },
+            getParameterFromFunctionSignature(signature, index) {
+                const stack = []
+                const length = signature.length
+                let stackTop
+                for (let i = 0; i < length; i++) {
+                    const char = signature.charAt(i)
+                    const opening = matchingForward[char]
+                    if (opening) {
+                        stack.push(opening)
+                        stackTop = opening
+                        if (signature.substr(i + 1, 5) === 'self,')
+                            i += 6
+                        continue
+                    }
+                    if (char === stackTop) {
+                        stackTop = stack.pop()
+                        continue
+                    }
+                    if (stack.length === 1) {
+                        if (char === ',') {
+                            index--
+                            i++
+                        }
+                        if (index === 0) {
+                            let end = signature.indexOf(',', i)
+                            let result = signature.substring(i, end)
+                            end = result.indexOf('=')
+                            if (end > 0)
+                                result = result.substring(0, end)
+                            end = result.indexOf(':')
+                            if (end > 0)
+                                result = result.substring(0, end)
+                            return result.trim()
+                        }
+                    }
+                }
             },
             getActiveParameter(cm, cursor) {
                 const pos = Pos(cursor)

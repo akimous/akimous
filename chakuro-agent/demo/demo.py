@@ -13,7 +13,7 @@ fft()
 print('')
 tqdm()
 Levenshtein.jaro()
-r = RandomForestClassifier(n_estimators=10,
+r = RandomForestClassifier(10, 'gini',
                            max_features='auto',
                            n_jobs=3)
 
