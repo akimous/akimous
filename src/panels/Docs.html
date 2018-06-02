@@ -1,10 +1,11 @@
 <div ref:container id="docs" class="container {active?'':'gone'}">
     <div id="function-doc-container" class="{completionDoc?'':'expand'}">
-        {#if functionDoc}
         <div ref:functionDoc id="function-doc" class="{functionDocType==='html'?'':'text-docstring'}">
-            {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if}
+            {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
+            <h2>Function Documentation</h2>
+            <p>Move the cursor inside function parentheses to show its docstring.</p>
+            {/if}
         </div>
-        {/if}
     </div>
     <div ref:splitBar id="split-bar-doc" class="split-bar {completionDoc?'':'gone'}"></div>
     <div class="mask {completionDoc?'':'gone'}"></div>
