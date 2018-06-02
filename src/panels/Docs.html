@@ -202,14 +202,12 @@
                 for (const node of oldHighlights)
                     node.classList.remove('highlight-parameter')
                 if (activeParameter === false) return
-                
-                console.log({activeParameter})
+
                 if (Number.isInteger(activeParameter)) {
                     const functionSignature = this.getFunctionSignature()
                     if (!functionSignature) return
-                    activeParameter = this.getParameterFromFunctionSignature(functionSignature, activeParameter)
+                    activeParameter = this.getParameterNameFromFunctionSignature(functionSignature, activeParameter)
                 }
-                console.log({activeParameter})
                 if (!activeParameter) return
                 for (const node of document.querySelectorAll('#function-doc dt')) {
                     if (node.innerText.startsWith(activeParameter)) {
@@ -221,10 +219,35 @@
 
 
             },
-            getParameterFromFunctionSignature(signature, index) {
+            /**
+             * ('load_iris(return_X_y=False)', 0) -> 'return_X_y'
+             * @param   {string} signature function signature from Jedi docstring
+             * @param   {number} index     n-th parameter
+             * @returns {string} name of the parameter, or undefined if not available
+             */
+            getParameterNameFromFunctionSignature(signature, index) {
+                const parameterList = this.getParameterListFromFunctionSignature(signature)
+                if (parameterList.length <= index) {
+                    console.warn('index out of bound')
+                    return
+                }
+                let parameter = parameterList[index]
+                const end = parameter.search(/[\s,=:]/)
+                if (end > 0) parameter = parameter.substring(0, end)
+                parameter = parameter.replace(/\*/g, '')
+                return parameter
+            },
+            /**
+             * Return a list of parameters, including default values and type annotations.
+             * ('someFunction(a, b=1, c: int = 3, **d)') -> ['a', 'b=1', 'c: int = 3', '**d']
+             * @param   {string} function signature from Jedi docstring
+             * @returns {Array}  as stated in the example above
+             */
+            getParameterListFromFunctionSignature(signature) {
                 const stack = []
+                const result = []
                 const length = signature.length
-                let stackTop
+                let stackTop, end = -1
                 for (let i = 0; i < length; i++) {
                     const char = signature.charAt(i)
                     const opening = matchingForward[char]
@@ -241,23 +264,16 @@
                     }
                     if (stack.length === 1) {
                         if (char === ',') {
-                            index--
-                            i++
+                            continue
                         }
-                        if (index === 0) {
-                            let end = signature.indexOf(',', i)
-                            if (end === -1) end = length - 1
-                            let result = signature.substring(i, end)
-                            end = result.indexOf('=')
-                            if (end > 0)
-                                result = result.substring(0, end)
-                            end = result.indexOf(':')
-                            if (end > 0)
-                                result = result.substring(0, end)
-                            return result.trim()
-                        }
+                        end = signature.indexOf(',', i)
+                        if (end === -1) end = length - 1
+                        let item = signature.substring(i, end).trim()
+                        result.push(item)
+                        i = Math.max(i, end - 1)
                     }
                 }
+                return result
             },
             getActiveParameter(cm, cursor) {
                 const pos = Pos(cursor)
