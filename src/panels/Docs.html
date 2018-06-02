@@ -1,6 +1,6 @@
 <div ref:container id="docs" class="container {active?'':'gone'}">
     <div id="function-doc-container" class="{completionDoc?'':'expand'}">
-        <div ref:functionDoc id="function-doc" class="{functionDocType==='html'?'':'text-docstring'}">
+        <div ref:functionDoc on:mouseup="onClickFunctionDoc(event)" id="function-doc" class="{functionDocType==='html'?'':'text-docstring'}">
             {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
             <h2>Function Documentation</h2>
             <p>Move the cursor inside function parentheses to show its docstring.</p>
@@ -111,6 +111,26 @@
             return false
         } else if (matchingForward[char]) {
             return false
+        }
+    }
+
+    function getSelectedTextInDoc() {
+        const selection = window.getSelection()
+        if (selection.isCollapsed) {
+            const text = selection.anchorNode.textContent
+            let start = selection.anchorOffset
+            let end = start
+            const length = text.length
+            while (start >= 0 && /\w/.test(text.charAt(start))) {
+                start--
+            }
+            start++
+            while (end < length && /\w/.test(text.charAt(end))) {
+                end++
+            }
+            return text.substring(start, end)
+        } else {
+            return selection.toString()
         }
     }
 
@@ -331,6 +351,15 @@
                 }
                 return false
             },
+            onClickFunctionDoc(event) {
+                if (event.ctrlKey || event.metaKey) {
+                    const editor = g.activeEditor
+                    if (!editor) return
+                    const selectedText = getSelectedTextInDoc()
+                    editor.cm.replaceSelection(selectedText)
+                    editor.cm.focus()
+                }
+            }
         }
     }
 
