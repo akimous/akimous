@@ -1,6 +1,6 @@
 <div ref:container id="docs" class="container {active?'':'gone'}">
     <div id="function-doc-container" class="{completionDoc?'':'expand'}">
-        <div ref:functionDoc on:mouseup="onClickFunctionDoc(event)" id="function-doc" class="{functionDocType==='html'?'':'text-docstring'}">
+        <div ref:functionDoc on:click="onClickFunctionDoc(event)" id="function-doc" class="{functionDocType==='html'?'':'text-docstring'}">
             {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
             <h2>Function Documentation</h2>
             <p>Move the cursor inside function parentheses to show its docstring.</p>
@@ -165,7 +165,6 @@
         methods: {
             getFunctionDocIfNeeded(cm, editor) {
                 if (cm.somethingSelected()) return
-
                 const cursor = cm.getCursor()
                 const token = cm.getTokenAt(cursor)
                 // don't request function doc if the cursor is moving on the same token
@@ -203,23 +202,15 @@
                 for (const node of oldHighlights)
                     node.classList.remove('highlight-parameter')
                 if (activeParameter === false) return
-
+                
+                console.log({activeParameter})
                 if (Number.isInteger(activeParameter)) {
-
-                    try {
-                        const { functionDoc, functionDocType } = this.get()
-                        let functionSignature
-                        if (functionDocType === 'html') {
-                            functionSignature = document.querySelector('#function-doc p').innerText
-                        } else {
-                            functionSignature = functionDoc.substring(0, functionDoc.indexOf('\n\n'))
-                        }
-                        activeParameter = this.getParameterFromFunctionSignature(functionSignature, activeParameter)
-                    } catch (e) {
-                        console.error(e)
-                        return
-                    }
+                    const functionSignature = this.getFunctionSignature()
+                    if (!functionSignature) return
+                    activeParameter = this.getParameterFromFunctionSignature(functionSignature, activeParameter)
                 }
+                console.log({activeParameter})
+                if (!activeParameter) return
                 for (const node of document.querySelectorAll('#function-doc dt')) {
                     if (node.innerText.startsWith(activeParameter)) {
                         node.scrollIntoView(true)
@@ -255,6 +246,7 @@
                         }
                         if (index === 0) {
                             let end = signature.indexOf(',', i)
+                            if (end === -1) end = length - 1
                             let result = signature.substring(i, end)
                             end = result.indexOf('=')
                             if (end > 0)
@@ -352,12 +344,30 @@
                 return false
             },
             onClickFunctionDoc(event) {
+                const editor = g.activeEditor
+                const { functionDoc } = this.get()
+                if (!editor || !functionDoc) return
                 if (event.ctrlKey || event.metaKey) {
-                    const editor = g.activeEditor
-                    if (!editor) return
                     const selectedText = getSelectedTextInDoc()
                     editor.cm.replaceSelection(selectedText)
                     editor.cm.focus()
+                } else if (event.altKey) {
+                    console.log(functionDoc)
+                }
+            },
+            getFunctionSignature() {
+                try {
+                    const { functionDoc, functionDocType } = this.get()
+                    let functionSignature
+                    if (functionDocType === 'html') {
+                        functionSignature = document.querySelector('#function-doc p').innerText
+                    } else {
+                        functionSignature = functionDoc.substring(0, functionDoc.indexOf('\n\n'))
+                    }
+                    return functionSignature
+                } catch (e) {
+                    console.error(e)
+                    return
                 }
             }
         }
