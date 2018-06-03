@@ -97,10 +97,14 @@
 <script>
     import g from '../lib/Globals'
     import { initializeTabView, onIdle, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
+    import {
+        scanInSameLevelOfBraces,
+        needInsertCommaBeforeParameter,
+        isMultilineParameter
+    } from '../editor/EditorFunctions'
 
     let lastTokenStart = { line: 0, ch: 0 }
     const matchingForward = { '(': ')', '[': ']', '{': '}' }
-    const matchingBackward = { ')': '(', ']': '[', '}': '{' }
 
     function findParameterName(cm, char, pos) {
         if (char === '=') {
@@ -277,7 +281,7 @@
             },
             getActiveParameter(cm, cursor) {
                 const pos = Pos(cursor)
-                let kwarg = this.scanInSameLevelOfBraces(cm, cursor, findParameterName)
+                let kwarg = scanInSameLevelOfBraces(cm, cursor, findParameterName)
                 if (!kwarg) {
                     const token = cm.getTokenAt(pos)
                     if (token.type === 'variable') {
@@ -306,71 +310,38 @@
                     }
 
                 }
-                let argIndex = this.scanInSameLevelOfBraces(cm, cursor, findParameterIndex)
+                let argIndex = scanInSameLevelOfBraces(cm, cursor, findParameterIndex)
                 return argIndex
-            },
-            /**
-             * Backward scan in braces
-             * @param   {object}   cm       CodeMirror instance
-             * @param   {object}   cursor   {line, ch}
-             * @param   {function} callback (cm, char, pos) => {false|string} to run for every character
-             * @returns {object}   returns what the callback returns, or false
-             */
-            scanInSameLevelOfBraces(cm, cursor, callback) {
-                const stack = []
-                let stackTop
-                const pos = Pos(0, 0)
-                for (let line = cursor.line; line >= Math.max(0, cursor.line - 10); line--) {
-                    const lineContent = cm.getLine(line)
-                    pos.line = line
-                    if (!lineContent) continue
-                    let ch = lineContent.length - 1,
-                        end = -1
-                    if (line === cursor.line) ch = cursor.ch - 1
-
-                    for (; ch > end; ch--) {
-                        pos.ch = ch
-                        const char = lineContent.charAt(ch)
-                        const opening = matchingBackward[char]
-                        if (opening) {
-                            if (isStringOrComment(cm, pos)) {
-                                const token = cm.getTokenAt(pos)
-                                ch = token.start
-                                continue
-                            }
-                            stack.push(opening)
-                            stackTop = opening
-                            continue
-                        }
-                        if (char === stackTop) {
-                            if (isStringOrComment(cm, pos)) {
-                                const token = cm.getTokenAt(pos)
-                                ch = token.start
-                                continue
-                            }
-                            stackTop = stack.pop()
-                            continue
-                        }
-                        if (stack.length === 0) {
-                            const result = callback(cm, char, pos)
-                            if (result !== undefined) return result
-                        }
-                    }
-                }
-                return false
             },
             onClickFunctionDoc(event) {
                 const editor = g.activeEditor
                 const { functionDoc } = this.get()
                 if (!editor || !functionDoc) return
+                const cm = editor.cm
                 if (event.ctrlKey || event.metaKey) {
+                    // insert selected parameter with default values
                     const selectedText = getSelectedTextInDoc()
-                    editor.cm.replaceSelection(selectedText)
+                    const parameterList = this.getParameterListFromFunctionSignature(this.getFunctionSignature())
+                    let result = parameterList.find(item => {
+                        return item.startsWith(selectedText)
+                    })
+                    if (!result) return
+                    result = result.replace(/’/g, '\'')
+                    const comma = needInsertCommaBeforeParameter(cm)
+                    const lineBreak = isMultilineParameter(cm)
+                    if (lineBreak) {
+                        if (comma)
+                            cm.replaceSelection(',')
+                        cm.execCommand('newlineAndIndent')
+                    } else if (comma) {
+                        result = ', ' + result
+                    }
+                    editor.cm.replaceSelection(result)
                     editor.cm.focus()
                 } else if (event.altKey) {
                     const selectedText = getSelectedTextInDoc()
-                    const parameterList = this.getParameterListFromFunctionSignature(this.getFunctionSignature())
-                    console.log({selectedText, parameterList})
+                    editor.cm.replaceSelection(selectedText)
+                    editor.cm.focus()
                 }
             },
             getFunctionSignature() {

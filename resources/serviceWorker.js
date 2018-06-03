@@ -31,5 +31,5 @@ self.addEventListener('fetch', event => {
                 return remote || local
             })
         })
-    );
-});
+    )
+})
