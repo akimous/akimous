@@ -368,7 +368,9 @@
                     editor.cm.replaceSelection(selectedText)
                     editor.cm.focus()
                 } else if (event.altKey) {
-                    console.log(functionDoc)
+                    const selectedText = getSelectedTextInDoc()
+                    const parameterList = this.getParameterListFromFunctionSignature(this.getFunctionSignature())
+                    console.log({selectedText, parameterList})
                 }
             },
             getFunctionSignature() {

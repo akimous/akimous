@@ -41,7 +41,7 @@ yarn run release
 | 4/25         | 73     | 78     | 88     | 3950     | 2637     | 788      | 192     | 316         | don't load xterm on start         |
 | 5/26         | 73     | 74     | 88     | 4330     | 2888     | 796      | 193     | 333         | Unused: 45.9%                     |
 | 5/29         |        |        |        |          |          | 857      | 200     |             | disable mergeVars in babel-minify |
-|              |        |        |        |          |          |          |         |             |                                   |
+| 6/3          | 91     | 74     | 88     | 4310     | 2722     | 860      | 201     | 338         | enabled service worker            |
 |              |        |        |        |          |          |          |         |             |                                   |
 |              |        |        |        |          |          |          |         |             |                                   |
 |              |        |        |        |          |          |          |         |             |                                   |
