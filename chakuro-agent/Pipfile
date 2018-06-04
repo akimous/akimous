@@ -1,12 +1,9 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
 scikit-learn = "==0.19.0"
 numpy = "*"
 pandas = "*"
@@ -20,6 +17,4 @@ watchdog = "*"
 docutils = "*"
 sphinx = "*"
 
-
 [dev-packages]
-
