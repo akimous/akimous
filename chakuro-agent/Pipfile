@@ -12,9 +12,9 @@ websockets = "*"
 logzero = "*"
 python-levenshtein = "*"
 tqdm = "*"
-scipy = "*"
 watchdog = "*"
 docutils = "*"
 sphinx = "*"
+scipy = "*"
 
 [dev-packages]
