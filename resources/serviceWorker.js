@@ -1,3 +1,6 @@
+//const log = console.log
+const log = () => {}
+
 self.addEventListener('install', event => {
     console.log('installing service worker')
     event.waitUntil(
@@ -10,20 +13,23 @@ self.addEventListener('install', event => {
 })
 
 self.addEventListener('activate', event => {
-    console.log('service worker activated', event)
+    log('service worker activated', event)
     return self.clients.claim()
 })
 
 self.addEventListener('fetch', event => {
-    console.log('fetching ' + event.request.url)
-    event.respondWith(
-        caches.open('static').then(cache => {
+    log('fetching ' + event.request.url)
+    event.respondWith((() => {
+        if (event.request.method !== 'GET')
+            return fetch(event.request)
+
+        else return caches.open('static').then(cache => {
             return cache.match(event.request).then(response => {
-                console.log('matched ' + event.request.url)
+                log('matched ' + event.request.url)
                 let local = response
                 let remote = fetch(event.request).then(response => {
-                    console.log('fetched response from server ' + event.request.url)
                     cache.put(event.request, response.clone())
+                    log('updated cache ' + event.request.url)
                     return response
                 }).catch(error => {
                     console.error(`failed to fetch request ${event.request.url}`, error)
@@ -31,5 +37,5 @@ self.addEventListener('fetch', event => {
                 return remote || local
             })
         })
-    )
+    })())
 })

@@ -3592,9 +3592,9 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup@^0.59.4:
-  version "0.59.4"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.59.4.tgz#6f80f7017c22667ff1bf3e62adf8624a44cc44aa"
+rollup@^0.60.0:
+  version "0.60.0"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.60.0.tgz#2c4acaaf3d8a858a81ff740d6253e21eeb58ff21"
   dependencies:
     "@types/estree" "0.0.39"
     "@types/node" "*"
@@ -3933,9 +3933,9 @@ supports-color@^5.4.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.7.0:
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.7.0.tgz#abad5b4dbfe5d69ead89b4ab8fff1f7b58eacd3a"
+svelte@^2.7.1:
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.7.1.tgz#2095a55ec5495008ddf9b89820ef52ac98861f92"
 
 svgo@^0.7.0:
   version "0.7.2"

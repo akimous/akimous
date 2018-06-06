@@ -63,7 +63,7 @@ const g = {
         }
     },
     onFocusChanged() {
-        console.warn('focus changed', this.focusStack)
+        // console.warn('focus changed', this.focusStack)
         const focusedPanel = this.focusStack[0]
         for (const panel of [g.panelLeft, g.panelMiddle, g.panelRight]) {
             panel && panel.set({

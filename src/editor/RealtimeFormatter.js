@@ -178,6 +178,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     }
 
     const deleteHandler = () => {
+        if (cm.somethingSelected()) return
         const cursor = cm.doc.getCursor()
         if (c.from.ch === cursor.ch - 1) { // handle backspace
             const t0 = cm.getTokenAt(c.to, true)

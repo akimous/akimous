@@ -139,7 +139,8 @@ class CMEventDispatcher {
                                     forcePassiveCompletion = true
                             }
                         }
-                        formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
+                        if (!cm.somethingSelected())
+                            formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                         const isInputAlphanumericOrUnderscore = /[A-Za-z0-9_]/.test(inputChar)
                         const isFirstLetter = isInputAlphanumericOrUnderscore && (
                             cursor.ch === 0 ||
@@ -169,7 +170,6 @@ class CMEventDispatcher {
                         shouldSyncAfterChange = true
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }
-                    //                        break
                 } else if (c.origin === '+delete') {
                     if (c.from.line !== c.to.line) {
                         shouldSyncAfterChange = true
