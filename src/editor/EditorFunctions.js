@@ -1,15 +1,16 @@
 import { Pos, isStringOrComment } from '../lib/Utils'
 
 const matchingBackward = { ')': '(', ']': '[', '}': '{' }
+const matchingForward = { '(': ')', '[': ']', '{': '}' }
 
 /**
  * a(b, |) -> false
- * a(b)    -> true
+ * a(b|)   -> true
  * @param {object} cm 
  */
 function needInsertCommaBeforeParameter(cm) {
     const cursor = cm.getCursor()
-    return scanInSameLevelOfBraces(cm, cursor, (cm, char/*, pos*/) => {
+    return scanInSameLevelOfBraces(cm, cursor, (cm, char /*, pos*/ ) => {
         if (/\s/.test(char)) {
             // return undefined
         } else if (/\(|,/.test(char)) {
@@ -20,19 +21,43 @@ function needInsertCommaBeforeParameter(cm) {
     })
 }
 
+/**
+ * a(|b)   -> true
+ * a(b, |) -> false
+ * @param {object} cm 
+ */
+function needInsertCommaAfterParameter(cm) {
+    const cursor = cm.getCursor()
+    return scanInSameLevelOfBraces(cm, cursor, (cm, char /*, pos*/ ) => {
+        if (/\s/.test(char)) {
+            // return undefined
+        } else if (/\)|,/.test(char)) {
+            return false
+        } else {
+            return true
+        }
+    }, 1) // scan forward
+}
+
 function isMultilineParameter(cm) {
     const cursor = cm.getCursor()
-    let line = null
-    return scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
-        if (line === null) {
-            line = pos.line
-            return undefined
-        } else if (line !== pos.line) {
+    let line = cursor.line
+    const backwardScan =  scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
+        if (line !== pos.line) {
             return true
         } else if (/\(|,/.test(char)) {
             return false
         }
     })
+    if (backwardScan) return true
+    line = cursor.line
+    return scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
+        if (line !== pos.line) {
+            return true
+        } else if (/\)/.test(char)) {
+            return false
+        }
+    }, 1) 
 }
 
 /**
@@ -40,38 +65,49 @@ function isMultilineParameter(cm) {
  * @param   {object}   cm       CodeMirror instance
  * @param   {object}   cursor   {line, ch}
  * @param   {function} callback (cm, char, pos) => {false|string} to run for every character
+ * @param   {dir}      number   1 for forward; -1 for backward
  * @returns {object}   returns what the callback returns, or false
  */
-function scanInSameLevelOfBraces(cm, cursor, callback) {
+function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
+    console.assert(dir === 1 || dir === -1)
+    const forward = (dir === 1)
+    const matchingHalves = forward ? matchingForward : matchingBackward
     const stack = []
-    let stackTop
     const pos = Pos(0, 0)
-    for (let line = cursor.line; line >= Math.max(0, cursor.line - 10); line--) {
+    const endLine = forward ?
+        Math.min(cm.lineCount(), cursor.line + 10) :
+        Math.max(-1, cursor.line - 10)
+    let stackTop
+    for (let line = cursor.line; line !== endLine; line += dir) {
         const lineContent = cm.getLine(line)
         pos.line = line
         if (!lineContent) continue
-        let ch = lineContent.length - 1,
-            end = -1
-        if (line === cursor.line) ch = cursor.ch - 1
+        let ch = forward ? 0 : (lineContent.length - 1),
+            end = forward ? lineContent.length : -1
+        if (line === cursor.line) {
+            ch = cursor.ch
+            if (!forward) ch -= 1
+        }
+        
 
-        for (; ch > end; ch--) {
+        for (; ch !== end; ch += dir) {
             pos.ch = ch
             const char = lineContent.charAt(ch)
-            const opening = matchingBackward[char]
-            if (opening) {
+            const anotherHalf = matchingHalves[char]
+            if (anotherHalf) {
                 if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
-                    ch = token.start
+                    ch = forward ? token.end : token.start
                     continue
                 }
-                stack.push(opening)
-                stackTop = opening
+                stack.push(anotherHalf)
+                stackTop = anotherHalf
                 continue
             }
             if (char === stackTop) {
                 if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
-                    ch = token.start
+                    ch = forward ? token.end : token.start
                     continue
                 }
                 stackTop = stack.pop()
@@ -87,7 +123,10 @@ function scanInSameLevelOfBraces(cm, cursor, callback) {
 }
 
 export {
+    needInsertCommaAfterParameter,
     needInsertCommaBeforeParameter,
     scanInSameLevelOfBraces,
-    isMultilineParameter
+    isMultilineParameter,
+    matchingBackward,
+    matchingForward
 }

@@ -99,12 +99,13 @@
     import { initializeTabView, onIdle, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
     import {
         scanInSameLevelOfBraces,
+        needInsertCommaAfterParameter,
         needInsertCommaBeforeParameter,
-        isMultilineParameter
+        isMultilineParameter,
+        matchingForward
     } from '../editor/EditorFunctions'
 
     let lastTokenStart = { line: 0, ch: 0 }
-    const matchingForward = { '(': ')', '[': ']', '{': '}' }
 
     function findParameterName(cm, char, pos) {
         if (char === '=') {
@@ -318,6 +319,7 @@
                 const { functionDoc } = this.get()
                 if (!editor || !functionDoc) return
                 const cm = editor.cm
+                const cursor = Pos(cm.getCursor())
                 if (event.ctrlKey || event.metaKey) {
                     // insert selected parameter with default values
                     const selectedText = getSelectedTextInDoc()
@@ -326,17 +328,27 @@
                         return item.startsWith(selectedText)
                     })
                     if (!result) return
-                    result = result.replace(/’/g, '\'')
-                    const comma = needInsertCommaBeforeParameter(cm)
-                    const lineBreak = isMultilineParameter(cm)
-                    if (lineBreak) {
-                        if (comma)
-                            cm.replaceSelection(',')
+                    result = result.replace(/[’”]/g, '\'')
+                    const commaBefore = needInsertCommaBeforeParameter(cm)
+                    const commaAfter = needInsertCommaAfterParameter(cm)
+                    const multiLine = isMultilineParameter(cm)
+                    const lineContent = cm.getLine(cursor.line)
+                    const charBefore = lineContent.charAt(cursor.ch - 1)
+                    const charAfter = lineContent.charAt(cursor.ch)
+                    const lineBreakBefore = multiLine && charBefore.length > 0 && !/\(|\s/.test(charBefore)
+                    const lineBreakAfter = multiLine && charAfter.length > 0 && !/\)|\s/.test(charAfter)
+                    console.warn({commaBefore, commaAfter, lineContent, cursor, multiLine,  charBefore,charAfter, lineBreakBefore, lineBreakAfter})
+                    if (commaBefore && lineBreakBefore) {
+                        cm.replaceSelection(',')
                         cm.execCommand('newlineAndIndent')
-                    } else if (comma) {
-                        result = ', ' + result
+                        cm.replaceSelection(result)
+                    } else {
+                        if (lineBreakBefore) cm.execCommand('newlineAndIndent')
+                        if (commaBefore) result = ', ' + result
+                        if (commaAfter) result = result + ', '
+                        cm.replaceSelection(result)
+                        if (lineBreakAfter) cm.execCommand('newlineAndIndent')
                     }
-                    editor.cm.replaceSelection(result)
                     editor.cm.focus()
                 } else if (event.altKey) {
                     const selectedText = getSelectedTextInDoc()
