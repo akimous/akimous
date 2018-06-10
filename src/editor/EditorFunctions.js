@@ -144,6 +144,52 @@ function moveCursorToParameterInsertionPoint(cm) {
     newCursorPos && cm.setCursor(newCursorPos)
 }
 
+function moveCursorToParameter(cm, target) {
+    const cursor = cm.getCursor()
+    let parameterPos = scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
+        const token = cm.getTokenAt(pos)
+        if (token.string === target) {
+            return pos
+        }
+        if (pos.ch < token.end)
+            pos.ch = token.end
+    }, 1)
+
+    if (!parameterPos)
+        parameterPos = scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
+            const token = cm.getTokenAt(pos)
+            if (token.string === target) {
+                return pos
+            }
+            if (pos.ch > token.start)
+                pos.ch = token.start
+        })
+
+
+    if (!parameterPos) return false
+
+    const startPos = scanInSameLevelOfBraces(cm, parameterPos, (cm, char, pos) => {
+        const token = cm.getTokenAt(pos)
+        if (/=/.test(char)) {
+            pos.ch += 1
+            return pos
+        }
+        if (pos.ch < token.end)
+            pos.ch = token.end
+    }, 1)
+    const endPos = scanInSameLevelOfBraces(cm, parameterPos, (cm, char, pos) => {
+        const token = cm.getTokenAt(pos)
+        if (/\)|,/.test(char)) {
+            return pos
+        }
+        if (pos.ch < token.end)
+            pos.ch = token.end
+    }, 1)
+    cm.setSelection(startPos, endPos)
+    return true
+
+}
+
 export {
     needInsertCommaAfterParameter,
     needInsertCommaBeforeParameter,
@@ -151,5 +197,6 @@ export {
     isMultilineParameter,
     matchingBackward,
     matchingForward,
-    moveCursorToParameterInsertionPoint
+    moveCursorToParameterInsertionPoint,
+    moveCursorToParameter
 }

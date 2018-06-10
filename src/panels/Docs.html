@@ -104,6 +104,7 @@
         isMultilineParameter,
         matchingForward,
         moveCursorToParameterInsertionPoint,
+        moveCursorToParameter,
     } from '../editor/EditorFunctions'
 
     let lastTokenStart = { line: 0, ch: 0 }
@@ -330,9 +331,18 @@
                     })
                     if (!result) return
                     result = result.replace(/[’”]/g, '\'')
-                    
+
+                    const equalSignPosition = result.indexOf('=')
+                    if (equalSignPosition > 0) {
+                        const parameterName = result.substring(0, equalSignPosition)
+                        const parameterAlreadyExists = moveCursorToParameter(cm, parameterName)
+                        if (parameterAlreadyExists) {
+                            editor.cm.focus()
+                            return
+                        }
+                    }
                     moveCursorToParameterInsertionPoint(cm)
-                    
+
                     const commaBefore = needInsertCommaBeforeParameter(cm)
                     const commaAfter = needInsertCommaAfterParameter(cm)
                     const multiLine = isMultilineParameter(cm)
