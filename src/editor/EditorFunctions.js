@@ -42,7 +42,7 @@ function needInsertCommaAfterParameter(cm) {
 function isMultilineParameter(cm) {
     const cursor = cm.getCursor()
     let line = cursor.line
-    const backwardScan =  scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
+    const backwardScan = scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
         if (line !== pos.line) {
             return true
         } else if (/\(|,/.test(char)) {
@@ -57,11 +57,11 @@ function isMultilineParameter(cm) {
         } else if (/\)/.test(char)) {
             return false
         }
-    }, 1) 
+    }, 1)
 }
 
 /**
- * Backward scan in braces
+ * Scan in braces
  * @param   {object}   cm       CodeMirror instance
  * @param   {object}   cursor   {line, ch}
  * @param   {function} callback (cm, char, pos) => {false|string} to run for every character
@@ -88,7 +88,7 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
             ch = cursor.ch
             if (!forward) ch -= 1
         }
-        
+
 
         for (; ch !== end; ch += dir) {
             pos.ch = ch
@@ -122,11 +122,34 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
     return false
 }
 
+/**
+ * some_function(aa|a) --> some_function(aaa|)
+ * some_function(aa|a=123) --> some_function(aaa=123|)
+ * some_function(aaa=12|3) --> some_function(aaa=123|)
+ * @param {object} cm CodeMirror
+ */
+function moveCursorToParameterInsertionPoint(cm) {
+    const cursor = cm.getCursor()
+    const line = cursor.line
+    const originalCursorPos = Pos(cursor)
+    const newCursorPos = scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
+        if (/,/.test(char)) {
+            pos.ch += 1
+            return pos
+        }
+        if (/\)/.test(char)) {
+            return pos
+        }
+    }, 1)
+    newCursorPos && cm.setCursor(newCursorPos)
+}
+
 export {
     needInsertCommaAfterParameter,
     needInsertCommaBeforeParameter,
     scanInSameLevelOfBraces,
     isMultilineParameter,
     matchingBackward,
-    matchingForward
+    matchingForward,
+    moveCursorToParameterInsertionPoint
 }

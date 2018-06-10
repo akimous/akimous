@@ -102,7 +102,8 @@
         needInsertCommaAfterParameter,
         needInsertCommaBeforeParameter,
         isMultilineParameter,
-        matchingForward
+        matchingForward,
+        moveCursorToParameterInsertionPoint,
     } from '../editor/EditorFunctions'
 
     let lastTokenStart = { line: 0, ch: 0 }
@@ -329,6 +330,9 @@
                     })
                     if (!result) return
                     result = result.replace(/[’”]/g, '\'')
+                    
+                    moveCursorToParameterInsertionPoint(cm)
+                    
                     const commaBefore = needInsertCommaBeforeParameter(cm)
                     const commaAfter = needInsertCommaAfterParameter(cm)
                     const multiLine = isMultilineParameter(cm)
@@ -337,7 +341,6 @@
                     const charAfter = lineContent.charAt(cursor.ch)
                     const lineBreakBefore = multiLine && charBefore.length > 0 && !/\(|\s/.test(charBefore)
                     const lineBreakAfter = multiLine && charAfter.length > 0 && !/\)|\s/.test(charAfter)
-                    console.warn({commaBefore, commaAfter, lineContent, cursor, multiLine,  charBefore,charAfter, lineBreakBefore, lineBreakAfter})
                     if (commaBefore && lineBreakBefore) {
                         cm.replaceSelection(',')
                         cm.execCommand('newlineAndIndent')
