@@ -130,8 +130,6 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
  */
 function moveCursorToParameterInsertionPoint(cm) {
     const cursor = cm.getCursor()
-    const line = cursor.line
-    const originalCursorPos = Pos(cursor)
     const newCursorPos = scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
         if (/,/.test(char)) {
             pos.ch += 1

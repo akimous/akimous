@@ -17,6 +17,7 @@
         "cloc": "^2.3.3",
         "codemirror": "^5.38.0",
         "css-element-queries": "^1.0.2",
+        "cypress": "^3.0.1",
         "eslint": "^4.19.1",
         "eslint-plugin-html": "^4.0.3",
         "http-server": "^0.11.1",
