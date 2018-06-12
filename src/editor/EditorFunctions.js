@@ -41,17 +41,16 @@ function needInsertCommaAfterParameter(cm) {
 
 function isMultilineParameter(cm) {
     const cursor = cm.getCursor()
-    let line = cursor.line
+    const line = cursor.line
     const backwardScan = scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
         if (line !== pos.line) {
             return true
-        } else if (/\(|,/.test(char)) {
+        } else if (/\(/.test(char)) {
             return false
         }
     })
     if (backwardScan) return true
-    line = cursor.line
-    return scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
+    return scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {        
         if (line !== pos.line) {
             return true
         } else if (/\)/.test(char)) {
@@ -88,8 +87,7 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
             ch = cursor.ch
             if (!forward) ch -= 1
         }
-
-
+        
         for (; ch !== end; ch += dir) {
             pos.ch = ch
             const char = lineContent.charAt(ch)
@@ -130,6 +128,11 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
  */
 function moveCursorToParameterInsertionPoint(cm) {
     const cursor = cm.getCursor()
+    const lineContent = cm.getLine(cursor.line).substring(0, cursor.ch)
+    
+    if (/,\s*$/.test(lineContent))
+        return // it is already on the current position
+    
     const newCursorPos = scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
         if (/,/.test(char)) {
             pos.ch += 1
