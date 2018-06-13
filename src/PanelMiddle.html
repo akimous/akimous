@@ -11,7 +11,8 @@
         left: calc(var(--panel-left-width) + 1px);
         width: calc(100% - var(--panel-left-width) - var(--panel-right-width) - 1px);
         box-sizing: border-box;
-        z-index: 2; /* should be higher than that of PanelRight, or Completion will be blocked */
+        z-index: 2;
+        /* should be higher than that of PanelRight, or Completion will be blocked */
     }
 
 </style>
@@ -91,22 +92,18 @@
                     this.activationHistory[this.activationHistoryIndex] = filePath
                 }
                 // activate editor
-                g.activeEditor && (g.activeEditor.set({
-                    active: false
-                }))
+                g.activeEditor && (g.activeEditor.set({ active: false }))
                 const editor = this.getEditor(filePath)
-                this.set({
-                    focus: editor
-                })
+                this.set({ focus: editor })
                 if (!editor) return
-                editor.set({
-                    active: true
-                })
-                
+                editor.set({ active: true })
+
                 const cm = editor.cm
                 if (!cm) return
                 cm.focus()
-                g.docs.getFunctionDocIfNeeded(cm, editor)
+                const cursor = cm.getCursor()
+                g.cursorPosition.set(cursor)
+                g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
             },
             renameDir(newDirPath, oldDirPath) {
                 const oldDirPathString = oldDirPath.join('/')

@@ -1,0 +1,32 @@
+<div id="cursor-position" class="non-selectable" ref:cursorPosition> {line+1} : {ch} </div>
+
+<style>
+    #cursor-position {
+        position: relative;
+        display: inline-block;
+        text-align: center;
+        width: 5em;
+        font-size: var(--ui-font-size-small);
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.cursorPosition = this
+        },
+        data() {
+            return {
+                line: 0,
+                ch: 0
+            }
+        },
+        methods: {}
+    }
+
+</script>

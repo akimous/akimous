@@ -170,9 +170,8 @@
             }
         },
         methods: {
-            getFunctionDocIfNeeded(cm, editor) {
+            getFunctionDocIfNeeded(cm, editor, cursor) {
                 if (cm.somethingSelected()) return
-                const cursor = cm.getCursor()
                 const token = cm.getTokenAt(cursor)
                 // don't request function doc if the cursor is moving on the same token
                 if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return

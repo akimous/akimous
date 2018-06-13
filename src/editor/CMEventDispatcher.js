@@ -65,7 +65,9 @@ class CMEventDispatcher {
                 })
             }
             shouldDismissCompletionOnCursorActivity = true
-            g.docs.getFunctionDocIfNeeded(cm, editor)
+            const cursor = cm.getCursor()
+            g.cursorPosition.set(cursor)
+            g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {

@@ -1,6 +1,8 @@
 <div id="toolbar">
     <div id="buttons">
-        <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell" title="Notification History" />
+        <ToolbarButton ref:run iconClass="fas fa-play l-green" title="Run" />
+        <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell l-yellow" title="Notification History" />
+        <CursorPosition ref:cursorPosition />
     </div>
 </div>
 <MenuBar></MenuBar>
@@ -34,6 +36,7 @@
             TabNumber: '../panels/TabNumber.html',
             ToolbarButton: './ToolbarButton.html',
             MenuBar: '../panels/MenuBar.html',
+            CursorPosition: '../panels/CursorPosition.html',
         },
         oncreate() {
             g.toolbar = this
