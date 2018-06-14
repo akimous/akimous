@@ -1,7 +1,10 @@
 <div id="toolbar">
     <div id="buttons">
         <ToolbarButton ref:run iconClass="fas fa-play l-green" title="Run" />
-        <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell l-yellow" title="Notification History" />
+        <ToolbarButton ref:run iconClass="fas fa-bug l-yellow" title="Run" />
+        <ToolbarButton ref:run iconClass="fas fa-square l-red" title="Stop" />
+        <ToolbarButton ref:keyboardControlHint iconClass="fas fa-fw fa-keyboard" title="Keyboard Hint" />
+        <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell l-sandybrown" title="Notification History" />
         <CursorPosition ref:cursorPosition />
     </div>
 </div>
@@ -17,6 +20,7 @@
         border-bottom: var(--panel-border);
         box-sizing: border-box;
         z-index: 10;
+        user-select: none;
     }
 
     #buttons {
@@ -44,6 +48,13 @@
                 callback: () => {
                     g.notificationHistory.set({
                         open: !g.notificationHistory.get().open
+                    })
+                }
+            })
+            this.refs.keyboardControlHint.set({
+                callback: () => {
+                    g.keyboardControlHint.set({
+                        open: !g.keyboardControlHint.get().open
                     })
                 }
             })

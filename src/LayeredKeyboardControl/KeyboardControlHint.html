@@ -1,0 +1,39 @@
+{#if open}
+<div ref:self id="keyboard-control-hint"></div>
+{/if}
+
+<style>
+    #keyboard-control-hint {
+        position: absolute;
+        background: var(--dark-color);
+        bottom: 2rem;
+        right: 2rem;
+        height: 10rem;
+        width: 20rem;
+        z-index: 10;
+        border-radius: var(--default-radius);
+        box-shadow: var(--default-shadow);
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+    import { dragElement } from '../lib/UIUtils'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.keyboardControlHint = this
+            dragElement(this.refs.self)
+        },
+        data() {
+            return {
+                open: true
+            }
+        },
+        methods: {}
+    }
+
+</script>
