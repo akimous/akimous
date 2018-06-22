@@ -1,5 +1,100 @@
 {#if open}
-<div ref:self id="keyboard-control-hint"></div>
+<div ref:self id="keyboard-control-hint">
+    <ul class="cf">
+        <li class="key c27 fn"><span id="esc">esc</span></li>
+        <li class="key c112 fn"><span>F1</span></li>
+        <li class="key c113 fn"><span>F2</span></li>
+        <li class="key c114 fn"><span>F3</span></li>
+        <li class="key c115 fn"><span>F4</span></li>
+        <li class="key c116 fn"><span>F5</span></li>
+        <li class="key c117 fn"><span>F6</span></li>
+        <li class="key c118 fn"><span>F7</span></li>
+        <li class="key c119 fn"><span>F8</span></li>
+        <li class="key c120 fn"><span>F9</span></li>
+        <li class="key c121 fn"><span>F10</span></li>
+        <li class="key c122 fn"><span>F11</span></li>
+        <li class="key c123 fn"><span>F12</span></li>
+        <li class="key fn"><i class="fas fa-power-off"></i></li>
+    </ul>
+    <ul class="cf" id="numbers">
+        <li class="key c192"><span>`</span></li>
+        <li class="key c49"><span>1</span></li>
+        <li class="key c50"><span>2</span></li>
+        <li class="key c51"><span>3</span></li>
+        <li class="key c52"><span>4</span></li>
+        <li class="key c53"><span>5</span></li>
+        <li class="key c54"><span>6</span></li>
+        <li class="key c55"><span>7</span></li>
+        <li class="key c56"><span>8</span></li>
+        <li class="key c57"><span>9</span></li>
+        <li class="key c48"><span>0</span></li>
+        <li class="key c189 alt"><span>-</span></li>
+        <li class="key c187"><span>=</span></li>
+        <li class="key c46" id="delete"><span>⌫</span></li>
+    </ul>
+    <ul class="cf" id="qwerty">
+        <li class="key c9" id="tab"><span>⇥</span></li>
+        <li class="key c81"><span></span></li>
+        <li class="key c87"><span></span></li>
+        <li class="key c69"><span></span></li>
+        <li class="key c82"><span></span></li>
+        <li class="key c84"><span></span></li>
+        <li class="key c89"><span></span></li>
+        <li class="key c85"><span></span></li>
+        <li class="key c73"><span></span></li>
+        <li class="key c79"><span></span></li>
+        <li class="key c80"><span></span></li>
+        <li class="key c219 alt"><b></b><span></span></li>
+        <li class="key c221 alt"><b></b><span></span></li>
+        <li class="key c220 alt"><b></b><span></span></li>
+    </ul>
+    <ul class="cf" id="asdfg">
+        <li class="key c20 alt" id="caps"><b></b><span>⇪</span></li>
+        <li class="key c65"><span></span></li>
+        <li class="key c83"><span></span></li>
+        <li class="key c68"><span></span></li>
+        <li class="key c70"><span></span></li>
+        <li class="key c71"><span></span></li>
+        <li class="key c72"><span></span></li>
+        <li class="key c74"><span></span></li>
+        <li class="key c75"><span></span></li>
+        <li class="key c76"><span></span></li>
+        <li class="key c186 alt"><b></b><span></span></li>
+        <li class="key c222 alt"><b></b><span></span></li>
+        <li class="key c13 alt" id="enter"><span>⏎</span></li>
+    </ul>
+    <ul class="cf" id="zxcvb">
+        <li class="key c16 shiftleft"><span>⇧</span></li>
+        <li class="key c90"><span></span></li>
+        <li class="key c88"><span></span></li>
+        <li class="key c67"><span></span></li>
+        <li class="key c86"><span></span></li>
+        <li class="key c66"><span></span></li>
+        <li class="key c78"><span></span></li>
+        <li class="key c77"><span></span></li>
+        <li class="key c188 alt"><b></b><span></span></li>
+        <li class="key c190 alt"><b></b><span></span></li>
+        <li class="key c191 alt"><b></b><span></span></li>
+        <li class="key c16 shiftright"><span>⇧</span></li>
+    </ul>
+    <ul class="cf" id="bottomrow">
+        <li class="key" id="fn"><span>fn</span></li>
+        <li class="key c17" id="control"><span>control</span></li>
+        <li class="key option" id="optionleft"><span>option</span></li>
+        <li class="key command" id="commandleft"><span>command</span></li>
+        <li class="key c32" id="spacebar"></li>
+        <li class="key command" id="commandright"><span>command</span></li>
+        <li class="key option" id="optionright"><span>option</span></li>
+        <ol class="cf">
+            <li class="key c37" id="left"><span></span></li>
+            <li>
+                <i class="key c38" id="up"><span></span></i>
+                <i class="key c40" id="down"><span></span></i>
+            </li>
+            <li class="key c39" id="right"><span></span></li>
+        </ol>
+    </ul>
+</div>
 {/if}
 
 <style>
@@ -8,11 +103,80 @@
         background: var(--dark-color);
         bottom: 2rem;
         right: 2rem;
-        height: 10rem;
-        width: 20rem;
+        height: 12.5rem;
+        width: 32.2rem;
+        padding: .2rem;
         z-index: 10;
         border-radius: var(--default-radius);
         box-shadow: var(--default-shadow);
+        user-select: none;
+        cursor: default;
+    }
+
+    ul {
+        list-style-type: none;
+        width: 100%;
+        margin: 0 auto;
+        padding-left: .2rem;
+    }
+
+    li {
+        float: left;
+    }
+
+    .key {
+        display: block;
+        color: #aaa;
+        font-size: 1rem;
+        text-align: center;
+        text-decoration: none;
+        width: 2rem;
+        height: 2rem;
+        line-height: 2rem;
+        margin: .1rem;
+        padding-top: .1rem;
+        background: var(--darker-color);
+        border-radius: .1rem;
+        border-top: .05rem solid #444;
+        box-sizing: border-box;
+        box-shadow: black 0 0.05rem;
+    }
+
+    .fn {
+        height: 1rem;
+        line-height: 1rem;
+        font-size: .5rem;
+        margin: 0 .14rem .1rem.14rem;
+        padding-top: 0;
+    }
+
+    #esc {
+        font-size: 0.3rem;
+    }
+
+    #delete {
+        width: 3.2em;
+    }
+
+    #tab {
+        width: 3.2em;
+    }
+
+    #caps {
+        width: 3.7rem;
+    }
+
+    #enter {
+        width: 3.7rem;
+    }
+
+    .shiftleft,
+    .shiftright {
+        width: 4.8rem;
+    }
+
+    #spacebar {
+        width: 10rem;
     }
 
 </style>

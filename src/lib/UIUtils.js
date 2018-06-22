@@ -7,6 +7,7 @@ function dragElement(element) {
     element.onmousedown = startDragging
 
     function startDragging(e) {
+        if (e.button !== 0) return
         xStart = e.clientX
         yStart = e.clientY
         document.onmouseup = endDragging
