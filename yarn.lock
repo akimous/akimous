@@ -398,12 +398,12 @@ autoprefixer@^6.3.1:
     postcss "^5.2.16"
     postcss-value-parser "^3.2.3"
 
-autoprefixer@^8.6.2:
-  version "8.6.2"
-  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-8.6.2.tgz#51d42ff13243820a582a53ecca20dedaeb7f2efd"
+autoprefixer@^8.6.3:
+  version "8.6.3"
+  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-8.6.3.tgz#1d38a129e6a4582a565b6570d16f2d7d3de9cbf9"
   dependencies:
     browserslist "^3.2.8"
-    caniuse-lite "^1.0.30000851"
+    caniuse-lite "^1.0.30000856"
     normalize-range "^0.1.2"
     num2fraction "^1.2.2"
     postcss "^6.0.22"
@@ -951,9 +951,9 @@ caniuse-lite@^1.0.30000844:
   version "1.0.30000844"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000844.tgz#de7c84cde0582143cf4f5abdf1b98e5a0539ad4a"
 
-caniuse-lite@^1.0.30000851:
-  version "1.0.30000851"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000851.tgz#3b498aebf9f92cf6cff4ab54d13b557c0b590533"
+caniuse-lite@^1.0.30000856:
+  version "1.0.30000856"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000856.tgz#ecc16978135a6f219b138991eb62009d25ee8daa"
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -1087,9 +1087,9 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
-codemirror@^5.38.0:
-  version "5.38.0"
-  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.38.0.tgz#26a9551446e51dbdde36aabe60f72469724fd332"
+codemirror@^5.39.0:
+  version "5.39.0"
+  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.39.0.tgz#4654f7d2f7e525e04a62e72d9482348ccb37dce5"
 
 color-convert@^1.3.0, color-convert@^1.9.0:
   version "1.9.1"
@@ -1638,9 +1638,9 @@ escape-string-regexp@^1.0.2, escape-string-regexp@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
 
-eslint-plugin-html@^4.0.3:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-html/-/eslint-plugin-html-4.0.3.tgz#97d52dcf9e22724505d02719fbd02754013c8a17"
+eslint-plugin-html@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-html/-/eslint-plugin-html-4.0.5.tgz#e8ec7e16485124460f3bff312016feb0a54d9659"
   dependencies:
     htmlparser2 "^3.8.2"
 
@@ -3583,15 +3583,15 @@ prettier@^1.11.1:
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.11.1.tgz#61e43fc4cd44e68f2b0dfc2c38cd4bb0fccdcc75"
 
-primer-support@4.5.3:
-  version "4.5.3"
-  resolved "https://registry.yarnpkg.com/primer-support/-/primer-support-4.5.3.tgz#da51d88d165b46e609591d3a3025e537592afcdb"
+primer-support@4.5.4:
+  version "4.5.4"
+  resolved "https://registry.yarnpkg.com/primer-support/-/primer-support-4.5.4.tgz#05f35afaee2773264c489fab6330b931573b6047"
 
-primer-tooltips@^1.5.4:
-  version "1.5.4"
-  resolved "https://registry.yarnpkg.com/primer-tooltips/-/primer-tooltips-1.5.4.tgz#cec388e65635e75dd55fbe9dec6b5bf5d051e25b"
+primer-tooltips@^1.5.5:
+  version "1.5.5"
+  resolved "https://registry.yarnpkg.com/primer-tooltips/-/primer-tooltips-1.5.5.tgz#ea7929c4989fb7a75a1dd4471aeec62d0930d8da"
   dependencies:
-    primer-support "4.5.3"
+    primer-support "4.5.4"
 
 private@^0.1.7, private@^0.1.8:
   version "0.1.8"
@@ -3998,9 +3998,9 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup@^0.60.7:
-  version "0.60.7"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.60.7.tgz#2b62ef9306f719b1ab85a7814b3e6596ac51fae8"
+rollup@^0.61.1:
+  version "0.61.1"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.61.1.tgz#65a12f27c2094e6d643fb9cca6a3057190ecc5fe"
   dependencies:
     "@types/estree" "0.0.39"
     "@types/node" "*"
@@ -4359,9 +4359,9 @@ supports-color@^5.4.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.7.2:
-  version "2.7.2"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.7.2.tgz#17019df4997d10206378fb45136b8cbb6edf2611"
+svelte@^2.8.0:
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.8.0.tgz#9a6cbee1b80f6030f24ef0a1cb41ea5dd5e29a4c"
 
 svgo@^0.7.0:
   version "0.7.2"
