@@ -21,14 +21,17 @@
             "unix"
         ],
         "quotes": [
-            "error",
+            "warn",
             "single"
         ],
         "semi": [
-            "error",
+            "warn",
             "never"
         ],
-        "no-console": "off"
+        "no-console": "off",
+        "no-implied-eval": "warn",
+        "no-invalid-this": "error",
+        "no-loop-func": "warn"
     },
     "globals": {
         "process": false
