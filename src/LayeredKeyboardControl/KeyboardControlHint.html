@@ -34,64 +34,64 @@
     </ul>
     <ul class="cf" id="qwerty">
         <li class="key c9" id="tab"><span>⇥</span></li>
-        <li class="key c81"><span></span></li>
-        <li class="key c87"><span></span></li>
-        <li class="key c69"><span></span></li>
-        <li class="key c82"><span></span></li>
-        <li class="key c84"><span></span></li>
-        <li class="key c89"><span></span></li>
-        <li class="key c85"><span></span></li>
-        <li class="key c73"><span></span></li>
-        <li class="key c79"><span></span></li>
-        <li class="key c80"><span></span></li>
-        <li class="key c219 alt"><b></b><span></span></li>
-        <li class="key c221 alt"><b></b><span></span></li>
-        <li class="key c220 alt"><b></b><span></span></li>
+        <li class="key c81"></li>
+        <li class="key c87"></li>
+        <li class="key c69"></li>
+        <li class="key c82"></li>
+        <li class="key c84"></li>
+        <li class="key c89">{@html keys[mode].y}</li>
+        <li class="key c85">{@html keys[mode].u}</li>
+        <li class="key c73">{@html keys[mode].i}</li>
+        <li class="key c79">{@html keys[mode].o}</li>
+        <li class="key c80">{@html keys[mode].p}</li>
+        <li class="key c219 alt"><b></b></li>
+        <li class="key c221 alt"><b></b></li>
+        <li class="key c220 alt"><b></b></li>
     </ul>
     <ul class="cf" id="asdfg">
         <li class="key c20 alt" id="caps"><b></b><span>⇪</span></li>
-        <li class="key c65"><span></span></li>
-        <li class="key c83"><span></span></li>
-        <li class="key c68"><span></span></li>
-        <li class="key c70"><span></span></li>
-        <li class="key c71"><span></span></li>
-        <li class="key c72"><span></span></li>
-        <li class="key c74"><span></span></li>
-        <li class="key c75"><span></span></li>
-        <li class="key c76"><span></span></li>
-        <li class="key c186 alt"><b></b><span></span></li>
-        <li class="key c222 alt"><b></b><span></span></li>
+        <li class="key c65"></li>
+        <li class="key c83"></li>
+        <li class="key c68"></li>
+        <li class="key c70"></li>
+        <li class="key c71"></li>
+        <li class="key c72">{@html keys[mode].h}</li>
+        <li class="key c74">{@html keys[mode].j}</li>
+        <li class="key c75">{@html keys[mode].k}</li>
+        <li class="key c76">{@html keys[mode].l}</li>
+        <li class="key c186">{@html keys[mode][';']}</li>
+        <li class="key c222 alt"><b></b></li>
         <li class="key c13 alt" id="enter"><span>⏎</span></li>
     </ul>
     <ul class="cf" id="zxcvb">
         <li class="key c16 shiftleft"><span>⇧</span></li>
-        <li class="key c90"><span></span></li>
-        <li class="key c88"><span></span></li>
-        <li class="key c67"><span></span></li>
-        <li class="key c86"><span></span></li>
-        <li class="key c66"><span></span></li>
-        <li class="key c78"><span></span></li>
-        <li class="key c77"><span></span></li>
-        <li class="key c188 alt"><b></b><span></span></li>
-        <li class="key c190 alt"><b></b><span></span></li>
-        <li class="key c191 alt"><b></b><span></span></li>
+        <li class="key c90"></li>
+        <li class="key c88"></li>
+        <li class="key c67"></li>
+        <li class="key c86"></li>
+        <li class="key c66"></li>
+        <li class="key c78">{@html keys[mode].n}</li>
+        <li class="key c77">{@html keys[mode].m}</li>
+        <li class="key c188">{@html keys[mode][',']}</li>
+        <li class="key c190">{@html keys[mode]['.']}</li>
+        <li class="key c191">{@html keys[mode]['/']}</li>
         <li class="key c16 shiftright"><span>⇧</span></li>
     </ul>
     <ul class="cf" id="bottomrow">
         <li class="key" id="fn"><span>fn</span></li>
-        <li class="key c17" id="control"><span>control</span></li>
-        <li class="key option" id="optionleft"><span>option</span></li>
-        <li class="key command" id="commandleft"><span>command</span></li>
+        <li class="key c17" id="control"><span>⌃</span></li>
+        <li class="key option" id="optionleft"><span>⌥</span></li>
+        <li class="key command" id="commandleft"><span>⌘</span></li>
         <li class="key c32" id="spacebar"></li>
-        <li class="key command" id="commandright"><span>command</span></li>
-        <li class="key option" id="optionright"><span>option</span></li>
+        <li class="key command" id="commandright"><span>⌘</span></li>
+        <li class="key option" id="optionright"><span>⌥</span></li>
         <ol class="cf">
-            <li class="key c37" id="left"><span></span></li>
+            <li class="key c37" id="left"><span>◀</span></li>
             <li>
-                <i class="key c38" id="up"><span></span></i>
-                <i class="key c40" id="down"><span></span></i>
+                <i class="key c38" id="up"><span>▲</span></i>
+                <i class="key c40" id="down"><span>▼</span></i>
             </li>
-            <li class="key c39" id="right"><span></span></li>
+            <li class="key c39" id="right"><span>▶</span></li>
         </ol>
     </ul>
 </div>
@@ -104,7 +104,7 @@
         bottom: 2rem;
         right: 2rem;
         height: 12.5rem;
-        width: 32.2rem;
+        width: 33rem;
         padding: .2rem;
         z-index: 10;
         border-radius: var(--default-radius);
@@ -124,29 +124,32 @@
         float: left;
     }
 
+    i {
+        font-style: normal;
+    }
+
     .key {
         display: block;
-        color: #aaa;
+        color: var(--darker-ui-font-color);
         font-size: 1rem;
         text-align: center;
         text-decoration: none;
         width: 2rem;
         height: 2rem;
         line-height: 2rem;
-        margin: .1rem;
-        padding-top: .1rem;
+        margin: .1rem .12rem;
         background: var(--darker-color);
         border-radius: .1rem;
         border-top: .05rem solid #444;
+        border-bottom: .05rem solid black;
         box-sizing: border-box;
-        box-shadow: black 0 0.05rem;
     }
 
     .fn {
         height: 1rem;
         line-height: 1rem;
         font-size: .5rem;
-        margin: 0 .14rem .1rem.14rem;
+        margin: 0 .16rem .1rem .16rem;
         padding-top: 0;
     }
 
@@ -176,7 +179,38 @@
     }
 
     #spacebar {
-        width: 10rem;
+        width: 12rem;
+    }
+
+    ul ol {
+        list-style-type: none;
+    }
+
+    #up,
+    #down {
+        font-size: .5rem;
+        line-height: .9rem;
+        height: .95rem;
+    }
+
+    #left,
+    #right {
+        font-size: .5rem;
+    }
+
+    .key:hover {
+        border: .1rem solid var(--blue);
+    }
+
+    :global(div.two-lines) {
+        line-height: .8rem;
+        font-size: .8rem;
+        padding-top: .3rem;
+    }
+    
+    :global(.bigger) {
+        line-height: 1.8rem;
+        font-size: 1.5rem;
     }
 
 </style>
@@ -194,7 +228,29 @@
         },
         data() {
             return {
-                open: true
+                open: true,
+                mode: 'normal',
+                keys: {
+                    'normal': {
+                        'y': '<div class="bigger l-green">⇱</div>',
+                        'u': '<div class="two-lines l-green">▲<br>x5</div>',
+                        'i': '<div class="l-yellow">▲</div>',
+                        'o': '<div class="two-lines l-green">▼<br>x5</div>',
+                        'p': '<div class="bigger l-green">⇲</div>',
+
+                        'h': '<i class="fas fa-fast-backward l-green"></i>',
+                        'j': '<div class="l-yellow">◀</div>',
+                        'k': '<div class="l-yellow">▼</div>',
+                        'l': '<div class="l-yellow">▶</div>',
+                        ';': '<i class="fas fa-fast-forward l-green"></i>',
+                        
+                        'n': '<b><span class="l-purple">|</span> ||</b>',
+                        'm': '<b><span class="l-blue">|</span> ||</b>',
+                        ',': '<b>| <span class="l-blue">|</span> |</b>',
+                        '.': '<b>|| <span class="l-blue">|</span></b>',
+                        '/': '<b>|| <span class="l-purple">|</span></b>',
+                    }
+                }
             }
         },
         methods: {}

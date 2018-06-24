@@ -160,6 +160,10 @@ span.tooltipped::after {
     color: var(--green);
 }
 
+.l-ao {
+    color: var(--ao);
+}
+
 .l-slate {
     color: lightslategrey;
 }
