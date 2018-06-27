@@ -1,6 +1,7 @@
 {#if open}
 <div ref:self id="keyboard-control-hint">
-    <ul class="cf">
+    <div id="hint-description">{description}</div>
+    <ul class="row">
         <li class="key c27 fn"><span id="esc">esc</span></li>
         <li class="key c112 fn"><span>F1</span></li>
         <li class="key c113 fn"><span>F2</span></li>
@@ -16,7 +17,7 @@
         <li class="key c123 fn"><span>F12</span></li>
         <li class="key fn">{@html keys[mode].del}</li>
     </ul>
-    <ul class="cf" id="numbers">
+    <ul class="row" id="numbers">
         <li class="key c192"><span>`</span></li>
         <li class="key c49"><span>1</span></li>
         <li class="key c50"><span>2</span></li>
@@ -28,11 +29,11 @@
         <li class="key c56"><span>8</span></li>
         <li class="key c57"><span>9</span></li>
         <li class="key c48"><span>0</span></li>
-        <li class="key c189 alt"><span>-</span></li>
+        <li class="key c189"><span>-</span></li>
         <li class="key c187"><span>=</span></li>
         <li class="key c46" id="delete">{@html keys[mode].backspace}</li>
     </ul>
-    <ul class="cf" id="qwerty">
+    <ul class="row" id="qwerty">
         <li class="key c9" id="tab"><span>⇥</span></li>
         <li class="key c81"></li>
         <li class="key c87">{@html keys[mode].w}</li>
@@ -44,12 +45,12 @@
         <li class="key c73">{@html keys[mode].i}</li>
         <li class="key c79">{@html keys[mode].o}</li>
         <li class="key c80">{@html keys[mode].p}</li>
-        <li class="key c219 alt"><b></b></li>
-        <li class="key c221 alt"><b></b></li>
-        <li class="key c220 alt"><b></b></li>
+        <li class="key c219">{@html keys[mode]['[']}</li>
+        <li class="key c221">{@html keys[mode][']']}</li>
+        <li class="key c220"></li>
     </ul>
-    <ul class="cf" id="asdfg">
-        <li class="key c20 alt" id="caps"><b></b><span>⇪</span></li>
+    <ul class="row" id="asdfg">
+        <li class="key c20" id="caps"><b></b><span>⇪</span></li>
         <li class="key c65"></li>
         <li class="key c83">{@html keys[mode].s}</li>
         <li class="key c68">{@html keys[mode].d}</li>
@@ -63,7 +64,7 @@
         <li class="key c222 alt"><b></b></li>
         <li class="key c13 alt" id="enter"><span>⏎</span></li>
     </ul>
-    <ul class="cf" id="zxcvb">
+    <ul class="row" id="zxcvb">
         <li class="key c16 shiftleft"><span>⇧</span></li>
         <li class="key c90"></li>
         <li class="key c88"></li>
@@ -77,7 +78,7 @@
         <li class="key c191">{@html keys[mode]['/']}</li>
         <li class="key c16 shiftright"><span>⇧</span></li>
     </ul>
-    <ul class="cf" id="bottomrow">
+    <ul class="row" id="bottomrow">
         <li class="key" id="fn"><span>fn</span></li>
         <li class="key c17" id="control"><span>⌃</span></li>
         <li class="key option" id="optionleft"><span>⌥</span></li>
@@ -103,16 +104,26 @@
         background: var(--dark-color);
         bottom: 2rem;
         right: 2rem;
-        height: 12.5rem;
+        height: 14rem;
         width: 33rem;
-        padding: .2rem;
+/*        padding: .2rem;*/
         z-index: 10;
         border-radius: var(--default-radius);
         box-shadow: var(--default-shadow);
         user-select: none;
         cursor: default;
     }
-
+    
+    #hint-description {
+        height: 1.6rem;
+        line-height: 1.6rem;
+        text-align: center;
+    }
+    
+    .row {
+        padding-left: .3rem;
+    }
+    
     ul {
         list-style-type: none;
         width: 100%;
@@ -199,7 +210,6 @@
     }
 
     .key:hover {
-/*        border: .1rem solid var(--blue);*/
         box-shadow: var(--blue) 0 0 0 .2rem;
     }
 
@@ -208,12 +218,12 @@
         font-size: .8rem;
         padding-top: .3rem;
     }
-    
+
     :global(.bigger) {
         line-height: 1.8rem;
         font-size: 1.5rem;
     }
-    
+
     :global(.lower) {
         padding-top: .2rem;
     }
@@ -235,11 +245,12 @@
             return {
                 open: true,
                 mode: 'normal',
+                description: 'test',
                 keys: {
                     'normal': {
                         'del': '<div class="l-red">⌦</div>',
                         'backspace': '<div class="l-red">⌫</div>',
-                        
+
                         'w': '<div class="bigger l-yellow">⤉</div>',
                         'e': '<div class="bigger lower l-ao">⇞</div>',
                         'r': '<div class="bigger l-purple">—</div>',
@@ -249,6 +260,8 @@
                         'i': '<div class="l-blue">▲</div>',
                         'o': '<div class="two-lines l-green">▼<br>x5</div>',
                         'p': '<div class="bigger l-green">⇲</div>',
+                        '[': '<div class="l-olive"><b>[</b></div>',
+                        ']': '<div class="l-olive"><b>]</b></div>',
 
                         's': '<div class="bigger l-yellow">⤈</div>',
                         'd': '<div class="bigger lower l-ao">⇟</div>',
@@ -259,7 +272,7 @@
                         'k': '<div class="l-blue">▼</div>',
                         'l': '<div class="l-blue">▶</div>',
                         ';': '<i class="fas fa-fast-forward l-green"></i>',
-                        
+
                         'c': '<div class="l-orange">℄</div>',
                         'n': '<b><span class="l-purple">|</span> ||</b>',
                         'm': '<b><span class="l-blue">|</span> ||</b>',
