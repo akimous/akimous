@@ -1,98 +1,98 @@
 {#if open}
 <div ref:self id="keyboard-control-hint">
-    <div id="hint-description">{description}</div>
+    <div id="hint-description">{@html description}</div>
     <ul class="row">
-        <li class="key c27 fn"><span id="esc">esc</span></li>
-        <li class="key c112 fn"><span>F1</span></li>
-        <li class="key c113 fn"><span>F2</span></li>
-        <li class="key c114 fn"><span>F3</span></li>
-        <li class="key c115 fn"><span>F4</span></li>
-        <li class="key c116 fn"><span>F5</span></li>
-        <li class="key c117 fn"><span>F6</span></li>
-        <li class="key c118 fn"><span>F7</span></li>
-        <li class="key c119 fn"><span>F8</span></li>
-        <li class="key c120 fn"><span>F9</span></li>
-        <li class="key c121 fn"><span>F10</span></li>
-        <li class="key c122 fn"><span>F11</span></li>
-        <li class="key c123 fn"><span>F12</span></li>
-        <li class="key fn">{@html keys[mode].del}</li>
+        <li class="key fn" on:mouseover="showDescription('esc')" id="esc">esc</li>
+        <li class="key fn" on:mouseover="showDescription('F1')">F1</li>
+        <li class="key fn" on:mouseover="showDescription('F2')">F2</li>
+        <li class="key fn" on:mouseover="showDescription('F3')">F3</li>
+        <li class="key fn" on:mouseover="showDescription('F4')">F4</li>
+        <li class="key fn" on:mouseover="showDescription('F5')">F5</li>
+        <li class="key fn" on:mouseover="showDescription('F6')">F6</li>
+        <li class="key fn" on:mouseover="showDescription('F7')">F7</li>
+        <li class="key fn" on:mouseover="showDescription('F8')">F8</li>
+        <li class="key fn" on:mouseover="showDescription('F9')">F9</li>
+        <li class="key fn" on:mouseover="showDescription('F10')">F10</li>
+        <li class="key fn" on:mouseover="showDescription('F11')">F11</li>
+        <li class="key fn" on:mouseover="showDescription('F12')">F12</li>
+        <li class="key fn" on:mouseover="showDescription('del')">{@html keys[mode].del}</li>
     </ul>
-    <ul class="row" id="numbers">
-        <li class="key c192"><span>`</span></li>
-        <li class="key c49"><span>1</span></li>
-        <li class="key c50"><span>2</span></li>
-        <li class="key c51"><span>3</span></li>
-        <li class="key c52"><span>4</span></li>
-        <li class="key c53"><span>5</span></li>
-        <li class="key c54"><span>6</span></li>
-        <li class="key c55"><span>7</span></li>
-        <li class="key c56"><span>8</span></li>
-        <li class="key c57"><span>9</span></li>
-        <li class="key c48"><span>0</span></li>
-        <li class="key c189"><span>-</span></li>
-        <li class="key c187"><span>=</span></li>
-        <li class="key c46" id="delete">{@html keys[mode].backspace}</li>
+    <ul class="row">
+        <li class="key" on:mouseover="showDescription('·')"><span>`</span></li>
+        <li class="key" on:mouseover="showDescription('1')"><span>{@html keys[mode]['1']}</span></li>
+        <li class="key" on:mouseover="showDescription('2')"><span>{@html keys[mode]['2']}</span></li>
+        <li class="key" on:mouseover="showDescription('3')"><span>{@html keys[mode]['3']}</span></li>
+        <li class="key" on:mouseover="showDescription('4')"><span>{@html keys[mode]['4']}</span></li>
+        <li class="key" on:mouseover="showDescription('5')"><span>{@html keys[mode]['5']}</span></li>
+        <li class="key" on:mouseover="showDescription('6')"><span>{@html keys[mode]['6']}</span></li>
+        <li class="key" on:mouseover="showDescription('7')"><span>{@html keys[mode]['7']}</span></li>
+        <li class="key" on:mouseover="showDescription('8')"><span>8</span></li>
+        <li class="key" on:mouseover="showDescription('9')"><span>9</span></li>
+        <li class="key" on:mouseover="showDescription('0')"><span>0</span></li>
+        <li class="key" on:mouseover="showDescription('-')"><span>-</span></li>
+        <li class="key" on:mouseover="showDescription('=')"><span>=</span></li>
+        <li class="key" on:mouseover="showDescription('backspace')" id="backspace">{@html keys[mode].backspace}</li>
     </ul>
-    <ul class="row" id="qwerty">
-        <li class="key c9" id="tab"><span>⇥</span></li>
-        <li class="key c81"></li>
-        <li class="key c87">{@html keys[mode].w}</li>
-        <li class="key c69">{@html keys[mode].e}</li>
-        <li class="key c82">{@html keys[mode].r}</li>
-        <li class="key c84">{@html keys[mode].t}</li>
-        <li class="key c89">{@html keys[mode].y}</li>
-        <li class="key c85">{@html keys[mode].u}</li>
-        <li class="key c73">{@html keys[mode].i}</li>
-        <li class="key c79">{@html keys[mode].o}</li>
-        <li class="key c80">{@html keys[mode].p}</li>
-        <li class="key c219">{@html keys[mode]['[']}</li>
-        <li class="key c221">{@html keys[mode][']']}</li>
-        <li class="key c220"></li>
+    <ul class="row">
+        <li class="key" on:mouseover="showDescription('tab')" id="tab">⇥</li>
+        <li class="key" on:mouseover="showDescription('q')"></li>
+        <li class="key" on:mouseover="showDescription('w')">{@html keys[mode].w}</li>
+        <li class="key" on:mouseover="showDescription('e')">{@html keys[mode].e}</li>
+        <li class="key" on:mouseover="showDescription('r')">{@html keys[mode].r}</li>
+        <li class="key" on:mouseover="showDescription('t')">{@html keys[mode].t}</li>
+        <li class="key" on:mouseover="showDescription('y')">{@html keys[mode].y}</li>
+        <li class="key" on:mouseover="showDescription('u')">{@html keys[mode].u}</li>
+        <li class="key" on:mouseover="showDescription('i')">{@html keys[mode].i}</li>
+        <li class="key" on:mouseover="showDescription('o')">{@html keys[mode].o}</li>
+        <li class="key" on:mouseover="showDescription('p')">{@html keys[mode].p}</li>
+        <li class="key" on:mouseover="showDescription('[')">{@html keys[mode]['[']}</li>
+        <li class="key" on:mouseover="showDescription(']')">{@html keys[mode][']']}</li>
+        <li class="key" on:mouseover="showDescription('\\')"></li>
     </ul>
-    <ul class="row" id="asdfg">
-        <li class="key c20" id="caps"><b></b><span>⇪</span></li>
-        <li class="key c65"></li>
-        <li class="key c83">{@html keys[mode].s}</li>
-        <li class="key c68">{@html keys[mode].d}</li>
-        <li class="key c70">{@html keys[mode].f}</li>
-        <li class="key c71">{@html keys[mode].g}</li>
-        <li class="key c72">{@html keys[mode].h}</li>
-        <li class="key c74">{@html keys[mode].j}</li>
-        <li class="key c75">{@html keys[mode].k}</li>
-        <li class="key c76">{@html keys[mode].l}</li>
-        <li class="key c186">{@html keys[mode][';']}</li>
-        <li class="key c222 alt"><b></b></li>
-        <li class="key c13 alt" id="enter"><span>⏎</span></li>
+    <ul class="row">
+        <li class="key" on:mouseover="showDescription('caps')" id="caps">⇪</li>
+        <li class="key" on:mouseover="showDescription('q')"></li>
+        <li class="key" on:mouseover="showDescription('s')">{@html keys[mode].s}</li>
+        <li class="key" on:mouseover="showDescription('d')">{@html keys[mode].d}</li>
+        <li class="key" on:mouseover="showDescription('f')">{@html keys[mode].f}</li>
+        <li class="key" on:mouseover="showDescription('g')">{@html keys[mode].g}</li>
+        <li class="key" on:mouseover="showDescription('h')">{@html keys[mode].h}</li>
+        <li class="key" on:mouseover="showDescription('j')">{@html keys[mode].j}</li>
+        <li class="key" on:mouseover="showDescription('k')">{@html keys[mode].k}</li>
+        <li class="key" on:mouseover="showDescription('l')">{@html keys[mode].l}</li>
+        <li class="key" on:mouseover="showDescription(';')">{@html keys[mode][';']}</li>
+        <li class="key" on:mouseover="showDescription('\'')"></li>
+        <li class="key" on:mouseover="showDescription('enter')" id="enter">⏎</li>
     </ul>
-    <ul class="row" id="zxcvb">
-        <li class="key c16 shiftleft"><span>⇧</span></li>
-        <li class="key c90"></li>
-        <li class="key c88"></li>
-        <li class="key c67">{@html keys[mode].c}</li>
-        <li class="key c86"></li>
-        <li class="key c66"></li>
-        <li class="key c78">{@html keys[mode].n}</li>
-        <li class="key c77">{@html keys[mode].m}</li>
-        <li class="key c188">{@html keys[mode][',']}</li>
-        <li class="key c190">{@html keys[mode]['.']}</li>
-        <li class="key c191">{@html keys[mode]['/']}</li>
-        <li class="key c16 shiftright"><span>⇧</span></li>
+    <ul class="row">
+        <li class="key shiftleft" on:mouseover="showDescription('shift')"><span>⇧</span></li>
+        <li class="key" on:mouseover="showDescription('z')"></li>
+        <li class="key" on:mouseover="showDescription('x')"></li>
+        <li class="key" on:mouseover="showDescription('c')">{@html keys[mode].c}</li>
+        <li class="key" on:mouseover="showDescription('v')"></li>
+        <li class="key" on:mouseover="showDescription('b')"></li>
+        <li class="key" on:mouseover="showDescription('n')">{@html keys[mode].n}</li>
+        <li class="key" on:mouseover="showDescription('m')">{@html keys[mode].m}</li>
+        <li class="key" on:mouseover="showDescription(',')">{@html keys[mode][',']}</li>
+        <li class="key" on:mouseover="showDescription('.')">{@html keys[mode]['.']}</li>
+        <li class="key" on:mouseover="showDescription('/')">{@html keys[mode]['/']}</li>
+        <li class="key shiftright" on:mouseover="showDescription('shift')"><span>⇧</span></li>
     </ul>
     <ul class="row" id="bottomrow">
-        <li class="key" id="fn"><span>fn</span></li>
-        <li class="key c17" id="control"><span>⌃</span></li>
-        <li class="key option" id="optionleft"><span>⌥</span></li>
-        <li class="key command" id="commandleft"><span>⌘</span></li>
-        <li class="key c32" id="spacebar"></li>
-        <li class="key command" id="commandright"><span>⌘</span></li>
-        <li class="key option" id="optionright"><span>⌥</span></li>
+        <li class="key" on:mouseover="showDescription('fn')" id="fn"><span>fn</span></li>
+        <li class="key" on:mouseover="showDescription('control')" id="control"><span>⌃</span></li>
+        <li class="key" on:mouseover="showDescription('option')" id="optionleft"><span>⌥</span></li>
+        <li class="key" on:mouseover="showDescription('command')" id="commandleft"><span>⌘</span></li>
+        <li class="key" on:mouseover="showDescription('space')" id="spacebar"></li>
+        <li class="key" on:mouseover="showDescription('command')" id="commandright"><span>⌘</span></li>
+        <li class="key" on:mouseover="showDescription('option')" id="optionright"><span>⌥</span></li>
         <ol class="cf">
-            <li class="key c37" id="left"><span>◀</span></li>
+            <li class="key" on:mouseover="showDescription('left')" id="left"><span>◀</span></li>
             <li>
-                <i class="key c38" id="up"><span>▲</span></i>
-                <i class="key c40" id="down"><span>▼</span></i>
+                <i class="key" on:mouseover="showDescription('up')" id="up"><span>▲</span></i>
+                <i class="key" on:mouseover="showDescription('down')" id="down"><span>▼</span></i>
             </li>
-            <li class="key c39" id="right"><span>▶</span></li>
+            <li class="key" on:mouseover="showDescription('right')" id="right"><span>▶</span></li>
         </ol>
     </ul>
 </div>
@@ -104,26 +104,25 @@
         background: var(--dark-color);
         bottom: 2rem;
         right: 2rem;
-        height: 14rem;
+        height: 14.4rem;
         width: 33rem;
-/*        padding: .2rem;*/
         z-index: 10;
         border-radius: var(--default-radius);
         box-shadow: var(--default-shadow);
         user-select: none;
         cursor: default;
     }
-    
+
     #hint-description {
-        height: 1.6rem;
-        line-height: 1.6rem;
+        height: 2rem;
+        line-height: 2rem;
         text-align: center;
     }
-    
+
     .row {
         padding-left: .3rem;
     }
-    
+
     ul {
         list-style-type: none;
         width: 100%;
@@ -168,7 +167,7 @@
         font-size: 0.3rem;
     }
 
-    #delete {
+    #backspace {
         width: 3.2em;
     }
 
@@ -213,19 +212,23 @@
         box-shadow: var(--blue) 0 0 0 .2rem;
     }
 
-    :global(div.two-lines) {
+    :global(#keyboard-control-hint div.two-lines) {
         line-height: .8rem;
         font-size: .8rem;
         padding-top: .3rem;
     }
 
-    :global(.bigger) {
+    :global(#keyboard-control-hint .bigger) {
         line-height: 1.8rem;
         font-size: 1.5rem;
     }
 
-    :global(.lower) {
+    :global(#keyboard-control-hint .lower) {
         padding-top: .2rem;
+    }
+
+    :global(#keyboard-control-hint .small) {
+        font-size: .75rem;
     }
 
 </style>
@@ -245,11 +248,19 @@
             return {
                 open: true,
                 mode: 'normal',
-                description: 'test',
+                description: '',
                 keys: {
                     'normal': {
                         'del': '<div class="l-red">⌦</div>',
                         'backspace': '<div class="l-red">⌫</div>',
+
+                        '1': '<div class="l-sandybrown">1</div>',
+                        '2': '<div class="l-sandybrown">2</div>',
+                        '3': '<div class="l-sandybrown">3</div>',
+                        '4': '<div class="l-sandybrown">4</div>',
+                        '5': '<div class="l-sandybrown">5</div>',
+                        '6': '<div class="l-sandybrown">6</div>',
+                        '7': '<div class="l-sandybrown">7</div>',
 
                         'w': '<div class="bigger l-yellow">⤉</div>',
                         'e': '<div class="bigger lower l-ao">⇞</div>',
@@ -280,10 +291,61 @@
                         '.': '<b>|| <span class="l-blue">|</span></b>',
                         '/': '<b>|| <span class="l-purple">|</span></b>',
                     }
+                },
+                descriptions: {
+                    'normal': {
+                        'del': 'Delete word after cursor',
+                        'backspace': 'Delete word before cursor',
+
+                        '1': 'Select the 1st item in auto-completion',
+                        '2': 'Select the 2nd item in auto-completion',
+                        '3': 'Select the 3rd item in auto-completion',
+                        '4': 'Select the 4th item in auto-completion',
+                        '5': 'Select the 5th item in auto-completion',
+                        '6': 'Select the 6th item in auto-completion',
+                        '7': 'Select the 7th item in auto-completion',
+
+                        'w': 'Move Line Up',
+                        'e': 'Scroll Up',
+                        'r': 'Select Line',
+                        't': 'Select Block',
+                        'y': 'Move the cursor to the start of the document',
+                        'u': 'Move the cursor up by 5 lines',
+                        'i': 'Move the cursor up by a line',
+                        'o': 'Move the cursor down by 5 lines',
+                        'p': 'Move the cursor to the end of the document',
+                        '[': 'Move the cursor to the opening braces/brackets/curly braces',
+                        ']': 'Move the cursor to the closing braces/brackets/curly braces',
+
+                        's': 'Move line down',
+                        'd': 'Scroll down',
+                        'f': 'Select word (incremental selection)',
+                        'g': 'Select between braces/brackets/curly braces',
+                        'h': 'Move the cursor to the start of the line',
+                        'j': 'Move the cursor left by a word',
+                        'k': 'Move the cursor down by a line',
+                        'l': 'Move the cursor right by a word',
+                        ';': 'Move the cursor to the end of the line',
+
+                        'c': 'Move the cursor to the center line in the viewport',
+                        'n': 'Toggle auto-hide of the left panel',
+                        'm': 'Focus on the left panel',
+                        ',': 'Focus on the editor',
+                        '.': 'Focus on the right panel',
+                        '/': 'Toggle auto-hide of the right panel',
+
+                        'space': '<div class="small">Hold down the space bar and tap on one of the keys with colored icon to execute the command.</div>'
+                    }
                 }
             }
         },
-        methods: {}
+        methods: {
+            showDescription(key) {
+                const { mode, descriptions } = this.get()
+                const description = descriptions[mode][key]
+                this.set({ description: description ? description : '' })
+            }
+        }
     }
 
 </script>
