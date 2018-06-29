@@ -21,6 +21,9 @@ class LayeredKeyboardControl {
     sendCommand(e) {
         // return true if not handled or allowed to propagate
         const code = e.code
+        let key = code.toLowerCase()
+        if (code.startsWith('Key')) 
+            key = code.substring(3).toLowerCase()
         this.commandSent = true
         const command = Keymap.genericCommandKeymap[code]
         switch (command) {
@@ -50,17 +53,20 @@ class LayeredKeyboardControl {
                         else this.sendEditorCommand('unsetExtending')
                         this.sendEditorCommand(editorCommand)
                         if (extending) this.sendEditorCommand('unsetExtending')
+                        g.keyboardControlHint.showDescription(key)
                         return false
                     } else {
                         const handler = focus.keyEventHandler
                         if (handler === undefined) continue
                         const shouldPropagate = handler.handleCommand(command, focus)
                         if (shouldPropagate) continue
+                        g.keyboardControlHint.showDescription(key)
                         return false
                     }
                 }
                 return true
         }
+        g.keyboardControlHint.showDescription(key)
     }
     stopPropagation(event) {
         event.preventDefault()

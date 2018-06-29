@@ -15,7 +15,7 @@
         <li class="key fn" on:mouseover="showDescription('F10')">F10</li>
         <li class="key fn" on:mouseover="showDescription('F11')">F11</li>
         <li class="key fn" on:mouseover="showDescription('F12')">F12</li>
-        <li class="key fn" on:mouseover="showDescription('del')">{@html keys[mode].del}</li>
+        <li class="key fn" on:mouseover="showDescription('delete')">{@html keys[mode].delete}</li>
     </ul>
     <ul class="row">
         <li class="key" on:mouseover="showDescription('·')"><span>`</span></li>
@@ -251,7 +251,7 @@
                 description: '',
                 keys: {
                     'normal': {
-                        'del': '<div class="l-red">⌦</div>',
+                        'delete': '<div class="l-red">⌦</div>',
                         'backspace': '<div class="l-red">⌫</div>',
 
                         '1': '<div class="l-sandybrown">1</div>',
@@ -294,7 +294,7 @@
                 },
                 descriptions: {
                     'normal': {
-                        'del': 'Delete word after cursor',
+                        'delete': 'Delete word after cursor',
                         'backspace': 'Delete word before cursor',
 
                         '1': 'Select the 1st item in auto-completion',
@@ -341,6 +341,7 @@
         },
         methods: {
             showDescription(key) {
+                console.log({key})
                 const { mode, descriptions } = this.get()
                 const description = descriptions[mode][key]
                 this.set({ description: description ? description : '' })
