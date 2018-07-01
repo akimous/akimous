@@ -63,10 +63,11 @@ const g = {
         }
     },
     onFocusChanged() {
-        // console.warn('focus changed', this.focusStack)
+        //         console.warn('focus changed', this.focusStack)
         const focusedPanel = this.focusStack[0]
         for (const panel of [g.panelLeft, g.panelMiddle, g.panelRight]) {
-            panel && panel.set({
+            if (!panel) break
+            panel.set({
                 focused: panel === focusedPanel
             })
         }
@@ -85,7 +86,7 @@ const g = {
     },
     get uid() {
         return _uid++
-    }
+    },
 }
 window.g = g
 export default g

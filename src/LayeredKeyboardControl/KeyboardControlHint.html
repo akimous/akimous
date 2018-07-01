@@ -341,7 +341,6 @@
         },
         methods: {
             showDescription(key) {
-                console.log({key})
                 const { mode, descriptions } = this.get()
                 const description = descriptions[mode][key]
                 this.set({ description: description ? description : '' })
