@@ -2,97 +2,97 @@
 <div ref:self id="keyboard-control-hint">
     <div id="hint-description">{@html description}</div>
     <ul class="row">
-        <li class="key fn" on:mouseover="showDescription('esc')" id="esc">esc</li>
-        <li class="key fn" on:mouseover="showDescription('F1')">F1</li>
-        <li class="key fn" on:mouseover="showDescription('F2')">F2</li>
-        <li class="key fn" on:mouseover="showDescription('F3')">F3</li>
-        <li class="key fn" on:mouseover="showDescription('F4')">F4</li>
-        <li class="key fn" on:mouseover="showDescription('F5')">F5</li>
-        <li class="key fn" on:mouseover="showDescription('F6')">F6</li>
-        <li class="key fn" on:mouseover="showDescription('F7')">F7</li>
-        <li class="key fn" on:mouseover="showDescription('F8')">F8</li>
-        <li class="key fn" on:mouseover="showDescription('F9')">F9</li>
-        <li class="key fn" on:mouseover="showDescription('F10')">F10</li>
-        <li class="key fn" on:mouseover="showDescription('F11')">F11</li>
-        <li class="key fn" on:mouseover="showDescription('F12')">F12</li>
-        <li class="key fn" on:mouseover="showDescription('delete')">{@html keys[mode].delete}</li>
+        <li class="key fn" id="key-Escape" on:mouseover="showDescription('Escape')">esc</li>
+        <li class="key fn" id="key-F1" on:mouseover="showDescription('F1')">F1</li>
+        <li class="key fn" id="key-F2" on:mouseover="showDescription('F2')">F2</li>
+        <li class="key fn" id="key-F3" on:mouseover="showDescription('F3')">F3</li>
+        <li class="key fn" id="key-F4" on:mouseover="showDescription('F4')">F4</li>
+        <li class="key fn" id="key-F5" on:mouseover="showDescription('F5')">F5</li>
+        <li class="key fn" id="key-F6" on:mouseover="showDescription('F6')">F6</li>
+        <li class="key fn" id="key-F7" on:mouseover="showDescription('F7')">F7</li>
+        <li class="key fn" id="key-F8" on:mouseover="showDescription('F8')">F8</li>
+        <li class="key fn" id="key-F9" on:mouseover="showDescription('F9')">F9</li>
+        <li class="key fn" id="key-F10" on:mouseover="showDescription('F10')">F10</li>
+        <li class="key fn" id="key-F11" on:mouseover="showDescription('F11')">F11</li>
+        <li class="key fn" id="key-F12" on:mouseover="showDescription('F12')">F12</li>
+        <li class="key fn" id="key-Delete" on:mouseover="showDescription('Delete')">{@html keys[mode].delete}</li>
     </ul>
     <ul class="row">
-        <li class="key" on:mouseover="showDescription('·')"><span>`</span></li>
-        <li class="key" on:mouseover="showDescription('1')"><span>{@html keys[mode]['1']}</span></li>
-        <li class="key" on:mouseover="showDescription('2')"><span>{@html keys[mode]['2']}</span></li>
-        <li class="key" on:mouseover="showDescription('3')"><span>{@html keys[mode]['3']}</span></li>
-        <li class="key" on:mouseover="showDescription('4')"><span>{@html keys[mode]['4']}</span></li>
-        <li class="key" on:mouseover="showDescription('5')"><span>{@html keys[mode]['5']}</span></li>
-        <li class="key" on:mouseover="showDescription('6')"><span>{@html keys[mode]['6']}</span></li>
-        <li class="key" on:mouseover="showDescription('7')"><span>{@html keys[mode]['7']}</span></li>
-        <li class="key" on:mouseover="showDescription('8')"><span>8</span></li>
-        <li class="key" on:mouseover="showDescription('9')"><span>9</span></li>
-        <li class="key" on:mouseover="showDescription('0')"><span>0</span></li>
-        <li class="key" on:mouseover="showDescription('-')"><span>-</span></li>
-        <li class="key" on:mouseover="showDescription('=')"><span>=</span></li>
-        <li class="key" on:mouseover="showDescription('backspace')" id="backspace">{@html keys[mode].backspace}</li>
+        <li class="key" id="key-Backquote" on:mouseover="showDescription('Backquote')"><span>`</span></li>
+        <li class="key" id="key-digit1" on:mouseover="showDescription('digit1')"><span>{@html keys[mode]['1']}</span></li>
+        <li class="key" id="key-digit2" on:mouseover="showDescription('digit2')"><span>{@html keys[mode]['2']}</span></li>
+        <li class="key" id="key-digit3" on:mouseover="showDescription('digit3')"><span>{@html keys[mode]['3']}</span></li>
+        <li class="key" id="key-digit4" on:mouseover="showDescription('digit4')"><span>{@html keys[mode]['4']}</span></li>
+        <li class="key" id="key-digit5" on:mouseover="showDescription('digit5')"><span>{@html keys[mode]['5']}</span></li>
+        <li class="key" id="key-digit6" on:mouseover="showDescription('digit6')"><span>{@html keys[mode]['6']}</span></li>
+        <li class="key" id="key-digit7" on:mouseover="showDescription('digit7')"><span>{@html keys[mode]['7']}</span></li>
+        <li class="key" id="key-digit8" on:mouseover="showDescription('digit8')"><span>8</span></li>
+        <li class="key" id="key-digit9" on:mouseover="showDescription('digit9')"><span>9</span></li>
+        <li class="key" id="key-digit0" on:mouseover="showDescription('digit0')"><span>0</span></li>
+        <li class="key" id="key-Minus" on:mouseover="showDescription('Minus')"><span>-</span></li>
+        <li class="key" id="key-Equal" on:mouseover="showDescription('Equal')"><span>=</span></li>
+        <li class="key" id="key-Backspace" on:mouseover="showDescription('Backspace')">{@html keys[mode].backspace}</li>
     </ul>
     <ul class="row">
-        <li class="key" on:mouseover="showDescription('tab')" id="tab">⇥</li>
-        <li class="key" on:mouseover="showDescription('q')"></li>
-        <li class="key" on:mouseover="showDescription('w')">{@html keys[mode].w}</li>
-        <li class="key" on:mouseover="showDescription('e')">{@html keys[mode].e}</li>
-        <li class="key" on:mouseover="showDescription('r')">{@html keys[mode].r}</li>
-        <li class="key" on:mouseover="showDescription('t')">{@html keys[mode].t}</li>
-        <li class="key" on:mouseover="showDescription('y')">{@html keys[mode].y}</li>
-        <li class="key" on:mouseover="showDescription('u')">{@html keys[mode].u}</li>
-        <li class="key" on:mouseover="showDescription('i')">{@html keys[mode].i}</li>
-        <li class="key" on:mouseover="showDescription('o')">{@html keys[mode].o}</li>
-        <li class="key" on:mouseover="showDescription('p')">{@html keys[mode].p}</li>
-        <li class="key" on:mouseover="showDescription('[')">{@html keys[mode]['[']}</li>
-        <li class="key" on:mouseover="showDescription(']')">{@html keys[mode][']']}</li>
-        <li class="key" on:mouseover="showDescription('\\')"></li>
+        <li class="key" id="key-Tab" on:mouseover="showDescription('Tab')">⇥</li>
+        <li class="key" id="key-Q" on:mouseover="showDescription('Q')"></li>
+        <li class="key" id="key-W" on:mouseover="showDescription('W')">{@html keys[mode].w}</li>
+        <li class="key" id="key-E" on:mouseover="showDescription('E')">{@html keys[mode].e}</li>
+        <li class="key" id="key-R" on:mouseover="showDescription('R')">{@html keys[mode].r}</li>
+        <li class="key" id="key-T" on:mouseover="showDescription('T')">{@html keys[mode].t}</li>
+        <li class="key" id="key-Y" on:mouseover="showDescription('Y')">{@html keys[mode].y}</li>
+        <li class="key" id="key-U" on:mouseover="showDescription('U')">{@html keys[mode].u}</li>
+        <li class="key" id="key-I" on:mouseover="showDescription('I')">{@html keys[mode].i}</li>
+        <li class="key" id="key-O" on:mouseover="showDescription('O')">{@html keys[mode].o}</li>
+        <li class="key" id="key-P" on:mouseover="showDescription('P')">{@html keys[mode].p}</li>
+        <li class="key" id="key-BracketLeft" on:mouseover="showDescription('BracketLeft')">{@html keys[mode]['[']}</li>
+        <li class="key" id="key-BracketRight" on:mouseover="showDescription('BracketRight')">{@html keys[mode][']']}</li>
+        <li class="key" id="key-Backslash" on:mouseover="showDescription('Backslash')"></li>
     </ul>
     <ul class="row">
-        <li class="key" on:mouseover="showDescription('caps')" id="caps">⇪</li>
-        <li class="key" on:mouseover="showDescription('q')"></li>
-        <li class="key" on:mouseover="showDescription('s')">{@html keys[mode].s}</li>
-        <li class="key" on:mouseover="showDescription('d')">{@html keys[mode].d}</li>
-        <li class="key" on:mouseover="showDescription('f')">{@html keys[mode].f}</li>
-        <li class="key" on:mouseover="showDescription('g')">{@html keys[mode].g}</li>
-        <li class="key" on:mouseover="showDescription('h')">{@html keys[mode].h}</li>
-        <li class="key" on:mouseover="showDescription('j')">{@html keys[mode].j}</li>
-        <li class="key" on:mouseover="showDescription('k')">{@html keys[mode].k}</li>
-        <li class="key" on:mouseover="showDescription('l')">{@html keys[mode].l}</li>
-        <li class="key" on:mouseover="showDescription(';')">{@html keys[mode][';']}</li>
-        <li class="key" on:mouseover="showDescription('\'')"></li>
-        <li class="key" on:mouseover="showDescription('enter')" id="enter">⏎</li>
+        <li class="key" id="caps">⇪</li>
+        <li class="key" id="key-A" on:mouseover="showDescription('A')"></li>
+        <li class="key" id="key-S" on:mouseover="showDescription('S')">{@html keys[mode].s}</li>
+        <li class="key" id="key-D" on:mouseover="showDescription('D')">{@html keys[mode].d}</li>
+        <li class="key" id="key-F" on:mouseover="showDescription('F')">{@html keys[mode].f}</li>
+        <li class="key" id="key-G" on:mouseover="showDescription('G')">{@html keys[mode].g}</li>
+        <li class="key" id="key-H" on:mouseover="showDescription('H')">{@html keys[mode].h}</li>
+        <li class="key" id="key-J" on:mouseover="showDescription('J')">{@html keys[mode].j}</li>
+        <li class="key" id="key-K" on:mouseover="showDescription('K')">{@html keys[mode].k}</li>
+        <li class="key" id="key-L" on:mouseover="showDescription('L')">{@html keys[mode].l}</li>
+        <li class="key" id="key-Semicolon" on:mouseover="showDescription('Semicolon')">{@html keys[mode][';']}</li>
+        <li class="key" id="key-Quote" on:mouseover="showDescription('Quote')"></li>
+        <li class="key" id="key-Enter" on:mouseover="showDescription('Enter')">⏎</li>
     </ul>
     <ul class="row">
-        <li class="key shiftleft" on:mouseover="showDescription('shift')"><span>⇧</span></li>
-        <li class="key" on:mouseover="showDescription('z')"></li>
-        <li class="key" on:mouseover="showDescription('x')"></li>
-        <li class="key" on:mouseover="showDescription('c')">{@html keys[mode].c}</li>
-        <li class="key" on:mouseover="showDescription('v')"></li>
-        <li class="key" on:mouseover="showDescription('b')"></li>
-        <li class="key" on:mouseover="showDescription('n')">{@html keys[mode].n}</li>
-        <li class="key" on:mouseover="showDescription('m')">{@html keys[mode].m}</li>
-        <li class="key" on:mouseover="showDescription(',')">{@html keys[mode][',']}</li>
-        <li class="key" on:mouseover="showDescription('.')">{@html keys[mode]['.']}</li>
-        <li class="key" on:mouseover="showDescription('/')">{@html keys[mode]['/']}</li>
-        <li class="key shiftright" on:mouseover="showDescription('shift')"><span>⇧</span></li>
+        <li class="key" id="key-ShiftLeft" on:mouseover="showDescription('ShiftLeft')"><span>⇧</span></li>
+        <li class="key" id="key-Z" on:mouseover="showDescription('Z')"></li>
+        <li class="key" id="key-X" on:mouseover="showDescription('X')"></li>
+        <li class="key" id="key-C" on:mouseover="showDescription('C')">{@html keys[mode].c}</li>
+        <li class="key" id="key-V" on:mouseover="showDescription('V')"></li>
+        <li class="key" id="key-B" on:mouseover="showDescription('B')"></li>
+        <li class="key" id="key-N" on:mouseover="showDescription('N')">{@html keys[mode].n}</li>
+        <li class="key" id="key-M" on:mouseover="showDescription('M')">{@html keys[mode].m}</li>
+        <li class="key" id="key-Comma" on:mouseover="showDescription('Comma')">{@html keys[mode][',']}</li>
+        <li class="key" id="key-Period" on:mouseover="showDescription('Period')">{@html keys[mode]['.']}</li>
+        <li class="key" id="key-Slash" on:mouseover="showDescription('Slash')">{@html keys[mode]['/']}</li>
+        <li class="key" id="key-ShiftRight" on:mouseover="showDescription('ShiftRight')"><span>⇧</span></li>
     </ul>
     <ul class="row" id="bottomrow">
-        <li class="key" on:mouseover="showDescription('fn')" id="fn"><span>fn</span></li>
-        <li class="key" on:mouseover="showDescription('control')" id="control"><span>⌃</span></li>
-        <li class="key" on:mouseover="showDescription('option')" id="optionleft"><span>⌥</span></li>
-        <li class="key" on:mouseover="showDescription('command')" id="commandleft"><span>⌘</span></li>
-        <li class="key" on:mouseover="showDescription('space')" id="spacebar"></li>
-        <li class="key" on:mouseover="showDescription('command')" id="commandright"><span>⌘</span></li>
-        <li class="key" on:mouseover="showDescription('option')" id="optionright"><span>⌥</span></li>
+        <li class="key"><span>fn</span></li>
+        <li class="key" id="key-ControlLeft" on:mouseover="showDescription('ControlLeft')"><span>⌃</span></li>
+        <li class="key" id="key-AltLeft" on:mouseover="showDescription('AltLeft')"><span>⌥</span></li>
+        <li class="key" id="key-MetaLeft" on:mouseover="showDescription('MetaLeft')"><span>⌘</span></li>
+        <li class="key" id="key-Space" on:mouseover="showDescription('Space')"></li>
+        <li class="key" id="key-MetaRight" on:mouseover="showDescription('MetaRight')"><span>⌘</span></li>
+        <li class="key" id="key-AltRight" on:mouseover="showDescription('AltRight')"><span>⌥</span></li>
         <ol class="cf">
-            <li class="key" on:mouseover="showDescription('left')" id="left"><span>◀</span></li>
+            <li class="key" id="key-ArrowLeft" on:mouseover="showDescription('ArrowLeft')"><span>◀</span></li>
             <li>
-                <i class="key" on:mouseover="showDescription('up')" id="up"><span>▲</span></i>
-                <i class="key" on:mouseover="showDescription('down')" id="down"><span>▼</span></i>
+                <i class="key" id="key-ArrowUp" on:mouseover="showDescription('ArrowUp')"><span>▲</span></i>
+                <i class="key" id="key-ArrowDown" on:mouseover="showDescription('ArrowDown')"><span>▼</span></i>
             </li>
-            <li class="key" on:mouseover="showDescription('right')" id="right"><span>▶</span></li>
+            <li class="key" id="key-ArrowRight" on:mouseover="showDescription('ArrowRight')"><span>▶</span></li>
         </ol>
     </ul>
 </div>
@@ -163,15 +163,15 @@
         padding-top: 0;
     }
 
-    #esc {
+    #key-Escape {
         font-size: 0.3rem;
     }
 
-    #backspace {
+    #key-Backspace {
         width: 3.2em;
     }
 
-    #tab {
+    #key-Tab {
         width: 3.2em;
     }
 
@@ -179,16 +179,16 @@
         width: 3.7rem;
     }
 
-    #enter {
+    #key-Enter {
         width: 3.7rem;
     }
 
-    .shiftleft,
-    .shiftright {
+    #key-ShiftLeft,
+    #key-ShiftRight {
         width: 4.8rem;
     }
 
-    #spacebar {
+    #key-Space {
         width: 12rem;
     }
 
@@ -196,20 +196,16 @@
         list-style-type: none;
     }
 
-    #up,
-    #down {
+    #key-ArrowUp,
+    #key-ArrowDown {
         font-size: .5rem;
         line-height: .9rem;
         height: .95rem;
     }
 
-    #left,
-    #right {
+    #key-ArrowLeft,
+    #key-ArrowRight {
         font-size: .5rem;
-    }
-
-    .key:hover {
-        box-shadow: var(--blue) 0 0 0 .2rem;
     }
 
     :global(#keyboard-control-hint div.two-lines) {
@@ -229,6 +225,10 @@
 
     :global(#keyboard-control-hint .small) {
         font-size: .75rem;
+    }
+    
+    :global(#keyboard-control-hint .active) {
+        box-shadow: var(--blue) 0 0 0 .2rem;
     }
 
 </style>
@@ -305,15 +305,15 @@
                         '6': 'Select the 6th item in auto-completion',
                         '7': 'Select the 7th item in auto-completion',
 
-                        'w': 'Move Line Up',
-                        'e': 'Scroll Up',
-                        'r': 'Select Line',
-                        't': 'Select Block',
-                        'y': 'Move the cursor to the start of the document',
-                        'u': 'Move the cursor up by 5 lines',
-                        'i': 'Move the cursor up by a line',
-                        'o': 'Move the cursor down by 5 lines',
-                        'p': 'Move the cursor to the end of the document',
+                        'W': 'Move Line Up',
+                        'E': 'Scroll Up',
+                        'R': 'Select Line',
+                        'T': 'Select Block',
+                        'Y': 'Move the cursor to the start of the document',
+                        'U': 'Move the cursor up by 5 lines',
+                        'I': 'Move the cursor up by a line',
+                        'O': 'Move the cursor down by 5 lines',
+                        'P': 'Move the cursor to the end of the document',
                         '[': 'Move the cursor to the opening braces/brackets/curly braces',
                         ']': 'Move the cursor to the closing braces/brackets/curly braces',
 
@@ -341,9 +341,18 @@
         },
         methods: {
             showDescription(key) {
+                console.log('showDescription', key)
                 const { mode, descriptions } = this.get()
                 const description = descriptions[mode][key]
                 this.set({ description: description ? description : '' })
+                for (const element of document.querySelectorAll('#keyboard-control-hint .active')) {
+                    element.classList.remove('active')
+                }
+                console.log(`key-${key}`, document.getElementById(`key-${key}`))
+                document.getElementById(`key-${key}`).classList.add('active')
+            },
+            onHover(e) {
+                console.log(e)
             }
         }
     }

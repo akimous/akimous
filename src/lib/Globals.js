@@ -63,7 +63,6 @@ const g = {
         }
     },
     onFocusChanged() {
-        //         console.warn('focus changed', this.focusStack)
         const focusedPanel = this.focusStack[0]
         for (const panel of [g.panelLeft, g.panelMiddle, g.panelRight]) {
             if (!panel) break
@@ -76,7 +75,6 @@ const g = {
         g.activeEditor && g.activeEditor.save()
     },
     saveAll() {
-        console.log('saveAll')
         const pathToEditor = g.panelMiddle.pathToEditor
         for (let path in pathToEditor) {
             const editor = pathToEditor[path]

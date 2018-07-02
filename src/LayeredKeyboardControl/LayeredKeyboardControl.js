@@ -23,7 +23,7 @@ class LayeredKeyboardControl {
         const code = e.code
         let key = code.toLowerCase()
         if (code.startsWith('Key')) 
-            key = code.substring(3).toLowerCase()
+            key = code.substring(3)
         this.commandSent = true
         const command = Keymap.genericCommandKeymap[code]
         switch (command) {

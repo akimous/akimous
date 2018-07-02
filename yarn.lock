@@ -3957,9 +3957,9 @@ rimraf@2, rimraf@^2.2.8, rimraf@^2.5.1, rimraf@^2.6.1:
   dependencies:
     glob "^7.0.5"
 
-rollup-plugin-babel@^3.0.6:
-  version "3.0.6"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-babel/-/rollup-plugin-babel-3.0.6.tgz#0b431790be0e36e6367504cd4aadbc5ddec008f0"
+rollup-plugin-babel@^3.0.7:
+  version "3.0.7"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-babel/-/rollup-plugin-babel-3.0.7.tgz#5b13611f1ab8922497e9d15197ae5d8a23fe3b1e"
   dependencies:
     rollup-pluginutils "^1.5.0"
 
@@ -4424,9 +4424,9 @@ supports-color@^5.4.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.9.0:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.9.0.tgz#edd8ce7d141e2424a0297eb6fa753f2606627a0d"
+svelte@^2.9.1:
+  version "2.9.1"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.9.1.tgz#a7edbad10fa0281d9f250f517d90c45d0d8c7ad0"
 
 svgo@^0.7.0:
   version "0.7.2"
