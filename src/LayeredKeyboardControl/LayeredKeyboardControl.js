@@ -21,7 +21,7 @@ class LayeredKeyboardControl {
     sendCommand(e) {
         // return true if not handled or allowed to propagate
         const code = e.code
-        let key = code.toLowerCase()
+        let key = code
         if (code.startsWith('Key')) 
             key = code.substring(3)
         this.commandSent = true
