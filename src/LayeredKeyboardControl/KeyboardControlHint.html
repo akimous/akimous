@@ -242,13 +242,19 @@
         components: {},
         oncreate() {
             g.keyboardControlHint = this
-            dragElement(this.refs.self)
         },
         onstate({ changed, current }) {
             if (changed.open && g.toolbar) {
                 g.toolbar.refs.keyboardControlHint.set({
                     on: current.open
                 })
+            }
+        },
+        onupdate({ changed, current }) {
+            if (changed.open && g.toolbar) {
+                if (current.open) {
+                    dragElement(this.refs.self)
+                } 
             }
         },
         data() {
