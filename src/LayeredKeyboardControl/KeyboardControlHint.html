@@ -244,9 +244,16 @@
             g.keyboardControlHint = this
             dragElement(this.refs.self)
         },
+        onstate({ changed, current }) {
+            if (changed.open && g.toolbar) {
+                g.toolbar.refs.keyboardControlHint.set({
+                    on: current.open
+                })
+            }
+        },
         data() {
             return {
-                open: true,
+                open: false,
                 mode: 'normal',
                 description: '',
                 keys: {

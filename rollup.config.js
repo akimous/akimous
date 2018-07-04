@@ -35,6 +35,8 @@ export default {
         // NOTE: be careful that babel-plugin-transform-merge-sibling-variables 
         // is breaking codemirror code folding, should be disabled in .babelrc (mergeVars)
         production && babel(),
-        production && sizes(),
+        
+        // Causing TypeError: details.bundle.modules.forEach is not a function
+        // production && sizes(),
     ]
 }
