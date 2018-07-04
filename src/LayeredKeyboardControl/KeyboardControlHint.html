@@ -354,7 +354,8 @@
         },
         methods: {
             showDescription(key) {
-                const { mode, descriptions } = this.get()
+                const { open, mode, descriptions } = this.get()
+                if (!open) return 
                 const description = descriptions[mode][key]
                 this.set({ description: description ? description : '' })
                 for (const element of document.querySelectorAll('#keyboard-control-hint .active')) {

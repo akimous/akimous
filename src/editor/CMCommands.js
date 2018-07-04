@@ -195,9 +195,9 @@ function registerCMCommands(CodeMirror) {
 
             // If no change in selection yet, select parent level.
             if (startLine === from.line && endLine === to.line) {
-                while (--startLine > 0 && /^\s*$/.test(cm.getLine(startLine)));
+                while (startLine > 0 && /^\s*$/.test(cm.getLine(startLine)))
+                    startLine -= 1
             }
-
             extended.push({
                 anchor: Pos(startLine, getIndent(startLine)),
                 head: Pos(endLine, endLineContent.length)

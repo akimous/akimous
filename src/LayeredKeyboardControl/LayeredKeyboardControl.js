@@ -15,14 +15,18 @@ class LayeredKeyboardControl {
     sendEditorCommand(command) {
         this.commandSent = true
         if (g.activeEditor && g.activeEditor.cm.hasFocus()) {
-            g.activeEditor.cm.execCommand(command)
+            try {
+                g.activeEditor.cm.execCommand(command)
+            } catch (e) {
+                console.error(e)
+            }
         }
     }
     sendCommand(e) {
         // return true if not handled or allowed to propagate
         const code = e.code
         let key = code
-        if (code.startsWith('Key')) 
+        if (code.startsWith('Key'))
             key = code.substring(3)
         this.commandSent = true
         const command = Keymap.genericCommandKeymap[code]
