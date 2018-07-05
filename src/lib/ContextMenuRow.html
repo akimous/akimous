@@ -2,7 +2,8 @@
     <span class="icon">
         <i class="{icon}" aria-hidden="true"></i>
     </span>
-    {@html text}
+    <span class="text">{@html text}</span>
+    <span class="hotkey">{@html hotkey}</span>
 </div>
 
 
@@ -10,25 +11,32 @@
     .context-menu-row {
         color: var(--modal-text-color);
         height: var(--basic-ui-line-height);
-        padding: 0 1rem;
+        padding: 0 4rem 0 1rem;
         line-height: var(--basic-ui-line-height);
         font-weight: 400;
+        white-space: nowrap;
     }
-    
+
     .selected {
         color: var(--brighter-ui-font-color);
         background: var(--ui-selected-item);
     }
-    
+
     .icon {
         width: 1rem;
         display: inline-block;
         margin-right: 0.5rem;
         color: var(--gray4);
+        text-align: center;
     }
-    
+
     .selected .icon {
         color: var(--gray1);
+    }
+    
+    .hotkey {
+        position: absolute;
+        right: 0.5rem;
     }
 
 </style>
@@ -39,12 +47,12 @@
 
     export default {
         components: {},
-        oncreate() {
-        },
+        oncreate() {},
         data() {
             return {
                 selected: false,
                 text: '',
+                hotkey: '',
                 callback: null,
                 icon: ''
             }

@@ -21,10 +21,78 @@
     import { getRem } from '../lib/Utils'
     const menus = {
         File: [{
-            text: 'Open Folder',
-            icon: 'far fa-file',
-            callback: (/*target*/) => {}
-        }]
+            text: 'Open Folder...',
+            hotkey: '⌘O',
+            icon: 'fas fa-folder-open',
+            callback: () => {}
+        }, {
+            text: 'Close',
+            hotkey: '⌘W',
+            icon: 'fas fa-times',
+            callback: () => {}
+        }, {
+            text: 'Close All',
+            hotkey: '⌘⇧W',
+            icon: 'fas fa-times-circle',
+            callback: () => {}
+        }, {
+            divider: true
+        }, {
+            text: 'Save',
+            hotkey: '⌘S',
+            icon: 'fas fa-file',
+            callback: () => {}
+        }, {
+            text: 'Save All',
+            hotkey: '⌘⇧S',
+            icon: 'fas fa-copy',
+            callback: () => {}
+        }, ],
+        Edit: [{
+            text: 'Undo',
+            hotkey: '⌘Z',
+            icon: 'fas fa-undo',
+            callback: () => {}
+        }, {
+            text: 'Redo',
+            hotkey: '⌘⇧Z',
+            icon: 'fas fa-redo',
+            callback: () => {}
+        }, {
+            divider: true
+        }, {
+            text: 'Copy',
+            hotkey: '⌘C',
+            icon: 'far fa-copy',
+            callback: () => {}
+        }, {
+            text: 'Cut',
+            hotkey: '⌘X',
+            icon: 'fas fa-cut',
+            callback: () => {}
+        }, {
+            text: 'Paste',
+            hotkey: '⌘V',
+            icon: 'fas fa-paste',
+            callback: () => {}
+        }, {
+            divider: true
+        }, {
+            text: 'Select All',
+            hotkey: '⌘A',
+            icon: 'far fa-check-square',
+            callback: () => {}
+        }, {
+            text: 'Add Cursor to Previous Line',
+            hotkey: '⌥⇧↑',
+            icon: 'fas fa-arrow-up',
+            callback: () => {}
+        }, {
+            text: 'Add Cursor to Next Line',
+            hotkey: '⌥⇧↓',
+            icon: 'fas fa-arrow-down',
+            callback: () => {}
+        }, ]
     }
 
     export default {
@@ -39,7 +107,7 @@
                 const { items, open } = g.contextMenu.get()
                 if (items === menus[name] && open)
                     g.contextMenu.set({ open: false })
-                else
+                else {
                     g.contextMenu.set({
                         open: true,
                         x: left,
@@ -47,6 +115,7 @@
                         items: menus[name],
                         caller: this
                     })
+                }
                 e.stopPropagation()
             }
         }
