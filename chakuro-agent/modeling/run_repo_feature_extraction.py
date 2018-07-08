@@ -11,8 +11,8 @@ from os import walk, path
 from compileall import compile_file
 from logzero import logger as log
 
-from .offline_feature_extractor import OfflineFeatureExtractor
-from .utility import p, WORKING_DIR
+from offline_feature_extractor import OfflineFeatureExtractor
+from utility import p, WORKING_DIR
 
 feature_extractor = OfflineFeatureExtractor()
 
@@ -123,9 +123,9 @@ print('Token features:', len(feature_extractor.token_features))
 
 
 # Run single file
-run_file('/Users/ray/Code/Working/repos/sanic/sanic/server.py')
+run_file('/Users/ray/Code/Working/keras/keras/optimizers.py')
 feature_extractor.finalize()
-pickle.dump(feature_extractor, open('/Users/ray/Code/Working/sanic_server.pkl', 'wb'))
+pickle.dump(feature_extractor, open('/Users/ray/Code/Working/single.pkl', 'wb'))
 
 
 # Process sanic

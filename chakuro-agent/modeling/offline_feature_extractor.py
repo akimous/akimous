@@ -19,7 +19,7 @@ class OfflineFeatureExtractor(FeatureDefinition):
         self.current_completion_start_index = 0
         self.last_token = None
 
-    def add(self, token, completion, line_content, line, ch, doc, call_signitures, positive=True):
+    def add(self, token, completion, line_content, line, ch, doc, call_signatures, positive=True):
         if len(self.y) == self.n_samples:
             new_size = self.n_samples * 2
             self.X.resize([new_size, self.n_features])
@@ -40,7 +40,7 @@ class OfflineFeatureExtractor(FeatureDefinition):
             for i, f in enumerate(FeatureDefinition.context_features.values()):
                 feature = f(line_content=line_content[:ch],
                             line=line-1, ch=ch-1, doc=doc,
-                            call_signitures=call_signitures,
+                            call_signitures=call_signatures,
                             completion_data_type=completion_data_type,
                             stack_context_info=self.stack_context_info)
                 self.sample[i+len(FeatureDefinition.token_features)] = feature
@@ -50,7 +50,7 @@ class OfflineFeatureExtractor(FeatureDefinition):
             self.sample[i] = f(completion=completion,
                                line_content=line_content[:ch],
                                line=line-1, ch=ch-1, doc=doc,
-                               call_signitures=call_signitures,
+                               call_signitures=call_signatures,
                                completion_data_type=completion_data_type,
                                stack_context_info=self.stack_context_info)
         self.X[self.n_samples] = self.sample

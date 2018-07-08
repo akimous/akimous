@@ -5,8 +5,8 @@ import Levenshtein
 from contextlib import suppress
 
 NOT_APPLICABLE = -99999
-ONE_SIGMA_SCALING_FACTOR = 1000
-ZERO_TO_ONE_SCALING_FACTOR = 10000
+SIGMA_SCALING_FACTOR = 1000
+UNIT_SCALING_FACTOR = 10000
 EPSILON = .001
 
 
@@ -74,6 +74,7 @@ class FeatureDefinition:
         }
         if not completion or not completion._stack:
             return result
+        
         stack = list(completion._stack.get_nodes())
         if not stack:
             return result
@@ -112,7 +113,7 @@ class FeatureDefinition:
             masked_values = column[mask]
             std = masked_values.std()
             if std < EPSILON: continue
-            data[mask, i] = (masked_values - masked_values.mean()) / masked_values.std() * ONE_SIGMA_SCALING_FACTOR
+            data[mask, i] = (masked_values - masked_values.mean()) / masked_values.std() * SIGMA_SCALING_FACTOR
 
         self.X[self.current_completion_start_index:self.n_samples,
         self.normalization_target_feature_indice] = data
@@ -241,7 +242,7 @@ for comparison_target in ['top_name', 'func_name', 'bottom_name']:
             if distance_name == 'Leven':
                 return -Levenshtein.distance(completion.name, target)
             if distance_name == 'Jaro':
-                return int(Levenshtein.jaro(completion.name, target) * ZERO_TO_ONE_SCALING_FACTOR)
+                return int(Levenshtein.jaro(completion.name, target) * UNIT_SCALING_FACTOR)
 
 
         @FeatureDefinition.register_feature_generator(f'{comparison_target}_{distance_name}_normalized')

@@ -1,4 +1,4 @@
-DEBUG = False
+DEBUG = True
 WORKING_DIR = '/Users/ray/Code/Working/'
 
 
