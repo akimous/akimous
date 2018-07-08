@@ -11,54 +11,55 @@ from os import walk, path
 from compileall import compile_file
 from logzero import logger as log
 
-from offline_feature_extractor import OfflineFeatureExtractor
-from utility import p, WORKING_DIR
+from .offline_feature_extractor import OfflineFeatureExtractor
+from .utility import p, WORKING_DIR
 
 feature_extractor = OfflineFeatureExtractor()
 
+
 def run_file(file_path):
     with open(file_path) as f:
-    	doc = f.read()
+        doc = f.read()
     doc_lines = doc.splitlines()
     line_count = len(doc_lines)
     print('Line count:', line_count)
-    
-    def getToken(line, ch):
+
+    def get_token(line, ch):
         line_tokens = tokens[line]
-        for token in line_tokens:
-            if token.start[1] <= ch and token.end[1] > ch:
+        for t in line_tokens:
+            if t.start[1] <= ch < t.end[1]:
                 break
-        else: return None
-        return token
-    
+        else:
+            return None
+        return t
+
     successful_completion_count = 0
     failed_completion_count = 0
-    tokens = [[] for i in range(line_count + 1)]
+    tokens = [[] for _ in range(line_count + 1)]
     with open(file_path, 'rb') as f:
         for i, token in enumerate(tokenize.tokenize(f.readline)):
             line = token.start[0]
             if line > line_count:
                 break
             tokens[line].append(token)
-            
+
     line, ch = 1, 1  # 1-based
     subdoc = ''
     sum_of_successful_rates = 0.
 
     start_time = time.time()
     for line in tqdm(range(1, line_count + 1)):
-    # for line in tqdm(range(1, 4)):
         line_content = doc_lines[line - 1]
         line_length = len(line_content)
         subdoc += line_content + '\n'
         p('line:', line_content)
 
         while ch < line_length:
-            if not line_content[ch-1].isalnum():
+            if not line_content[ch - 1].isalnum():
                 ch += 1
                 continue
 
-            token = getToken(line, ch)
+            token = get_token(line, ch)
             if token is None:
                 ch += 1
                 continue
@@ -67,7 +68,7 @@ def run_file(file_path):
                 continue
 
             p('>', line, ch, line_content[ch:], end=' ')
-            
+
             try:
                 script = jedi.Script(subdoc, line, ch, file_path)
                 completions = script.completions()
@@ -80,15 +81,15 @@ def run_file(file_path):
             for comp in completions:
                 comp_string = comp.complete
                 comp_name = comp.name
-                actual_name = line_content[ch-1:ch+len(comp_string)]
-                
+                actual_name = line_content[ch - 1:ch + len(comp_string)]
+
                 if len(comp_string) == 0:
                     continue
                 if comp_name == actual_name and token.string.endswith(comp_string):
                     accepted_completion = comp_string
                     # add to training dataset
                     feature_extractor.add(token, comp, line_content, line, ch, doc_lines, call_signitures)
-                else: 
+                else:
                     feature_extractor.add(token, comp, line_content, line, ch, doc_lines, call_signitures, False)
 
             feature_extractor.end_current_completion(accepted_completion)
@@ -99,8 +100,8 @@ def run_file(file_path):
                 if token.type is not TOKEN.NAME:
                     p(f'\n-----(token is not Name)[{token.string}][{line_content[ch-1]}]', end=' ')
                 p(f'(O: {comp_string} {token.string})')
-            else: 
-                token = getToken(line, ch)
+            else:
+                token = get_token(line, ch)
                 if token is not None:
                     ch = token.end[1]
                 else:
@@ -112,7 +113,8 @@ def run_file(file_path):
     print('failed:', failed_completion_count)
     if successful_completion_count > 0:
         print('prediction successful rate:', sum_of_successful_rates / successful_completion_count)
-    
+
+
 print('Context features:', len(feature_extractor.context_features))
 print('Token features:', len(feature_extractor.token_features))
 
@@ -162,7 +164,7 @@ pickle.dump(feature_extractor, open('/Users/ray/Code/Working/sanic_server.pkl', 
 #         if random.random() < 0.95:
 #             continue
 #         file_list.append(file_path)
-            
+
 # for file_path in file_list: 
 #     processed_file_count += 1
 #     log.info(f'Processing file ({processed_file_count:04}/{len(file_list)}): {file_path}')

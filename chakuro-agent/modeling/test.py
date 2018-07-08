@@ -14,3 +14,4 @@ pineapple = 10
 def apple(banana):
     pass
 _ = apple(pineapple)
+

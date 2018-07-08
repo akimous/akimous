@@ -2,7 +2,6 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.externals import joblib
 import pickle
 import time
-from tqdm import tqdm
 
 
 dg = pickle.load(open('/Users/ray/Code/Working/dataset4.pkl', 'rb'))
@@ -44,6 +43,7 @@ def evaluate(Xt, yt, index, model):
         'model_successful_rate': model_successful,
         'time': time.time() - start_time
     }
+
 
 start_time = time.time()
 model = RandomForestClassifier(n_estimators=100, min_samples_leaf=30,

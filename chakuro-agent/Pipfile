@@ -16,5 +16,6 @@ docutils = "*"
 sphinx = "*"
 scipy = "*"
 jedi = "*"
+gitpython = "*"
 
 [dev-packages]
