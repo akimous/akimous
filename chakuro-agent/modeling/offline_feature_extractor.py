@@ -36,13 +36,14 @@ class OfflineFeatureExtractor(FeatureDefinition):
             
         if id(self.last_token) != id(token):
             p('filling context features')
-            self.stack_context_info = self.get_stack_context_info(completion)
+            # self.stack_context_info = self.get_stack_context_info(completion)
             for i, f in enumerate(FeatureDefinition.context_features.values()):
                 feature = f(line_content=line_content[:ch],
                             line=line-1, ch=ch-1, doc=doc,
                             call_signitures=call_signatures,
                             completion_data_type=completion_data_type,
-                            stack_context_info=self.stack_context_info)
+                            # stack_context_info=self.stack_context_info
+                            )
                 self.sample[i+len(FeatureDefinition.token_features)] = feature
         self.last_token = token
         
@@ -52,7 +53,8 @@ class OfflineFeatureExtractor(FeatureDefinition):
                                line=line-1, ch=ch-1, doc=doc,
                                call_signitures=call_signatures,
                                completion_data_type=completion_data_type,
-                               stack_context_info=self.stack_context_info)
+                               # stack_context_info=self.stack_context_info
+                               )
         self.X[self.n_samples] = self.sample
         self.y[self.n_samples] = 1 if positive else 0
         self.n_samples += 1

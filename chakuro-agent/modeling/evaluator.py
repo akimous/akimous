@@ -4,7 +4,7 @@ import pickle
 import time
 
 
-dg = pickle.load(open('/Users/ray/Code/Working/dataset4.pkl', 'rb'))
+dg = pickle.load(open('/Users/ray/Code/Working/single.pkl', 'rb'))
 print('Dataset size:', dg.X.shape, len(dg.index))
 
 train_test_boundary = dg.index[len(dg.index)//2]
@@ -52,7 +52,7 @@ model = RandomForestClassifier(n_estimators=100, min_samples_leaf=30,
                                    # subsample=.8, max_features=.5, random_state=0, verbose=1)
 model.fit(X, y)
 print(f'fitting model took {time.time() - start_time}\a')
-joblib.dump(model, '/Users/ray/Code/Working/train10.model')
+joblib.dump(model, '/Users/ray/Code/Working/single.model')
 # model.n_jobs = 1
 print(evaluate(Xt, yt, idxt, model))
 print('\a')
