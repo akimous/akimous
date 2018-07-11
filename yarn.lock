@@ -4442,9 +4442,9 @@ supports-color@^5.4.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.9.2:
-  version "2.9.2"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.9.2.tgz#718b21683bfe4b0abca34642fd3b8d0338aeec8c"
+svelte@^2.9.3:
+  version "2.9.3"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.9.3.tgz#09ac1740c26b4d3394ec623bd9d17cac5713ab6f"
 
 svgo@^0.7.0:
   version "0.7.2"
@@ -4731,9 +4731,9 @@ xmlhttprequest-ssl@~1.5.4:
   version "1.5.5"
   resolved "https://registry.yarnpkg.com/xmlhttprequest-ssl/-/xmlhttprequest-ssl-1.5.5.tgz#c2876b06168aadc40e57d97e81191ac8f4398b3e"
 
-xterm@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/xterm/-/xterm-3.4.1.tgz#12452979ea2db3371f8195832d7407abba988980"
+xterm@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/xterm/-/xterm-3.5.0.tgz#ba3f464bc5730c9d259ebe62131862224db9ddcc"
 
 y18n@^3.2.1:
   version "3.2.1"
