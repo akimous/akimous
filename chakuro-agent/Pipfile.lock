@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "eec02871cee95567ce3c6935dafaab350cd94f81b6cc86527933589ef34579ff"
+            "sha256": "850d8d1370ba3c496b34d380dcdbbec8cae20796f41f343921621c19a39949f2"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -65,6 +65,14 @@
             ],
             "index": "pypi",
             "version": "==0.14"
+        },
+        "fuzzywuzzy": {
+            "hashes": [
+                "sha256:d40c22d2744dff84885b30bbfc07fab7875f641d070374331777a4d1808b8d4e",
+                "sha256:ecf490216fb4d76b558a03042ff8f45a8782f17326caca1384d834cbaa2c7e6f"
+            ],
+            "index": "pypi",
+            "version": "==0.16.0"
         },
         "gitdb2": {
             "hashes": [

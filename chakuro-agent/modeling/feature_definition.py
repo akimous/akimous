@@ -3,11 +3,14 @@ import pandas as pd
 import re
 import Levenshtein
 from contextlib import suppress
+from fuzzywuzzy import fuzz
 
 NOT_APPLICABLE = -99999
+MAX = 99999
 SIGMA_SCALING_FACTOR = 1000
 UNIT_SCALING_FACTOR = 10000
 EPSILON = .001
+MAX_SCAN_LINES = 20
 
 
 class FeatureDefinition:
@@ -236,6 +239,15 @@ for name, regex in MATCH_CURRENT_LINE.items():
     @FeatureDefinition.register_feature_generator(name, True)
     def f(line_content, regex=regex, **_):
         return 1 if regex.fullmatch(line_content) else 0
+
+
+@FeatureDefinition.register_feature_generator('contains_in_nth_line')
+def f(completion, doc, line, **_):
+    completion = completion.name
+    for l in range(0, min(line, MAX_SCAN_LINES)):
+        if completion in doc[line - l]:
+            return l
+    return MAX
 
 # for comparison_target in ['top_name', 'func_name', 'bottom_name']:
 #     for distance_name in ['Leven', 'Jaro']:

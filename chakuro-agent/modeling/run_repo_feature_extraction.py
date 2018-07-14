@@ -119,7 +119,7 @@ print('Context features:', len(feature_extractor.context_features))
 print('Token features:', len(feature_extractor.token_features))
 
 # Run test file
-# run_file('/Users/ray/Code/LegatoIDE/server/modeling/test.py')
+# run_file('test.py')
 
 
 # Run single file
