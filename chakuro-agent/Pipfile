@@ -17,5 +17,6 @@ sphinx = "*"
 scipy = "*"
 jedi = "*"
 gitpython = "*"
+colorama = "*"
 
 [dev-packages]
