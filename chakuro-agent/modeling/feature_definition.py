@@ -15,6 +15,7 @@ MAX_SCAN_LINES = 20
 
 class FeatureDefinition:
     context_features = {}
+    preprocessors = []
     token_features = {}
 
     @staticmethod
@@ -26,6 +27,13 @@ class FeatureDefinition:
                 FeatureDefinition.token_features[feature_name] = f
             return f
 
+        return inner
+
+    @staticmethod
+    def register_context_preprocessor_for_token_features():
+        def inner(f):
+            FeatureDefinition.preprocessors.append(f)
+            return f
         return inner
 
     def __init__(self):
@@ -242,7 +250,7 @@ for name, regex in MATCH_CURRENT_LINE.items():
 
 
 @FeatureDefinition.register_feature_generator('contains_in_nth_line')
-def f(completion, doc, line, ch, **_):
+def f(completion, doc, line, **_):
     completion = completion.name
     for l in range(0, min(line, MAX_SCAN_LINES)):
         if completion in doc[line - l]:
@@ -250,13 +258,37 @@ def f(completion, doc, line, ch, **_):
     return MAX
 
 
-@FeatureDefinition.register_feature_generator('contains_in_nth_line_lower')
-def f(completion, doc, line, **_):
-    completion = completion.name.lower()
+@FeatureDefinition.register_context_preprocessor_for_token_features()
+def f(doc, line, context, **_):
+    context.doc_lines_to_lower_case = {}
     for l in range(0, min(line, MAX_SCAN_LINES)):
-        if completion in doc[line - l].lower():
+        context.doc_lines_to_lower_case[line - l] = doc[line - l].lower()
+
+
+@FeatureDefinition.register_feature_generator('contains_in_nth_line_lower')
+def f(completion, line, context, **_):
+    completion = completion.name.lower()
+    doc = context.doc_lines_to_lower_case
+    for l in range(0, min(line, MAX_SCAN_LINES)):
+        if completion in doc[line - l]:
             return l
     return MAX
+
+
+# @FeatureDefinition.register_feature_generator('contains_in_line')
+# def f(completion, line_content, **_):
+#     completion = completion.name
+#     if completion in line_content:
+#         return 1
+#     return 0
+#
+#
+# @FeatureDefinition.register_feature_generator('contains_in_line_lower')
+# def f(completion, line_content, **_):
+#     completion = completion.name.lower()
+#     if completion in line_content.lower():
+#         return 1
+#     return 0
 
 # for comparison_target in ['top_name', 'func_name', 'bottom_name']:
 #     for distance_name in ['Leven', 'Jaro']:

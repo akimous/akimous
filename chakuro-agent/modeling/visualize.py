@@ -36,6 +36,7 @@ predicted_prob = model.predict_proba(fe.X)[:, 1]
 correct_prediction = 0
 wrong_prediction = 0
 not_available = 0
+not_required = 0
 
 
 def get_range_from_doc(start, end):
@@ -49,7 +50,7 @@ def get_range_from_doc(start, end):
 
 
 def predict_and_color(token):
-    global index_i, token_selection_start, correct_prediction, wrong_prediction, not_available
+    global index_i, token_selection_start, correct_prediction, wrong_prediction, not_available, not_required
     token_selection_end = fe.index[index_i]
     t = fe.tokens[token_selection_start]
 
@@ -66,7 +67,10 @@ def predict_and_color(token):
     # print(f'\nPROBA:{yp} SELECTIONS:{selections}')
     yi = yp.argmax()
 
-    if selections[yi] == token.string:
+    if len(token.string) == 1:
+        not_required += 1
+        return B.RESET + F.CYAN + token.string
+    elif selections[yi] == token.string:
         correct_prediction += 1
         return B.RESET + F.GREEN + token.string
     elif token.string not in selections:
