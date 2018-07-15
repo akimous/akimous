@@ -4,6 +4,9 @@ import re
 import Levenshtein
 from contextlib import suppress
 from fuzzywuzzy import fuzz
+from tokenize import tokenize, TokenError
+from io import BytesIO
+from token_map import TokenMap
 
 NOT_APPLICABLE = -99999
 MAX = 99999
@@ -16,6 +19,7 @@ MAX_SCAN_LINES = 20
 class FeatureDefinition:
     context_features = {}
     preprocessors = []
+    context_names_required_by_preprocessors = {}
     token_features = {}
 
     @staticmethod
@@ -26,13 +30,16 @@ class FeatureDefinition:
             else:
                 FeatureDefinition.token_features[feature_name] = f
             return f
-
         return inner
 
     @staticmethod
-    def register_context_preprocessor_for_token_features():
+    def register_context_preprocessor_for_token_features(**context_names):
         def inner(f):
             FeatureDefinition.preprocessors.append(f)
+            FeatureDefinition.context_names_required_by_preprocessors = {
+                **FeatureDefinition.context_names_required_by_preprocessors,
+                **context_names
+            }
             return f
         return inner
 
@@ -258,7 +265,9 @@ def f(completion, doc, line, **_):
     return MAX
 
 
-@FeatureDefinition.register_context_preprocessor_for_token_features()
+@FeatureDefinition.register_context_preprocessor_for_token_features(
+    doc_lines_to_lower_case={}
+)
 def f(doc, line, context, **_):
     context.doc_lines_to_lower_case = {}
     for l in range(0, min(line, MAX_SCAN_LINES)):
@@ -274,6 +283,30 @@ def f(completion, line, context, **_):
             return l
     return MAX
 
+
+@FeatureDefinition.register_context_preprocessor_for_token_features(bigram=TokenMap())
+def f(doc, context, **_):
+    bigram = context.bigram
+    for line, line_content in enumerate(doc):
+        if bigram.dirty(line, line_content):
+            bigram.remove_line(line)
+            tokens = tokenize(BytesIO(line_content.encode('utf-8')).readline)
+            try:
+                last_token = ''
+                for token in tokens:
+                    if token.start == token.end:
+                        continue
+                    t = token.string
+                    bigram.add(line, line_content, (last_token, t))
+                    last_token = t
+            except (StopIteration, TokenError):
+                pass
+    # tokens = tokenize(BytesIO(full_doc.encode('utf-8')).readline)
+    # try:
+    #     while True:
+    #         next(tokens)
+    # except (StopIteration, TokenError):
+    #     pass
 
 # @FeatureDefinition.register_feature_generator('contains_in_line')
 # def f(completion, line_content, **_):

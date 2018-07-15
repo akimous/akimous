@@ -72,7 +72,8 @@ def run_file(file_path):
             try:
                 real_doc_lines = doc_lines[:line]
                 real_doc_lines[line - 1] = real_doc_lines[line - 1][:ch]
-                script = jedi.Script(subdoc + line_content[:ch], line, ch, file_path)
+                full_doc = subdoc + line_content[:ch]
+                script = jedi.Script(full_doc, line, ch, file_path)
                 completions = script.completions()
             except:
                 print(line, ch, line_content)
@@ -90,9 +91,9 @@ def run_file(file_path):
                 if comp_name == actual_name and token.string.endswith(comp_string):
                     accepted_completion = comp_string
                     # add to training dataset
-                    feature_extractor.add(token, comp, line_content[:ch], line, ch, real_doc_lines, call_signitures)
+                    feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signitures)
                 else:
-                    feature_extractor.add(token, comp, line_content[:ch], line, ch, real_doc_lines, call_signitures, False)
+                    feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signitures, False)
 
             feature_extractor.end_current_completion(accepted_completion)
             if accepted_completion:
@@ -124,7 +125,7 @@ print('Token features:', len(feature_extractor.token_features))
 # Run test file
 # run_file('test.py')
 # print(feature_extractor.dataframe()[['c', 'y', 'contains_in_nth_line', 'contains_in_nth_line_lower']])
-# print(feature_extractor.tokens)
+# print(dict(feature_extractor.context.bigram.token_to_lines))
 
 # Run single file
 run_file('/Users/ray/Code/Working/keras/keras/optimizers.py')
