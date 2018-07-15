@@ -242,10 +242,19 @@ for name, regex in MATCH_CURRENT_LINE.items():
 
 
 @FeatureDefinition.register_feature_generator('contains_in_nth_line')
-def f(completion, doc, line, **_):
+def f(completion, doc, line, ch, **_):
     completion = completion.name
     for l in range(0, min(line, MAX_SCAN_LINES)):
         if completion in doc[line - l]:
+            return l
+    return MAX
+
+
+@FeatureDefinition.register_feature_generator('contains_in_nth_line_lower')
+def f(completion, doc, line, **_):
+    completion = completion.name.lower()
+    for l in range(0, min(line, MAX_SCAN_LINES)):
+        if completion in doc[line - l].lower():
             return l
     return MAX
 

@@ -4,10 +4,12 @@ from feature_definition import FeatureDefinition
 from utility import p
 
 
+INITIAL_SIZE = 1
+
+
 class OfflineFeatureExtractor(FeatureDefinition):
     def __init__(self):
         super().__init__()
-        INITIAL_SIZE = 1
         self.n_samples = 0
         self.X = np.zeros([INITIAL_SIZE, self.n_features], dtype=int)
         self.y = np.zeros(INITIAL_SIZE, dtype=int)

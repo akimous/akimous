@@ -3,12 +3,11 @@ import numpy as np
 import pandas as pd
 import tokenize
 from colorama import init
-init()
 from colorama import Fore as F
 from colorama import Back as B
 from sklearn.externals import joblib
 import sys
-from token import NUMBER, STRING, NEWLINE, OP
+init()
 
 
 show_error = False if len(sys.argv) < 2 else bool(sys.argv[1])
@@ -32,10 +31,11 @@ token_selection_start = 0
 index_i = 0
 
 completions = list(df.c)
-predicted_prob = model.predict_proba(fe.X)[:, 0]
+predicted_prob = model.predict_proba(fe.X)[:, 1]
 
 correct_prediction = 0
 wrong_prediction = 0
+not_available = 0
 
 
 def get_range_from_doc(start, end):
@@ -49,7 +49,7 @@ def get_range_from_doc(start, end):
 
 
 def predict_and_color(token):
-    global index_i, token_selection_start, correct_prediction, wrong_prediction
+    global index_i, token_selection_start, correct_prediction, wrong_prediction, not_available
     token_selection_end = fe.index[index_i]
     t = fe.tokens[token_selection_start]
 
@@ -63,17 +63,20 @@ def predict_and_color(token):
     if not selections:
         return F.RED + token.string
     yp = predicted_prob[token_selection_start:token_selection_end]
+    # print(f'\nPROBA:{yp} SELECTIONS:{selections}')
     yi = yp.argmax()
 
     if selections[yi] == token.string:
         correct_prediction += 1
         return B.RESET + F.GREEN + token.string
     elif token.string not in selections:
-        wrong_prediction += 1
+        not_available += 1
         return B.RESET + F.BLUE + token.string
     elif show_error:
+        wrong_prediction += 1
         return B.RESET + F.RED + token.string + B.RED + F.WHITE + selections[yi]
     else:
+        wrong_prediction += 1
         return B.RESET + F.RED + token.string
 
 
@@ -86,7 +89,7 @@ while token_i < length:
         pass
     elif token.string.startswith(get_range_from_doc(token.start, token.end)):
         if doc_pos < token.start:
-            print(B.RESET + F.BLUE + get_range_from_doc(doc_pos, token.start), end='')
+            print(B.RESET + F.MAGENTA + get_range_from_doc(doc_pos, token.start), end='')
         if token.type in (2, 3, 4, 53, 57, 58):  # (NUMBER, STRING, NEWLINE, OP, COMMENT, NL)
             print(B.RESET + F.RESET + token.string, end='')
         else:
@@ -96,9 +99,11 @@ while token_i < length:
     else:
         print(B.RED + token.string, end='')
     token_i += 1
-    # if token_i > 100:
+    # if token_i > 200:
     #     break
 print()
 print('CORRECT PREDICTION:', correct_prediction)
 print('WRONG PREDICTION  :', wrong_prediction)
+print('NOT AVAILABLE     :', not_available)
 print(f'ACCURACY          : {(correct_prediction / (correct_prediction+wrong_prediction)):.2%}')
+print(f'SUCCESSFUL RATE   : {(correct_prediction / (correct_prediction+wrong_prediction+not_available)):.2%}')

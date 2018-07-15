@@ -47,3 +47,13 @@ yarn run release
 |              |        |        |        |          |          |          |         |             |                                   |
 | **Target**   | **73** | **50** | **85** | **5000** | **3000** | **1000** | **300** | **1000**    |                                   |
 
+## Prediction Accuracy
+
+* `keras/optimizers.py` (12773)
+
+| Date | Evaluate | Correct | Wrong | Not Available | Accuracy | Total | Features                       | Time |
+| ---- | -------- | ------- | ----- | ------------- | -------- | ----- | ------------------------------ | ---- |
+| 7/14 | 55.86    | 802     | 581   | 918           | 57.99    | 34.85 | 39                             | 112  |
+| 7/15 | 65.61    | 962     | 421   | 918           | 69.56    | 41.81 | 40, contains in nth line       | 116  |
+|      | 67.27    | 984     | 399   | 918           | 71.15    | 42.76 | 41, contains in nth line lower | 122  |
+

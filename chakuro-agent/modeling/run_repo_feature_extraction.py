@@ -51,7 +51,7 @@ def run_file(file_path):
     for line in tqdm(range(1, line_count + 1)):
         line_content = doc_lines[line - 1]
         line_length = len(line_content)
-        subdoc += line_content + '\n'
+        # subdoc += line_content + '\n'
         p('line:', line_content)
 
         while ch < line_length:
@@ -70,7 +70,9 @@ def run_file(file_path):
             p('>', line, ch, line_content[ch:], end=' ')
 
             try:
-                script = jedi.Script(subdoc, line, ch, file_path)
+                real_doc_lines = doc_lines[:line]
+                real_doc_lines[line - 1] = real_doc_lines[line - 1][:ch]
+                script = jedi.Script(subdoc + line_content[:ch], line, ch, file_path)
                 completions = script.completions()
             except:
                 print(line, ch, line_content)
@@ -88,9 +90,9 @@ def run_file(file_path):
                 if comp_name == actual_name and token.string.endswith(comp_string):
                     accepted_completion = comp_string
                     # add to training dataset
-                    feature_extractor.add(token, comp, line_content, line, ch, doc_lines, call_signitures)
+                    feature_extractor.add(token, comp, line_content[:ch], line, ch, real_doc_lines, call_signitures)
                 else:
-                    feature_extractor.add(token, comp, line_content, line, ch, doc_lines, call_signitures, False)
+                    feature_extractor.add(token, comp, line_content[:ch], line, ch, real_doc_lines, call_signitures, False)
 
             feature_extractor.end_current_completion(accepted_completion)
             if accepted_completion:
@@ -108,6 +110,7 @@ def run_file(file_path):
                     ch += 1
                 failed_completion_count += 1
         ch = 1
+        subdoc += line_content + '\n'
     print('time:', time.time() - start_time)
     print('successful:', successful_completion_count)
     print('failed:', failed_completion_count)
@@ -120,7 +123,8 @@ print('Token features:', len(feature_extractor.token_features))
 
 # Run test file
 # run_file('test.py')
-
+# print(feature_extractor.dataframe()[['c', 'y', 'contains_in_nth_line', 'contains_in_nth_line_lower']])
+# print(feature_extractor.tokens)
 
 # Run single file
 run_file('/Users/ray/Code/Working/keras/keras/optimizers.py')
