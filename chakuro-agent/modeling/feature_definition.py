@@ -30,6 +30,7 @@ class FeatureDefinition:
             else:
                 FeatureDefinition.token_features[feature_name] = f
             return f
+
         return inner
 
     @staticmethod
@@ -41,6 +42,7 @@ class FeatureDefinition:
                 **context_names
             }
             return f
+
         return inner
 
     def __init__(self):
@@ -186,7 +188,6 @@ for s in CONTAINS_STRING:
     def f(completion, s=s, **_):
         return 1 if s in completion.name else 0
 
-
 REGEX = {
     'is': re.compile(r'^(is|are|IS|ARE).*'),
     'has': re.compile(r'^(has|have|HAS|HAVE).*')
@@ -285,11 +286,15 @@ def f(completion, line, context, **_):
 
 
 @FeatureDefinition.register_context_preprocessor_for_token_features(bigram=TokenMap())
-def f(doc, context, **_):
+def f(doc, context, line, ch, **_):
+    context.line_tokens = []
+    context.t1 = ''
     bigram = context.bigram
-    for line, line_content in enumerate(doc):
-        if bigram.dirty(line, line_content):
-            bigram.remove_line(line)
+    line_tokens = context.line_tokens
+
+    for line_number, line_content in enumerate(doc):
+        if bigram.dirty(line_number, line_content):
+            bigram.remove_line(line_number)
             tokens = tokenize(BytesIO(line_content.encode('utf-8')).readline)
             try:
                 last_token = ''
@@ -297,16 +302,38 @@ def f(doc, context, **_):
                     if token.start == token.end:
                         continue
                     t = token.string
-                    bigram.add(line, line_content, (last_token, t))
+                    bigram.add(line_number, line_content, (last_token, t))
                     last_token = t
+
+                    if line == line_number:
+                        line_tokens.append(token)
             except (StopIteration, TokenError):
                 pass
-    # tokens = tokenize(BytesIO(full_doc.encode('utf-8')).readline)
-    # try:
-    #     while True:
-    #         next(tokens)
-    # except (StopIteration, TokenError):
-    #     pass
+    try:
+        for token in tokenize(BytesIO(doc[line].encode('utf-8')).readline):
+            if token.start == token.end:
+                continue
+            line_tokens.append(token)
+    except (StopIteration, TokenError):
+        pass
+    if line_tokens:
+        current_token_index = 0
+        for current_token_index, token in enumerate(context.line_tokens):
+            if token.end[1] == ch + 1:
+                break
+        if current_token_index > 0:
+            context.t1 = context.line_tokens[current_token_index - 1].string
+
+
+@FeatureDefinition.register_feature_generator('bigram_distance')
+def f(context, line, completion, **_):
+    completed_bigram = (context.t1, completion.name)
+    matched_line_numbers = context.bigram.query(completed_bigram)
+    if not matched_line_numbers:
+        return MAX
+    result = min(abs(l-line) for l in matched_line_numbers)
+    # print(line_content, completed_bigram, result)
+    return result
 
 # @FeatureDefinition.register_feature_generator('contains_in_line')
 # def f(completion, line_content, **_):

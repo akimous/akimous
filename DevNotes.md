@@ -51,12 +51,21 @@ yarn run release
 
 * `keras/optimizers.py` (12773)
 
-| Date | Evaluate | Correct | Wrong | Not Available | Accuracy | Total | Features                       | Time |
-| ---- | -------- | ------- | ----- | ------------- | -------- | ----- | ------------------------------ | ---- |
-| 7/14 | 55.86    | 802     | 581   | 918           | 57.99    | 34.85 | 39                             | 112  |
-| 7/15 | 65.61    | 962     | 421   | 918           | 69.56    | 41.81 | 40, contains in nth line       | 116  |
-|      | 67.27    | 984     | 399   | 918           | 71.15    | 42.76 | 41, contains in nth line lower | 122  |
-|      | 67.27    | 984     | 399   | 581           | 71.15    | 50.10 | exclude single char token      |      |
-|      |          |         |       |               |          |       |                                |      |
-|      |          |         |       |               |          |       |                                |      |
+| Date | Evaluate | Correct  | Wrong | Not Available | Accuracy  | Total     | Features                       | Time |
+| ---- | -------- | -------- | ----- | ------------- | --------- | --------- | ------------------------------ | ---- |
+| 7/14 | 55.86    | 802      | 581   | 918           | 57.99     | 34.85     | 39                             | 112  |
+| 7/15 | 65.61    | 962      | 421   | 918           | 69.56     | 41.81     | 40, contains in nth line       | 116  |
+|      | 67.27    | **984**  | 399   | 918           | **71.15** | 42.76     | 41, contains in nth line lower | 122  |
+|      | 67.27    | 984      | 399   | **581**       | 71.15     | **50.10** | exclude single char token      |      |
+| 7/16 | 80.78    | **1125** | 258   | 581           | **81.34** | 57.28     | 42, bi-gram                    | 126  |
+|      |          |          |       |               |           |           |                                |      |
 
+* tri-gram (cross-line)
+* partial matching
+* tri-skip-gram (cross-line)
+* statistical bi-gram, tri-gram, skip-gram
+* unindent
+* not, none, self, super, await, if, return, del, def, raise, import, from, as
+* is keyword
+* float distance
+* use different file for testing
