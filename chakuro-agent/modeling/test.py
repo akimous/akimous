@@ -1,7 +1,7 @@
 SGD = 1
 
 
-sgd = SGD
+sgd = not SGD
 
 # aaa = 1
 # aaa = {'dict': [int(True)]}

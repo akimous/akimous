@@ -54,7 +54,7 @@ class OfflineFeatureExtractor(FeatureDefinition):
                 feature = f(line_content=line_content[:ch],
                             line=line - 1, ch=ch - 1, doc=doc,
                             full_doc=full_doc,
-                            call_signitures=call_signatures,
+                            call_signatures=call_signatures,
                             completion_data_type=completion_data_type,
                             context=self.context
                             # stack_context_info=self.stack_context_info

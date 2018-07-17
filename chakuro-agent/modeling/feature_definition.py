@@ -198,6 +198,16 @@ for name, regex in REGEX.items():
         return 1 if regex.fullmatch(completion.name) else 0
 
 
+KEYWORDS = (
+    'not', 'None', 'self', 'super', 'if', 'else', 'elif', 'return',
+    'del', 'def', 'raise', 'import', 'from', 'as', 'break', 'continue'
+)
+for keyword in KEYWORDS:
+    @FeatureDefinition.register_feature_generator('is_' + keyword)
+    def f(completion, keyword=keyword, **_):
+        return int(completion.name == keyword)
+
+
 @FeatureDefinition.register_feature_generator('in_builtin_module')
 def f(completion, **_):
     return int(completion.in_builtin_module())
@@ -236,10 +246,10 @@ for c in LEFT_CHAR:
 IN_FUNCTION_SIGNITURE = ['range', 'isinstance', 'len', 'type']
 for i in IN_FUNCTION_SIGNITURE:
     @FeatureDefinition.register_feature_generator('in_function_' + i, True)
-    def f(call_signitures, i=i, **_):
-        if not call_signitures:
+    def f(call_signatures, i=i, **_):
+        if not call_signatures:
             return 0
-        return int(call_signitures[0].name == i)
+        return int(call_signatures[0].name == i)
 
 # TODO: use stack instead
 MATCH_CURRENT_LINE = {

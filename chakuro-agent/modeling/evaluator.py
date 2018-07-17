@@ -46,7 +46,7 @@ def evaluate(Xt, yt, index, model):
 
 
 start_time = time.time()
-model = RandomForestClassifier(n_estimators=100, min_samples_leaf=30,
+model = RandomForestClassifier(n_estimators=100, min_samples_leaf=1,
                                random_state=0, n_jobs=-1)
 # model = GradientBoostingClassifier(n_estimators=100, learning_rate=.25, max_depth=6,
                                    # subsample=.8, max_features=.5, random_state=0, verbose=1)

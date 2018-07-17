@@ -80,7 +80,7 @@ def run_file(file_path):
                 break
 
             accepted_completion = None
-            call_signitures = script.call_signatures()
+            call_signatures = script.call_signatures()
             for comp in completions:
                 comp_string = comp.complete
                 comp_name = comp.name
@@ -91,9 +91,9 @@ def run_file(file_path):
                 if comp_name == actual_name and token.string.endswith(comp_string):
                     accepted_completion = comp_string
                     # add to training dataset
-                    feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signitures)
+                    feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signatures)
                 else:
-                    feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signitures, False)
+                    feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signatures, False)
 
             feature_extractor.end_current_completion(accepted_completion)
             if accepted_completion:
@@ -124,7 +124,7 @@ print('Token features:', len(feature_extractor.token_features))
 
 # Run test file
 # run_file('test.py')
-# print(feature_extractor.dataframe()[['c', 'y', 'contains_in_nth_line', 'contains_in_nth_line_lower']])
+# print(feature_extractor.dataframe()[['c', 'y', 'is_None', 'is_not']])
 # print(dict(feature_extractor.context.bigram.token_to_lines))
 
 # Run single file
