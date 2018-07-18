@@ -60,13 +60,15 @@ yarn run release
 | 7/16 | 80.78     | **1125** | 258   | 581           | **81.34** | 57.28     | 42, bi-gram                    | 126  |
 | 7/17 | 80.63     | 1128     | 255   | 581           | **81.56** | 57.43     | 58, keywords (not good)        | 131  |
 |      | **86.37** | 1245     | 138   | 581           | **90.02** | **63.39** | Note 1                         |      |
+| 7/18 | 85.89     | 1246     | 137   | 581           | 90.09     | 63.44     | revise blank line before       | 125  |
+|      | 86.04     | 1248     | 135   | 581           | **90.24** | **63.54** | 59, contains error             | 125  |
 
 1. `min_samples_leaf` 30 --> 1
 
 * tri-gram (cross-line)
 * partial matching
 * tri-skip-gram (cross-line)
-* statistical bi-gram, tri-gram, skip-gram
+* statistical frequency, bi-gram, tri-gram, skip-gram
 * unindent
 * ~~not, none, self, super, await, if, return, del, def, raise, import, from, as~~
 * ~~is keyword~~

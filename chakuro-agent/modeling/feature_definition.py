@@ -190,7 +190,8 @@ for s in CONTAINS_STRING:
 
 REGEX = {
     'is': re.compile(r'^(is|are|IS|ARE).*'),
-    'has': re.compile(r'^(has|have|HAS|HAVE).*')
+    'has': re.compile(r'^(has|have|HAS|HAVE).*'),
+    'error': re.compile(r'.*Error$')
 }
 for name, regex in REGEX.items():
     @FeatureDefinition.register_feature_generator(name)
@@ -220,9 +221,13 @@ def f(completion, **_):
 
 @FeatureDefinition.register_feature_generator('blank_line_before', True)
 def f(line, doc, **_):
-    if line < 1:
-        return 0
-    return int(not bool(doc[line - 1].lstrip()))
+    count = 0
+    for i in range(line - 1, 0, -1):
+        if not doc[line - 1].lstrip():
+            count += 1
+        else:
+            return count
+    return count
 
 
 # @FeatureDefinition.register_feature_generator('indent_level', True)
@@ -243,8 +248,8 @@ for c in LEFT_CHAR:
         return int(line_content[ch - len(c):ch] == c)
 
 # TODO: add popular build-in functions
-IN_FUNCTION_SIGNITURE = ['range', 'isinstance', 'len', 'type']
-for i in IN_FUNCTION_SIGNITURE:
+IN_FUNCTION_SIGNATURE = ['range', 'isinstance', 'len', 'type']
+for i in IN_FUNCTION_SIGNATURE:
     @FeatureDefinition.register_feature_generator('in_function_' + i, True)
     def f(call_signatures, i=i, **_):
         if not call_signatures:

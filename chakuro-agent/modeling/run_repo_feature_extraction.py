@@ -124,7 +124,7 @@ print('Token features:', len(feature_extractor.token_features))
 
 # Run test file
 # run_file('test.py')
-# print(feature_extractor.dataframe()[['c', 'y', 'is_None', 'is_not']])
+# print(feature_extractor.dataframe()[['c', 'y', 'blank_line_before', 'error']])
 # print(dict(feature_extractor.context.bigram.token_to_lines))
 
 # Run single file
