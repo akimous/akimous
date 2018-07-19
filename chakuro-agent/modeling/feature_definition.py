@@ -4,8 +4,8 @@ import re
 import Levenshtein
 from contextlib import suppress
 from fuzzywuzzy import fuzz
-from tokenize import tokenize, TokenError
-from io import BytesIO
+from tokenize import generate_tokens, TokenError
+from io import StringIO
 from token_map import TokenMap
 
 NOT_APPLICABLE = -99999
@@ -310,7 +310,8 @@ def f(doc, context, line, ch, **_):
     for line_number, line_content in enumerate(doc):
         if bigram.dirty(line_number, line_content):
             bigram.remove_line(line_number)
-            tokens = tokenize(BytesIO(line_content.encode('utf-8')).readline)
+            # tokens = tokenize(BytesIO(line_content.encode('utf-8')).readline)
+            tokens = generate_tokens(StringIO(line_content).readline)
             try:
                 last_token = ''
                 for token in tokens:
@@ -325,7 +326,8 @@ def f(doc, context, line, ch, **_):
             except (StopIteration, TokenError):
                 pass
     try:
-        for token in tokenize(BytesIO(doc[line].encode('utf-8')).readline):
+        # for token in tokenize(BytesIO(doc[line].encode('utf-8')).readline):
+        for token in generate_tokens(StringIO(doc[line]).readline):
             if token.start == token.end:
                 continue
             line_tokens.append(token)

@@ -130,7 +130,7 @@ print('Token features:', len(feature_extractor.token_features))
 # Run single file
 run_file('/Users/ray/Code/Working/keras/keras/optimizers.py')
 feature_extractor.finalize()
-pickle.dump(feature_extractor, open('/Users/ray/Code/Working/single.pkl', 'wb'))
+pickle.dump(feature_extractor, open('/Users/ray/Code/Working/single.pkl', 'wb'), protocol=4)
 
 
 # Process sanic
