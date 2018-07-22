@@ -6,7 +6,7 @@ from contextlib import suppress
 from fuzzywuzzy import fuzz
 from tokenize import generate_tokens, TokenError
 from io import StringIO
-from token_map import TokenMap
+from token_map import TokenMap, DirtyMap
 
 NOT_APPLICABLE = -99999
 MAX = 99999
@@ -14,6 +14,7 @@ SIGMA_SCALING_FACTOR = 1000
 UNIT_SCALING_FACTOR = 10000
 EPSILON = .001
 MAX_SCAN_LINES = 20
+_EMPTY = tuple()
 
 
 class FeatureDefinition:
@@ -314,45 +315,73 @@ def tokenize(string):
 
 @FeatureDefinition.register_context_preprocessor_for_token_features(
     line_to_tokens={},
-    bigram=TokenMap()
+    dirty_map=DirtyMap(),
+    t1map=TokenMap(),
+    t2map=TokenMap()
 )
 def f(doc, context, line, ch, **_):
-    bigram = context.bigram
+    dirty_map = context.dirty_map
+    t1map = context.t1map
+    t2map = context.t2map
     line_to_tokens = context.line_to_tokens
 
-    dirty_lines = bigram.get_dirty_lines(doc)
+    # tokenize dirty lines
+    dirty_lines = dirty_map.get_dirty_lines(doc)
     for line_number in dirty_lines:
         line_to_tokens[line_number] = tokenize(doc[line_number])
 
-    # generate bigram
     for line_number in dirty_lines:
-        bigram.remove_line(line_number)
-        last_token = ''
         line_content = doc[line_number]
-        tokens = line_to_tokens[line_number]
-        for token in tokens:
-            t = token.string
-            bigram.add(line_number, line_content, (last_token, t))
-            last_token = t
-        if not tokens:
-            bigram.add_line_with_no_tokens(line_number, line_content)
+        t1map.remove_line(line_number)
+        t2map.remove_line(line_number)
+        dirty_map.set_clear(line_number, line_content)
 
-    context.line_tokens = line_to_tokens[line]
+        tokens0 = line_to_tokens.get(line_number, _EMPTY)
+        tokens1 = line_to_tokens.get(line_number - 1, _EMPTY)
+        t1, t2 = '', ''
+        if tokens1:
+            t2 = tokens1[-1]
+        for token in tokens0:
+            t0 = token.string
+            t1map.add(line_number, (t1, t0))
+            t2map.add(line_number, (t2, t0))
+            t2, t1 = t1, t0
+
+    # get t1, t2
+    tokens0 = line_to_tokens.get(line, _EMPTY)
+    tokens1 = line_to_tokens.get(line - 1, _EMPTY)
     context.t1 = ''
-    if context.line_tokens:
-        current_token_index = 0
-        for current_token_index, token in enumerate(context.line_tokens):
+    context.t2 = ''
+    current_token_index = 0
+    # t1
+    if tokens0:
+        for current_token_index, token in enumerate(tokens0):
             if token.end[1] >= ch + 1:
                 break
         if current_token_index > 0:
-            context.t1 = context.line_tokens[current_token_index - 1].string
+            context.t1 = tokens0[current_token_index - 1].string
+    # t2
+    if current_token_index > 1:
+        context.t2 = tokens0[current_token_index - 2].string
+    elif tokens1:
+        context.t2 = tokens1[-1].string
 
 
-@FeatureDefinition.register_feature_generator('bigram_distance')
+
+@FeatureDefinition.register_feature_generator('t1_match')
 def f(context, line, completion, **_):
-    completed_bigram = (context.t1, completion.name)
-    matched_line_numbers = context.bigram.query(completed_bigram)
+    bigram = (context.t1, completion.name)
+    matched_line_numbers = context.t1map.query(bigram)
+    if not matched_line_numbers:
+        return MAX
+    result = min(abs(l-line) for l in matched_line_numbers)
+    return result
 
+
+@FeatureDefinition.register_feature_generator('t2_match')
+def f(context, line, completion, **_):
+    bigram = (context.t2, completion.name)
+    matched_line_numbers = context.t2map.query(bigram)
     if not matched_line_numbers:
         return MAX
     result = min(abs(l-line) for l in matched_line_numbers)
