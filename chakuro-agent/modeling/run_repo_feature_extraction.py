@@ -124,14 +124,17 @@ print('Token features:', len(feature_extractor.token_features))
 
 # Run test file
 # run_file('test.py')
-# print(feature_extractor.dataframe()[['c', 'y', 'blank_line_before', 'error']])
-# print(dict(feature_extractor.context.bigram.token_to_lines))
+# feature_extractor.finalize()
+# pickle.dump(feature_extractor, open('/Users/ray/Code/Working/good.pkl', 'wb'), protocol=4)
+# pd.set_option('display.max_rows', 500000)
+# print(feature_extractor.dataframe()[['c', 'y', 'bigram_distance']])
 
 # Run single file
 run_file('/Users/ray/Code/Working/keras/keras/optimizers.py')
 feature_extractor.finalize()
 pickle.dump(feature_extractor, open('/Users/ray/Code/Working/single.pkl', 'wb'), protocol=4)
-
+# pd.set_option('display.max_rows', 500000)
+# print(feature_extractor.dataframe()[['c', 'y', 'bigram_distance']])
 
 # Process sanic
 # for root, dirs, files in walk('/Users/ray/Code/Working/repos/sanic/sanic'):

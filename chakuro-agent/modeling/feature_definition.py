@@ -300,43 +300,49 @@ def f(completion, line, context, **_):
     return MAX
 
 
-@FeatureDefinition.register_context_preprocessor_for_token_features(bigram=TokenMap())
-def f(doc, context, line, ch, **_):
-    context.line_tokens = []
-    context.t1 = ''
-    bigram = context.bigram
-    line_tokens = context.line_tokens
-
-    for line_number, line_content in enumerate(doc):
-        if bigram.dirty(line_number, line_content):
-            bigram.remove_line(line_number)
-            # tokens = tokenize(BytesIO(line_content.encode('utf-8')).readline)
-            tokens = generate_tokens(StringIO(line_content).readline)
-            try:
-                last_token = ''
-                for token in tokens:
-                    if token.start == token.end:
-                        continue
-                    t = token.string
-                    bigram.add(line_number, line_content, (last_token, t))
-                    last_token = t
-
-                    if line == line_number:
-                        line_tokens.append(token)
-            except (StopIteration, TokenError):
-                pass
+def tokenize(string):
+    result = []
     try:
-        # for token in tokenize(BytesIO(doc[line].encode('utf-8')).readline):
-        for token in generate_tokens(StringIO(doc[line]).readline):
+        for token in generate_tokens(StringIO(string).readline):
             if token.start == token.end:
                 continue
-            line_tokens.append(token)
+            result.append(token)
     except (StopIteration, TokenError):
         pass
-    if line_tokens:
+    return result
+
+
+@FeatureDefinition.register_context_preprocessor_for_token_features(
+    line_to_tokens={},
+    bigram=TokenMap()
+)
+def f(doc, context, line, ch, **_):
+    bigram = context.bigram
+    line_to_tokens = context.line_to_tokens
+
+    dirty_lines = bigram.get_dirty_lines(doc)
+    for line_number in dirty_lines:
+        line_to_tokens[line_number] = tokenize(doc[line_number])
+
+    # generate bigram
+    for line_number in dirty_lines:
+        bigram.remove_line(line_number)
+        last_token = ''
+        line_content = doc[line_number]
+        tokens = line_to_tokens[line_number]
+        for token in tokens:
+            t = token.string
+            bigram.add(line_number, line_content, (last_token, t))
+            last_token = t
+        if not tokens:
+            bigram.add_line_with_no_tokens(line_number, line_content)
+
+    context.line_tokens = line_to_tokens[line]
+    context.t1 = ''
+    if context.line_tokens:
         current_token_index = 0
         for current_token_index, token in enumerate(context.line_tokens):
-            if token.end[1] == ch + 1:
+            if token.end[1] >= ch + 1:
                 break
         if current_token_index > 0:
             context.t1 = context.line_tokens[current_token_index - 1].string
@@ -346,10 +352,10 @@ def f(doc, context, line, ch, **_):
 def f(context, line, completion, **_):
     completed_bigram = (context.t1, completion.name)
     matched_line_numbers = context.bigram.query(completed_bigram)
+
     if not matched_line_numbers:
         return MAX
     result = min(abs(l-line) for l in matched_line_numbers)
-    # print(line_content, completed_bigram, result)
     return result
 
 # @FeatureDefinition.register_feature_generator('contains_in_line')
