@@ -317,12 +317,14 @@ def tokenize(string):
     line_to_tokens={},
     dirty_map=DirtyMap(),
     t1map=TokenMap(),
-    t2map=TokenMap()
+    t2map=TokenMap(),
+    t3map=TokenMap()
 )
 def f(doc, context, line, ch, **_):
     dirty_map = context.dirty_map
     t1map = context.t1map
     t2map = context.t2map
+    t3map = context.t3map
     line_to_tokens = context.line_to_tokens
 
     # tokenize dirty lines
@@ -334,24 +336,29 @@ def f(doc, context, line, ch, **_):
         line_content = doc[line_number]
         t1map.remove_line(line_number)
         t2map.remove_line(line_number)
+        t3map.remove_line(line_number)
         dirty_map.set_clear(line_number, line_content)
 
         tokens0 = line_to_tokens.get(line_number, _EMPTY)
         tokens1 = line_to_tokens.get(line_number - 1, _EMPTY)
-        t1, t2 = '', ''
+        t1, t2, t3 = '', '', ''
         if tokens1:
             t2 = tokens1[-1]
+            if len(tokens1) > 1:
+                t3 = tokens1[-2]
         for token in tokens0:
             t0 = token.string
             t1map.add(line_number, (t1, t0))
             t2map.add(line_number, (t2, t0))
-            t2, t1 = t1, t0
+            t3map.add(line_number, (t3, t0))
+            t3, t2, t1 = t2, t1, t0
 
     # get t1, t2
     tokens0 = line_to_tokens.get(line, _EMPTY)
     tokens1 = line_to_tokens.get(line - 1, _EMPTY)
     context.t1 = ''
     context.t2 = ''
+    context.t3 = ''
     current_token_index = 0
     # t1
     if tokens0:
@@ -361,11 +368,15 @@ def f(doc, context, line, ch, **_):
         if current_token_index > 0:
             context.t1 = tokens0[current_token_index - 1].string
     # t2
-    if current_token_index > 1:
+    if current_token_index >= 2:
         context.t2 = tokens0[current_token_index - 2].string
     elif tokens1:
         context.t2 = tokens1[-1].string
-
+    # t3
+    if current_token_index >= 3:
+        context.t3 = tokens0[current_token_index - 3].string
+    elif len(tokens1) > 1:
+        context.t3 = tokens1[-2].string
 
 
 @FeatureDefinition.register_feature_generator('t1_match')
@@ -381,6 +392,16 @@ def f(context, line, completion, **_):
 @FeatureDefinition.register_feature_generator('t2_match')
 def f(context, line, completion, **_):
     bigram = (context.t2, completion.name)
+    matched_line_numbers = context.t2map.query(bigram)
+    if not matched_line_numbers:
+        return MAX
+    result = min(abs(l-line) for l in matched_line_numbers)
+    return result
+
+
+@FeatureDefinition.register_feature_generator('t3_match')
+def f(context, line, completion, **_):
+    bigram = (context.t3, completion.name)
     matched_line_numbers = context.t2map.query(bigram)
     if not matched_line_numbers:
         return MAX

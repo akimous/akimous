@@ -64,12 +64,14 @@ yarn run release
 |      | 86.04     | 1248     | 135   | 581           | **90.24** | **63.54** | 59, contains error             | 125     |
 | 7/19 |           |          |       |               |           |           | use StringIO instead of ByteIO | **118** |
 | 7/22 | **87.39** | 1255     | 128   | 581           | **90.74** | **63.90** | t2 match                       | 122     |
+|      | 87.39     | 1254     | 127   | 581           | 90.82     | 63.95     | t3 match                       | 112     |
+|      |           |          |       |               |           |           |                                |         |
 
 1. `min_samples_leaf` 30 --> 1
 
-* tri-gram (cross-line)
+* **tri-gram (cross-line)**
 * **partial matching**
-* tri-skip-gram (cross-line)
+* ~~tri-skip-gram (cross-line)~~
 * statistical frequency, bi-gram, tri-gram, skip-gram
 * **unindent**
 * ~~not, none, self, super, await, if, return, del, def, raise, import, from, as~~
@@ -77,3 +79,19 @@ yarn run release
 * float distance
 * ~~contains "error"~~
 * use different file for testing
+* first token in line is (identifier, keyword, def, if, self)
+
+## Plan
+
+1. Integrate zero character prediction (70%)
+2. Improve accuracy (80%-90%)
+3. Incompletable / full statement completion (50%)
+
+
+
+## Expected Training Time
+
+* Tiny: 5 mins
+* Small: 1 hour
+* Medium: 10 hours
+* Large: 1 day (4 cores)
