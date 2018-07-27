@@ -132,6 +132,7 @@ if __name__ == "__main__":
         with open(working_dir / 'validation_list.txt') as f:
             for file in f:
                 run_file(file)
+        feature_extractor.file_path = file
         feature_extractor.finalize()
         pickle.dump(feature_extractor, open(working_dir / 'test.pkl', 'wb'), protocol=4)
 
