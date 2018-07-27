@@ -11,11 +11,18 @@ if __name__ == "__main__":
         exit(1)
     mode = sys.argv[1]
     finished_count = 0
-    
-    for k, v in REPOS.items():
+
+    repos = REPOS
+    if mode in ('tiny', 'small'):
+        repos = {
+            'keras': REPOS['keras']
+        }
+
+    for k, v in repos.items():
+        print('Cloning', v)
         Repo.clone_from(v, WORKING_DIR / k, depth=1)
         finished_count += 1
-        if mode == 'tiny':
+        if mode in ('tiny', 'small'):
             break
         elif mode == 'medium' and finished_count == 10:
             break

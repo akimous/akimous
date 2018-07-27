@@ -6,12 +6,9 @@ from compileall import compile_file
 import random
 
 
-WORKING_DIR = Path.home() / 'chakuro'
-STATISTIC_COUNT = 100
-TRAINING_COUNT = 10
-VALIDATION_COUNT = 10
-
-random.seed(1)
+working_dir = Path.home() / 'chakuro'
+source_dir = working_dir
+random.seed(26)
 file_list = []
 
 if __name__ == "__main__":
@@ -19,7 +16,21 @@ if __name__ == "__main__":
         exit(1)
     mode = sys.argv[1]
 
-    for root, dirs, files in walk(WORKING_DIR):
+    if mode == 'tiny':
+        source_dir /= 'keras'
+        statistic_file_count, training_file_count, validation_file_count = 10, 1, 1
+    elif mode == 'small':
+        source_dir /= 'keras'
+        statistic_file_count, training_file_count, validation_file_count = 100, 10, 10
+    elif mode == 'medium':
+        statistic_file_count, training_file_count, validation_file_count = 1000, 100, 100
+    elif mode == 'large':
+        statistic_file_count, training_file_count, validation_file_count = 10000, 1000, 200
+    else:
+        print('Bad arguments')
+        exit(1)
+
+    for root, dirs, files in walk(source_dir):
         # skip hidden dirs
         if '/.' in root or '__' in root:
             continue
@@ -41,10 +52,18 @@ if __name__ == "__main__":
 
             file_list.append(file_path)
 
-    sample = random.sample(file_list, STATISTIC_COUNT + TRAINING_COUNT + VALIDATION_COUNT)
-    with open(WORKING_DIR / 'statistic_list.txt', 'w') as f:
-        f.writelines(f'{i}\n' for i in sample[:STATISTIC_COUNT])
-    with open(WORKING_DIR / 'training_list.txt', 'w') as f:
-        f.writelines(f'{i}\n' for i in sample[STATISTIC_COUNT:STATISTIC_COUNT+TRAINING_COUNT])
-    with open(WORKING_DIR / 'validation_list.txt', 'w') as f:
-        f.writelines(f'{i}\n' for i in sample[-STATISTIC_COUNT:])
+    sample = random.sample(file_list, statistic_file_count + training_file_count + validation_file_count)
+    with open(working_dir / 'statistic_list.txt', 'w') as f:
+        f.writelines(f'{i}\n' for i in sample[:statistic_file_count])
+
+    if mode == 'tiny':
+        with open(working_dir / 'training_list.txt', 'w') as f:
+            f.writelines([f'{source_dir}/keras/optimizers.py'])
+        with open(working_dir / 'validation_list.txt', 'w') as f:
+            f.writelines([f'{source_dir}/keras/models.py'])
+    else:
+        with open(working_dir / 'training_list.txt', 'w') as f:
+            f.writelines(f'{i}\n' for i in sample[statistic_file_count:statistic_file_count + training_file_count])
+        with open(working_dir / 'validation_list.txt', 'w') as f:
+            f.writelines(f'{i}\n' for i in sample[-validation_file_count:])
+

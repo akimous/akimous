@@ -95,3 +95,11 @@ yarn run release
 * Small: 1 hour
 * Medium: 10 hours
 * Large: 1 day (4 cores)
+
+## Model Building Procedure
+
+* download
+* split
+* extract_feature
+* train
+* visualize
