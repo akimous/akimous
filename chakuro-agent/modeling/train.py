@@ -43,9 +43,6 @@ if __name__ == "__main__":
             model_successful += 1
         start = end
 
-    random_successful /= len(index)
-    model_successful /= len(index)
-
     print(f'Prediction took    {time.time() - start_time}')
-    print(f'Random successful rate: {random_successful}')
-    print(f'Model successful rate : {model_successful}')
+    print(f'Random successful rate: {random_successful} / {len(index)} = {random_successful / len(index)}')
+    print(f'Model successful rate : {model_successful} / {len(index)} = {model_successful / len(index)}')

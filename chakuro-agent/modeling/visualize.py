@@ -58,6 +58,12 @@ if __name__ == "__main__":
             token_selection_start = token_selection_end
             token_selection_end = fe.index[index_i]
             t = fe.tokens[token_selection_start]
+        if len(token.string) == 1:
+            not_required += 1
+            return B.RESET + F.CYAN + token.string  # NOT REQUIRED
+        elif t.start > token.start:
+            not_available += 1
+            return B.RESET + F.BLUE + token.string  # NOT AVAILABLE
 
         selections = completions[token_selection_start:token_selection_end]
         if not selections:
@@ -65,21 +71,15 @@ if __name__ == "__main__":
         yp = predicted_prob[token_selection_start:token_selection_end]
         yi = yp.argmax()
 
-        if len(token.string) == 1:
-            not_required += 1
-            return B.RESET + F.CYAN + token.string
-        elif selections[yi] == token.string:
+        if selections[yi] == token.string:
             correct_prediction += 1
-            return B.RESET + F.GREEN + token.string
-        elif token.string not in selections:
-            not_available += 1
-            return B.RESET + F.BLUE + token.string
+            return B.RESET + F.GREEN + token.string  # CORRECT
         elif show_error:
             wrong_prediction += 1
-            return B.RESET + F.RED + token.string + B.RED + F.WHITE + selections[yi]
+            return B.RESET + F.RED + token.string + B.RED + F.WHITE + selections[yi]  # WRONG
         else:
             wrong_prediction += 1
-            return B.RESET + F.RED + token.string
+            return B.RESET + F.RED + token.string  # WRONG
 
 
     while token_i < length:
