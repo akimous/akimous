@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "chakuro-agent"
+version = "0.1.0"
+description = "Chakuro backend"
+authors = ["Yu-Ann Chen <red8012@gmail.com>"]
+license = "BSD-3-Clause"
+
+[tool.poetry.dependencies]
+python = ">=3.6"
+numpy = "^1.15"
+tqdm = "^4.24"
+colorama = "^0.3.9"
+gitpython = "^2.1"
+jedi = "^0.12.1"
+sphinx = "^1.7"
+watchdog = "^0.8.3"
+python-levenshtein = "^0.12.0"
+logzero = "^1.5"
+websockets = "^6.0"
+scikit-learn = "^0.19.0"
+pandas = "^0.23.3"
+fuzzywuzzy = "^0.16.0"
+
+[tool.poetry.dev-dependencies]
