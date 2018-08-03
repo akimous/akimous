@@ -7,6 +7,7 @@ import sys
 from tqdm import tqdm
 from offline_feature_extractor import OfflineFeatureExtractor
 from utility import p, working_dir
+# from memory_profiler import profile
 
 
 def run_file(file_path):
@@ -122,14 +123,14 @@ if __name__ == "__main__":
         feature_extractor = OfflineFeatureExtractor()
         with open(working_dir / 'training_list.txt') as f:
             for file in f:
-                run_file(file)
+                run_file(file.strip())
         feature_extractor.finalize()
         pickle.dump(feature_extractor, open(working_dir / 'train.pkl', 'wb'), protocol=4)
     if mode in ('test', 'both'):
         feature_extractor = OfflineFeatureExtractor()
         with open(working_dir / 'validation_list.txt') as f:
             for file in f:
-                run_file(file)
+                run_file(file.strip())
         feature_extractor.file_path = file
         feature_extractor.finalize()
         pickle.dump(feature_extractor, open(working_dir / 'test.pkl', 'wb'), protocol=4)

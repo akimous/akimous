@@ -1,5 +1,6 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
+from xgboost import XGBClassifier
 import pickle
 import time
 from utility import working_dir
@@ -16,11 +17,21 @@ if __name__ == "__main__":
 
     # Train the model
     start_time = time.time()
-    model = RandomForestClassifier(n_estimators=100, min_samples_leaf=1,
-                                   random_state=0, n_jobs=-1)
+    # model = RandomForestClassifier(n_estimators=100, min_samples_leaf=7,
+    #                                random_state=0, n_jobs=-1)
+    model = XGBClassifier(n_estimators=100,
+                          max_depth=4,
+                          booster='gbtree',
+                          learning_rate=0.2,
+                          colsample_bylevel=0.8,
+                          max_delta_step=1,
+                          silent=True,
+                          n_jobs=4,
+                          random_state=0)
     model.fit(X, y)
     print(f'Fitting model took {time.time() - start_time}')
-    joblib.dump(model, working_dir / 'model.model')
+    joblib.dump(model, working_dir / 'model.model', protocol=4, compress=9)
+    # joblib.dump(model, working_dir / 'model.model')
 
     # Validate the model
     start_time = time.time()

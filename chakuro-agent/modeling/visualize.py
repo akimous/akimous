@@ -17,9 +17,9 @@ if __name__ == "__main__":
     df = fe.dataframe()
 
     file_path = fe.file_path
-    with open(file_path) as f:
+    with open(file_path.strip()) as f:
         doc = f.read().splitlines()
-    with open(file_path, 'rb') as f:
+    with open(file_path.strip(), 'rb') as f:
         tokens = list(tokenize.tokenize(f.readline))
 
     token_i = 0
