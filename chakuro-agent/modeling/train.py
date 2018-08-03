@@ -1,10 +1,9 @@
-from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
 import pickle
 import time
+from utility import working_dir
 
-working_dir = Path.home() / 'chakuro'
 
 if __name__ == "__main__":
     dg = pickle.load(open(working_dir / 'train.pkl', 'rb'))

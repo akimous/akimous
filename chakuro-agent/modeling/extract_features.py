@@ -4,10 +4,9 @@ import tokenize
 import token as TOKEN
 import pickle
 import sys
-from pathlib import Path
 from tqdm import tqdm
 from offline_feature_extractor import OfflineFeatureExtractor
-from utility import p
+from utility import p, working_dir
 
 
 def run_file(file_path):
@@ -110,7 +109,6 @@ def run_file(file_path):
         print('Naive Accuracy:', sum_of_successful_rates / successful_completion_count)
 
 
-working_dir = Path.home() / 'chakuro'
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         exit(1)

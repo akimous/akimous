@@ -2,8 +2,8 @@ import sys
 import json
 from pathlib import Path
 from git import Repo
+from utility import working_dir
 
-WORKING_DIR = Path.home() / 'chakuro'
 REPOS = json.load(open(Path('../resources/repo.json')))
 
 if __name__ == "__main__":
@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     for k, v in repos.items():
         print('Cloning', v)
-        Repo.clone_from(v, WORKING_DIR / k, depth=1)
+        Repo.clone_from(v, working_dir / k, depth=1)
         finished_count += 1
         if mode in ('tiny', 'small'):
             break

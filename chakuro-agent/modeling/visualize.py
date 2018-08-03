@@ -1,14 +1,14 @@
 import pickle
 import tokenize
 import token as TOKEN
-from pathlib import Path
 from colorama import init
 from colorama import Fore as F
 from colorama import Back as B
 from sklearn.externals import joblib
+from utility import working_dir
+
 import sys
 init()
-working_dir = Path.home() / 'chakuro'
 
 if __name__ == "__main__":
     show_error = False if len(sys.argv) < 2 else bool(sys.argv[1])

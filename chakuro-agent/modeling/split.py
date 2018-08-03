@@ -4,9 +4,9 @@ from os import walk
 from logzero import logger as log
 from compileall import compile_file
 import random
+from utility import working_dir
 
 
-working_dir = Path.home() / 'chakuro'
 source_dir = working_dir
 random.seed(26)
 file_list = []
