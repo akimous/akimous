@@ -13,6 +13,7 @@ file_list = []
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
+        print('Bad arguments. Should be either tiny, small, medium or large.')
         exit(1)
     mode = sys.argv[1]
 
@@ -27,7 +28,7 @@ if __name__ == "__main__":
     elif mode == 'large':
         statistic_file_count, training_file_count, validation_file_count = 10000, 1000, 200
     else:
-        print('Bad arguments')
+        print('Bad arguments. Should be either tiny, small, medium or large.')
         exit(1)
 
     for root, dirs, files in walk(source_dir):
@@ -56,14 +57,18 @@ if __name__ == "__main__":
     with open(working_dir / 'statistic_list.txt', 'w') as f:
         f.writelines(f'{i}\n' for i in sample[:statistic_file_count])
 
+    training_list_path = working_dir / 'training_list.txt'
+    testing_list_path = working_dir / 'testing_list.txt'
     if mode == 'tiny':
-        with open(working_dir / 'training_list.txt', 'w') as f:
+        with open(training_list_path, 'w') as f:
             f.writelines([f'{source_dir}/keras/optimizers.py'])
-        with open(working_dir / 'validation_list.txt', 'w') as f:
+        with open(testing_list_path, 'w') as f:
             f.writelines([f'{source_dir}/keras/models.py'])
     else:
-        with open(working_dir / 'training_list.txt', 'w') as f:
+        with open(training_list_path, 'w') as f:
             f.writelines(f'{i}\n' for i in sample[statistic_file_count:statistic_file_count + training_file_count])
-        with open(working_dir / 'validation_list.txt', 'w') as f:
+        with open(testing_list_path, 'w') as f:
             f.writelines(f'{i}\n' for i in sample[-validation_file_count:])
 
+    log.info(f'Written to file {training_list_path}')
+    log.info(f'Written to file {testing_list_path}')

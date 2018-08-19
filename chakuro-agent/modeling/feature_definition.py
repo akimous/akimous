@@ -1,5 +1,3 @@
-import numpy as np
-import pandas as pd
 import re
 import Levenshtein
 from contextlib import suppress
@@ -7,6 +5,7 @@ from fuzzywuzzy import fuzz
 from tokenize import generate_tokens, TokenError
 from io import StringIO
 from token_map import TokenMap, DirtyMap
+from utility import p
 
 NOT_APPLICABLE = -99999
 MAX = 99999
@@ -59,13 +58,13 @@ class FeatureDefinition:
             self.name_to_feature_index[k] = i
         for i, k in enumerate(FeatureDefinition.context_features.keys()):
             self.name_to_feature_index[k] = i + self.n_token_features
-        print(self.name_to_feature_index)
+        p(self.name_to_feature_index)
 
         for name in self.name_to_feature_index.keys():
             if 'normalized' in name:
                 self.normalization_source_feature_indice.append(self.name_to_feature_index[name[:-len('_normalized')]])
                 self.normalization_target_feature_indice.append(self.name_to_feature_index[name])
-        print('Need normalization:', self.normalization_source_feature_indice, '=>',
+        p('Need normalization:', self.normalization_source_feature_indice, '=>',
               self.normalization_target_feature_indice)
 
     # def get_stack_context_info(self, completion):

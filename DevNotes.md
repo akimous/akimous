@@ -103,3 +103,16 @@ yarn run release
 * extract_feature
 * train
 * visualize
+* https://github.com/channelcat/sanic
+* https://github.com/kaxap/arl/blob/master/README-Python.md
+
+```bash
+poetry run python download.py small
+poetry run python split.py small
+# poetry run python extract_features.py both
+cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta python extract_features.py {}
+# poetry run python train.py
+poetry run python train.py single
+poetry run python visualize.py
+```
+
