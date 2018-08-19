@@ -79,10 +79,9 @@ def run_file(file_path, silent=False):
                 comp_string = comp.complete
                 comp_name = comp.name
                 actual_name = line_content[ch - 1:ch + len(comp_string)]
-
                 if len(comp_string) == 0:
                     continue
-                if comp_name == actual_name and token.string.endswith(comp_string):
+                if comp_name == actual_name and token.string == comp_name:
                     accepted_completion = comp_string
                     # add to training dataset
                     feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signatures)
