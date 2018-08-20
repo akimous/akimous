@@ -107,12 +107,22 @@ yarn run release
 * https://github.com/kaxap/arl/blob/master/README-Python.md
 
 ```bash
+gcloud compute ssh red8012@tw-1
+curl https://raw.githubusercontent.com/red8012/ServerSetupScript/master/GCE_Ubuntu_1804.sh | bash
+exit
+gcloud compute ssh red8012@tw-1
+git clone git@gitlab.com:red8012/chakuro.git
+chakuro/chakuro-agent/
+git checkout poetry
+poetry install
+modeling/
+
 poetry run python download.py small
 poetry run python split.py small
 # poetry run python extract_features.py both
-cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta python extract_features.py {}
-# poetry run python train.py
+cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta poetry run python extract_features.py {}
 poetry run python train.py single
-poetry run python visualize.py
+# poetry run python visualize.py
+gcloud compute scp red8012@tw-1:~/chakuro-working/model.model ~/chakuro-working/gce
 ```
 
