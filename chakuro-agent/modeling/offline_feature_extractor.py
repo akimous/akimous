@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from types import SimpleNamespace
+# from types import SimpleNamespace
 from feature_definition import FeatureDefinition
 from utility import p
 
@@ -20,9 +20,9 @@ class OfflineFeatureExtractor(FeatureDefinition):
         self.completions = []
         self.current_completion_start_index = 0
         self.last_token = None
-        self.context = SimpleNamespace()
-        for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
-            setattr(self.context, k, v)
+        # self.context = SimpleNamespace()
+        # for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
+        #     setattr(self.context, k, v)
 
     def add(self, token, completion, line_content, line, ch, full_doc, doc, call_signatures, positive=True):
         if len(self.y) == self.n_samples:
@@ -45,15 +45,15 @@ class OfflineFeatureExtractor(FeatureDefinition):
             for f in FeatureDefinition.preprocessors:
                 f(line_content=line_content[:ch],
                   line=line - 1, ch=ch - 1, doc=doc,
-                  full_doc=full_doc,
-                  call_signitures=call_signatures,
+                  # full_doc=full_doc,
+                  call_signatures=call_signatures,
                   completion_data_type=completion_data_type,
                   context=self.context
                   )
             for i, f in enumerate(FeatureDefinition.context_features.values()):
                 feature = f(line_content=line_content[:ch],
                             line=line - 1, ch=ch - 1, doc=doc,
-                            full_doc=full_doc,
+                            # full_doc=full_doc,
                             call_signatures=call_signatures,
                             completion_data_type=completion_data_type,
                             context=self.context
@@ -67,7 +67,7 @@ class OfflineFeatureExtractor(FeatureDefinition):
             self.sample[i] = f(completion=completion,
                                line_content=line_content[:ch],
                                line=line - 1, ch=ch - 1, doc=doc,
-                               full_doc=full_doc,
+                               # full_doc=full_doc,
                                call_signitures=call_signatures,
                                completion_data_type=completion_data_type,
                                context=self.context

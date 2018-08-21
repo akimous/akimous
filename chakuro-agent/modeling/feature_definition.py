@@ -1,11 +1,13 @@
 import re
+from types import SimpleNamespace
+
 import Levenshtein
 from contextlib import suppress
 from fuzzywuzzy import fuzz
 from tokenize import generate_tokens, TokenError
 from io import StringIO
-from token_map import TokenMap, DirtyMap
-from utility import p
+from modeling.token_map import TokenMap, DirtyMap
+from modeling.utility import p
 
 NOT_APPLICABLE = -99999
 MAX = 99999
@@ -46,6 +48,7 @@ class FeatureDefinition:
         return inner
 
     def __init__(self):
+        self.context = SimpleNamespace()
         self.n_context_features = len(FeatureDefinition.context_features)
         self.n_token_features = len(FeatureDefinition.token_features)
         self.n_features = self.n_context_features + self.n_token_features
@@ -66,6 +69,8 @@ class FeatureDefinition:
                 self.normalization_target_feature_indice.append(self.name_to_feature_index[name])
         p('Need normalization:', self.normalization_source_feature_indice, '=>',
               self.normalization_target_feature_indice)
+        for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
+            setattr(self.context, k, v)
 
     # def get_stack_context_info(self, completion):
     #     '''

@@ -14,8 +14,7 @@ feature_extractor = OnlineFeatureExtractor()
 doc_generator = DocGenerator()
 
 register = partial(WS.register, 'editor')
-# MODEL_PATH = '/Users/ray/Code/Working/train10.model'
-MODEL_PATH = './resources/v1.model'
+MODEL_PATH = './resources/v2.model'
 model = joblib.load(Path(MODEL_PATH))
 model.n_jobs = 1
 log.info(f'Model {MODEL_PATH} loaded, n_jobs={model.n_jobs}')
