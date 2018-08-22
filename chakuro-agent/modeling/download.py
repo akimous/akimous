@@ -2,9 +2,9 @@ import sys
 import json
 from pathlib import Path
 from git import Repo
-from utility import working_dir
+from .utility import working_dir
 
-REPOS = json.load(open(Path('../resources/repo.json')))
+REPOS = json.load(open(Path('resources/repo.json')))
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

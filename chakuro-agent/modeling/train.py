@@ -3,7 +3,7 @@ from sklearn.externals import joblib
 from xgboost import XGBClassifier
 import pickle
 import time
-from utility import working_dir, sha3
+from .utility import working_dir, sha3
 from logzero import logger as log
 import sys
 import numpy as np

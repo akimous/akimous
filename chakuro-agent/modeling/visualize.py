@@ -5,7 +5,7 @@ from colorama import init
 from colorama import Fore as F
 from colorama import Back as B
 from sklearn.externals import joblib
-from utility import working_dir
+from .utility import working_dir
 
 import sys
 init()

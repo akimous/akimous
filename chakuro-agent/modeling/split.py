@@ -4,7 +4,7 @@ from os import walk
 from logzero import logger as log
 from compileall import compile_file
 import random
-from utility import working_dir
+from .utility import working_dir
 
 
 source_dir = working_dir

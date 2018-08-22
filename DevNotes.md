@@ -117,11 +117,11 @@ git checkout poetry
 poetry install
 modeling/
 
-poetry run python download.py small
-poetry run python split.py small
+poetry run python -m modeling.download small
+poetry run python -m modeling.split small
 # poetry run python extract_features.py both
-cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta poetry run python extract_features.py {}
-poetry run python train.py single
+cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta poetry run python -m modeling.extract_features {}
+poetry run python -m modeling.train single
 # poetry run python visualize.py
 gcloud compute scp red8012@tw-1:~/chakuro-working/model.model ~/chakuro-working/gce
 ```

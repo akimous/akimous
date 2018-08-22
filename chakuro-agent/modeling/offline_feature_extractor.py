@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 # from types import SimpleNamespace
-from feature_definition import FeatureDefinition
-from utility import p
+from .feature_definition import FeatureDefinition
+from .utility import p
 
 INITIAL_SIZE = 1
 

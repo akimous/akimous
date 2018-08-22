@@ -5,8 +5,8 @@ import token as TOKEN
 import pickle
 import sys
 from tqdm import tqdm
-from offline_feature_extractor import OfflineFeatureExtractor
-from utility import p, working_dir, sha3
+from .offline_feature_extractor import OfflineFeatureExtractor
+from .utility import p, working_dir, sha3
 import logzero
 from logzero import logger as log
 import logging

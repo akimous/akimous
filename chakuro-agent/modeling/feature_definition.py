@@ -6,8 +6,8 @@ from contextlib import suppress
 from fuzzywuzzy import fuzz
 from tokenize import generate_tokens, TokenError
 from io import StringIO
-from modeling.token_map import TokenMap, DirtyMap
-from modeling.utility import p
+from .token_map import TokenMap, DirtyMap
+from .utility import p
 
 NOT_APPLICABLE = -99999
 MAX = 99999
