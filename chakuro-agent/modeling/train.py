@@ -68,13 +68,12 @@ if __name__ == "__main__":
     # model = RandomForestClassifier(n_estimators=100, min_samples_leaf=7,
     #                                random_state=0, n_jobs=-1)
     model = XGBClassifier(n_estimators=100,
-                          max_depth=4,
+                          max_depth=5,
                           booster='gbtree',
                           learning_rate=0.2,
                           colsample_bylevel=0.8,
-                          max_delta_step=1,
                           silent=True,
-                          n_jobs=4,
+                          n_jobs=8,
                           random_state=0)
     model.fit(X, y)
     log.info(f'Fitting model took {time.time() - start_time}')
