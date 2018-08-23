@@ -32,11 +32,14 @@ if __name__ == "__main__":
                 name = name.strip()
                 if not name:
                     break
-                dg = pickle.load(open(working_dir / 'extraction' / f'{sha3(name)}.pkl', 'rb'))
-                Xs.append(dg.X)
-                ys.append(dg.y)
-                old_length = 0 if not train_indices else train_indices[-1]
-                train_indices.extend(i + old_length for i in dg.index)
+                try:
+                    dg = pickle.load(open(working_dir / 'extraction' / f'{sha3(name)}.pkl', 'rb'))
+                    Xs.append(dg.X)
+                    ys.append(dg.y)
+                    old_length = 0 if not train_indices else train_indices[-1]
+                    train_indices.extend(i + old_length for i in dg.index)
+                except FileNotFoundError:
+                    log.warn(f'Not found {name}: {sha3(name)}')
         X = np.concatenate(Xs)
         y = np.concatenate(ys)
         Xs, ys = [], []
