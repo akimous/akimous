@@ -1,0 +1,11 @@
+{
+  "ansible": "https://github.com/ansible/ansible.git",
+  "django": "https://github.com/django/django.git",
+  "flask": "https://github.com/pallets/flask.git",
+  "keras": "https://github.com/keras-team/keras.git",
+  "requests": "https://github.com/requests/requests.git",
+  "scikit-learn": "https://github.com/scikit-learn/scikit-learn.git",
+  "scrapy": "https://github.com/scrapy/scrapy.git",
+  "tensorflow": "https://github.com/tensorflow/tensorflow.git",
+  "youtube-dl": "https://github.com/rg3/youtube-dl.git"
+}

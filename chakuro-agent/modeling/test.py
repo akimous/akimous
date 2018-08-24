@@ -1,17 +1,10 @@
-aaa = 1
-aaa = {'dict': [int(True)]}
-is_good = True
-is_good = False
+def weights(self):
+    raise NotImplementedError
 
-has_apple = True
-has_apple = False
-is_good = len(aaa)
 
-for i in range(is_good):
-    pass
+def get_config(self):
+    raise NotImplementedError
 
-pineapple = 10
-def apple(banana):
-    pass
-_ = apple(pineapple)
 
+def from_config(self, config):
+    raise NotImplementedError

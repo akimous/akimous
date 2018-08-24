@@ -13,26 +13,35 @@ class OnlineFeatureExtractor(FeatureDefinition):
         self.completions = []
         self.current_completion_start_index = 0
         self.last_token = None
-        self.stack_context_info = self.get_stack_context_info(None)
+        # self.stack_context_info = self.get_stack_context_info(None)
         
-    def extract_online(self, completions, line_content, line, ch, doc, call_signitures):
+    def extract_online(self, completions, line_content, line, ch, doc, call_signatures):
         self.reset(len(completions))
         
         # context features
         completion = completions[0]
-        self.stack_context_info = self.get_stack_context_info(completion)
+        # self.stack_context_info = self.get_stack_context_info(completion)
         completion_data_type = 'unknown'
         if completion.type == 'instance':
             definitions = completion.follow_definition()
             if definitions:
                 completion_data_type = definitions[0].name
-                
+
+        for f in FeatureDefinition.preprocessors:
+            f(line_content=line_content[:ch],
+              line=line - 1, ch=ch - 1, doc=doc,
+              call_signatures=call_signatures,
+              completion_data_type=completion_data_type,
+              context=self.context
+              )
         for i, f in enumerate(FeatureDefinition.context_features.values()):
             feature = f(line_content=line_content[:ch],
                         line=line-1, ch=ch, doc=doc,
-                        call_signitures=call_signitures,
+                        call_signatures=call_signatures,
                         completion_data_type=completion_data_type,
-                        stack_context_info=self.stack_context_info)
+                        context=self.context
+                        # stack_context_info=self.stack_context_info
+                        )
             self.sample[i+len(FeatureDefinition.token_features)] = feature
             
         # completion features
@@ -41,9 +50,11 @@ class OnlineFeatureExtractor(FeatureDefinition):
                 self.sample[i] = f(completion=completion,
                                    line_content=line_content[:ch],
                                    line=line-1, ch=ch, doc=doc,
-                                   call_signitures=call_signitures,
+                                   call_signatures=call_signatures,
                                    completion_data_type=completion_data_type,
-                                   stack_context_info=self.stack_context_info)
+                                   context=self.context
+                                   # stack_context_info=self.stack_context_info
+                                   )
             self.X[self.n_samples] = self.sample
             self.n_samples += 1
             

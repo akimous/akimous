@@ -2,27 +2,24 @@ import jedi
 import time
 import tokenize
 import token as TOKEN
-import numpy as np
-import pandas as pd
 import pickle
-import random
+import sys
 from tqdm import tqdm
-from os import walk, path
-from compileall import compile_file
+from .offline_feature_extractor import OfflineFeatureExtractor
+from .utility import p, working_dir, sha3
+import logzero
 from logzero import logger as log
-
-from offline_feature_extractor import OfflineFeatureExtractor
-from utility import p, WORKING_DIR
-
-feature_extractor = OfflineFeatureExtractor()
+import logging
+# from memory_profiler import profile
 
 
-def run_file(file_path):
+def run_file(file_path, silent=False):
     with open(file_path) as f:
         doc = f.read()
     doc_lines = doc.splitlines()
     line_count = len(doc_lines)
-    print('Line count:', line_count)
+    print(f'Processing file: {file_path}')
+    log.info(f'Line count: {line_count}')
 
     def get_token(line, ch):
         line_tokens = tokens[line]
@@ -48,17 +45,15 @@ def run_file(file_path):
     sum_of_successful_rates = 0.
 
     start_time = time.time()
-    for line in tqdm(range(1, line_count + 1)):
+    for line in tqdm(range(1, line_count + 1), disable=silent):
         line_content = doc_lines[line - 1]
         line_length = len(line_content)
-        # subdoc += line_content + '\n'
         p('line:', line_content)
 
         while ch < line_length:
             if not line_content[ch - 1].isalnum():
                 ch += 1
                 continue
-
             token = get_token(line, ch)
             if token is None:
                 ch += 1
@@ -66,7 +61,6 @@ def run_file(file_path):
             elif token.type is not TOKEN.NAME:
                 ch = token.end[1] + 1
                 continue
-
             p('>', line, ch, line_content[ch:], end=' ')
 
             try:
@@ -85,10 +79,9 @@ def run_file(file_path):
                 comp_string = comp.complete
                 comp_name = comp.name
                 actual_name = line_content[ch - 1:ch + len(comp_string)]
-
                 if len(comp_string) == 0:
                     continue
-                if comp_name == actual_name and token.string.endswith(comp_string):
+                if comp_name == actual_name and token.string == comp_name:
                     accepted_completion = comp_string
                     # add to training dataset
                     feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signatures)
@@ -112,71 +105,44 @@ def run_file(file_path):
                 failed_completion_count += 1
         ch = 1
         subdoc += line_content + '\n'
-    print('time:', time.time() - start_time)
-    print('successful:', successful_completion_count)
-    print('failed:', failed_completion_count)
+    log.info(f'Time: {time.time() - start_time}')
+    log.info(f'Successful: {successful_completion_count}')
+    log.info(f'Failed: {failed_completion_count}')
     if successful_completion_count > 0:
-        print('prediction successful rate:', sum_of_successful_rates / successful_completion_count)
+        log.info(f'Naive Accuracy: {sum_of_successful_rates / successful_completion_count}')
 
 
-print('Context features:', len(feature_extractor.context_features))
-print('Token features:', len(feature_extractor.token_features))
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print('Bad arguments. Should be either train, test, both or a path to a Python file.')
+        exit(1)
+    target = sys.argv[1]
 
-# Run test file
-# run_file('test.py')
-# feature_extractor.finalize()
-# pickle.dump(feature_extractor, open('/Users/ray/Code/Working/good.pkl', 'wb'), protocol=4)
-# pd.set_option('display.max_rows', 500000)
-# print(feature_extractor.dataframe()[['c', 'y', 'bigram_distance']])
-
-# Run single file
-run_file('/Users/ray/Code/Working/keras/keras/optimizers.py')
-feature_extractor.finalize()
-pickle.dump(feature_extractor, open('/Users/ray/Code/Working/single.pkl', 'wb'), protocol=4)
-# pd.set_option('display.max_rows', 500000)
-# print(feature_extractor.dataframe()[['c', 'y', 'bigram_distance']])
-
-# Process sanic
-# for root, dirs, files in walk('/Users/ray/Code/Working/repos/sanic/sanic'):
-#     for i, file_name in enumerate(files):
-#         file_path = path.join(root, file_name)
-#         print(f'Processing file ({i} / {len(files)}):', file_path)
-#         run_file(file_path)
-
-# feature_extractor.finalize()
-# pickle.dump(feature_extractor, open('/Users/ray/Code/Working/dataset3.pkl', 'wb'))
-
-
-# # Process all
-# random.seed(0)
-# processed_file_count = 0
-# file_list = []
-# for root, dirs, files in walk(WORKING_DIR + 'repos/'):
-#     # skip hidden dirs
-#     if '/.' in root or '__' in root:
-#         continue
-#     if files: 
-#         log.info(f'Scanning dir: {root}')
-#     for i, file_name in enumerate(files):
-#         if not file_name.endswith('.py'):
-#             continue
-#         file_path = path.join(root, file_name)
-#         # skip badly-sized files
-#         if not 100 < path.getsize(file_path) < 100_000:
-#             continue
-#         # skip Python 2 files
-#         if not compile_file(file_path, quiet=2):
-#             log.warn(f'Skipping file: {file_path}')
-#             continue
-#         # skip a percentage of files    
-#         if random.random() < 0.95:
-#             continue
-#         file_list.append(file_path)
-
-# for file_path in file_list: 
-#     processed_file_count += 1
-#     log.info(f'Processing file ({processed_file_count:04}/{len(file_list)}): {file_path}')
-#     run_file(file_path)
-
-# feature_extractor.finalize()
-# pickle.dump(feature_extractor, open('/Users/ray/Code/Working/dataset4.pkl', 'wb'))
+    if target in ('train', 'both'):
+        feature_extractor = OfflineFeatureExtractor()
+        with open(working_dir / 'training_list.txt') as f:
+            for file in f:
+                run_file(file.strip())
+        feature_extractor.finalize()
+        pickle.dump(feature_extractor, open(working_dir / 'train.pkl', 'wb'), protocol=4)
+    if target in ('test', 'both'):
+        feature_extractor = OfflineFeatureExtractor()
+        with open(working_dir / 'testing_list.txt') as f:
+            for file in f:
+                run_file(file.strip())
+        feature_extractor.file_path = file
+        feature_extractor.finalize()
+        pickle.dump(feature_extractor, open(working_dir / 'test.pkl', 'wb'), protocol=4)
+    if target not in ('train', 'test', 'both'):
+        logzero.loglevel(logging.WARNING)
+        feature_extractor = OfflineFeatureExtractor()
+        file = target.strip()
+        run_file(file, silent=True)
+        feature_extractor.finalize()
+        extraction_path = working_dir / 'extraction'
+        extraction_path.mkdir(exist_ok=True)
+        pickle.dump(feature_extractor,
+                    open(extraction_path / f'{sha3(file)}.pkl', 'wb'),
+                    protocol=4)
+    log.info(f'Context features: {len(feature_extractor.context_features)}')
+    log.info(f'Token features: {len(feature_extractor.token_features)}')
