@@ -204,14 +204,44 @@ for name, regex in REGEX.items():
     def f(completion, regex=regex, **_):
         return 1 if regex.fullmatch(completion.name) else 0
 
-
+# from keyword.kwlist, total 33
 KEYWORDS = (
-    'not', 'None', 'self', 'super', 'if', 'else', 'elif', 'return',
-    'del', 'def', 'raise', 'import', 'from', 'as', 'break', 'continue'
-    # TODO: use keyword.kwlist
+    'False',
+    'None',
+    'True',
+    'and',
+    'as',
+    'assert',
+    'break',
+    'class',
+    'continue',
+    'def',
+    'del',
+    'elif',
+    'else',
+    'except',
+    'finally',
+    'for',
+    'from',
+    'global',
+    'if',
+    'import',
+    'in',
+    'is',
+    'lambda',
+    'nonlocal',
+    'not',
+    'or',
+    'pass',
+    'raise',
+    'return',
+    'try',
+    'while',
+    'with',
+    'yield'
 )
 for keyword in KEYWORDS:
-    @FeatureDefinition.register_feature_generator('is_' + keyword)
+    @FeatureDefinition.register_feature_generator('kw_' + keyword)
     def f(completion, keyword=keyword, **_):
         return int(completion.name == keyword)
 
