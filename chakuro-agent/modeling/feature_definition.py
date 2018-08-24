@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import Levenshtein
 from contextlib import suppress
 from fuzzywuzzy import fuzz
+from collections import OrderedDict
 from tokenize import generate_tokens, TokenError
 from io import StringIO
 from .token_map import TokenMap, DirtyMap
@@ -19,10 +20,10 @@ _EMPTY = tuple()
 
 
 class FeatureDefinition:
-    context_features = {}
+    context_features = OrderedDict()
     preprocessors = []
-    context_names_required_by_preprocessors = {}
-    token_features = {}
+    context_names_required_by_preprocessors = OrderedDict()
+    token_features = OrderedDict()
 
     @staticmethod
     def register_feature_generator(feature_name, is_context_feature=False):
@@ -39,10 +40,10 @@ class FeatureDefinition:
     def register_context_preprocessor_for_token_features(**context_names):
         def inner(f):
             FeatureDefinition.preprocessors.append(f)
-            FeatureDefinition.context_names_required_by_preprocessors = {
+            FeatureDefinition.context_names_required_by_preprocessors = OrderedDict(
                 **FeatureDefinition.context_names_required_by_preprocessors,
                 **context_names
-            }
+            )
             return f
 
         return inner
@@ -54,7 +55,7 @@ class FeatureDefinition:
         self.n_features = self.n_context_features + self.n_token_features
         # self.stack_context_info = self.get_stack_context_info(None)
 
-        self.name_to_feature_index = {}
+        self.name_to_feature_index = OrderedDict()
         self.normalization_source_feature_indice = []
         self.normalization_target_feature_indice = []
         for i, k in enumerate(FeatureDefinition.token_features.keys()):
@@ -130,7 +131,7 @@ class FeatureDefinition:
 
     def normalize_feature(self):
         data = self.X[self.current_completion_start_index:self.n_samples,
-               self.normalization_source_feature_indice]
+                      self.normalization_source_feature_indice]
         for i in range(data.shape[1]):
             column = data[:, i]
             mask = column > NOT_APPLICABLE
@@ -141,7 +142,7 @@ class FeatureDefinition:
             data[mask, i] = (masked_values - masked_values.mean()) / masked_values.std() * SIGMA_SCALING_FACTOR
 
         self.X[self.current_completion_start_index:self.n_samples,
-        self.normalization_target_feature_indice] = data
+               self.normalization_target_feature_indice] = data
 
 
 # ch: 0-based
@@ -207,6 +208,7 @@ for name, regex in REGEX.items():
 KEYWORDS = (
     'not', 'None', 'self', 'super', 'if', 'else', 'elif', 'return',
     'del', 'def', 'raise', 'import', 'from', 'as', 'break', 'continue'
+    # TODO: use keyword.kwlist
 )
 for keyword in KEYWORDS:
     @FeatureDefinition.register_feature_generator('is_' + keyword)

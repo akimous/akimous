@@ -1,5 +1,7 @@
 import numpy as np
 from modeling.feature_definition import FeatureDefinition
+from modeling.utility import p, to_key_value_columns
+
 
 class OnlineFeatureExtractor(FeatureDefinition):
     def reset(self, initial_size=1):
@@ -57,5 +59,6 @@ class OnlineFeatureExtractor(FeatureDefinition):
                                    )
             self.X[self.n_samples] = self.sample
             self.n_samples += 1
-            
+            p('=' * 40 + f' {completion.name} ' + '=' * 40)
+            p(to_key_value_columns(self.name_to_feature_index.keys(), self.sample))
         self.normalize_feature()

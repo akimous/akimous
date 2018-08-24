@@ -99,7 +99,7 @@ async def predict(msg, send, context):
         context.currentCompletions = {
             completion.name: completion for completion in completions
         }
-        feature_extractor.extract_online(completions, line_content, line_number, ch, doc, j.call_signatures())
+        feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc, j.call_signatures())
         scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
         result = [
             {
