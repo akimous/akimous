@@ -8,12 +8,12 @@
     "license": "MIT",
     "private": true,
     "devDependencies": {
-        "autoprefixer": "^9.1.2",
+        "autoprefixer": "^9.1.3",
         "babel-core": "6.26.3",
         "babel-minify": "^0.4.3",
         "babel-plugin-transform-remove-console": "^6.9.4",
         "browser-sync": "^2.24.6",
-        "browserslist": "^4.0.2",
+        "browserslist": "^4.1.0",
         "cloc": "^2.3.3",
         "codemirror": "^5.39.2",
         "css-element-queries": "^1.0.2",
@@ -34,7 +34,7 @@
         "rollup-plugin-sizes": "^0.4.2",
         "rollup-plugin-svelte": "^4.2.1",
         "sortablejs": "^1.7.0",
-        "svelte": "^2.11.0",
+        "svelte": "^2.12.0",
         "xterm": "^3.6.0"
     },
     "dependencies": {},
