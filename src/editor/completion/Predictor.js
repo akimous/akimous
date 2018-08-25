@@ -17,11 +17,11 @@ class Predictor {
         this.lineContent = ''
     }
 
-    send(lineContent, line, ch) {
+    send(lineContent, line, ch, triggerdCharOffset) {
         if (!this.enabled) return
         this.startTime = performance.now()
         this.firstTriggeredCharPos.line = line
-        this.firstTriggeredCharPos.ch = ch - 1
+        this.firstTriggeredCharPos.ch = ch + triggerdCharOffset
         this.lineContent = lineContent
         this.editor.ws.send({
             cmd: 'predict',
@@ -50,14 +50,21 @@ class Predictor {
             })
         this.sort(input)
         this.completion.setCompletions(this.currentCompletions)
-        this.completion.repositionCompletionWindow()
+        this.completion.repositionCompletionWindow(this.firstTriggeredCharPos)
     }
 
     sort(input) {
-        this.sorter.setInput(input)
-        for (let i of this.currentCompletions) {
-            i.sortScore = this.sorter.score(i.c) * 10
-            i.highlight = this.sorter.highlight()
+        if (!input) { // for prediction immediately after dot
+            this.currentCompletions.forEach(i => {
+                i.sortScore = 1
+                i.highlight = i.c
+            })
+        } else {
+            this.sorter.setInput(input)
+            for (let i of this.currentCompletions) {
+                i.sortScore = this.sorter.score(i.c) * 10
+                i.highlight = this.sorter.highlight()
+            }
         }
         this.currentCompletions.sort((a, b) => b.sortScore - a.sortScore + b.s - a.s)
         if (Predictor.debug) console.log('Predictor.sort', this.currentCompletions)

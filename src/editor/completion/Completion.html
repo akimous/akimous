@@ -156,12 +156,12 @@
                     open: false
                 })
             },
-            repositionCompletionWindow() {
+            repositionCompletionWindow(pos) {
                 const editorElement = this.editor.refs.codeEditor
                 const completionElement = this.refs.completion
 
                 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                const coords = this.cm.charCoords(this.predictor.firstTriggeredCharPos, 'window')
+                const coords = this.cm.charCoords(pos, 'window')
                 const charHeight = coords.bottom - coords.top
 
                 const editorArea = editorElement.getBoundingClientRect()

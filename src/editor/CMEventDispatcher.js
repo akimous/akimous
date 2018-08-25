@@ -143,25 +143,28 @@ class CMEventDispatcher {
                         }
                         if (!cm.somethingSelected())
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
-                        const isInputAlphanumericOrUnderscore = /[A-Za-z0-9_]/.test(inputChar)
-                        const isFirstLetter = isInputAlphanumericOrUnderscore && (
-                            cursor.ch === 0 ||
-                            !/[A-Za-z0-9_]/.test(lineContent.charAt(cursor.ch - 1))
-                        )
-
+                        
+                        const isInputDot = /\./.test(inputChar)
+                        const inputShouldTriggerPrediction = t0.type !== 'number' &&
+                            (
+                                (/[A-Za-z_]/.test(inputChar) && !completion.get().open) || isInputDot
+                            )
                         // handle completion and predictions
-                        if (isFirstLetter) {
+                        if (inputShouldTriggerPrediction) {
                             const lineContentAfterInput = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
                             predictor.send(
                                 lineContentAfterInput,
                                 cursor.line,
-                                cursor.ch + inputAfterFormatting.length
+                                cursor.ch + inputAfterFormatting.length,
+                                -(!isInputDot)
                             )
                             const currentTokenType = cm.getTokenTypeAt(cursor)
                             if (currentTokenType === 'string' ||
                                 currentTokenType === 'comment' ||
                                 t1.string === 'for' // for var_name in ... should not complete var_name
-                            ) completion.passive = true
+                            ) {
+                                completion.passive = true
+                            }
                             else completion.passive = forcePassiveCompletion
                         } else if (predictor.currentCompletions) {
                             const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch) + c.text[0]
