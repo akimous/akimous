@@ -5,18 +5,25 @@ from colorama import init
 from colorama import Fore as F
 from colorama import Back as B
 from sklearn.externals import joblib
-from .utility import working_dir
+
+from modeling.utility import sha3, working_dir
 
 import sys
 init()
 
 if __name__ == "__main__":
-    show_error = False if len(sys.argv) < 2 else bool(sys.argv[1])
+    if len(sys.argv) < 2:
+        print('Usage: \npython visualize.py /path/to/single/pickle [show_error]')
+    file_path = sys.argv[1]
+    show_error = False if len(sys.argv) < 3 else bool(sys.argv[2])
     model = joblib.load(working_dir / 'model.model')
-    fe = pickle.load(open(working_dir / 'test.pkl', 'rb'))
+    pickle_path = working_dir / 'extraction' / f'{sha3(file_path)}.pkl'
+
+    print(f'loading {file_path}')
+    print(f'loading {pickle_path}')
+    fe = pickle.load(open(pickle_path, 'rb'))
     df = fe.dataframe()
 
-    file_path = fe.file_path
     with open(file_path.strip()) as f:
         doc = f.read().splitlines()
     with open(file_path.strip(), 'rb') as f:
@@ -53,7 +60,7 @@ if __name__ == "__main__":
         token_selection_end = fe.index[index_i]
         t = fe.tokens[token_selection_start]
 
-        while t.start < token.start:
+        while t.start < token.start and index_i + 1 < len(fe.index):
             index_i += 1
             token_selection_start = token_selection_end
             token_selection_end = fe.index[index_i]

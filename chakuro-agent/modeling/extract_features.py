@@ -13,7 +13,7 @@ import logging
 # from memory_profiler import profile
 
 
-def run_file(file_path, silent=False):
+def run_file(file_path, silent=False, zero_length_prediction=False):
     with open(file_path) as f:
         doc = f.read()
     doc_lines = doc.splitlines()
@@ -117,6 +117,9 @@ if __name__ == "__main__":
         print('Bad arguments. Should be either train, test, both or a path to a Python file.')
         exit(1)
     target = sys.argv[1]
+    zero_length_prediction = True
+    if len(sys.argv) < 3 or not bool(sys.argv[2]):
+        zero_length_prediction = False
 
     if target in ('train', 'both'):
         feature_extractor = OfflineFeatureExtractor()

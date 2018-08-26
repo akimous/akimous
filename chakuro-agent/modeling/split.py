@@ -61,9 +61,9 @@ if __name__ == "__main__":
     testing_list_path = working_dir / 'testing_list.txt'
     if mode == 'tiny':
         with open(training_list_path, 'w') as f:
-            f.writelines([f'{source_dir}/keras/optimizers.py'])
+            f.writelines([f'{source_dir}/keras/optimizers.py\n'])
         with open(testing_list_path, 'w') as f:
-            f.writelines([f'{source_dir}/keras/models.py'])
+            f.writelines([f'{source_dir}/keras/models.py\n'])
     else:
         with open(training_list_path, 'w') as f:
             f.writelines(f'{i}\n' for i in sample[statistic_file_count:statistic_file_count + training_file_count])

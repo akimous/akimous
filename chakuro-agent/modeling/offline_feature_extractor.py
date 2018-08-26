@@ -40,7 +40,6 @@ class OfflineFeatureExtractor(FeatureDefinition):
                 completion_data_type = definitions[0].name
 
         if id(self.last_token) != id(token):
-            p('filling context features')
             # self.stack_context_info = self.get_stack_context_info(completion)
             for f in FeatureDefinition.preprocessors:
                 f(line_content=line_content[:ch],
