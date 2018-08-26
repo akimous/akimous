@@ -15,7 +15,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print('Usage: \npython visualize.py /path/to/single/pickle [show_error]')
     file_path = sys.argv[1]
-    show_error = False if len(sys.argv) < 3 else bool(sys.argv[2])
+    show_error = False if len(sys.argv) < 3 else bool(int(sys.argv[2]))
     model = joblib.load(working_dir / 'model.model')
     pickle_path = working_dir / 'extraction' / f'{sha3(file_path)}.pkl'
 

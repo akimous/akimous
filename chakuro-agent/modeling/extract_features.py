@@ -51,18 +51,20 @@ def run_file(file_path, silent=False, zero_length_prediction=False):
         p('line:', line_content)
 
         while ch < line_length:
-            if not line_content[ch - 1].isalnum():
+            should_skip = not line_content[ch - 1].isalnum()
+            if zero_length_prediction and line_content[ch - 1] == '.':
+                should_skip = False
+            if should_skip:
                 ch += 1
                 continue
-            token = get_token(line, ch)
+            token = get_token(line, ch + 1)
             if token is None:
                 ch += 1
                 continue
             elif token.type is not TOKEN.NAME:
                 ch = token.end[1] + 1
                 continue
-            p('>', line, ch, line_content[ch:], end=' ')
-
+            # p('>', line, ch, line_content[ch:], end=' ')
             try:
                 real_doc_lines = doc_lines[:line]
                 real_doc_lines[line - 1] = real_doc_lines[line - 1][:ch]
@@ -78,10 +80,11 @@ def run_file(file_path, silent=False, zero_length_prediction=False):
             for comp in completions:
                 comp_string = comp.complete
                 comp_name = comp.name
-                actual_name = line_content[ch - 1:ch + len(comp_string)]
+                # actual_name = line_content[ch - 1:ch + len(comp_string)]
                 if len(comp_string) == 0:
                     continue
-                if comp_name == actual_name and token.string == comp_name:
+                # if comp_name == actual_name and token.string == comp_name:
+                if comp_name == token.string:
                     accepted_completion = comp_string
                     # add to training dataset
                     feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signatures)
@@ -95,7 +98,7 @@ def run_file(file_path, silent=False, zero_length_prediction=False):
                 sum_of_successful_rates += 1 / len(completions)
                 if token.type is not TOKEN.NAME:
                     p(f'\n-----(token is not Name)[{token.string}][{line_content[ch-1]}]', end=' ')
-                p(f'(O: {comp_string} {token.string})')
+                p(f'(O: {token.string})')
             else:
                 token = get_token(line, ch)
                 if token is not None:
@@ -118,7 +121,7 @@ if __name__ == "__main__":
         exit(1)
     target = sys.argv[1]
     zero_length_prediction = True
-    if len(sys.argv) < 3 or not bool(sys.argv[2]):
+    if len(sys.argv) < 3 or not bool(int(sys.argv[2])):
         zero_length_prediction = False
 
     if target in ('train', 'both'):
@@ -140,7 +143,7 @@ if __name__ == "__main__":
         logzero.loglevel(logging.WARNING)
         feature_extractor = OfflineFeatureExtractor()
         file = target.strip()
-        run_file(file, silent=True)
+        run_file(file, silent=True, zero_length_prediction=zero_length_prediction)
         feature_extractor.finalize()
         extraction_path = working_dir / 'extraction'
         extraction_path.mkdir(exist_ok=True)
