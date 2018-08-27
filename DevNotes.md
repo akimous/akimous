@@ -119,12 +119,13 @@ screen
 
 poetry run python -m modeling.download small
 poetry run python -m modeling.split small
-cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta --memfree 2G --nice 17 poetry run python -m modeling.extract_features {}
+cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta --memfree 2G --nice 17 poetry run python -m modeling.extract_features {} 1
 poetry run python -m modeling.train single
 # poetry run python visualize.py
 gcloud compute scp red8012@tw-1:~/chakuro-working/model.model ~/chakuro-working/gce
 
 
-
+cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta --nice 17 python -m modeling.extract_features {} 1
+python -m modeling.extract_features /Users/ray/chakuro-working/keras/examples/mnist_siamese.py 1
 ```
 

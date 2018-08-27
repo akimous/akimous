@@ -77,9 +77,14 @@ def run_file(file_path, silent=False, zero_length_prediction=False):
 
             accepted_completion = None
             call_signatures = script.call_signatures()
+
+            deduplication_set = set()
             for comp in completions:
                 comp_string = comp.complete
                 comp_name = comp.name
+                if comp_name in deduplication_set:
+                    continue
+                deduplication_set.add(comp_name)
                 # actual_name = line_content[ch - 1:ch + len(comp_string)]
                 if len(comp_string) == 0:
                     continue
