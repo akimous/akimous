@@ -14,7 +14,7 @@ feature_extractor = OnlineFeatureExtractor()
 doc_generator = DocGenerator()
 
 register = partial(WS.register, 'editor')
-MODEL_PATH = './resources/v4.model'
+MODEL_PATH = './resources/v5.model'
 model = joblib.load(Path(MODEL_PATH))
 model.n_jobs = 1
 log.info(f'Model {MODEL_PATH} loaded, n_jobs={model.n_jobs}')
