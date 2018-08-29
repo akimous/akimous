@@ -78,8 +78,6 @@ yarn run release
 
 
 
-1. `min_samples_leaf` 30 --> 1
-
 * **tri-gram (cross-line)**
 * **partial matching**
 * ~~tri-skip-gram (cross-line)~~
@@ -89,7 +87,7 @@ yarn run release
 * ~~is keyword~~
 * float distance
 * ~~contains "error"~~
-* use different file for testing
+* ~~use different file for testing~~
 * first token in line is (identifier, keyword, def, if, self)
 
 ## Plan

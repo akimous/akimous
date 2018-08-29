@@ -197,7 +197,9 @@ for s in CONTAINS_STRING:
 REGEX = {
     'is': re.compile(r'^(is|are|IS|ARE).*'),
     'has': re.compile(r'^(has|have|HAS|HAVE).*'),
-    'error': re.compile(r'.*Error$')
+    'error': re.compile(r'.*Error$'),
+    'starts_with__': re.compile(r'^_.*'),
+    'starts_with___': re.compile(r'^__.*'),
 }
 for name, regex in REGEX.items():
     @FeatureDefinition.register_feature_generator(name)
