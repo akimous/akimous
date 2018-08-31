@@ -269,9 +269,22 @@ def f(line, doc, **_):
     return count
 
 
-# @FeatureDefinition.register_feature_generator('indent_level', True)
-# def f(line_content, **_):
-#     return (len(line_content) - len(line_content.lstrip())) // 4
+@FeatureDefinition.register_feature_generator('indent', True)
+def f(line_content, **_):
+    return len(line_content) - len(line_content.lstrip())
+
+
+@FeatureDefinition.register_feature_generator('indent_delta', True)
+def f(line_content, line, doc, **_):
+    last_non_empty_line = ''
+    for i in range(line-1, -1, -1):
+        if i:
+            last_non_empty_line = doc[i]
+            break
+    last_indent = len(line_content) - len(line_content.lstrip())
+    current_indent = len(last_non_empty_line) - len(last_non_empty_line.lstrip())
+    result = last_indent - current_indent
+    return result
 
 
 @FeatureDefinition.register_feature_generator('at_line_start', True)
