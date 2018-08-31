@@ -75,6 +75,8 @@ yarn run release
 |      | (1209917, 78), 28737 medium | 14.15% | 70.79% | 38min / 1min         |
 | 8/29 | (70426, 80), 2770 small     | 12.67% | 70.92% | starts with _, __    |
 | 8/31 | (70426, 82), 2770 small     | 12.67% | 70.48% | indent, indent_delta |
+|      | (70426, 83), 2770 small     | 12.67% | 69.55% | line_number          |
+|      |                             |        |        |                      |
 
 
 

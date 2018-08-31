@@ -16,6 +16,7 @@ if __name__ == "__main__":
         print('Usage: \npython visualize.py /path/to/single/pickle [show_error]')
     file_path = sys.argv[1]
     show_error = False if len(sys.argv) < 3 else bool(int(sys.argv[2]))
+    known_initial = False if len(sys.argv) < 4 else bool(int(sys.argv[3]))
     model = joblib.load(working_dir / 'model.model')
     pickle_path = working_dir / 'extraction' / f'{sha3(file_path)}.pkl'
 
@@ -55,7 +56,7 @@ if __name__ == "__main__":
         return '\n'.join(result)
 
 
-    def predict_and_color(token):
+    def predict_and_color(token, known_initial=False):
         global index_i, token_selection_start, correct_prediction, wrong_prediction, not_available, not_required
         token_selection_end = fe.index[index_i]
         t = fe.tokens[token_selection_start]
@@ -76,6 +77,10 @@ if __name__ == "__main__":
         if not selections:
             return F.RED + token.string
         yp = predicted_prob[token_selection_start:token_selection_end]
+        if known_initial:
+            for i, s in enumerate(selections):
+                if s[0] == token.string[0]:
+                    yp[i] += 0.3
         yi = yp.argmax()
 
         if selections[yi] == token.string:
@@ -108,7 +113,7 @@ if __name__ == "__main__":
                               ):
                 print(B.RESET + F.RESET + token.string, end='')
             else:
-                print(predict_and_color(token), end='')
+                print(predict_and_color(token, known_initial), end='')
             doc_pos = token.end
 
         else:
