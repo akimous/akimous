@@ -20,9 +20,6 @@ class OfflineFeatureExtractor(FeatureDefinition):
         self.completions = []
         self.current_completion_start_index = 0
         self.last_token = None
-        # self.context = SimpleNamespace()
-        # for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
-        #     setattr(self.context, k, v)
 
     def add(self, token, completion, line_content, line, ch, full_doc, doc, call_signatures, positive=True):
         if len(self.y) == self.n_samples:

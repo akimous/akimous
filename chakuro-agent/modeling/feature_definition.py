@@ -8,7 +8,7 @@ from collections import OrderedDict
 from tokenize import generate_tokens, TokenError
 from io import StringIO
 from .token_map import TokenMap, DirtyMap
-from .utility import p
+from .utility import p, to_key_value_columns
 
 NOT_APPLICABLE = -99999
 MAX = 99999
@@ -62,7 +62,10 @@ class FeatureDefinition:
             self.name_to_feature_index[k] = i
         for i, k in enumerate(FeatureDefinition.context_features.keys()):
             self.name_to_feature_index[k] = i + self.n_token_features
-        p(self.name_to_feature_index)
+        # p(self.name_to_feature_index)
+        # for k, v in self.name_to_feature_index.items():
+            # p(f'{v:3} {k}')
+        p(to_key_value_columns(self.name_to_feature_index.keys(), self.name_to_feature_index.values()))
 
         for name in self.name_to_feature_index.keys():
             if 'normalized' in name:
@@ -72,6 +75,7 @@ class FeatureDefinition:
               self.normalization_target_feature_indice)
         for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
             setattr(self.context, k, v)
+
 
     # def get_stack_context_info(self, completion):
     #     '''
@@ -267,6 +271,11 @@ def f(line, doc, **_):
         else:
             return count
     return count
+
+
+@FeatureDefinition.register_feature_generator('line_number', True)
+def f(line, **_):
+    return line
 
 
 @FeatureDefinition.register_feature_generator('indent', True)
