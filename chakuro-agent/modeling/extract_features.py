@@ -13,7 +13,7 @@ import logging
 # from memory_profiler import profile
 
 
-def run_file(file_path, silent=False, zero_length_prediction=False):
+def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=False):
     with open(file_path) as f:
         doc = f.read()
     doc_lines = doc.splitlines()
@@ -135,14 +135,14 @@ if __name__ == "__main__":
         feature_extractor = OfflineFeatureExtractor()
         with open(working_dir / 'training_list.txt') as f:
             for file in f:
-                run_file(file.strip())
+                run_file(file.strip(), feature_extractor)
         feature_extractor.finalize()
         pickle.dump(feature_extractor, open(working_dir / 'train.pkl', 'wb'), protocol=4)
     if target in ('test', 'both'):
         feature_extractor = OfflineFeatureExtractor()
         with open(working_dir / 'testing_list.txt') as f:
             for file in f:
-                run_file(file.strip())
+                run_file(file.strip(), feature_extractor)
         feature_extractor.file_path = file
         feature_extractor.finalize()
         pickle.dump(feature_extractor, open(working_dir / 'test.pkl', 'wb'), protocol=4)
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         logzero.loglevel(logging.WARNING)
         feature_extractor = OfflineFeatureExtractor()
         file = target.strip()
-        run_file(file, silent=True, zero_length_prediction=zero_length_prediction)
+        run_file(file, feature_extractor, silent=True, zero_length_prediction=zero_length_prediction)
         feature_extractor.finalize()
         extraction_path = working_dir / 'extraction'
         extraction_path.mkdir(exist_ok=True)
