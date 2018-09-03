@@ -23,5 +23,6 @@ fuzzywuzzy = "^0.16.0"
 memory_profiler = "^0.52.0"
 xgboost = "^0.72.1"
 pybloomfiltermmap = "^0.3.15"
+pytest = "^3.7"
 
 [tool.poetry.dev-dependencies]
