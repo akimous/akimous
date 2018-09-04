@@ -167,6 +167,7 @@ for t in COMPLETION_TYPES:
     def f(completion, t=t, **_):
         return 1 if completion.type == t else 0
 
+# TODO: type bi-gram, (name, type) and (type, name) bi-gram tuples
 COMPLETION_DATA_TYPES = [
     'str', 'int', 'float', 'bool', 'bytes',
     'list', 'dict', 'tuple'
@@ -179,12 +180,12 @@ for t in COMPLETION_DATA_TYPES:
 
 @FeatureDefinition.register_feature_generator('is_upper_case')
 def f(completion, **_):
-    return 1 if completion.name.isupper() else 0
+    return int(completion.name.isupper())
 
 
 @FeatureDefinition.register_feature_generator('is_lower_case')
 def f(completion, **_):
-    return 1 if completion.name.islower() else 0
+    return int(completion.name.islower())
 
 
 @FeatureDefinition.register_feature_generator('is_initial_upper_case')

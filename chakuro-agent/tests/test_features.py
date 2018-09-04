@@ -39,8 +39,22 @@ def get_completion(line, ch, name, completion=None):
 
 def test_get_completion():
     assert get_completion(1, 1, 'def')['c'] == 'def'
-    assert get_completion(2, 14, 'NotImplementedError')['c'] == 'NotImplementedError'
+    assert get_completion(2, 7, 'pass')['c'] == 'pass'
 
 
 def test_completion_types():
     assert get_completion(5, 3, 'weights').function == 1
+
+
+def test_completion_data_type():
+    assert get_completion(7, 16, 'integer_1').int == 1
+
+
+def test_is_upper_case():
+    assert get_completion(7, 16, 'integer_1').is_upper_case == 0
+    assert get_completion(9, 4, 'UPPER').is_upper_case == 1
+
+
+def test_is_lower_case():
+    assert get_completion(7, 16, 'integer_1').is_lower_case == 1
+    assert get_completion(9, 4, 'UPPER').is_lower_case == 0

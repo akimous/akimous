@@ -1,13 +1,12 @@
 def weights():
-    raise NotImplementedError
+    pass
 
 
 weights()
+integer_1 = 123
+integer_2 = integer_1
+UPPER = 1
+UPPER += 1
 
 
-def get_config(self):
-    raise NotImplementedError
-
-
-def from_config(self, config):
-    raise NotImplementedError
+pass
