@@ -53,8 +53,16 @@ def test_completion_data_type():
 def test_is_upper_case():
     assert get_completion(7, 16, 'integer_1').is_upper_case == 0
     assert get_completion(9, 4, 'UPPER').is_upper_case == 1
+    assert get_completion(16, 8, 'Dog').is_upper_case == 0
 
 
 def test_is_lower_case():
     assert get_completion(7, 16, 'integer_1').is_lower_case == 1
     assert get_completion(9, 4, 'UPPER').is_lower_case == 0
+    assert get_completion(16, 8, 'Dog').is_lower_case == 0
+
+
+def test_is_initial_upper_case():
+    assert get_completion(16, 8, 'Dog').is_initial_upper_case == 1
+    assert get_completion(7, 16, 'integer_1').is_initial_upper_case == 0
+

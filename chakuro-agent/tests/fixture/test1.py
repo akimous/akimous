@@ -9,4 +9,10 @@ UPPER = 1
 UPPER += 1
 
 
+class Dog:
+    pass
+
+
+dog = Dog()
+
 pass

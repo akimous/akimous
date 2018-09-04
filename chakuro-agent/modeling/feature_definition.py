@@ -190,7 +190,7 @@ def f(completion, **_):
 
 @FeatureDefinition.register_feature_generator('is_initial_upper_case')
 def f(completion, **_):
-    return 1 if completion.name[0].isupper() else 0
+    return int(completion.name[0].isupper())
 
 
 CONTAINS_STRING = ['_']
