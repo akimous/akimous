@@ -10,9 +10,9 @@
 <style>
     .context-menu-row {
         color: var(--modal-text-color);
-        height: var(--basic-ui-line-height);
+        height: var(--large-ui-line-height);
+        line-height: var(--large-ui-line-height);
         padding: 0 4rem 0 1rem;
-        line-height: var(--basic-ui-line-height);
         font-weight: 400;
         white-space: nowrap;
     }
@@ -29,14 +29,24 @@
         color: var(--gray4);
         text-align: center;
     }
+    
+    .text {
+        display: inline-block;
+        min-width: 10em;
+    }
 
     .selected .icon {
         color: var(--gray1);
     }
     
     .hotkey {
+        color: var(--gray55);
         position: absolute;
         right: 0.5rem;
+    }
+    
+    .selected .hotkey {
+        color: var(--gray1);
     }
 
 </style>

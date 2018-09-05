@@ -38,6 +38,7 @@
     --basic-ui-font-size: 1rem;
     --ui-font-size-small: .85rem;
     --ui-font-size-large: 1.6rem;
+    --large-ui-line-height: 1.7rem;
     --basic-ui-line-height: 1.6rem;
 
     --basic-monospace-font-color: #ccc;
@@ -85,6 +86,7 @@
     --gray3: #95a5a6;
     --gray4: #47637F;
     --gray5: #34495e;
+    --gray55: #777;
     --gray6: #2c3e50;
 }
 
