@@ -166,6 +166,7 @@ async def get_function_documentation(msg, send, context):
     j = jedi.Script(doc, line_number + 1, ch, context.path)
     call_signatures = j.call_signatures()
     if not call_signatures:
+        log.warn('call signature is empty while obtaining docstring')
         return
     signature = call_signatures[0]
     docstring = signature.docstring()
