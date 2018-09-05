@@ -11,7 +11,7 @@ numpy = "^1.15"
 tqdm = "^4.24"
 colorama = "^0.3.9"
 gitpython = "^2.1"
-jedi = "0.10.2" # jedi 0.12.1 breaks documentation by not returning function signature
+jedi = "^0.12.1"
 sphinx = "^1.7"
 watchdog = "^0.8.3"
 python-levenshtein = "^0.12.0"
@@ -25,5 +25,6 @@ xgboost = "^0.72.1"
 pybloomfiltermmap = "^0.3.15"
 pytest = "^3.7"
 numpydoc = "^0.8.0"
+scipy = "^1.1"
 
 [tool.poetry.dev-dependencies]
