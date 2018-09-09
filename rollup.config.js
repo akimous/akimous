@@ -6,6 +6,8 @@ import babel from 'rollup-plugin-babel'
 import postcss from 'rollup-plugin-postcss'
 import progress from 'rollup-plugin-progress'
 import autoprefixer from 'autoprefixer'
+import serve from 'rollup-plugin-serve'
+import livereload from 'rollup-plugin-livereload'
 
 const production = !process.env.ROLLUP_WATCH
 
@@ -38,5 +40,8 @@ export default {
         
         // Causing TypeError: details.bundle.modules.forEach is not a function
         // production && sizes(),
+        
+        !production && livereload(),
+        !production && serve('dist')
     ]
 }

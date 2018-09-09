@@ -36,3 +36,22 @@ cd dist/
 zopfli bundle.js &
 brotli bundle.js &
 ```
+
+## dev
+
+Watch, serve and auto-reload.
+
+Run task `clean`, `copystatic`.
+
+```bash
+rollup -c -w
+```
+
+## serve
+
+Serve dist
+
+```bash
+http-server ./dist -p 5000 -g
+```
+
