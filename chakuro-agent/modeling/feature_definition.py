@@ -207,7 +207,7 @@ REGEX = {
     'starts_with___': re.compile(r'^__.*'),
 }
 for name, regex in REGEX.items():
-    @FeatureDefinition.register_feature_generator(name)
+    @FeatureDefinition.register_feature_generator(f'regex_{name}')
     def f(completion, regex=regex, **_):
         return 1 if regex.fullmatch(completion.name) else 0
 
@@ -253,24 +253,24 @@ for keyword in KEYWORDS:
         return int(completion.name == keyword)
 
 
-@FeatureDefinition.register_feature_generator('in_builtin_module')
-def f(completion, **_):
-    return int(completion.in_builtin_module())
-
-
 @FeatureDefinition.register_feature_generator('is_keyword')
 def f(completion, **_):
     return int(completion.is_keyword)
+
+
+@FeatureDefinition.register_feature_generator('in_builtin_module')
+def f(completion, **_):
+    return int(completion.in_builtin_module())
 
 
 @FeatureDefinition.register_feature_generator('blank_line_before', True)
 def f(line, doc, **_):
     count = 0
     for i in range(line - 1, 0, -1):
-        if not doc[line - 1].lstrip():
+        if not doc[i].lstrip():
             count += 1
         else:
-            return count
+            break
     return count
 
 

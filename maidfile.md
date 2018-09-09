@@ -1,3 +1,5 @@
+# Javascript
+
 ## clean
 
 Clean up dist directory.
@@ -53,5 +55,16 @@ Serve dist
 
 ```bash
 http-server ./dist -p 5000 -g
+```
+
+# Python
+
+## pytest
+
+Run pytest
+
+```bash
+cd chakuro-agent
+poetry run python -m pytest -s
 ```
 

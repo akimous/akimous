@@ -1,8 +1,9 @@
-from pathlib import Path
-
 from modeling import extract_features
 from modeling.offline_feature_extractor import OfflineFeatureExtractor
+import logzero
+import logging
 
+logzero.loglevel(logging.WARNING)
 feature_extractor = OfflineFeatureExtractor()
 
 
@@ -66,3 +67,57 @@ def test_is_initial_upper_case():
     assert get_completion(16, 8, 'Dog').is_initial_upper_case == 1
     assert get_completion(7, 16, 'integer_1').is_initial_upper_case == 0
 
+
+def test_contains__():
+    assert get_completion(5, 0, 'weights').contains__ == 0
+    assert get_completion(7, 6, 'integer_1').contains__ == 1
+
+
+def test_regex():
+    assert get_completion(21, 4, 'is_good').regex_is == 1
+    assert get_completion(21, 4, 'is_good').regex_has == 0
+
+    assert get_completion(21, 16, 'have_fun').regex_has == 1
+    assert get_completion(21, 16, 'have_fun').regex_is == 0
+
+    assert get_completion(24, 15, 'ValueError').regex_error == 1
+    assert get_completion(21, 16, 'have_fun').regex_error == 0
+
+    assert get_completion(22, 5, '_underscore').regex_starts_with__ == 1
+    assert get_completion(21, 4, 'is_good').regex_starts_with__ == 0
+
+    assert get_completion(22, 5, '_underscore').regex_starts_with___ == 0
+    assert get_completion(22, 20, '__dunder').regex_starts_with___ == 1
+
+
+def test_keywords():
+    assert get_completion(2, 7, 'pass').kw_pass == 1
+    assert get_completion(2, 7, 'pass').kw_def == 0
+    assert get_completion(19, 0, 'def').kw_pass == 0
+    assert get_completion(19, 0, 'def').kw_def == 1
+    assert get_completion(21, 4, 'is_good').kw_def == 0
+
+
+def test_is_keywords():
+    assert get_completion(2, 7, 'pass').is_keyword == 1
+    assert get_completion(21, 4, 'is_good').is_keyword == 0
+
+
+def test_in_builtin_module():
+    assert get_completion(2, 7, 'pass').in_builtin_module == 1
+    assert get_completion(24, 15, 'ValueError').in_builtin_module == 1
+    assert get_completion(21, 4, 'is_good').in_builtin_module == 0
+
+
+def test_blank_line_before():
+    assert get_completion(19, 0, 'def').blank_line_before == 2
+
+
+def test_line_number():
+    assert get_completion(19, 0, 'def').line_number == 18
+
+
+def test_indent():
+    assert get_completion(19, 0, 'def').indent == 0
+    assert get_completion(2, 7, 'pass').indent == 4
+    assert get_completion(24, 15, 'ValueError').indent == 8
