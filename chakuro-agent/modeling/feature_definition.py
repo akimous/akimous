@@ -62,9 +62,6 @@ class FeatureDefinition:
             self.name_to_feature_index[k] = i
         for i, k in enumerate(FeatureDefinition.context_features.keys()):
             self.name_to_feature_index[k] = i + self.n_token_features
-        # p(self.name_to_feature_index)
-        # for k, v in self.name_to_feature_index.items():
-            # p(f'{v:3} {k}')
         p(to_key_value_columns(self.name_to_feature_index.keys(), self.name_to_feature_index.values()))
 
         for name in self.name_to_feature_index.keys():
@@ -72,10 +69,9 @@ class FeatureDefinition:
                 self.normalization_source_feature_indice.append(self.name_to_feature_index[name[:-len('_normalized')]])
                 self.normalization_target_feature_indice.append(self.name_to_feature_index[name])
         p('Need normalization:', self.normalization_source_feature_indice, '=>',
-              self.normalization_target_feature_indice)
+          self.normalization_target_feature_indice)
         for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
             setattr(self.context, k, v)
-
 
     # def get_stack_context_info(self, completion):
     #     '''
@@ -135,7 +131,7 @@ class FeatureDefinition:
 
     def normalize_feature(self):
         data = self.X[self.current_completion_start_index:self.n_samples,
-                      self.normalization_source_feature_indice]
+               self.normalization_source_feature_indice]
         for i in range(data.shape[1]):
             column = data[:, i]
             mask = column > NOT_APPLICABLE
@@ -146,7 +142,7 @@ class FeatureDefinition:
             data[mask, i] = (masked_values - masked_values.mean()) / masked_values.std() * SIGMA_SCALING_FACTOR
 
         self.X[self.current_completion_start_index:self.n_samples,
-               self.normalization_target_feature_indice] = data
+        self.normalization_target_feature_indice] = data
 
 
 # ch: 0-based
@@ -287,8 +283,8 @@ def f(line_content, **_):
 @FeatureDefinition.register_feature_generator('indent_delta', True)
 def f(line_content, line, doc, **_):
     last_non_empty_line = ''
-    for i in range(line-1, -1, -1):
-        if i:
+    for i in range(line - 1, -1, -1):
+        if doc[i]:
             last_non_empty_line = doc[i]
             break
     last_indent = len(line_content) - len(line_content.lstrip())
@@ -446,7 +442,7 @@ def f(context, line, completion, **_):
     matched_line_numbers = context.t1map.query(bigram)
     if not matched_line_numbers:
         return MAX
-    result = min(abs(l-line) for l in matched_line_numbers)
+    result = min(abs(l - line) for l in matched_line_numbers)
     return result
 
 
@@ -456,7 +452,7 @@ def f(context, line, completion, **_):
     matched_line_numbers = context.t2map.query(bigram)
     if not matched_line_numbers:
         return MAX
-    result = min(abs(l-line) for l in matched_line_numbers)
+    result = min(abs(l - line) for l in matched_line_numbers)
     return result
 
 
@@ -466,7 +462,7 @@ def f(context, line, completion, **_):
     matched_line_numbers = context.t2map.query(bigram)
     if not matched_line_numbers:
         return MAX
-    result = min(abs(l-line) for l in matched_line_numbers)
+    result = min(abs(l - line) for l in matched_line_numbers)
     return result
 
 # @FeatureDefinition.register_feature_generator('contains_in_line')

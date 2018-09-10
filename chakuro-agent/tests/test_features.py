@@ -121,3 +121,11 @@ def test_indent():
     assert get_completion(19, 0, 'def').indent == 0
     assert get_completion(2, 7, 'pass').indent == 4
     assert get_completion(24, 15, 'ValueError').indent == 8
+
+
+def test_indent_delta():
+    assert get_completion(19, 0, 'def').indent_delta == 0
+    assert get_completion(21, 4, 'is_good').indent_delta == 0
+    assert get_completion(21, 16, 'have_fun').indent_delta == 0
+    assert get_completion(24, 15, 'ValueError').indent_delta == 4
+    assert get_completion(16, 7, 'Dog').indent_delta == -4
