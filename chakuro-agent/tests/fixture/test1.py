@@ -1,8 +1,8 @@
-def weights():
+def weights(a, b):
     pass
 
 
-weights()
+weights(321)
 integer_1 = 123
 integer_2 = integer_1
 UPPER = 1
@@ -22,5 +22,8 @@ def regex():
     _underscore += __dunder
     if True:
         raise ValueError
+
+weights(integer_1, integer_2)
+bool(integer_2)
 
 pass

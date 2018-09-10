@@ -129,3 +129,22 @@ def test_indent_delta():
     assert get_completion(21, 16, 'have_fun').indent_delta == 0
     assert get_completion(24, 15, 'ValueError').indent_delta == 4
     assert get_completion(16, 7, 'Dog').indent_delta == -4
+
+
+def test_at_line_start():
+    assert get_completion(19, 0, 'def').at_line_start == 1
+    assert get_completion(21, 4, 'is_good').at_line_start == 1
+    assert get_completion(21, 16, 'have_fun').at_line_start == 0
+    assert get_completion(24, 9, 'raise').at_line_start == 1
+
+
+def test_left_char_is():
+    assert get_completion(26, 9, 'integer_1')['left_char_is_('] == 1
+    assert get_completion(26, 9, 'integer_1')['left_char_is_['] == 0
+    assert get_completion(21, 16, 'have_fun')['left_char_is_='] == 1
+    assert get_completion(26, 20, 'integer_2')['left_char_is_,'] == 1
+
+
+def test_in_builtin_function():
+    assert get_completion(27, 6, 'integer_2').in_function_bool == 1
+    assert get_completion(27, 6, 'integer_2').in_function_len == 0

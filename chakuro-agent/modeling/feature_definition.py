@@ -241,7 +241,41 @@ KEYWORDS = (
     'try',
     'while',
     'with',
-    'yield'
+    'yield',
+
+    'abs',
+    'hash',
+    'set',
+    'all',
+    'dict',
+    'min',
+    'setattr',
+    'any',
+    'next',
+    'sorted',
+    'enumerate',
+    'bool',
+    'int',
+    'open',
+    'str',
+    'isinstance',
+    'sum',
+    'filter',
+    'super',
+    'iter',
+    'print',
+    'tuple',
+    'len',
+    'type',
+    'list',
+    'range',
+    'getattr',
+    'zip',
+    'map',
+    'reversed',
+    'hasattr',
+    'max',
+    'round'
 )
 for keyword in KEYWORDS:
     @FeatureDefinition.register_feature_generator('kw_' + keyword)
@@ -299,14 +333,88 @@ def f(line_content, ch, **_):
     return 0 if head else 1
 
 
-LEFT_CHAR = ['(', '[', '{']
+LEFT_CHAR = ['(', '[', '{', '=', ',', '@', ':']
 for c in LEFT_CHAR:
     @FeatureDefinition.register_feature_generator('left_char_is_' + c, True)
     def f(line_content, ch, c=c, **_):
-        return int(line_content[ch - len(c):ch] == c)
+        for i in reversed(line_content[:ch]):
+            if i.isspace():
+                continue
+            if i == c:
+                return 1
+        return 0
 
-# TODO: add popular build-in functions
-IN_FUNCTION_SIGNATURE = ['range', 'isinstance', 'len', 'type']
+IN_FUNCTION_SIGNATURE = [
+    'abs',
+    # 'delattr',
+    'hash',
+    # 'memoryview',
+    'set',
+    'all',
+    'dict',
+    # 'help',
+    'min',
+    'setattr',
+    'any',
+    # 'dir',
+    # 'hex',
+    'next',
+    'slice',
+    # 'ascii',
+    # 'divmod',
+    # 'id',
+    # 'object',
+    'sorted',
+    # 'bin',
+    'enumerate',
+    # 'input',
+    # 'oct',
+    # 'staticmethod',
+    'bool',
+    # 'eval',
+    'int',
+    'open',
+    'str',
+    # 'breakpoint',
+    # 'exec',
+    'isinstance',
+    # 'ord',
+    'sum',
+    # 'bytearray',
+    'filter',
+    'issubclass',
+    # 'pow',
+    'super',
+    # 'bytes',
+    # 'float',
+    'iter',
+    'print',
+    'tuple',
+    # 'callable',
+    # 'format',
+    'len',
+    # 'property',
+    'type',
+    # 'chr',
+    # 'frozenset',
+    'list',
+    'range',
+    # 'vars',
+    # 'classmethod',
+    'getattr',
+    # 'locals',
+    # 'repr',
+    'zip',
+    # 'compile',
+    # 'globals',
+    'map',
+    'reversed',
+    # '__import__',
+    # 'complex',
+    'hasattr',
+    'max',
+    'round'
+]
 for i in IN_FUNCTION_SIGNATURE:
     @FeatureDefinition.register_feature_generator('in_function_' + i, True)
     def f(call_signatures, i=i, **_):
