@@ -52,13 +52,12 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
 
         while ch < line_length:
             should_skip = not line_content[ch - 1].isalnum()
-            # print('should_skip', ch-1, line_content[ch - 1], not line_content[ch - 1].isalnum())
             if zero_length_prediction and line_content[ch - 1] == '.':
                 should_skip = False
             if should_skip:
                 ch += 1
                 continue
-            token = get_token(line, ch + 1)
+            token = get_token(line, ch) # don't + 1 on ch, or it will clip short (2ch) tokens
             if token is None:
                 ch += 1
                 continue
@@ -83,7 +82,6 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
             for comp in completions:
                 comp_string = comp.complete
                 comp_name = comp.name
-                # print(comp_name, comp_string)
                 if comp_name in deduplication_set:
                     continue
                 deduplication_set.add(comp_name)

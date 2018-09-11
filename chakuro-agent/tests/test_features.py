@@ -13,6 +13,9 @@ def test_extract_feature():
     extract_features.run_file(file, feature_extractor, silent=True, zero_length_prediction=True)
     feature_extractor.finalize()
     df = feature_extractor.dataframe()
+    # for i in feature_extractor.tokens:
+    #     if i.start[0] == 23:
+    #         print(i)
 
 
 def get_index_range_at_token(line, ch, name):
@@ -148,3 +151,11 @@ def test_left_char_is():
 def test_in_builtin_function():
     assert get_completion(27, 6, 'integer_2').in_function_bool == 1
     assert get_completion(27, 6, 'integer_2').in_function_len == 0
+
+
+def test_match_current_line():
+    assert get_completion(23, 12, 'True')['if'] == 1
+    assert get_completion(22, 5, '_underscore')['if'] == 0
+    assert get_completion(23, 4, 'if')['if'] == 0
+    assert get_completion(23, 12, 'True')['not'] == 1
+    assert get_completion(22, 5, '_underscore')['not'] == 0

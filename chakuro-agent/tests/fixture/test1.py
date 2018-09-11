@@ -20,7 +20,7 @@ def regex():
     is_good, have_fun, _underscore, __dunder = 1, 2, 4, 5
     is_good += have_fun
     _underscore += __dunder
-    if True:
+    if not True:
         raise ValueError
 
 weights(integer_1, integer_2)
