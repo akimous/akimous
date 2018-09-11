@@ -159,3 +159,31 @@ def test_match_current_line():
     assert get_completion(23, 4, 'if')['if'] == 0
     assert get_completion(23, 12, 'True')['not'] == 1
     assert get_completion(22, 5, '_underscore')['not'] == 0
+
+
+def test_contains_in_nth_line():
+    assert get_completion(26, 9, 'integer_1').contains_in_nth_line == 19
+    assert get_completion(27, 6, 'integer_2').contains_in_nth_line == 1
+    assert get_completion(12, 1, 'class').contains_in_nth_line == 99999
+
+
+def test_contains_in_nth_line_lower():
+    assert get_completion(26, 9, 'integer_1').contains_in_nth_line_lower == 19
+    assert get_completion(27, 6, 'integer_2').contains_in_nth_line_lower == 1
+    assert get_completion(12, 1, 'class').contains_in_nth_line_lower == 99999
+    assert get_completion(16, 7, 'Dog').contains_in_nth_line_lower == 0
+
+
+def test_t1_match():
+    assert get_completion(30, 27, 'integer_2').t1_match == 4
+    assert get_completion(27, 6, 'integer_2').t1_match == 99999
+
+
+def test_t2_match():
+    assert get_completion(29, 13, 'integer_1').t2_match == 22
+    assert get_completion(29, 1, 'integer_2').t2_match == 99999
+
+
+def test_t3_match():
+    assert get_completion(29, 13, 'integer_1').t3_match == 3
+    assert get_completion(29, 1, 'integer_2').t3_match == 2 # should it behave this way?

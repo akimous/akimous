@@ -26,4 +26,7 @@ def regex():
 weights(integer_1, integer_2)
 bool(integer_2)
 
+integer_2 = integer_1
+aggregation = (integer_1, integer_2)
+
 pass
