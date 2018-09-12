@@ -77,7 +77,7 @@ yarn run release
 | 8/31 | (70426, 82), 2770 small     | 12.67% | 70.48% | indent, indent_delta                |
 |      | (70426, 83), 2770 small     | 12.67% | 69.55% | line_number                         |
 | 9/12 | (143186, 151), 3243 small   | 15.15% | 73.65% | bugs fixed, adding popular builtins |
-|      |                             |        |        |                                     |
+|      | (143186, 151), 3243 small   | 15.15% | 72.75% | return MAX when t1/2/3 not found    |
 
 
 
