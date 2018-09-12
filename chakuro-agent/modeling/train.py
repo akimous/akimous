@@ -34,6 +34,7 @@ if __name__ == "__main__":
                     break
                 try:
                     dg = pickle.load(open(working_dir / 'extraction' / f'{sha3(name)}.pkl', 'rb'))
+                    print(f'{dg.X.size} {name}')
                     Xs.append(dg.X)
                     ys.append(dg.y)
                     old_length = 0 if not train_indices else train_indices[-1]
