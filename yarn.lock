@@ -1050,9 +1050,9 @@ cli-width@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/cli-width/-/cli-width-2.2.0.tgz#ff19ede8a9a5e579324147b0c11f0fbcbabed639"
 
-cloc@^2.3.3:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/cloc/-/cloc-2.3.3.tgz#acbd677659d9ba7f67f6269aafeab727154d7fd8"
+cloc@^2.3.4:
+  version "2.3.4"
+  resolved "https://registry.yarnpkg.com/cloc/-/cloc-2.3.4.tgz#55856ed82068d4ba108af78dee8bff72eb6a4073"
 
 clone@^1.0.2:
   version "1.0.3"

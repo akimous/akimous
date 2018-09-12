@@ -68,3 +68,41 @@ cd chakuro-agent
 poetry run python -m pytest -s
 ```
 
+# Modeling
+
+## download
+
+poetry run python -m modeling.download
+
+```bash
+cd chakuro-agent
+poetry run python -m modeling.download $1
+```
+
+## split
+
+poetry run python -m modeling.split
+
+```bash
+cd chakuro-agent
+poetry run python -m modeling.split $1
+```
+
+## extract
+
+extract features in parallel
+
+```bash
+cd chakuro-agent
+cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta --memfree 2G --nice 17 poetry run python -m modeling.extract_features {} 1
+```
+
+## train
+
+train the model
+
+```bash
+cd chakuro-agent
+poetry run python -m modeling.train single
+```
+
