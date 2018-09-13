@@ -79,6 +79,7 @@ yarn run release
 | 9/12 | (143186, 151), 3243 small    | 15.15% | 73.65% | bugs fixed, adding popular builtins |
 |      | (143186, 151), 3243 small    | 15.15% | 72.75% | return MAX when t1/2/3 not found    |
 |      | (1529931, 151), 29209 medium | 15.51% | 71.90% |                                     |
+| 9/13 | (1529931, 151), 29209 medium | 15.51% | 72.05% | return MAX when t2/3 not found      |
 
 
 
