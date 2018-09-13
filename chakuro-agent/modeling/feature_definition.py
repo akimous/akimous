@@ -556,6 +556,8 @@ def f(context, line, completion, **_):
 
 @FeatureDefinition.register_feature_generator('t2_match')
 def f(context, line, completion, **_):
+    if not context.t2:
+        return MAX
     bigram = (context.t2, completion.name)
     matched_line_numbers = context.t2map.query(bigram)
     if not matched_line_numbers:
@@ -566,6 +568,8 @@ def f(context, line, completion, **_):
 
 @FeatureDefinition.register_feature_generator('t3_match')
 def f(context, line, completion, **_):
+    if not context.t3:
+        return MAX
     bigram = (context.t3, completion.name)
     matched_line_numbers = context.t3map.query(bigram)
     if not matched_line_numbers:
