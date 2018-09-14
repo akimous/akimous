@@ -185,5 +185,12 @@ def test_t2_match():
 
 
 def test_t3_match():
-    assert get_completion(29, 13, 'integer_1').t3_match == 3
-    assert get_completion(29, 1, 'integer_2').t3_match == 2 # should it behave this way?
+    assert get_completion(29, 13, 'integer_1').t3_match == 99999
+    assert get_completion(29, 1, 'integer_2').t3_match == 99999
+    assert get_completion(31, 26, 'integer_2').t3_match == 1
+
+
+def test_trigram_match():
+    assert get_completion(30, 27, 'integer_2').trigram_match == 4
+    assert get_completion(31, 26, 'integer_2').trigram_match == 1
+

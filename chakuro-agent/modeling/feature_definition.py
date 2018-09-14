@@ -483,13 +483,15 @@ def tokenize(string):
     dirty_map=DirtyMap(),
     t1map=TokenMap(),
     t2map=TokenMap(),
-    t3map=TokenMap()
+    t3map=TokenMap(),
+    trigram_map=TokenMap(),
 )
 def f(doc, context, line, ch, **_):
     dirty_map = context.dirty_map
     t1map = context.t1map
     t2map = context.t2map
     t3map = context.t3map
+    trigram_map = context.trigram_map
     line_to_tokens = context.line_to_tokens
 
     # tokenize dirty lines
@@ -502,6 +504,7 @@ def f(doc, context, line, ch, **_):
         t1map.remove_line(line_number)
         t2map.remove_line(line_number)
         t3map.remove_line(line_number)
+        trigram_map.remove_line(line_number)
         dirty_map.set_clear(line_number, line_content)
 
         tokens0 = line_to_tokens.get(line_number, _EMPTY)
@@ -516,6 +519,7 @@ def f(doc, context, line, ch, **_):
             t1map.add(line_number, (t1, t0))
             t2map.add(line_number, (t2, t0))
             t3map.add(line_number, (t3, t0))
+            trigram_map.add(line_number, (t2, t1, t0))
             t3, t2, t1 = t2, t1, t0
 
     # get t1, t2
@@ -572,6 +576,18 @@ def f(context, line, completion, **_):
         return MAX
     bigram = (context.t3, completion.name)
     matched_line_numbers = context.t3map.query(bigram)
+    if not matched_line_numbers:
+        return MAX
+    result = min(abs(l - line) for l in matched_line_numbers)
+    return result
+
+
+@FeatureDefinition.register_feature_generator('trigram_match')
+def f(context, line, completion, **_):
+    if not context.t2:
+        return MAX
+    trigram = (context.t2, context.t1, completion.name)
+    matched_line_numbers = context.trigram_map.query(trigram)
     if not matched_line_numbers:
         return MAX
     result = min(abs(l - line) for l in matched_line_numbers)

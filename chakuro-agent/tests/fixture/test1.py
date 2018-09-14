@@ -28,5 +28,6 @@ bool(integer_2)
 
 integer_2 = integer_1
 aggregation = (integer_1, integer_2)
+some_tuple = (integer_1, integer_2)
 
 pass
