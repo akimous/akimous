@@ -80,19 +80,13 @@ yarn run release
 |      | (143186, 151), 3243 small    | 15.15% | 72.75% | return MAX when t1/2/3 not found    |
 |      | (1529931, 151), 29209 medium | 15.51% | 71.90% |                                     |
 | 9/13 | (1529931, 151), 29209 medium | 15.51% | 72.05% | return MAX when t2/3 not found      |
+| 9/14 | (143186, 152), 3243 small    | 15.15% | 72.45% | trigram                             |
 
 
 
-* **tri-gram (cross-line)**
 * **partial matching**
-* ~~tri-skip-gram (cross-line)~~
 * statistical frequency, bi-gram, tri-gram, skip-gram
-* ~~unindent~~
-* ~~not, none, self, super, await, if, return, del, def, raise, import, from, as~~
-* ~~is keyword~~
 * float distance
-* ~~contains "error"~~
-* ~~use different file for testing~~
 * first token in line is (identifier, keyword, def, if, self)
 
 ## Plan

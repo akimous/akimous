@@ -30,4 +30,21 @@ integer_2 = integer_1
 aggregation = (integer_1, integer_2)
 some_tuple = (integer_1, integer_2)
 
+
+class Regularizers:
+    def serialize(self, kernel_regularizer):
+        pass
+
+
+class Placeholder:
+    def __init__(self):
+        self.kernel_regularizer = None
+
+
+regularizers = Regularizers()
+placeholder = Placeholder()
+d = {
+    'kernel_regularizer': regularizers.serialize(placeholder.kernel_regularizer)
+}
+
 pass

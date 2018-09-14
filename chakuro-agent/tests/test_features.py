@@ -165,6 +165,7 @@ def test_contains_in_nth_line():
     assert get_completion(26, 9, 'integer_1').contains_in_nth_line == 19
     assert get_completion(27, 6, 'integer_2').contains_in_nth_line == 1
     assert get_completion(12, 1, 'class').contains_in_nth_line == 99999
+    assert get_completion(47, 62, 'kernel_regularizer').contains_in_nth_line == 0
 
 
 def test_contains_in_nth_line_lower():
@@ -194,3 +195,7 @@ def test_trigram_match():
     assert get_completion(30, 27, 'integer_2').trigram_match == 4
     assert get_completion(31, 26, 'integer_2').trigram_match == 1
 
+
+def test_last_line_ends_with():
+    assert get_completion(35, 5, 'def')['last_line_ends_with_:'] == 1
+    assert get_completion(9, 4, 'UPPER')['last_line_ends_with_:'] == 0

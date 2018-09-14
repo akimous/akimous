@@ -191,7 +191,7 @@ def f(completion, **_):
 
 CONTAINS_STRING = ['_']
 for s in CONTAINS_STRING:
-    @FeatureDefinition.register_feature_generator('contains_' + s)
+    @FeatureDefinition.register_feature_generator(f'contains_{s}')
     def f(completion, s=s, **_):
         return 1 if s in completion.name else 0
 
@@ -278,7 +278,7 @@ KEYWORDS = (
     'round'
 )
 for keyword in KEYWORDS:
-    @FeatureDefinition.register_feature_generator('kw_' + keyword)
+    @FeatureDefinition.register_feature_generator(f'kw_{keyword}')
     def f(completion, keyword=keyword, **_):
         return int(completion.name == keyword)
 
@@ -335,7 +335,7 @@ def f(line_content, ch, **_):
 
 LEFT_CHAR = ['(', '[', '{', '=', ',', '@', ':']
 for c in LEFT_CHAR:
-    @FeatureDefinition.register_feature_generator('left_char_is_' + c, True)
+    @FeatureDefinition.register_feature_generator(f'left_char_is_{c}', True)
     def f(line_content, ch, c=c, **_):
         for i in reversed(line_content[:ch]):
             if i.isspace():
@@ -343,6 +343,19 @@ for c in LEFT_CHAR:
             if i == c:
                 return 1
         return 0
+
+
+ENDING = ['(', '[', '{', '}', ']', ')', ',', ':']
+for c in ENDING:
+    @FeatureDefinition.register_feature_generator(f'last_line_ends_with_{c}', True)
+    def f(doc, line, c=c, **_):
+        if line < 1:
+            return 0
+        last_line = doc[line - 1]
+        if last_line:
+            return last_line[-1] == c
+        return 0
+
 
 IN_FUNCTION_SIGNATURE = [
     'abs',
@@ -592,6 +605,8 @@ def f(context, line, completion, **_):
         return MAX
     result = min(abs(l - line) for l in matched_line_numbers)
     return result
+
+
 
 # @FeatureDefinition.register_feature_generator('contains_in_line')
 # def f(completion, line_content, **_):
