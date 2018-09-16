@@ -42,7 +42,7 @@ def f(line_content, ch, **_):
     return 0 if head else 1
 
 
-LEFT_CHAR = ['(', '[', '{', '=', ',', '@', ':']
+LEFT_CHAR = ['(', '[', '{', '=', ',', '@', ':', '.']
 for c in LEFT_CHAR:
     @FeatureDefinition.register_feature_generator(f'left_char_is_{c}', True)
     def f(line_content, ch, c=c, **_):

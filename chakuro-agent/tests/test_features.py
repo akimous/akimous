@@ -228,3 +228,4 @@ def test_last_line_first_token_partial_ratio():
 
 def test_last_n_lines_first_token_partial_ratio():
     assert get_completion(47, 27, 'regularizers').last_n_lines_first_token_partial_ratio == 100
+    
