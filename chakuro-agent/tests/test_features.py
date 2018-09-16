@@ -200,3 +200,15 @@ def test_trigram_match():
 def test_last_line_ends_with():
     assert get_completion(35, 5, 'def')['last_line_ends_with_:'] == 1
     assert get_completion(9, 4, 'UPPER')['last_line_ends_with_:'] == 0
+
+
+def test_first_token_ratio():
+    assert get_completion(22, 20, '__dunder').first_token_ratio == 63
+    assert get_completion(35, 5, 'def').first_token_ratio == -1
+
+
+def test_first_token_partial_ratio():
+    assert get_completion(22, 20, '__dunder').first_token_partial_ratio == 75
+    assert get_completion(35, 5, 'def').first_token_partial_ratio == -1
+    assert get_completion(45, 15, 'Placeholder').first_token_partial_ratio == 100
+

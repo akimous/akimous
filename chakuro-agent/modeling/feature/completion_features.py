@@ -1,5 +1,7 @@
 from .feature_definition import FeatureDefinition, MAX, MAX_SCAN_LINES
 import re
+import token as token_
+from fuzzywuzzy import fuzz
 
 
 COMPLETION_TYPES = [
@@ -210,3 +212,29 @@ def f(context, line, completion, **_):
         return MAX
     result = min(abs(l - line) for l in matched_line_numbers)
     return result
+
+
+@FeatureDefinition.register_feature_generator('first_token_ratio')
+def f(context, line, ch, completion, **_):
+    current_line_tokens = context.line_to_tokens[line]
+    first_token = ''
+    for token in current_line_tokens:
+        if token.type == token_.NAME:
+            first_token = token.string
+            break
+    if ch < token.end[1]:
+        return -1
+    return fuzz.ratio(first_token, completion.name)
+
+
+@FeatureDefinition.register_feature_generator('first_token_partial_ratio')
+def f(context, line, ch, completion, **_):
+    current_line_tokens = context.line_to_tokens[line]
+    first_token = ''
+    for token in current_line_tokens:
+        if token.type == token_.NAME:
+            first_token = token.string
+            break
+    if ch < token.end[1]:
+        return -1
+    return fuzz.partial_ratio(first_token.lower(), completion.name.lower())
