@@ -88,6 +88,15 @@ cd chakuro-agent
 poetry run python -m modeling.split $1
 ```
 
+## count
+
+poetry run python -m modeling.generate_token_statistics
+
+```bash
+cd chakuro-agent
+poetry run python -m modeling.generate_token_statistics
+```
+
 ## extract
 
 extract features in parallel

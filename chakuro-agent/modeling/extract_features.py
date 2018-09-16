@@ -10,7 +10,6 @@ from .utility import p, working_dir, sha3
 import logzero
 from logzero import logger as log
 import logging
-# from memory_profiler import profile
 
 
 def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=False):

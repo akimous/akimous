@@ -89,7 +89,7 @@ yarn run release
 |      | (143186, 166), 3243 small    | 15.15% | 74.09%     | **left char is dot**                                         |
 |      | (143186, 166), 3243 small    | 15.15% | 73.89%     | first token ratio should consider STRING (dict key)          |
 |      | (143186, 166), 3243 small    | 15.15% | 73.68%     | if token.start[1] <= ch < token.end[1]: return -2 (rolled back) |
-|      |                              |        |            |                                                              |
+|      | (143186, 168), 3243 small    | 15.15% | 74.08%     | **all token ratio**                                          |
 
 * **statistical frequency, bi-gram, tri-gram, skip-gram**
 * float distance

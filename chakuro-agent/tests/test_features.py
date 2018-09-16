@@ -237,4 +237,4 @@ def test_all_token_ratio():
 
 def test_last_line_all_token_ratio():
     assert get_completion(48, 12, 'regularizers').last_line_all_token_ratio == 100
-    assert get_completion(22, 20, '__dunder').last_line_all_token_ratio == 27
+    assert get_completion(22, 20, '__dunder').last_line_all_token_ratio == 38
