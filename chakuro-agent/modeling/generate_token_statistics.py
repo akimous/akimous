@@ -41,6 +41,6 @@ if __name__ == "__main__":
         for file in tqdm(f, disable=False):
             run_file(file.strip())
 
-    serialize(single_token_counter, 'single.msgpack')
-    serialize(double_token_counter, 'double.msgpack')
-    serialize(triple_token_counter, 'triple.msgpack')
+    serialize(single_token_counter, 'single.msgpack.lzma')
+    serialize(double_token_counter, 'double.msgpack.lzma')
+    serialize(triple_token_counter, 'triple.msgpack.lzma')
