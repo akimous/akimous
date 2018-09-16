@@ -231,5 +231,10 @@ def test_last_n_lines_first_token_partial_ratio():
     assert get_completion(47, 27, 'regularizers').last_n_lines_first_token_partial_ratio == 100
 
 
-# def test_all_token_ratio():
-#     assert get_completion(48, 47, 'kernel_regularizer').all_token_ratio == 73
+def test_all_token_ratio():
+    assert get_completion(48, 47, 'kernel_regularizer').all_token_ratio == 73
+
+
+def test_last_line_all_token_ratio():
+    assert get_completion(48, 12, 'regularizers').last_line_all_token_ratio == 100
+    assert get_completion(22, 20, '__dunder').last_line_all_token_ratio == 27
