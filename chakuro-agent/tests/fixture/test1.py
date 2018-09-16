@@ -44,7 +44,8 @@ class Placeholder:
 regularizers = Regularizers()
 placeholder = Placeholder()
 d = {
-    'kernel_regularizer': regularizers.serialize(placeholder.kernel_regularizer)
+    'kernel_regularizer': regularizers.serialize(placeholder.kernel_regularizer),
+    'bla': regularizers.serialize(placeholder.kernel_regularizer),
 }
 
 pass

@@ -215,26 +215,28 @@ def f(context, line, completion, **_):
 @FeatureDefinition.register_feature_generator('first_token_ratio')
 def f(context, line, ch, completion, **_):
     current_line_tokens = context.line_to_tokens[line]
-    first_token = ''
     for token in current_line_tokens:
         if token.type in (token_.NAME, token_.STRING):
             first_token = token.string
             break
-    if ch < token.end[1]:
+    else:
         return -1
+    if token.start[1] <= ch < token.end[1]:
+        return -2
     return fuzz.ratio(first_token, completion.name)
 
 
 @FeatureDefinition.register_feature_generator('first_token_partial_ratio')
 def f(context, line, ch, completion, **_):
     current_line_tokens = context.line_to_tokens[line]
-    first_token = ''
     for token in current_line_tokens:
         if token.type in (token_.NAME, token_.STRING):
             first_token = token.string
             break
-    if ch < token.end[1]:
+    else:
         return -1
+    if token.start[1] <= ch < token.end[1]:
+        return -2
     return fuzz.partial_ratio(first_token.lower(), completion.name.lower())
 
 
@@ -281,3 +283,15 @@ def f(context, line, completion, **_):
                 break
         result = max(result, fuzz.partial_ratio(first_token.lower(), completion.name.lower()))
     return result
+
+
+# @FeatureDefinition.register_feature_generator('all_token_ratio')
+# def f(context, line, ch, completion, **_):
+#     current_line_tokens = context.line_to_tokens[line]
+#     result = -1
+#     for token in current_line_tokens:
+#         if token.start[1] <= ch < token.end[1]:
+#             continue
+#         if token.type in (token_.NAME, token_.STRING):
+#             result = max(result, fuzz.ratio(token.string, completion.name))
+#     return result

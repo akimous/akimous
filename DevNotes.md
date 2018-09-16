@@ -86,6 +86,8 @@ yarn run release
 |      | (143186, 162), 3243 small    | 15.15% | 73.31%     | don't return -1 when on the same token (rolled back) |
 |      | (143186, 164), 3243 small    | 15.15% | 73.63%     | **last line first token partial ratio**              |
 |      | (143186, 165), 3243 small    | 15.15% | 74.08%     | **last n lines first token partial ratio**           |
+|      | (143186, 166), 3243 small    | 15.15% | 74.09%     | left char is dot                                     |
+|      | (143186, 166), 3243 small    | 15.15% | 73.89%     | first token ratio should consider STRING (dict key)  |
 
 * **statistical frequency, bi-gram, tri-gram, skip-gram**
 * float distance
