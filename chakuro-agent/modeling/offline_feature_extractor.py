@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
-# from types import SimpleNamespace
-from .feature_definition import FeatureDefinition
-from .utility import p
+from modeling.feature import FeatureDefinition
 
 INITIAL_SIZE = 1
 

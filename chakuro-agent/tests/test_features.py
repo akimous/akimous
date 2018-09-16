@@ -13,6 +13,7 @@ def test_extract_feature():
     extract_features.run_file(file, feature_extractor, silent=True, zero_length_prediction=True)
     feature_extractor.finalize()
     df = feature_extractor.dataframe()
+    print(df.shape)
     # for i in feature_extractor.tokens:
     #     if i.start[0] == 23:
     #         print(i)
