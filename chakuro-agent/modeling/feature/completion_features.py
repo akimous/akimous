@@ -217,7 +217,7 @@ def f(context, line, ch, completion, **_):
     current_line_tokens = context.line_to_tokens[line]
     first_token = ''
     for token in current_line_tokens:
-        if token.type == token_.NAME:
+        if token.type in (token_.NAME, token_.STRING):
             first_token = token.string
             break
     if ch < token.end[1]:
@@ -230,7 +230,7 @@ def f(context, line, ch, completion, **_):
     current_line_tokens = context.line_to_tokens[line]
     first_token = ''
     for token in current_line_tokens:
-        if token.type == token_.NAME:
+        if token.type in (token_.NAME, token_.STRING):
             first_token = token.string
             break
     if ch < token.end[1]:
@@ -246,7 +246,7 @@ def f(context, line, completion, **_):
         return -1
     first_token = ''
     for token in current_line_tokens:
-        if token.type == token_.NAME:
+        if token.type in (token_.NAME, token_.STRING):
             first_token = token.string
             break
     return fuzz.ratio(first_token, completion.name)
@@ -260,7 +260,7 @@ def f(context, line, completion, **_):
         return -1
     first_token = ''
     for token in current_line_tokens:
-        if token.type == token_.NAME:
+        if token.type in (token_.NAME, token_.STRING):
             first_token = token.string
             break
     return fuzz.partial_ratio(first_token.lower(), completion.name.lower())
