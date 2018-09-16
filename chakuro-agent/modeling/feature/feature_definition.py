@@ -1,8 +1,6 @@
-import re
 from types import SimpleNamespace
 
 import Levenshtein
-from contextlib import suppress
 from fuzzywuzzy import fuzz
 from collections import OrderedDict
 from tokenize import generate_tokens, TokenError
