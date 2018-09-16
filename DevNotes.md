@@ -69,25 +69,27 @@ yarn run release
 
 
 
-| Date | Training Dataset             | Random | Model      | Comment                                              |
-| ---- | ---------------------------- | ------ | ---------- | ---------------------------------------------------- |
-| 8/28 | (70426, 78), 2770 small      | 12.67% | 70.06%     |                                                      |
-|      | (1209917, 78), 28737 medium  | 14.15% | **70.79%** | 38min / 1min                                         |
-| 8/29 | (70426, 80), 2770 small      | 12.67% | 70.92%     | **starts with _, __**                                |
-| 8/31 | (70426, 82), 2770 small      | 12.67% | 70.48%     | indent, indent_delta                                 |
-|      | (70426, 83), 2770 small      | 12.67% | 69.55%     | line_number                                          |
-| 9/12 | (143186, 151), 3243 small    | 15.15% | 73.65%     | **bugs fixed, added popular builtins**               |
-|      | (143186, 151), 3243 small    | 15.15% | 72.75%     | return MAX when t1/2/3 not found                     |
-|      | (1529931, 151), 29209 medium | 15.51% | **71.90%** |                                                      |
-| 9/13 | (1529931, 151), 29209 medium | 15.51% | **72.05%** | return MAX when t2/3 not found                       |
-| 9/14 | (143186, 152), 3243 small    | 15.15% | 72.45%     | trigram                                              |
-|      | (143186, 160), 3243 small    | 15.15% | 72.15%     | last line ends with                                  |
-| 9/16 | (143186, 162), 3243 small    | 15.15% | 73.57%     | **first token (partial) ratio**                      |
-|      | (143186, 162), 3243 small    | 15.15% | 73.31%     | don't return -1 when on the same token (rolled back) |
-|      | (143186, 164), 3243 small    | 15.15% | 73.63%     | **last line first token partial ratio**              |
-|      | (143186, 165), 3243 small    | 15.15% | 74.08%     | **last n lines first token partial ratio**           |
-|      | (143186, 166), 3243 small    | 15.15% | 74.09%     | left char is dot                                     |
-|      | (143186, 166), 3243 small    | 15.15% | 73.89%     | first token ratio should consider STRING (dict key)  |
+| Date | Training Dataset             | Random | Model      | Comment                                                      |
+| ---- | ---------------------------- | ------ | ---------- | ------------------------------------------------------------ |
+| 8/28 | (70426, 78), 2770 small      | 12.67% | 70.06%     |                                                              |
+|      | (1209917, 78), 28737 medium  | 14.15% | **70.79%** | 38min / 1min                                                 |
+| 8/29 | (70426, 80), 2770 small      | 12.67% | 70.92%     | **starts with _, __**                                        |
+| 8/31 | (70426, 82), 2770 small      | 12.67% | 70.48%     | indent, indent_delta                                         |
+|      | (70426, 83), 2770 small      | 12.67% | 69.55%     | line_number                                                  |
+| 9/12 | (143186, 151), 3243 small    | 15.15% | 73.65%     | **bugs fixed, added popular builtins**                       |
+|      | (143186, 151), 3243 small    | 15.15% | 72.75%     | return MAX when t1/2/3 not found                             |
+|      | (1529931, 151), 29209 medium | 15.51% | **71.90%** |                                                              |
+| 9/13 | (1529931, 151), 29209 medium | 15.51% | **72.05%** | return MAX when t2/3 not found                               |
+| 9/14 | (143186, 152), 3243 small    | 15.15% | 72.45%     | trigram                                                      |
+|      | (143186, 160), 3243 small    | 15.15% | 72.15%     | last line ends with                                          |
+| 9/16 | (143186, 162), 3243 small    | 15.15% | 73.57%     | **first token (partial) ratio**                              |
+|      | (143186, 162), 3243 small    | 15.15% | 73.31%     | don't return -1 when on the same token (rolled back)         |
+|      | (143186, 164), 3243 small    | 15.15% | 73.63%     | **last line first token partial ratio**                      |
+|      | (143186, 165), 3243 small    | 15.15% | 74.08%     | **last n lines first token partial ratio**                   |
+|      | (143186, 166), 3243 small    | 15.15% | 74.09%     | **left char is dot**                                         |
+|      | (143186, 166), 3243 small    | 15.15% | 73.89%     | first token ratio should consider STRING (dict key)          |
+|      | (143186, 166), 3243 small    | 15.15% | 73.68%     | if token.start[1] <= ch < token.end[1]: return -2 (rolled back) |
+|      |                              |        |            |                                                              |
 
 * **statistical frequency, bi-gram, tri-gram, skip-gram**
 * float distance
