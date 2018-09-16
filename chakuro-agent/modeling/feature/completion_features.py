@@ -238,3 +238,32 @@ def f(context, line, ch, completion, **_):
     if ch < token.end[1]:
         return -1
     return fuzz.partial_ratio(first_token.lower(), completion.name.lower())
+
+
+@FeatureDefinition.register_feature_generator('last_line_first_token_ratio')
+def f(context, line, completion, **_):
+    try:
+        current_line_tokens = context.line_to_tokens[line-1]
+    except KeyError:
+        return -1
+    first_token = ''
+    for token in current_line_tokens:
+        if token.type == token_.NAME:
+            first_token = token.string
+            break
+    return fuzz.ratio(first_token, completion.name)
+
+
+@FeatureDefinition.register_feature_generator('last_line_first_token_partial_ratio')
+def f(context, line, completion, **_):
+    try:
+        current_line_tokens = context.line_to_tokens[line-1]
+    except KeyError:
+        return -1
+    first_token = ''
+    for token in current_line_tokens:
+        if token.type == token_.NAME:
+            first_token = token.string
+            break
+    return fuzz.partial_ratio(first_token.lower(), completion.name.lower())
+

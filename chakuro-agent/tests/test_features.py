@@ -212,3 +212,15 @@ def test_first_token_partial_ratio():
     assert get_completion(35, 5, 'def').first_token_partial_ratio == -1
     assert get_completion(45, 15, 'Placeholder').first_token_partial_ratio == 100
 
+
+def test_last_line_first_token_ratio():
+    assert get_completion(21, 4, 'is_good').last_line_first_token_ratio == 100
+    assert get_completion(1, 1, 'def').last_line_first_token_ratio == -1
+    assert get_completion(47, 27, 'regularizers').last_line_first_token_ratio == 0
+
+
+def test_last_line_first_token_partial_ratio():
+    assert get_completion(21, 4, 'is_good').last_line_first_token_partial_ratio == 100
+    assert get_completion(1, 1, 'def').last_line_first_token_partial_ratio == -1
+    assert get_completion(47, 27, 'regularizers').last_line_first_token_partial_ratio == 0
+    assert get_completion(45, 15, 'Placeholder').last_line_first_token_partial_ratio == 36
