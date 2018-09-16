@@ -83,7 +83,9 @@ yarn run release
 | 9/14 | (143186, 152), 3243 small    | 15.15% | 72.45%     | trigram                                |
 |      | (143186, 160), 3243 small    | 15.15% | 72.15%     | last line ends with                    |
 | 9/16 | (143186, 162), 3243 small    | 15.15% | 73.57%     | first token (partial) ratio            |
-|      | (143186, 162), 3243 small    | 15.15% | 73.31      | don't return -1 when on the same token |
+|      | (143186, 162), 3243 small    | 15.15% | 73.31%     | don't return -1 when on the same token |
+|      | (143186, 164), 3243 small    | 15.15% | 73.63%     | last line first token partial ratio    |
+|      |                              |        |            |                                        |
 
 
 

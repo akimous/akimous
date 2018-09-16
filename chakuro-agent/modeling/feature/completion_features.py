@@ -3,7 +3,6 @@ import re
 import token as token_
 from fuzzywuzzy import fuzz
 
-
 COMPLETION_TYPES = [
     'class',
     'function',
@@ -17,7 +16,6 @@ for t in COMPLETION_TYPES:
     @FeatureDefinition.register_feature_generator(t)
     def f(completion, t=t, **_):
         return 1 if completion.type == t else 0
-
 
 # TODO: type bi-gram, (name, type) and (type, name) bi-gram tuples
 COMPLETION_DATA_TYPES = [
@@ -243,7 +241,7 @@ def f(context, line, ch, completion, **_):
 @FeatureDefinition.register_feature_generator('last_line_first_token_ratio')
 def f(context, line, completion, **_):
     try:
-        current_line_tokens = context.line_to_tokens[line-1]
+        current_line_tokens = context.line_to_tokens[line - 1]
     except KeyError:
         return -1
     first_token = ''
@@ -257,7 +255,7 @@ def f(context, line, completion, **_):
 @FeatureDefinition.register_feature_generator('last_line_first_token_partial_ratio')
 def f(context, line, completion, **_):
     try:
-        current_line_tokens = context.line_to_tokens[line-1]
+        current_line_tokens = context.line_to_tokens[line - 1]
     except KeyError:
         return -1
     first_token = ''
@@ -267,3 +265,19 @@ def f(context, line, completion, **_):
             break
     return fuzz.partial_ratio(first_token.lower(), completion.name.lower())
 
+
+@FeatureDefinition.register_feature_generator('last_n_lines_first_token_partial_ratio')
+def f(context, line, completion, **_):
+    result = -1
+    for l in range(line - 2, max(-1, line - 7), -1):
+        try:
+            current_line_tokens = context.line_to_tokens[l]
+        except KeyError:
+            continue
+        first_token = ''
+        for token in current_line_tokens:
+            if token.type == token_.NAME:
+                first_token = token.string
+                break
+        result = max(result, fuzz.partial_ratio(first_token.lower(), completion.name.lower()))
+    return result
