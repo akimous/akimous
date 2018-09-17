@@ -7,9 +7,9 @@ from logzero import logger as log
 from tqdm import tqdm
 from .utility import working_dir
 
-single_token_counter = defaultdict(int)
-double_token_counter = defaultdict(int)
-triple_token_counter = defaultdict(int)
+token_counter = defaultdict(int)
+bigram_counter = defaultdict(int)
+trigram_counter = defaultdict(int)
 
 
 def run_file(file_path):
@@ -19,9 +19,9 @@ def run_file(file_path):
             if token.type not in (token_.STRING, token_.OP, token_.NAME) or len(token.string) > 30:
                 continue
             t2, t1, t0 = t1, t0, token.string
-            single_token_counter[t0] += 1
-            double_token_counter[(t1, t0)] += 1
-            triple_token_counter[(t2, t1, t0)] += 1
+            token_counter[t0] += 1
+            bigram_counter[(t1, t0)] += 1
+            trigram_counter[(t2, t1, t0)] += 1
 
 
 def serialize(counter, file_name, ratio=.01):
@@ -41,6 +41,6 @@ if __name__ == "__main__":
         for file in tqdm(f, disable=False):
             run_file(file.strip())
 
-    serialize(single_token_counter, 'single.msgpack.lzma')
-    serialize(double_token_counter, 'double.msgpack.lzma')
-    serialize(triple_token_counter, 'triple.msgpack.lzma')
+    serialize(token_counter, 'token.msgpack.lzma')
+    serialize(bigram_counter, 'bigram.msgpack.lzma')
+    serialize(trigram_counter, 'trigram.msgpack.lzma')

@@ -1,12 +1,13 @@
+import lzma
 from types import SimpleNamespace
-
-import Levenshtein
-from fuzzywuzzy import fuzz
 from collections import OrderedDict
 from tokenize import generate_tokens, TokenError
 from io import StringIO
+
+import msgpack
+
 from modeling.token_map import TokenMap, DirtyMap
-from modeling.utility import p, to_key_value_columns
+from modeling.utility import p, to_key_value_columns, working_dir
 
 NOT_APPLICABLE = -99999
 MAX = 99999
@@ -17,11 +18,19 @@ MAX_SCAN_LINES = 20
 _EMPTY = tuple()
 
 
+def _load_token_statistics(file_name):
+    with lzma.open(working_dir / file_name, 'rb') as f:
+        return msgpack.unpack(f, use_list=False, raw=False)
+
+
 class FeatureDefinition:
     context_features = OrderedDict()
     preprocessors = []
     context_names_required_by_preprocessors = OrderedDict()
     token_features = OrderedDict()
+    token_frequency = _load_token_statistics('token.msgpack.lzma')
+    bigram_frequency = _load_token_statistics('bigram.msgpack.lzma')
+    trigram_frequency = _load_token_statistics('trigram.msgpack.lzma')
 
     @staticmethod
     def register_feature_generator(feature_name, is_context_feature=False):
@@ -51,7 +60,6 @@ class FeatureDefinition:
         self.n_context_features = len(FeatureDefinition.context_features)
         self.n_token_features = len(FeatureDefinition.token_features)
         self.n_features = self.n_context_features + self.n_token_features
-        # self.stack_context_info = self.get_stack_context_info(None)
 
         self.name_to_feature_index = OrderedDict()
         self.normalization_source_feature_indice = []

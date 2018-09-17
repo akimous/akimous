@@ -238,3 +238,24 @@ def test_all_token_ratio():
 def test_last_line_all_token_ratio():
     assert get_completion(48, 12, 'regularizers').last_line_all_token_ratio == 100
     assert get_completion(22, 20, '__dunder').last_line_all_token_ratio == 38
+
+
+def test_token_frequency():
+    def_freq = get_completion(35, 5, 'def').token_frequency
+    class_freq = get_completion(12, 1, 'class').token_frequency
+    dog_freq = get_completion(16, 7, 'Dog').token_frequency
+    assert def_freq > class_freq
+    assert def_freq > dog_freq
+
+
+def test_bigram_frequency():
+    def_init = get_completion(40, 9, '__init__').bigram_frequency
+    if_not = get_completion(23, 8, 'not').bigram_frequency
+    raise_value_error = get_completion(24, 15, 'ValueError').bigram_frequency
+    assert if_not > def_init
+    assert if_not > raise_value_error
+
+
+def test_trigram_frequency():
+    # TODO: add test
+    pass
