@@ -155,4 +155,4 @@ if __name__ == "__main__":
                     open(extraction_path / f'{sha3(file)}.pkl', 'wb'),
                     protocol=4)
     log.info(f'Context features: {len(feature_extractor.context_features)}')
-    log.info(f'Token features: {len(feature_extractor.token_features)}')
+    log.info(f'Token features: {len(feature_extractor.completion_features)}')
