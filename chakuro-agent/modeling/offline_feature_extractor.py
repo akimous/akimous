@@ -56,11 +56,11 @@ class OfflineFeatureExtractor(FeatureDefinition):
                             context=self.context
                             # stack_context_info=self.stack_context_info
                             )
-                self.sample[i + len(FeatureDefinition.token_features)] = feature
+                self.sample[i + len(FeatureDefinition.completion_features)] = feature
 
         self.last_token = token
 
-        for i, f in enumerate(FeatureDefinition.token_features.values()):
+        for i, f in enumerate(FeatureDefinition.completion_features.values()):
             self.sample[i] = f(completion=completion,
                                line_content=line_content[:ch],
                                line=line - 1, ch=ch - 1, doc=doc,
@@ -90,7 +90,7 @@ class OfflineFeatureExtractor(FeatureDefinition):
         self.y.resize(self.n_samples)
 
     def dataframe(self):
-        feature_names = list(FeatureDefinition.token_features) + list(FeatureDefinition.context_features)
+        feature_names = list(FeatureDefinition.completion_features) + list(FeatureDefinition.context_features)
         df = pd.DataFrame(self.X, columns=feature_names)
         token_names = pd.DataFrame(self.completions, columns=['c'])
         y = pd.DataFrame(self.y, columns=['y'])

@@ -44,11 +44,11 @@ class OnlineFeatureExtractor(FeatureDefinition):
                         context=self.context
                         # stack_context_info=self.stack_context_info
                         )
-            self.sample[i+len(FeatureDefinition.token_features)] = feature
+            self.sample[i + len(FeatureDefinition.completion_features)] = feature
             
         # completion features
         for completion in completions:
-            for i, f in enumerate(FeatureDefinition.token_features.values()):
+            for i, f in enumerate(FeatureDefinition.completion_features.values()):
                 self.sample[i] = f(completion=completion,
                                    line_content=line_content[:ch],
                                    line=line-1, ch=ch, doc=doc,

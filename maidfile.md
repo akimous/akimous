@@ -65,7 +65,7 @@ Run pytest
 
 ```bash
 cd chakuro-agent
-poetry run python -m pytest -s
+poetry run python -m pytest -sx
 ```
 
 # Modeling

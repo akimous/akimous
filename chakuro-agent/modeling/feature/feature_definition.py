@@ -5,13 +5,13 @@ from tokenize import generate_tokens, TokenError
 from io import StringIO
 
 import msgpack
+import numpy as np
 
 from modeling.token_map import TokenMap, DirtyMap
 from modeling.utility import p, to_key_value_columns, working_dir
 
 NOT_APPLICABLE = -99999
 MAX = 99999
-SIGMA_SCALING_FACTOR = 1000
 UNIT_SCALING_FACTOR = 10000
 EPSILON = .001
 MAX_SCAN_LINES = 20
@@ -24,21 +24,29 @@ def _load_token_statistics(file_name):
 
 
 class FeatureDefinition:
-    context_features = OrderedDict()
     preprocessors = []
+    context_features = OrderedDict()
+    completion_features = OrderedDict()
+    completion_feature_indices_require_normalization = []
     context_names_required_by_preprocessors = OrderedDict()
-    token_features = OrderedDict()
-    token_frequency = _load_token_statistics('token.msgpack.lzma')
-    bigram_frequency = _load_token_statistics('bigram.msgpack.lzma')
-    trigram_frequency = _load_token_statistics('trigram.msgpack.lzma')
+
+    token_frequency = _load_token_statistics('token.xz')
+    bigram_frequency = _load_token_statistics('bigram.xz')
+    trigram_frequency = _load_token_statistics('trigram.xz')
 
     @staticmethod
-    def register_feature_generator(feature_name, is_context_feature=False):
+    def register_feature_generator(feature_name, is_context_feature=False, normalized=False):
         def inner(f):
             if is_context_feature:
                 FeatureDefinition.context_features[feature_name] = f
+                if normalized:
+                    raise NotImplementedError
             else:
-                FeatureDefinition.token_features[feature_name] = f
+                FeatureDefinition.completion_features[feature_name] = f
+                if normalized:
+                    FeatureDefinition.completion_feature_indices_require_normalization.append(
+                        len(FeatureDefinition.completion_features) - 1
+                    )
             return f
 
         return inner
@@ -58,24 +66,21 @@ class FeatureDefinition:
     def __init__(self):
         self.context = SimpleNamespace()
         self.n_context_features = len(FeatureDefinition.context_features)
-        self.n_token_features = len(FeatureDefinition.token_features)
+        self.n_token_features = len(FeatureDefinition.completion_features)
         self.n_features = self.n_context_features + self.n_token_features
+        self.normalized_features = np.array(
+            FeatureDefinition.completion_feature_indices_require_normalization) + self.n_context_features
 
+        self.current_completion_start_index = 0
+        self.n_samples = 0
         self.name_to_feature_index = OrderedDict()
-        self.normalization_source_feature_indices = []
-        self.normalization_target_feature_indices = []
-        for i, k in enumerate(FeatureDefinition.token_features.keys()):
+
+        for i, k in enumerate(FeatureDefinition.completion_features.keys()):
             self.name_to_feature_index[k] = i
         for i, k in enumerate(FeatureDefinition.context_features.keys()):
             self.name_to_feature_index[k] = i + self.n_token_features
         p(to_key_value_columns(self.name_to_feature_index.keys(), self.name_to_feature_index.values()))
 
-        for name in self.name_to_feature_index.keys():
-            if 'normalized' in name:
-                self.normalization_source_feature_indices.append(self.name_to_feature_index[name[:-len('_normalized')]])
-                self.normalization_target_feature_indices.append(self.name_to_feature_index[name])
-        p('Need normalization:', self.normalization_source_feature_indices, '=>',
-          self.normalization_target_feature_indices)
         for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
             setattr(self.context, k, v)
 
@@ -137,19 +142,16 @@ class FeatureDefinition:
 
     def normalize_feature(self):
         data = self.X[self.current_completion_start_index:self.n_samples,
-               self.normalization_source_feature_indices]
+                      self.normalized_features]
         for i in range(data.shape[1]):
             column = data[:, i]
-            mask = column > NOT_APPLICABLE
-            if mask.sum() == 0: continue
-            masked_values = column[mask]
-            std = masked_values.std()
-            if std < EPSILON: continue
-            data[mask, i] = (masked_values - masked_values.mean()) / masked_values.std() * SIGMA_SCALING_FACTOR
-
+            minimum = column.min()
+            maximum = column.max()
+            if maximum - minimum < EPSILON:
+                continue
+            data[:, i] = UNIT_SCALING_FACTOR * (column - minimum) / (maximum - minimum)
         self.X[self.current_completion_start_index:self.n_samples,
-        self.normalization_target_feature_indices] = data
-
+               self.normalized_features] = data
 
 # ch: 0-based
 # line: 0-based
