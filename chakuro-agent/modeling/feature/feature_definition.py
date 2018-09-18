@@ -62,8 +62,8 @@ class FeatureDefinition:
         self.n_features = self.n_context_features + self.n_token_features
 
         self.name_to_feature_index = OrderedDict()
-        self.normalization_source_feature_indice = []
-        self.normalization_target_feature_indice = []
+        self.normalization_source_feature_indices = []
+        self.normalization_target_feature_indices = []
         for i, k in enumerate(FeatureDefinition.token_features.keys()):
             self.name_to_feature_index[k] = i
         for i, k in enumerate(FeatureDefinition.context_features.keys()):
@@ -72,10 +72,10 @@ class FeatureDefinition:
 
         for name in self.name_to_feature_index.keys():
             if 'normalized' in name:
-                self.normalization_source_feature_indice.append(self.name_to_feature_index[name[:-len('_normalized')]])
-                self.normalization_target_feature_indice.append(self.name_to_feature_index[name])
-        p('Need normalization:', self.normalization_source_feature_indice, '=>',
-          self.normalization_target_feature_indice)
+                self.normalization_source_feature_indices.append(self.name_to_feature_index[name[:-len('_normalized')]])
+                self.normalization_target_feature_indices.append(self.name_to_feature_index[name])
+        p('Need normalization:', self.normalization_source_feature_indices, '=>',
+          self.normalization_target_feature_indices)
         for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
             setattr(self.context, k, v)
 
@@ -137,7 +137,7 @@ class FeatureDefinition:
 
     def normalize_feature(self):
         data = self.X[self.current_completion_start_index:self.n_samples,
-               self.normalization_source_feature_indice]
+               self.normalization_source_feature_indices]
         for i in range(data.shape[1]):
             column = data[:, i]
             mask = column > NOT_APPLICABLE
@@ -148,7 +148,7 @@ class FeatureDefinition:
             data[mask, i] = (masked_values - masked_values.mean()) / masked_values.std() * SIGMA_SCALING_FACTOR
 
         self.X[self.current_completion_start_index:self.n_samples,
-        self.normalization_target_feature_indice] = data
+        self.normalization_target_feature_indices] = data
 
 
 # ch: 0-based
