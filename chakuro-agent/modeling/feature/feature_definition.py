@@ -141,7 +141,7 @@ class FeatureDefinition:
     #     return result
 
     def normalize_feature(self):
-        if not self.normalized_features:
+        if len(self.normalized_features) == 0:
             return
         data = self.X[self.current_completion_start_index:self.n_samples,
                       self.normalized_features]
