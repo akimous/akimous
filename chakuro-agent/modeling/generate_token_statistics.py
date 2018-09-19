@@ -41,6 +41,6 @@ if __name__ == "__main__":
         for file in tqdm(f, disable=False):
             run_file(file.strip())
 
-    serialize(token_counter, 'token.xz')
-    serialize(bigram_counter, 'bigram.xz')
-    serialize(trigram_counter, 'trigram.xz')
+    serialize(token_counter, 'token.xz', ratio=0.0001)
+    serialize(bigram_counter, 'bigram.xz', ratio=0.001)
+    serialize(trigram_counter, 'trigram.xz', ratio=0.01)

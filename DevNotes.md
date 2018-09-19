@@ -91,6 +91,8 @@ yarn run release
 |      | (143186, 166), 3243 small    | 15.15% | 73.68%     | if token.start[1] <= ch < token.end[1]: return -2 (rolled back) |
 |      | (143186, 168), 3243 small    | 15.15% | 74.08%     | **all token ratio**                                          |
 | 9/18 | (143186, 171), 3243 small    | 15.15% | 75.16%     | **token, bigram, trigram frequencies**                       |
+|      | (143186, 171), 3243 small    | 15.15% | 74.89%     | normalized frequencies                                       |
+| 9/19 | (1529932, 171), 29209 medium | 15.51% | **75.07%** | normalized=True                                              |
 
 * **statistical frequency, bi-gram, tri-gram, skip-gram**
 * float distance

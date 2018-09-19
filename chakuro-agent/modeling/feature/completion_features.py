@@ -315,12 +315,12 @@ _bigram_frequency = FeatureDefinition.bigram_frequency
 _trigram_frequency = FeatureDefinition.trigram_frequency
 
 
-@FeatureDefinition.register_feature_generator('token_frequency', normalized=True)
+@FeatureDefinition.register_feature_generator('token_frequency', normalized=False)
 def f(completion, **_):
     return _token_frequency.get(completion.name, 0)
 
 
-@FeatureDefinition.register_feature_generator('bigram_frequency', normalized=True)
+@FeatureDefinition.register_feature_generator('bigram_frequency', normalized=False)
 def f(completion, context, **_):
     if not context.t1:
         return 0
@@ -328,7 +328,7 @@ def f(completion, context, **_):
     return _bigram_frequency.get(bigram, 0)
 
 
-@FeatureDefinition.register_feature_generator('trigram_frequency', normalized=True)
+@FeatureDefinition.register_feature_generator('trigram_frequency', normalized=False)
 def f(completion, context, **_):
     if not context.t2 or not context.t1:
         return 0
