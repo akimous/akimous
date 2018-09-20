@@ -94,6 +94,7 @@ yarn run release
 |      | (143186, 171), 3243 small    | 15.15% | 74.89%     | normalized frequencies                                       |
 | 9/19 | (1529932, 171), 29209 medium | 15.51% | **75.07%** | normalized=True                                              |
 |      | (1529932, 171), 29209        | 15.51% | **75.13%** | normalized=False                                             |
+|      | (1529932, 174), 29209        | 15.51% | 74.83%     | normalized=Both                                              |
 
 * float distance
 * first token in line is (identifier, keyword, def, if, self)
