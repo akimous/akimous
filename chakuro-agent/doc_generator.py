@@ -28,17 +28,17 @@ class DocGenerator:
     def __init__(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.doc_dir = Path(self.temp_dir.name) / 'doc'
+        self.doc_output_dir = Path(self.temp_dir.name) / 'doc_output'
         self.doc_file = self.doc_dir / 'index.rst'
         shutil.copytree(Path('./resources/doc_template'), self.doc_dir)
-        absolute_path = str(self.doc_dir.absolute())
-        app = Sphinx(absolute_path, absolute_path, absolute_path, absolute_path, 'html', freshenv=True)
+        absolute_doc_path = str(self.doc_dir.absolute())
+        absolute_doc_output_path = str(self.doc_output_dir.absolute())
+        app = Sphinx(absolute_doc_path, absolute_doc_path, absolute_doc_output_path, absolute_doc_path, 'html', freshenv=True)
         config = app.builder.config
         app.builder.env.srcdir = app.builder.srcdir
         app.builder.env.doctreedir = app.builder.doctreedir
         app.builder.env.find_files(config, app.builder.env.app.builder)
         app.builder.env.config = config
-        app.builder.env._nitpick_ignore = set(app.builder.env.config.nitpick_ignore)
-        # added, changed, removed = app.builder.env.get_outdated_files(False)
         self.app = app
         docnames = ['index']
         app.builder.env.app.emit('env-before-read-docs', app.builder.env, docnames)
