@@ -1,7 +1,7 @@
 import svelte from 'rollup-plugin-svelte'
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
-import babel from 'rollup-plugin-babel'
+import { terser } from 'rollup-plugin-terser'
 //import sizes from 'rollup-plugin-sizes'
 import postcss from 'rollup-plugin-postcss'
 import progress from 'rollup-plugin-progress'
@@ -34,13 +34,20 @@ export default {
             // extract: 'dist/bundle.css'
         }),
         production && progress(),
-        // NOTE: be careful that babel-plugin-transform-merge-sibling-variables 
-        // is breaking codemirror code folding, should be disabled in .babelrc (mergeVars)
-        production && babel(),
-        
+        production && terser({
+            warnings: true,
+            ecma: 8,
+            keep_classnames: true,
+            keep_fnames: true,
+            compress: {
+                drop_console: true,
+                unsafe: true,
+                passes: 3
+            }
+        }),
         // Causing TypeError: details.bundle.modules.forEach is not a function
         // production && sizes(),
-        
+
         !production && livereload(),
         !production && serve('dist')
     ]

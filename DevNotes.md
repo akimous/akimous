@@ -44,7 +44,8 @@ yarn run release
 | 6/3          | 91     | 74     | 88     | 4310     | 2722     | 860      | 201     | 338         | enabled service worker            |
 | 7/3          | 73     | 55     | 88     | 4520     | 2992     | 898      | 206     | 357         |                                   |
 | 8/24         | 64     | 81     | 88     | 4650     | 3120     | 934      | 212     | 353         | bump dep ver                      |
-|              |        |        |        |          |          |          |         |             |                                   |
+| 9/24         | 58     | 82     | 87     | 4420     |          | 938      | 213     | 354         | before upgrading babel            |
+| 9/25         | 58     | 81     | 87     | 4490     |          | 903      | 208     | 349         | migrate to terser                 |
 | **Target**   | **73** | **50** | **85** | **5000** | **3000** | **1000** | **300** | **1000**    |                                   |
 
 ## Prediction Accuracy
@@ -95,6 +96,7 @@ yarn run release
 | 9/19 | (1529932, 171), 29209 medium | 15.51% | **75.07%** | normalized=True                                              |
 |      | (1529932, 171), 29209        | 15.51% | **75.13%** | normalized=False                                             |
 |      | (1529932, 174), 29209        | 15.51% | 74.83%     | normalized=Both                                              |
+| 9/20 | (1529932, 171), 29209        |        | **76.47%** | RandomForest, min_split=1                                    |
 
 * float distance
 * first token in line is (identifier, keyword, def, if, self)
