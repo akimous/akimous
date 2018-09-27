@@ -104,6 +104,11 @@ extract features in parallel
 ```bash
 cd chakuro-agent
 cat $HOME/chakuro-working/training_list.txt $HOME/chakuro-working/testing_list.txt | parallel --progress --eta --memfree 2G --nice 17 poetry run python -m modeling.extract_features {} 1
+
+if [ $1 = 'shutdown' ]
+then
+	sudo shutdown -h now
+fi
 ```
 
 ## train
