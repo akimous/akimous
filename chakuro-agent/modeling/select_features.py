@@ -42,6 +42,7 @@ if __name__ == "__main__":
             model.fit(X[:, new_feature_mask], y)
             _, new_successful_count = test_model(model, Xt[:, new_feature_mask], yt, test_indices)
             feature_mask = new_feature_mask
+            successful_count = new_successful_count
             continue
 
         # remove features if the accuracy increases after removal
