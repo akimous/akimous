@@ -105,7 +105,7 @@ KEYWORDS = (
     'min',
     'setattr',
     'any',
-    'next',
+    # 'next', # removed on 20180929 for improved accuracy
     'sorted',
     'enumerate',
     'bool',

@@ -120,3 +120,16 @@ cd chakuro-agent
 poetry run python -m modeling.train single
 ```
 
+## select_features
+
+do feature selection
+
+```bash
+cd chakuro-agent
+poetry run python -m modeling.select_features
+if [ $1 = 'shutdown' ]
+then
+	sudo shutdown -h now
+fi
+```
+

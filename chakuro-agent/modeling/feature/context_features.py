@@ -68,46 +68,46 @@ for c in ENDING:
 
 IN_FUNCTION_SIGNATURE = [
     'abs',
-    'delattr',
+    # 'delattr', # removed on 20180929 for 0 importance
     # 'hash', # removed on 20180929 for 0 importance
-    'memoryview',
+    # 'memoryview', # removed on 20180929 for 0 importance
     'set',
     'all',
     'dict',
-    'help',
+    # 'help', # removed on 20180929 for 0 importance
     'min',
     'setattr',
     'any',
-    'dir',
-    'hex',
+    # 'dir', # removed on 20180929 for 0 importance
+    # 'hex', # removed on 20180929 for 0 importance
     # 'next', # removed on 20180929 for 0 importance
     'slice',
-    'ascii',
-    'divmod',
-    'id',
-    'object',
+    # 'ascii', # removed on 20180929 for 0 importance
+    # 'divmod', # removed on 20180929 for 0 importance
+    # 'id', # removed on 20180929 for improved accuracy
+    # 'object', # removed on 20180929 for 0 importance
     'sorted',
-    'bin',
+    # 'bin', # removed on 20180929 for 0 importance
     'enumerate',
-    'input',
-    'oct',
-    'staticmethod',
+    # 'input', # removed on 20180929 for 0 importance
+    # 'oct', # removed on 20180929 for 0 importance
+    # 'staticmethod', # removed on 20180929 for 0 importance
     'bool',
-    'eval',
+    # 'eval', # removed on 20180929 for 0 importance
     'int',
     'open',
     'str',
-    'breakpoint',
-    'exec',
+    # 'breakpoint', # removed on 20180929 for 0 importance
+    # 'exec', # removed on 20180929 for 0 importance
     'isinstance',
-    'ord',
+    # 'ord', # removed on 20180929 for 0 importance
     'sum',
-    'bytearray',
+    # 'bytearray', # removed on 20180929 for 0 importance
     # 'filter', # removed on 20180929 for 0 importance
     # 'issubclass', # removed on 20180929 for 0 importance
     'pow',
     'super',
-    'bytes',
+    # 'bytes', # removed on 20180929 for 0 importance
     'float',
     # 'iter', # removed on 20180929 for 0 importance
     'print',
@@ -115,24 +115,24 @@ IN_FUNCTION_SIGNATURE = [
     'callable',
     'format',
     'len',
-    'property',
+    # 'property', # removed on 20180929 for 0 importance
     'type',
     'chr',
-    'frozenset',
+    # 'frozenset', # removed on 20180929 for 0 importance
     'list',
     'range',
-    'vars',
-    'classmethod',
+    # 'vars', # removed on 20180929 for 0 importance
+    # 'classmethod', # removed on 20180929 for 0 importance
     'getattr',
-    'locals',
+    # 'locals', # removed on 20180929 for 0 importance
     'repr',
     'zip',
     'compile',
-    'globals',
+    # 'globals', # removed on 20180929 for 0 importance
     'map',
     # 'reversed', # removed on 20180929 for 0 importance
-    '__import__',
-    'complex',
+    # '__import__', # removed on 20180929 for 0 importance
+    # 'complex', # removed on 20180929 for 0 importance
     'hasattr',
     # 'max', # removed on 20180929 for 0 importance
     # 'round' # removed on 20180929 for improved accuracy
