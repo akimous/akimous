@@ -68,74 +68,74 @@ for c in ENDING:
 
 IN_FUNCTION_SIGNATURE = [
     'abs',
-    # 'delattr', # removed on 20180929 for 0 importance
-    # 'hash', # removed on 20180929 for 0 importance
-    # 'memoryview', # removed on 20180929 for 0 importance
+    # 'delattr',     # removed on 20180929 for 0 importance
+    # 'hash',        # removed on 20180929 for 0 importance
+    # 'memoryview',  # removed on 20180929 for 0 importance
     'set',
-    # 'all', # removed on 20180929 for improved accuracy
+    # 'all',         # removed on 20180929 for improved accuracy
     'dict',
-    # 'help', # removed on 20180929 for 0 importance
-    'min',
+    # 'help',        # removed on 20180929 for 0 importance
+    # 'min',         # removed on 20180929 for improved accuracy
     'setattr',
     'any',
-    # 'dir', # removed on 20180929 for 0 importance
-    # 'hex', # removed on 20180929 for 0 importance
-    # 'next', # removed on 20180929 for 0 importance
+    # 'dir',         # removed on 20180929 for 0 importance
+    # 'hex',         # removed on 20180929 for 0 importance
+    # 'next',        # removed on 20180929 for 0 importance
     'slice',
-    # 'ascii', # removed on 20180929 for 0 importance
-    # 'divmod', # removed on 20180929 for 0 importance
-    # 'id', # removed on 20180929 for improved accuracy
-    # 'object', # removed on 20180929 for 0 importance
+    # 'ascii',       # removed on 20180929 for 0 importance
+    # 'divmod',      # removed on 20180929 for 0 importance
+    # 'id',          # removed on 20180929 for improved accuracy
+    # 'object',      # removed on 20180929 for 0 importance
     'sorted',
-    # 'bin', # removed on 20180929 for 0 importance
+    # 'bin',         # removed on 20180929 for 0 importance
     'enumerate',
-    # 'input', # removed on 20180929 for 0 importance
-    # 'oct', # removed on 20180929 for 0 importance
-    # 'staticmethod', # removed on 20180929 for 0 importance
+    # 'input',       # removed on 20180929 for 0 importance
+    # 'oct',         # removed on 20180929 for 0 importance
+    # 'staticmethod',# removed on 20180929 for 0 importance
     'bool',
-    # 'eval', # removed on 20180929 for 0 importance
+    # 'eval',        # removed on 20180929 for 0 importance
     'int',
     'open',
     'str',
-    # 'breakpoint', # removed on 20180929 for 0 importance
-    # 'exec', # removed on 20180929 for 0 importance
+    # 'breakpoint',  # removed on 20180929 for 0 importance
+    # 'exec',        # removed on 20180929 for 0 importance
     'isinstance',
-    # 'ord', # removed on 20180929 for 0 importance
+    # 'ord',         # removed on 20180929 for 0 importance
     'sum',
-    # 'bytearray', # removed on 20180929 for 0 importance
-    # 'filter', # removed on 20180929 for 0 importance
-    # 'issubclass', # removed on 20180929 for 0 importance
-    'pow',
+    # 'bytearray',   # removed on 20180929 for 0 importance
+    # 'filter',      # removed on 20180929 for 0 importance
+    # 'issubclass',  # removed on 20180929 for 0 importance
+    # 'pow',         # removed on 20180929 for 0.0003% importance
     'super',
-    # 'bytes', # removed on 20180929 for 0 importance
-    'float',
-    # 'iter', # removed on 20180929 for 0 importance
+    # 'bytes',       # removed on 20180929 for 0 importance
+    # 'float',       # removed on 20180929 for 0.0009% importance
+    # 'iter',        # removed on 20180929 for 0 importance
     'print',
     'tuple',
-    'callable',
+    # 'callable',    # removed on 20180929 for improved accuracy
     'format',
     'len',
-    # 'property', # removed on 20180929 for 0 importance
-    'type',
+    # 'property',    # removed on 20180929 for 0 importance
+    # 'type',        # removed on 20180929 for improved accuracy
     'chr',
-    # 'frozenset', # removed on 20180929 for 0 importance
+    # 'frozenset',   # removed on 20180929 for 0 importance
     'list',
     'range',
-    # 'vars', # removed on 20180929 for 0 importance
+    # 'vars',        # removed on 20180929 for 0 importance
     # 'classmethod', # removed on 20180929 for 0 importance
     'getattr',
-    # 'locals', # removed on 20180929 for 0 importance
-    # 'repr', # removed on 20180929 for improved accuracy
+    # 'locals',      # removed on 20180929 for 0 importance
+    # 'repr',        # removed on 20180929 for improved accuracy
     'zip',
-    'compile',
-    # 'globals', # removed on 20180929 for 0 importance
+    # 'compile',     # removed on 20180929 for 0.0009% importance
+    # 'globals',     # removed on 20180929 for 0 importance
     'map',
-    # 'reversed', # removed on 20180929 for 0 importance
-    # '__import__', # removed on 20180929 for 0 importance
-    # 'complex', # removed on 20180929 for 0 importance
+    # 'reversed',    # removed on 20180929 for 0 importance
+    # '__import__',  # removed on 20180929 for 0 importance
+    # 'complex',     # removed on 20180929 for 0 importance
     'hasattr',
-    # 'max', # removed on 20180929 for 0 importance
-    # 'round' # removed on 20180929 for improved accuracy
+    # 'max',         # removed on 20180929 for 0 importance
+    # 'round'        # removed on 20180929 for improved accuracy
 ]
 for i in IN_FUNCTION_SIGNATURE:
     @FeatureDefinition.register_feature_generator('in_function_' + i, True)

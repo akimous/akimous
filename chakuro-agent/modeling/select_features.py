@@ -10,7 +10,7 @@ logzero.logfile(working_dir / 'feature_selection.log')
 if __name__ == "__main__":
     X, y, train_indices, Xt, yt, test_indices, dg = load_extracted_features()
     feature_names = np.array(list(dg.name_to_feature_index.keys()))
-    model = RandomForestClassifier(n_estimators=100, min_samples_split=4, random_state=7, n_jobs=-1)
+    model = RandomForestClassifier(n_estimators=120, min_samples_split=2, random_state=0, n_jobs=-1)
 
     log.info('Feature selection started')
     feature_mask = np.ones_like(X[0], dtype='?')

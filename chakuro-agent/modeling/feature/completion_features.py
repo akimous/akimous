@@ -95,7 +95,7 @@ KEYWORDS = (
     'try',
     'while',
     'with',
-    'yield',
+    # 'yield', # removed on 20180929 for 0.0009% importance
 
     'abs',
     # 'hash', # removed on 20180929 for improved accuracy
@@ -104,7 +104,7 @@ KEYWORDS = (
     'dict',
     'min',
     'setattr',
-    'any',
+    # 'any', # removed on 20180929 for improved accuracy
     # 'next', # removed on 20180929 for improved accuracy
     'sorted',
     'enumerate',
@@ -116,7 +116,7 @@ KEYWORDS = (
     'sum',
     'filter',
     'super',
-    'iter',
+    # 'iter', # removed on 20180929 for 0.0007% importance
     'print',
     'tuple',
     'len',
@@ -125,7 +125,7 @@ KEYWORDS = (
     'range',
     'getattr',
     'zip',
-    'map',
+    # 'map', # removed on 20180929 for 0.0006% importance
     # 'reversed', # removed on 20180929 for improved accuracy
     'hasattr',
     'max',
