@@ -72,7 +72,7 @@ IN_FUNCTION_SIGNATURE = [
     # 'hash', # removed on 20180929 for 0 importance
     # 'memoryview', # removed on 20180929 for 0 importance
     'set',
-    'all',
+    # 'all', # removed on 20180929 for improved accuracy
     'dict',
     # 'help', # removed on 20180929 for 0 importance
     'min',
@@ -125,7 +125,7 @@ IN_FUNCTION_SIGNATURE = [
     # 'classmethod', # removed on 20180929 for 0 importance
     'getattr',
     # 'locals', # removed on 20180929 for 0 importance
-    'repr',
+    # 'repr', # removed on 20180929 for improved accuracy
     'zip',
     'compile',
     # 'globals', # removed on 20180929 for 0 importance

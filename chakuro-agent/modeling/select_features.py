@@ -30,15 +30,16 @@ if __name__ == "__main__":
         importances = model.feature_importances_
         argsort = importances.argsort()
 
-        # remove features with 0 importance
+        # remove features with almost 0 importance
         new_feature_mask = feature_mask.copy()
         secondary_mask = np.ones(feature_mask.sum(), dtype='?')
         for a in argsort:
-            if importances[a] == 0:
+            if importances[a] < 0.00001:
                 secondary_mask[a] = 0
                 new_feature_mask[feature_mask] = secondary_mask
                 dirty = True
-                log.warning(f'Feature #{a:<3}: {feature_names[feature_mask][a]} removed for 0 importance.')
+                log.warning(f'Feature #{a:<3}: {feature_names[feature_mask][a]} removed for '
+                            f'{importances[a]:.4%} importance.')
         if dirty:
             model.fit(X[:, new_feature_mask], y)
             _, new_successful_count = test_model(model, Xt[:, new_feature_mask], yt, test_indices)
