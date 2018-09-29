@@ -30,11 +30,11 @@
         "rollup-plugin-progress": "^0.4.0",
         "rollup-plugin-serve": "^0.4.2",
         "rollup-plugin-sizes": "^0.4.2",
-        "rollup-plugin-svelte": "^4.3.1",
+        "rollup-plugin-svelte": "^4.3.2",
         "rollup-plugin-terser": "^3.0.0",
         "sortablejs": "^1.7.0",
         "svelte": "^2.13.5",
-        "terser": "^3.8.2",
+        "terser": "^3.9.1",
         "xterm": "^3.7.0"
     },
     "dependencies": {},
