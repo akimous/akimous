@@ -86,7 +86,7 @@ KEYWORDS = (
     'in',
     'is',
     'lambda',
-    'nonlocal',
+    # 'nonlocal', # removed on 20180929 for improved accuracy
     'not',
     'or',
     'pass',
@@ -98,7 +98,7 @@ KEYWORDS = (
     'yield',
 
     'abs',
-    'hash',
+    # 'hash', # removed on 20180929 for improved accuracy
     'set',
     'all',
     'dict',
@@ -126,7 +126,7 @@ KEYWORDS = (
     'getattr',
     'zip',
     'map',
-    'reversed',
+    # 'reversed', # removed on 20180929 for improved accuracy
     'hasattr',
     'max',
     'round'

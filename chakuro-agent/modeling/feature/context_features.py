@@ -69,7 +69,7 @@ for c in ENDING:
 IN_FUNCTION_SIGNATURE = [
     'abs',
     'delattr',
-    'hash',
+    # 'hash', # removed on 20180929 for 0 importance
     'memoryview',
     'set',
     'all',
@@ -80,7 +80,7 @@ IN_FUNCTION_SIGNATURE = [
     'any',
     'dir',
     'hex',
-    'next',
+    # 'next', # removed on 20180929 for 0 importance
     'slice',
     'ascii',
     'divmod',
@@ -103,13 +103,13 @@ IN_FUNCTION_SIGNATURE = [
     'ord',
     'sum',
     'bytearray',
-    'filter',
-    'issubclass',
+    # 'filter', # removed on 20180929 for 0 importance
+    # 'issubclass', # removed on 20180929 for 0 importance
     'pow',
     'super',
     'bytes',
     'float',
-    'iter',
+    # 'iter', # removed on 20180929 for 0 importance
     'print',
     'tuple',
     'callable',
@@ -130,12 +130,12 @@ IN_FUNCTION_SIGNATURE = [
     'compile',
     'globals',
     'map',
-    'reversed',
+    # 'reversed', # removed on 20180929 for 0 importance
     '__import__',
     'complex',
     'hasattr',
-    'max',
-    'round'
+    # 'max', # removed on 20180929 for 0 importance
+    # 'round' # removed on 20180929 for improved accuracy
 ]
 for i in IN_FUNCTION_SIGNATURE:
     @FeatureDefinition.register_feature_generator('in_function_' + i, True)
@@ -150,7 +150,7 @@ MATCH_CURRENT_LINE = {
     'while': re.compile(r'^\s*while\s.*'),
     'with': re.compile(r'^\s*with\s.*'),
     'if': re.compile(r'^\s*(if|elif)\s.*'),
-    'try': re.compile(r'^\s*try\s.*'),
+    # 'try': re.compile(r'^\s*try\s.*'), # removed on 20180929 for 0 importance
     'except': re.compile(r'^\s*except\s.*'),
     'not': re.compile(r'.*\snot\s.*'),
 }

@@ -59,7 +59,7 @@ if __name__ == "__main__":
                       f'new accuracy is {new_successful_count / len(test_indices):.2%}')
             if new_successful_count >= successful_count:
                 dirty = True
+                log.warning(f'Feature #{a:<3}: {feature_names[feature_mask][a]} removed.')
                 feature_mask = new_feature_mask
                 successful_count = new_successful_count
-                log.warning(f'Feature #{a:<3}: {feature_names[feature_mask][a]} removed.')
                 break
