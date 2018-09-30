@@ -77,7 +77,7 @@ IN_FUNCTION_SIGNATURE = [
     # 'help',        # removed on 20180929 for 0 importance
     # 'min',         # removed on 20180929 for improved accuracy
     'setattr',
-    'any',
+    # 'any',         # removed on 20180930 for improved accuracy
     # 'dir',         # removed on 20180929 for 0 importance
     # 'hex',         # removed on 20180929 for 0 importance
     # 'next',        # removed on 20180929 for 0 importance

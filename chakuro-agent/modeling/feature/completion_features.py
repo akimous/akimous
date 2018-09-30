@@ -77,7 +77,7 @@ KEYWORDS = (
     'elif',
     'else',
     'except',
-    'finally',
+    # 'finally',  # removed on 20180930 for improved accuracy
     'for',
     'from',
     'global',
@@ -95,17 +95,17 @@ KEYWORDS = (
     'try',
     'while',
     'with',
-    # 'yield', # removed on 20180929 for 0.0009% importance
+    # 'yield',    # removed on 20180929 for 0.0009% importance
 
     'abs',
-    # 'hash', # removed on 20180929 for improved accuracy
+    # 'hash',     # removed on 20180929 for improved accuracy
     'set',
     'all',
     'dict',
     'min',
     'setattr',
-    # 'any', # removed on 20180929 for improved accuracy
-    # 'next', # removed on 20180929 for improved accuracy
+    # 'any',      # removed on 20180929 for improved accuracy
+    # 'next',     # removed on 20180929 for improved accuracy
     'sorted',
     'enumerate',
     'bool',
@@ -116,16 +116,16 @@ KEYWORDS = (
     'sum',
     'filter',
     'super',
-    # 'iter', # removed on 20180929 for 0.0007% importance
+    # 'iter',     # removed on 20180929 for 0.0007% importance
     'print',
     'tuple',
-    'len',
+    # 'len',      # removed on 20180930 for improved accuracy
     'type',
     'list',
     'range',
-    'getattr',
+    'getattr',    # removed on 20180930 for improved accuracy
     'zip',
-    # 'map', # removed on 20180929 for 0.0006% importance
+    # 'map',      # removed on 20180929 for 0.0006% importance
     # 'reversed', # removed on 20180929 for improved accuracy
     'hasattr',
     'max',
