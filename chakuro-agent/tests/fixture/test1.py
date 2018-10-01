@@ -48,4 +48,16 @@ d = {
     'bla': regularizers.serialize(placeholder.kernel_regularizer),
 }
 
+
+def function_signature_parameter_matching(regularize, hold):
+    print(regularize, hold)
+
+
+function_signature_parameter_matching(regularizers, placeholder)
+function_signature_parameter_matching(str(regularizers), placeholder)
+
+string = 'str'
+print(str(string))
+
+
 pass

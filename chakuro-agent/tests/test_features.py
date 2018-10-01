@@ -259,3 +259,16 @@ def test_bigram_frequency():
 def test_trigram_frequency():
     # TODO: add test
     pass
+
+
+def test_signature_parameter_matching():
+    assert get_completion(56, 39, 'regularizers').signature_parameter_ratio == 91
+    assert get_completion(56, 53, 'placeholder').signature_parameter_ratio == 53
+    assert get_completion(56, 39, 'regularizers').signature_parameter_partial_ratio == 100
+    assert get_completion(56, 53, 'placeholder').signature_parameter_partial_ratio == 100
+
+
+def test_function_ratio():
+    assert get_completion(60, 11, 'string').function_ratio == 67
+    assert get_completion(60, 11, 'string').function_partial_ratio == 100
+

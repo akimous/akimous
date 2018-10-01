@@ -14,6 +14,7 @@ init()
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print('Usage: \npython visualize.py /path/to/single/pickle [show_error]')
+        exit(1)
     file_path = sys.argv[1]
     show_error = False if len(sys.argv) < 3 else bool(int(sys.argv[2]))
     known_initial = False if len(sys.argv) < 4 else bool(int(sys.argv[3]))
@@ -108,8 +109,7 @@ if __name__ == "__main__":
                               TOKEN.STRING,
                               TOKEN.NEWLINE,
                               TOKEN.OP,
-                              57,  # COMMENT
-                              58,  # NL
+                              TOKEN.COMMENT,
                               ):
                 print(B.RESET + F.RESET + token.string, end='')
             else:

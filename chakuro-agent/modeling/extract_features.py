@@ -56,7 +56,7 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
             if should_skip:
                 ch += 1
                 continue
-            token = get_token(line, ch) # don't + 1 on ch, or it will clip short (2ch) tokens
+            token = get_token(line, ch)  # don't + 1 on ch, or it will clip short (2ch) tokens
             if token is None:
                 ch += 1
                 continue

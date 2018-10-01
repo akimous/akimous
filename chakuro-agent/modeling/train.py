@@ -82,7 +82,7 @@ if __name__ == "__main__":
                           learning_rate=0.2,
                           colsample_bylevel=0.8,
                           silent=True,
-                          n_jobs=8,
+                          n_jobs=10,
                           random_state=0)
     model.fit(X, y)
     log.info(f'Fitting model took {time.time() - start_time}')

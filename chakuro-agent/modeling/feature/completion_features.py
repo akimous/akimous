@@ -334,3 +334,39 @@ def f(completion, context, **_):
         return 0
     trigram = (context.t2, context.t1, completion.name)
     return _trigram_frequency.get(trigram, 0)
+
+
+@FeatureDefinition.register_feature_generator('signature_parameter_ratio')
+def f(completion, call_signatures, **_):
+    if not call_signatures:
+        return -1
+    cs = call_signatures[0]
+    index = cs.index
+    parameter = cs.params[index].name
+    return fuzz.ratio(completion.name, parameter)
+
+
+@FeatureDefinition.register_feature_generator('signature_parameter_partial_ratio')
+def f(completion, call_signatures, **_):
+    if not call_signatures:
+        return -1
+    cs = call_signatures[0]
+    index = cs.index
+    parameter = cs.params[index].name
+    return fuzz.partial_ratio(completion.name.lower(), parameter.lower())
+
+
+@FeatureDefinition.register_feature_generator('function_ratio')
+def f(completion, call_signatures, **_):
+    if not call_signatures:
+        return -1
+    function_name = call_signatures[0].name
+    return fuzz.ratio(completion.name, function_name)
+
+
+@FeatureDefinition.register_feature_generator('function_partial_ratio')
+def f(completion, call_signatures, **_):
+    if not call_signatures:
+        return -1
+    function_name = call_signatures[0].name
+    return fuzz.partial_ratio(completion.name, function_name)

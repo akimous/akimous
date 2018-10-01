@@ -133,3 +133,12 @@ then
 fi
 ```
 
+## download_model
+
+```bash
+gcloud compute scp $1:~/chakuro-working/model.model ~/chakuro-working/
+gcloud compute scp $1:~/chakuro-working/token.xz ~/chakuro-working/
+gcloud compute scp $1:~/chakuro-working/bigram.xz ~/chakuro-working/
+gcloud compute scp $1:~/chakuro-working/trigram.xz ~/chakuro-working/
+```
+
