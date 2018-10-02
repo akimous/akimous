@@ -1,4 +1,6 @@
 # from sklearn.ensemble import RandomForestClassifier
+import multiprocessing
+
 from sklearn.externals import joblib
 from xgboost import XGBClassifier
 import pickle
@@ -82,10 +84,10 @@ if __name__ == "__main__":
                           learning_rate=0.2,
                           colsample_bylevel=0.8,
                           silent=True,
-                          n_jobs=10,
+                          n_jobs=multiprocessing.cpu_count(),
                           random_state=0)
     model.fit(X, y)
-    log.info(f'Fitting model took {time.time() - start_time}')
+    log.info(f'Fitting model took {time.time() - start_time}\a')
     joblib.dump(model, working_dir / 'model.model', protocol=4, compress=9)
 
     # Validate the model
@@ -94,4 +96,5 @@ if __name__ == "__main__":
     log.info(f'Prediction took    {time.time() - start_time}')
     length = len(test_indices)
     log.info(f'Random successful rate: {random_successful} / {length} = {random_successful / length}')
-    log.info(f'Model successful rate : {model_successful} / {length} = {model_successful / length}')
+    log.info(f'Model successful rate : {model_successful} / {length} = {model_successful / length}\a')
+    
