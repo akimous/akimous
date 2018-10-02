@@ -342,6 +342,8 @@ def f(completion, call_signatures, **_):
         return -1
     cs = call_signatures[0]
     index = cs.index
+    if index is None:
+        return -2
     parameter = cs.params[index].name
     return fuzz.ratio(completion.name, parameter)
 
@@ -352,6 +354,8 @@ def f(completion, call_signatures, **_):
         return -1
     cs = call_signatures[0]
     index = cs.index
+    if index is None:
+        return -2
     parameter = cs.params[index].name
     return fuzz.partial_ratio(completion.name.lower(), parameter.lower())
 

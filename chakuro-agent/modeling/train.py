@@ -97,4 +97,3 @@ if __name__ == "__main__":
     length = len(test_indices)
     log.info(f'Random successful rate: {random_successful} / {length} = {random_successful / length}')
     log.info(f'Model successful rate : {model_successful} / {length} = {model_successful / length}\a')
-    
