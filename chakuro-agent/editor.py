@@ -7,14 +7,12 @@ from sklearn.externals import joblib
 from logzero import logger as log
 from doc_generator import DocGenerator
 from utils import detect_doc_type
-from contextlib import suppress
 
 DEBUG = False
-feature_extractor = OnlineFeatureExtractor()
 doc_generator = DocGenerator()
 
 register = partial(WS.register, 'editor')
-MODEL_PATH = './resources/v8.model'
+MODEL_PATH = './resources/v10.model'
 model = joblib.load(Path(MODEL_PATH))
 model.n_jobs = 1
 log.info(f'Model {MODEL_PATH} loaded, n_jobs={model.n_jobs}')
@@ -26,6 +24,9 @@ async def open_file(msg, send, context):
     with open(context.path) as f:
         content = f.read()
     context.doc = content.splitlines()
+    context.feature_extractor = OnlineFeatureExtractor()
+    for line, line_content in enumerate(context.doc):
+        context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
     await send({
         'cmd': 'openFile',
         'mtime': str(context.path.stat().st_mtime),
@@ -74,6 +75,16 @@ async def save_file(msg, send, context):
 @register('sync')
 async def sync(msg, send, context):
     context.doc = msg['doc'].splitlines()
+    for line, line_content in enumerate(context.doc):
+        context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
+
+
+@register('syncLine')
+async def sync(msg, send, context):
+    line_content = msg['text']
+    line = msg['line']
+    set_line(context, line, line_content)
+    context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
 
 
 def set_line(context, line_number, line_content):
@@ -99,6 +110,7 @@ async def predict(msg, send, context):
         context.currentCompletions = {
             completion.name: completion for completion in completions
         }
+        feature_extractor = context.feature_extractor
         feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc, j.call_signatures())
         scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
         result = [

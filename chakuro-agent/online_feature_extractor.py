@@ -16,7 +16,14 @@ class OnlineFeatureExtractor(FeatureDefinition):
         self.current_completion_start_index = 0
         self.last_token = None
         # self.stack_context_info = self.get_stack_context_info(None)
-        
+
+    def fill_preprocessor_context(self, line_content, line, doc):
+        for f in FeatureDefinition.preprocessors:
+            f(line_content=line_content,
+              line=line, ch=0, doc=doc,
+              context=self.context
+              )
+
     def extract_online(self, completions, line_content, line, ch, doc, call_signatures):
         self.reset(len(completions))
         
@@ -30,15 +37,13 @@ class OnlineFeatureExtractor(FeatureDefinition):
                 completion_data_type = definitions[0].name
 
         for f in FeatureDefinition.preprocessors:
-            f(line_content=line_content[:ch],
-              line=line - 1, ch=ch - 1, doc=doc,
-              call_signatures=call_signatures,
-              completion_data_type=completion_data_type,
+            f(line_content=line_content[:ch],  # TODO: should slice at ch or not?
+              line=line, ch=ch - 1, doc=doc,
               context=self.context
               )
         for i, f in enumerate(FeatureDefinition.context_features.values()):
             feature = f(line_content=line_content[:ch],
-                        line=line-1, ch=ch, doc=doc,
+                        line=line, ch=ch, doc=doc,
                         call_signatures=call_signatures,
                         completion_data_type=completion_data_type,
                         context=self.context
@@ -51,7 +56,7 @@ class OnlineFeatureExtractor(FeatureDefinition):
             for i, f in enumerate(FeatureDefinition.completion_features.values()):
                 self.sample[i] = f(completion=completion,
                                    line_content=line_content[:ch],
-                                   line=line-1, ch=ch, doc=doc,
+                                   line=line, ch=ch, doc=doc,
                                    call_signatures=call_signatures,
                                    completion_data_type=completion_data_type,
                                    context=self.context

@@ -97,6 +97,8 @@ yarn run release
 |      | (1529932, 171), 29209        | 15.51% | **75.13%** | normalized=False                                             |
 |      | (1529932, 174), 29209        | 15.51% | 74.83%     | normalized=Both                                              |
 | 9/20 | (1529932, 171), 29209        |        | **76.47%** | RandomForest, min_split=1                                    |
+| 10/2 | (1529932, 154), 29209        | 15.51% | **75.20%** | XGB, function signature                                      |
+|      |                              |        | **76.85%** | RF, min_split=1                                              |
 
 * float distance
 * first token in line is (identifier, keyword, def, if, self)

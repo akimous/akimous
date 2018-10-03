@@ -39,6 +39,16 @@ class Predictor {
         })
         console.warn('syncing')
     }
+    
+    syncLine(lineContent, line) {
+        if (!this.enabled) return
+        this.editor.ws.send({
+            cmd: 'syncLine',
+            text: lineContent,
+            line
+        })
+        console.warn('sync line')
+    }
 
     receive(data) {
         const input = this.lineContent[this.firstTriggeredCharPos.ch]

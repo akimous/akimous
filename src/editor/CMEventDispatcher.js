@@ -96,6 +96,15 @@ class CMEventDispatcher {
                 (origin !== '+input' && origin !== '+completion' && origin !== '+delete')) {
                 shouldSyncAfterChange = false
                 predictor.sync(doc.getValue())
+            } else if (origin === '+completion') {
+                let minLine = Number.MAX_VALUE, maxLine = 0
+                for (const ci of c) {
+                    minLine = Math.min(minLine, ci.from.line, ci.to.line)
+                    maxLine = Math.max(maxLine, ci.from.line, ci.to.line)
+                }
+                for (let line = minLine, end = maxLine; line <= end; line++) {
+                    predictor.syncLine(doc.getLine(line), line)
+                }
             }
         })
 
@@ -192,7 +201,7 @@ class CMEventDispatcher {
                     predictor.sort(input)
                     completion.setCompletions(predictor.currentCompletions)
                     return
-                }
+                } 
             } catch (e) {
                 console.error(e)
             }

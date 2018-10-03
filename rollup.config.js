@@ -48,7 +48,7 @@ export default {
         // Causing TypeError: details.bundle.modules.forEach is not a function
         // production && sizes(),
 
-        !production && livereload(),
+        !production && livereload('dist'),
         !production && serve('dist')
     ]
 }
