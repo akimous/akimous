@@ -188,15 +188,24 @@
                 if (type === 'instruction') return
 
                 let text = completion.get().c
-                if (key === 'commit' && (type === 'keyword' || type === 'module'))
-                    text += ' '
-
-                this.cm.doc.replaceRange(
+                let needGoingLeft = false
+                const charCode = key.charCodeAt(0)
+                if (key === 'commit' || (charCode >= 48 && charCode <= 57)) {
+                    if (type === 'keyword' || type === 'module')
+                        text += ' '
+                    else if (type === 'function' || type === 'class') {
+                        needGoingLeft = true
+                        text += '()'
+                    }
+                }
+                this.cm.replaceRange(
                     text,
                     this.predictor.firstTriggeredCharPos,
                     this.cm.doc.getCursor(),
                     '+completion'
                 )
+                if (needGoingLeft)
+                    this.cm.execCommand('goCharLeft')
                 this.cm.focus()
             },
             move(nRows) {
