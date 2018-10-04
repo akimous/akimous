@@ -10,7 +10,7 @@
     "devDependencies": {
         "autoprefixer": "^9.1.5",
         "babel-plugin-transform-remove-console": "^6.9.4",
-        "browserslist": "^4.1.1",
+        "browserslist": "^4.1.2",
         "cloc": "^2.3.4",
         "codemirror": "^5.40.2",
         "css-element-queries": "^1.0.2",
@@ -22,7 +22,7 @@
         "normalize.css": "^8.0.0",
         "pressure": "^2.1.2",
         "primer-tooltips": "^1.5.7",
-        "rollup": "^0.66.2",
+        "rollup": "^0.66.4",
         "rollup-plugin-commonjs": "^9.1.8",
         "rollup-plugin-livereload": "^0.6.0",
         "rollup-plugin-node-resolve": "^3.4.0",

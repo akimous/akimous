@@ -8,7 +8,7 @@ class CMEventDispatcher {
             predictor = editor.predictor,
             completion = editor.completion
 
-        let shouldSyncAfterChange = false
+        let synced = false
         let shouldDismissCompletionOnCursorActivity = false
 
         function getNTokens(n, pos) {
@@ -92,11 +92,10 @@ class CMEventDispatcher {
             }
             // handles Jedi sync if the change isn't a single-char input
             const origin = c[0].origin
-            if (shouldSyncAfterChange ||
-                (origin !== '+input' && origin !== '+completion' && origin !== '+delete')) {
-                shouldSyncAfterChange = false
+            if (origin !== '+input' && origin !== '+completion' && origin !== '+delete') {
+                synced = true
                 predictor.sync(doc.getValue())
-            } else if (origin === '+completion') {
+            } else if (!synced) {
                 let minLine = Number.MAX_VALUE, maxLine = 0
                 for (const ci of c) {
                     minLine = Math.min(minLine, ci.from.line, ci.to.line)
@@ -111,6 +110,7 @@ class CMEventDispatcher {
         cm.on('beforeChange', (cm, c) => {
             shouldDismissCompletionOnCursorActivity = false
             formatter.setContext(cm, c)
+            synced = false
             if (editor.debug) console.log('beforeChange', c)
             const startTime = performance.now()
             try {
@@ -160,6 +160,7 @@ class CMEventDispatcher {
                             )
                         // handle completion and predictions
                         if (inputShouldTriggerPrediction) {
+                            synced = true
                             const lineContentAfterInput = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
                             predictor.send(
                                 lineContentAfterInput,
@@ -176,20 +177,15 @@ class CMEventDispatcher {
                             }
                             else completion.passive = forcePassiveCompletion
                         } else if (predictor.currentCompletions) {
+                            synced = true
                             const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch) + c.text[0]
                             predictor.sort(input)
                             completion.setCompletions()
                         }
                     } else {
-                        shouldSyncAfterChange = true
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }
                 } else if (c.origin === '+delete') {
-                    if (c.from.line !== c.to.line) {
-                        shouldSyncAfterChange = true
-                    } else {
-                        formatter.deleteHandler()
-                    }
                     if (!completion.get().open) return
                     if (predictor.firstTriggeredCharPos.ch === cursor.ch) {
                         completion.set({
