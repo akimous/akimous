@@ -193,7 +193,7 @@
                 if (key === 'commit' || (charCode >= 48 && charCode <= 57)) {
                     if (type === 'keyword' || type === 'module')
                         text += ' '
-                    else if (type === 'function' || type === 'class') {
+                    else if (completion.get().withBraces) {
                         needGoingLeft = true
                         text += '()'
                     }

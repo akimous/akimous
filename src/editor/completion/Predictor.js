@@ -15,6 +15,7 @@ class Predictor {
             ch: 0
         }
         this.lineContent = ''
+        this.isClassDefinition = false
     }
 
     send(lineContent, line, ch, triggerdCharOffset) {
@@ -29,6 +30,7 @@ class Predictor {
             line,
             ch
         })
+        this.isClassDefinition = /^\s*class\s/.test(lineContent)
     }
 
     sync(doc) {

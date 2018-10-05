@@ -1,6 +1,6 @@
 <div on:click="click()" ref:completionRow class="row {selected?'selected':''}">
     <div class="row-number"> {rowNumber} </div>
-    <div class="row-content">{@html highlight}{#if t==='function' || t==='class'}(){/if}</div>
+    <div class="row-content">{@html highlight}{#if withBraces}(){/if}</div>
     <div class="type-indicator {t}"> {t.substring(0, 1).toUpperCase()} </div>
 </div>
 
@@ -143,6 +143,13 @@
                 const { parent } = this.get()
                 parent.set({ selectedCompletionRow: this })
                 parent.enter()
+            }
+        },
+        computed: {
+            withBraces: ({ parent, t }) => {
+                if (t === 'function') return true
+                if (t === 'class' && !parent.predictor.isClassDefinition) return true
+                return false
             }
         }
     }
