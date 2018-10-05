@@ -97,7 +97,7 @@ class Sorter {
         const MATCH_LOWER = 5,
             MATCH_UPPER = 10,
             SKIP = -1,
-            UNMATCHED = -50,
+            UNMATCHED = -100,
             MIN = -9999,
             MATCH_FIRST_CHAR_CASE_SENSITIVE = 100
         this.target = target
