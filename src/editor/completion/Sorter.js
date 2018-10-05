@@ -98,10 +98,10 @@ class Sorter {
             MATCH_UPPER = 10,
             SKIP = -1,
             UNMATCHED = -50,
-            MIN = -9999
+            MIN = -9999,
+            MATCH_FIRST_CHAR_CASE_SENSITIVE = 100
         this.target = target
         this.targetUpper = targetUpper
-
         if (input === target) return 1000
 
         // initialize
@@ -116,7 +116,8 @@ class Sorter {
             // first column
             let firstColumnScore = MIN
             if (i === 1 && inputUpper[0] === targetUpper[0]) {
-                firstColumnScore = MATCH_UPPER
+                if (input[0] === target[0]) firstColumnScore = MATCH_FIRST_CHAR_CASE_SENSITIVE
+                else firstColumnScore = MATCH_UPPER
             } else if (inputUpper[i - 1] === target[i - 1]) {
                 if (isAllUpper && target[i - 2] !== '_') firstColumnScore = MATCH_LOWER
                 else firstColumnScore = MATCH_UPPER
