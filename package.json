@@ -10,7 +10,7 @@
     "devDependencies": {
         "autoprefixer": "^9.1.5",
         "babel-plugin-transform-remove-console": "^6.9.4",
-        "browserslist": "^4.1.2",
+        "browserslist": "^4.2.0",
         "cloc": "^2.3.4",
         "codemirror": "^5.40.2",
         "css-element-queries": "^1.0.2",
@@ -35,7 +35,7 @@
         "sortablejs": "^1.7.0",
         "svelte": "^2.13.5",
         "terser": "^3.9.3",
-        "xterm": "^3.7.0"
+        "xterm": "^3.8.0"
     },
     "dependencies": {},
     "scripts": {},
