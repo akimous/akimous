@@ -19,8 +19,7 @@ function EventDispatcherFactory(options) {
                 break
             case ' ':
             case 'Enter':
-                target.enter(null, event.key)
-                break
+                return target.enter(null, event.key)
 
             default:
                 if (!extraKeyHandler) return true

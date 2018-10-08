@@ -55,9 +55,11 @@
         color: white;
     }
 
+/*
     .type-indicator.instruction {
         background: var(--gray6);
     }
+*/
 
     .type-indicator.class {
         background: var(--darker-orange);
@@ -87,9 +89,11 @@
         background: var(--darker-ao);
     }
 
+/*
     .selected .type-indicator.instruction {
         background: var(--gray5);
     }
+*/
 
     .selected .type-indicator.class {
         background: var(--orange);
@@ -147,6 +151,7 @@
         },
         computed: {
             withBraces: ({ parent, t }) => {
+                if (parent && parent.get().passive) return false
                 if (t === 'function') return true
                 if (t === 'class' && !parent.predictor.isClassDefinition) return true
                 return false

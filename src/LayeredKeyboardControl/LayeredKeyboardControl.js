@@ -125,6 +125,13 @@ class LayeredKeyboardControl {
                         })
                     }
                     return true // let it propagate
+                case 'Tab':
+                    // When completion window is open, commit selection instead of increasing indent
+                    if (g.activeEditor.completion.get().open) {
+                        g.activeEditor.completion.enter(null, e.key)
+                        return this.stopPropagation(e)
+                    }
+                    return true // let it propagate
                 default:
                     if (this.macroMode) {
                         g.macro.dispatchMacro(e.key)

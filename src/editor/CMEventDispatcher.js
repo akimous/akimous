@@ -173,9 +173,10 @@ class CMEventDispatcher {
                                 currentTokenType === 'comment' ||
                                 t1.string === 'for' // for var_name in ... should not complete var_name
                             ) {
-                                completion.passive = true
+                                completion.set({ passive: true})
+                            } else {
+                                completion.set({ passive: forcePassiveCompletion})
                             }
-                            else completion.passive = forcePassiveCompletion
                         } else if (predictor.currentCompletions) {
                             synced = true
                             const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch) + c.text[0]

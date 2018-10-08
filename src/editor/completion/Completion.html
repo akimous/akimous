@@ -1,4 +1,8 @@
-<div ref:completion class="completion non-selectable" style="display:{open?'block':'none'}"></div>
+<div ref:completion class="completion non-selectable" style="display:{open?'block':'none'}">
+    {#if passive}
+    <CompletionRow ref:passivePlaceholder parent={ null } rowNumber="⇥" highlight="Press tab to commit selected item"></CompletionRow>
+    {/if}
+</div>
 
 <style>
     .completion {
@@ -28,9 +32,12 @@
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
 
     export default {
-        components: {},
+        components: {
+            CompletionRow
+        },
         oncreate() {
             const completion = this.refs.completion
+            const that = this
             this.completionRows = []
             this.completionRowShortcuts = new Array(9)
 
@@ -38,7 +45,8 @@
             let lastFVI = 999
             const scrollHandler = () => {
                 const rowHeight = this.completionRows[0].refs.completionRow.clientHeight
-                let firstVisibleIndex = Math.floor(completion.scrollTop / rowHeight)
+                const { passive } = this.get()
+                let firstVisibleIndex = Math.floor(completion.scrollTop / rowHeight) - passive
                 if (firstVisibleIndex < 0)
                     firstVisibleIndex = 0
                 if (firstVisibleIndex > this.completionRows.length)
@@ -88,6 +96,10 @@
                 target: this,
                 extraKeyHandler(event, target) {
                     const { key } = event
+                    if (that.get().passive) {
+                        that.set({ open: false })
+                        return true
+                    }
                     if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key))
                         target.enter(null, key)
                     else if (/[=[\](){}]/.test(key))
@@ -177,20 +189,28 @@
                 completionElement.style.top = `${y}px`
             },
             enter(rowNumber, key) {
-                if (!this.get().open) return console.error('closed')
+                const { open, passive } = this.get()
+                if (!open) return console.error('closed')
                 const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get().selectedCompletionRow
                 if (!completion) return console.error('no selected completion')
 
                 const type = completion.get().t
+                let text = completion.get().c
                 this.set({
                     open: false
                 })
-                if (type === 'instruction') return
 
-                let text = completion.get().c
+                // Don't commit passive completions unless the key is Tab or a number.
+                if (passive && !/\d/.test(key) && key !== 'Tab') {
+                    if (key === 'commit') {
+                        const cursor = this.cm.doc.getCursor()
+                        this.cm.replaceRange(' ', cursor, cursor, '+input')
+                    }
+                    return true // let it propagate
+                }
+
                 let needGoingLeft = false
-                const charCode = key.charCodeAt(0)
-                if (key === 'commit' || (charCode >= 48 && charCode <= 57)) {
+                if (key === 'commit' || /\d/.test(key)) {
                     if (type === 'keyword' || type === 'module')
                         text += ' '
                     else if (completion.get().withBraces) {
