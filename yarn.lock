@@ -3552,10 +3552,10 @@ rollup-pluginutils@^2.3.0:
     estree-walker "^0.5.2"
     micromatch "^2.3.11"
 
-rollup@^0.66.4:
-  version "0.66.4"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.66.4.tgz#8067b9638af82873b7fd644af9c3d72108ca4bab"
-  integrity sha512-oV6dzR2zDYVOMUmrM1XMTW0NlZqKeZANAWH+A7BwCfE+mAfJ6xRkYbrM3qAossgyMxPN9aFBu8kRXf5HYB5gvw==
+rollup@^0.66.5:
+  version "0.66.5"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.66.5.tgz#49b109d3db4772301d84b8ed9617a4481e9a8042"
+  integrity sha512-tFdxC5zOynOS3fUHkJmKk9QjRWVLXxDCUVDmpoZazubxgXZmS/XzrlzhwuOKPelJm92Hd4hmXIqkzVN22Isf+w==
   dependencies:
     "@types/estree" "0.0.39"
     "@types/node" "*"
@@ -3949,19 +3949,19 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-terser@^3.8.2:
-  version "3.8.2"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.8.2.tgz#48b880f949f8d038aca4dfd00a37c53d96ecf9fb"
-  integrity sha512-FGSBXiBJe2TSXy6pWwXpY0YcEWEK35UKL64BBbxX3aHqM4Nj0RMqXvqBuoSGfyd80t8MKQ5JwYm5jRRGTSEFNg==
+terser@^3.10.0:
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-3.10.0.tgz#6ae15dafecbd02c9788d5f36d27fca32196b533a"
+  integrity sha512-hNh2WR3YxtKoY7BNSb3+CJ9Xv9bbUuOU9uriIf2F1tiAYNA4rNy2wWuSDV8iKcag27q65KPJ/sPpMWEh6qttgw==
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"
     source-map-support "~0.5.6"
 
-terser@^3.9.3:
-  version "3.9.3"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.9.3.tgz#14d13207f58b7a25ba7dd11def76c9e73cca5036"
-  integrity sha512-7CAUcdTRzfxvMUqhSDe95MQ/qVEV3JqiSB8mMGQZSe1CL7AKB1iMpF7Mj6DatC9YfG/4xxE25Egp1kxVNORdGQ==
+terser@^3.8.2:
+  version "3.8.2"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-3.8.2.tgz#48b880f949f8d038aca4dfd00a37c53d96ecf9fb"
+  integrity sha512-FGSBXiBJe2TSXy6pWwXpY0YcEWEK35UKL64BBbxX3aHqM4Nj0RMqXvqBuoSGfyd80t8MKQ5JwYm5jRRGTSEFNg==
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"
