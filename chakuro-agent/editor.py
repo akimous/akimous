@@ -7,9 +7,11 @@ from sklearn.externals import joblib
 from logzero import logger as log
 from doc_generator import DocGenerator
 from utils import detect_doc_type
+import wordsegment
 
 DEBUG = False
 doc_generator = DocGenerator()
+wordsegment.load()
 
 register = partial(WS.register, 'editor')
 MODEL_PATH = './resources/v10.model'

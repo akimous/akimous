@@ -143,24 +143,20 @@
             initializeCM.then(() => onIdle(() => {
                 this.completion = this.refs.completion
                 this.cm.refresh() // prevent CM occasionally shifts to the right
-
                 this.predictor = new Predictor(this)
                 // only enable predictor when the document is a Python file
-                //                            if (this.mode.mode !== 'python') 
-                //                                this.predictor.enabled = false
+                if (mode && mode.mode !== 'python') {
+                    this.predictor.enabled = false
+                }
                 this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
                 this.cmEventDispatcher = new CMEventDispatcher(this)
 
-                //                            this.completionEventDispatcher = new CompletionEventDispatcher(this)
                 this.completion.bindReferences(this)
                 this.ws.addHandler('saveFile-ok', data => {
                     this.markClean()
                     this.mtime = data.mtime
                     if (this.shouldClose)
                         g.panelMiddle.closeFile(this.get().filePath)
-                })
-                this.ws.addHandler('predict-result', data => {
-                    this.predictor.receive(data)
                 })
 
                 // resolve Safari overscroll jitter issue

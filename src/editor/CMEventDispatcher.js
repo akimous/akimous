@@ -5,6 +5,7 @@ class CMEventDispatcher {
         const cm = editor.cm,
             doc = cm.doc,
             formatter = editor.realtimeFormatter,
+            completionProvider = editor.completionProvider,
             predictor = editor.predictor,
             completion = editor.completion
 
@@ -80,11 +81,12 @@ class CMEventDispatcher {
 
         cm.on('changes', (cm, c) => {
             if (c[0].origin === 'setValue') return
+            const cursor = doc.getCursor()
+            const lineContent = cm.getLine(cursor.line)
             const indent = this.ensureIndent
             this.ensureIndent = undefined
             if (indent !== undefined) {
-                const pos = doc.getCursor()
-                const diff = indent - pos.ch
+                const diff = indent - cursor.ch
                 if (diff > 0)
                     cm.doc.replaceRange(' '.repeat(diff), pos, pos)
                 else if (diff < 0)
@@ -95,8 +97,11 @@ class CMEventDispatcher {
             if (origin !== '+input' && origin !== '+completion' && origin !== '+delete') {
                 synced = true
                 predictor.sync(doc.getValue())
+            } else if (!synced && origin === '+input') {
+                predictor.retrigger({ lineContent, ...cursor })
             } else if (!synced) {
-                let minLine = Number.MAX_VALUE, maxLine = 0
+                let minLine = Number.MAX_VALUE,
+                    maxLine = 0
                 for (const ci of c) {
                     minLine = Math.min(minLine, ci.from.line, ci.to.line)
                     maxLine = Math.max(maxLine, ci.from.line, ci.to.line)
@@ -104,6 +109,8 @@ class CMEventDispatcher {
                 for (let line = minLine, end = maxLine; line <= end; line++) {
                     predictor.syncLine(doc.getLine(line), line)
                 }
+                if (origin === '+delete')
+                    predictor.retrigger({ lineContent, ...cursor })
             }
         })
 
@@ -117,22 +124,21 @@ class CMEventDispatcher {
                 const cursor = c.from
                 const lineContent = cm.doc.getLine(cursor.line)
                 if (c.origin === '+input') {
-                    const inputChar = c.text[0]
-                    // TODO: reuse t0/1/2 in formatter
+                    const input = c.text[0]
                     const [t0, t1, t2] = getNTokens(3, {
                         line: c.from.line,
                         ch: c.from.ch
                     })
-                    const inputAfterFormatting = c.text[0]
 
                     // for forcing passive in function definition
                     let isInFunctionSignatureDefinition = false
                     let forcePassiveCompletion = false
+                    const newCursor = { line: cursor.line, ch: cursor.ch + input.length }
 
                     // if it is not single char input, handle by predictor.sync()
                     if (c.text.length === 1 &&
                         c.from.line === c.to.line &&
-                        inputChar.length === 1
+                        input.length === 1
                     ) {
                         // def foo(shouldDisplayPassiveCompletionHere)
                         const currentState = cm.getTokenAt(c.from).state
@@ -152,53 +158,40 @@ class CMEventDispatcher {
                         }
                         if (!cm.somethingSelected())
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
-                        
-                        const isInputDot = /\./.test(inputChar)
+
+                        // TODO: move predictor above formatter
+                        const isInputDot = /\./.test(input)
+                        const ch0 = cursor.ch === 0 ? '' : lineContent[cursor.ch - 1]
                         const inputShouldTriggerPrediction = t0.type !== 'number' &&
                             (
-                                (/[A-Za-z_]/.test(inputChar) && !completion.get().open) || isInputDot
+                                (/[A-Za-z_]/.test(input) &&
+                                    !/[A-Za-z_]/.test(ch0) &&
+                                    !completion.get().open
+                                ) || isInputDot
                             )
                         // handle completion and predictions
+                        const newLineContent = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
                         if (inputShouldTriggerPrediction) {
                             synced = true
-                            const lineContentAfterInput = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
-                            predictor.send(
-                                lineContentAfterInput,
-                                cursor.line,
-                                cursor.ch + inputAfterFormatting.length,
+                            predictor.trigger(
+                                newLineContent,
+                                newCursor.line,
+                                newCursor.ch,
                                 -(!isInputDot)
                             )
-                            const currentTokenType = cm.getTokenTypeAt(cursor)
-                            if (currentTokenType === 'string' ||
-                                currentTokenType === 'comment' ||
+                            if (t0.type === 'string' ||
+                                t0.type === 'comment' ||
                                 t1.string === 'for' // for var_name in ... should not complete var_name
                             ) {
-                                completion.set({ passive: true})
+                                predictor.passive = true
                             } else {
-                                completion.set({ passive: forcePassiveCompletion})
+                                predictor.passive = forcePassiveCompletion
                             }
-                        } else if (predictor.currentCompletions) {
-                            synced = true
-                            const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch) + c.text[0]
-                            predictor.sort(input)
-                            completion.setCompletions()
-                        }
+                        } 
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }
-                } else if (c.origin === '+delete') {
-                    if (!completion.get().open) return
-                    if (predictor.firstTriggeredCharPos.ch === cursor.ch) {
-                        completion.set({
-                            open: false
-                        })
-                        return
-                    }
-                    const input = lineContent.slice(predictor.firstTriggeredCharPos.ch, cursor.ch)
-                    predictor.sort(input)
-                    completion.setCompletions(predictor.currentCompletions)
-                    return
-                } 
+                }
             } catch (e) {
                 console.error(e)
             }

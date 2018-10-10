@@ -10,15 +10,18 @@ class Predictor {
         this.completion = editor.completion
         this.sorter = new Sorter()
         this.enabled = true
+        this.passive = false
         this.firstTriggeredCharPos = {
             line: 0,
             ch: 0
         }
         this.lineContent = ''
         this.isClassDefinition = false
+        this.currentCompletions = []
+        editor.ws.addHandler('predict-result', (data) => this.receive(data))
     }
 
-    send(lineContent, line, ch, triggerdCharOffset) {
+    trigger(lineContent, line, ch, triggerdCharOffset) {
         if (!this.enabled) return
         this.startTime = performance.now()
         this.firstTriggeredCharPos.line = line
@@ -28,9 +31,20 @@ class Predictor {
             cmd: 'predict',
             text: lineContent,
             line,
-            ch
+            ch,
         })
         this.isClassDefinition = /^\s*class\s/.test(lineContent)
+    }
+
+    retrigger({ lineContent, line, ch }) {
+        if (this.firstTriggeredCharPos.ch === ch) {
+            this.completion.set({
+                open: false
+            })
+            return
+        }
+        const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
+        this.completion.setCompletions(this.sortAndFilter(input), this.firstTriggeredCharPos, this.passive)
     }
 
     sync(doc) {
@@ -41,7 +55,7 @@ class Predictor {
         })
         console.warn('syncing')
     }
-    
+
     syncLine(lineContent, line) {
         if (!this.enabled) return
         this.editor.ws.send({
@@ -60,12 +74,10 @@ class Predictor {
             return this.completion.set({
                 open: false
             })
-        this.sort(input)
-        this.completion.setCompletions(this.currentCompletions)
-        this.completion.repositionCompletionWindow(this.firstTriggeredCharPos)
+        this.completion.setCompletions(this.sortAndFilter(input), this.firstTriggeredCharPos, this.passive)
     }
 
-    sort(input) {
+    sortAndFilter(input) {
         if (!input) { // for prediction immediately after dot
             this.currentCompletions.forEach(i => {
                 i.sortScore = 1
@@ -80,6 +92,13 @@ class Predictor {
         }
         this.currentCompletions.sort((a, b) => b.sortScore - a.sortScore + b.s - a.s)
         if (Predictor.debug) console.log('Predictor.sort', this.currentCompletions)
+
+        const { passive } = this.completion.get()
+        const filteredCompletions = this.currentCompletions.filter(row => {
+            if (passive && row.c.length < 3) return false
+            return row.sortScore > 0
+        })
+        return filteredCompletions
     }
 }
 

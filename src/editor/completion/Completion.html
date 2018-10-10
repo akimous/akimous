@@ -78,6 +78,7 @@
                     if (rows.length === 0) return
                     for (const [i, row] of rows.entries()) {
                         row.index = i
+                        row.rowNumber = i + 1
                         row.parent = this
                         this.completionRows.push(new CompletionRow({
                             target: completion,
@@ -88,7 +89,6 @@
                     this.set({
                         selectedCompletionRow: this.completionRows[0]
                     })
-                    this.completionRows.length && setTimeout(scrollHandler) // must defer, or we cannot get row height
                 }
             })
 
@@ -143,10 +143,6 @@
                 this.cm = editor.cm
                 this.predictor = editor.predictor
             },
-            shouldDisplayCompletionRow(row) {
-                if (this.get().passive && row.c.length < 3) return false
-                return row.sortScore > 0
-            },
             requestCompletionDocstring(name) {
                 if (name === this.lastRequestedCompletionForDocstring) return
                 this.lastRequestedCompletionForDocstring = name
@@ -155,20 +151,17 @@
                     name
                 })
             },
-            setCompletions() {
-                const filteredCompletion = this.predictor.currentCompletions.filter(
-                    this.shouldDisplayCompletionRow, this)
-                if (filteredCompletion.length) {
-                    this.requestCompletionDocstring(filteredCompletion[0].c)
-                    this.set({
-                        rows: filteredCompletion,
-                        open: true
-                    })
-                } else this.set({
-                    open: false
-                })
+            setCompletions(rows, firstTriggeredCharPos, passive) {
+                if (!rows) {
+                    this.set({ open: false })
+                } else {
+                    this.set({ rows, open: true, passive })
+                    this.repositionCompletionWindow(firstTriggeredCharPos)
+                }
             },
             repositionCompletionWindow(pos) {
+                if (!this.get().open)
+                    return
                 const editorElement = this.editor.refs.codeEditor
                 const completionElement = this.refs.completion
 
