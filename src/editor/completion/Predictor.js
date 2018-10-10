@@ -18,7 +18,24 @@ class Predictor {
         this.lineContent = ''
         this.isClassDefinition = false
         this.currentCompletions = []
-        editor.ws.addHandler('predict-result', (data) => this.receive(data))
+        this.input = ''
+        
+        editor.ws.addHandler('predict-result', (data) => {
+            const input = this.lineContent[this.firstTriggeredCharPos.ch]
+            if (Predictor.debug) console.log('Predictor.recieve', data)
+            this.currentCompletions = data.result
+            if (data.result.length < 1)
+                return this.completion.set({
+                    open: false
+                })
+            console.log(this.sortAndFilter(input))
+            this.completion.setCompletions(this.sortAndFilter(input), this.firstTriggeredCharPos, this.passive)
+        })
+        editor.ws.addHandler('predictExtra-result', (data) => {
+            const { result } = data
+            result.forEach(i => i.highlight = i.c)
+            this.completion.setCompletions(result, this.firstTriggeredCharPos, true)
+        })
     }
 
     trigger(lineContent, line, ch, triggerdCharOffset) {
@@ -44,7 +61,18 @@ class Predictor {
             return
         }
         const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
-        this.completion.setCompletions(this.sortAndFilter(input), this.firstTriggeredCharPos, this.passive)
+        this.input = input
+        let completions = this.sortAndFilter(input)
+        if (!completions.length) {
+            this.editor.ws.send({
+                cmd: 'predictExtra',
+                input,
+                line,
+                ch,
+            })
+        }
+        else
+            this.completion.setCompletions(completions, this.firstTriggeredCharPos, this.passive)
     }
 
     sync(doc) {

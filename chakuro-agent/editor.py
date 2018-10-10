@@ -133,6 +133,20 @@ async def predict(msg, send, context):
     })
 
 
+@register('predictExtra')
+async def predict_extra(msg, send, context):
+    text = msg['input']
+    line_number = msg['line']
+    ch = msg['ch']
+    result = [dict(c='_'.join(wordsegment.segment(text)), t=' snake', s=1)]
+    await send({
+        'cmd': 'predictExtra-result',
+        'line': line_number,
+        'ch': ch,
+        'result': result
+    })
+
+
 @register('getCompletionDocstring')
 async def get_completion_docstring(msg, send, context):
     # get docstring

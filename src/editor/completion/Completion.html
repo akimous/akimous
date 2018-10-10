@@ -152,11 +152,11 @@
                 })
             },
             setCompletions(rows, firstTriggeredCharPos, passive) {
-                if (!rows) {
+                if (!rows.length) {
                     this.set({ open: false })
                 } else {
                     this.set({ rows, open: true, passive })
-                    this.repositionCompletionWindow(firstTriggeredCharPos)
+                    this.repositionCompletionWindow(firstTriggeredCharPos)                    
                 }
             },
             repositionCompletionWindow(pos) {
