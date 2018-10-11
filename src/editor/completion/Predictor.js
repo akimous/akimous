@@ -1,16 +1,22 @@
 import Sorter from './Sorter'
 
+const CLOSED = 0,
+      TRIGGERED = 1,
+      RETRIGGERED = 2
+
 class Predictor {
     static get debug() {
         return false
     }
-
+    
     constructor(editor) {
         this.editor = editor
         this.completion = editor.completion
         this.sorter = new Sorter()
         this.enabled = true
         this.passive = false
+        this.state = CLOSED
+        
         this.firstTriggeredCharPos = {
             line: 0,
             ch: 0
@@ -28,7 +34,6 @@ class Predictor {
                 return this.completion.set({
                     open: false
                 })
-            console.log(this.sortAndFilter(input))
             this.completion.setCompletions(this.sortAndFilter(input), this.firstTriggeredCharPos, this.passive)
         })
         editor.ws.addHandler('predictExtra-result', (data) => {
@@ -41,6 +46,7 @@ class Predictor {
     trigger(lineContent, line, ch, triggerdCharOffset) {
         if (!this.enabled) return
         this.startTime = performance.now()
+        this.state = TRIGGERED
         this.firstTriggeredCharPos.line = line
         this.firstTriggeredCharPos.ch = ch + triggerdCharOffset
         this.lineContent = lineContent
@@ -54,12 +60,15 @@ class Predictor {
     }
 
     retrigger({ lineContent, line, ch }) {
+        if (!this.enabled) return
         if (this.firstTriggeredCharPos.ch === ch) {
             this.completion.set({
                 open: false
             })
+            this.state = CLOSED
             return
         }
+        this.state = RETRIGGERED
         const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
         this.input = input
         let completions = this.sortAndFilter(input)
@@ -91,7 +100,6 @@ class Predictor {
             text: lineContent,
             line
         })
-        console.warn('sync line')
     }
 
     receive(data) {
@@ -130,4 +138,4 @@ class Predictor {
     }
 }
 
-export default Predictor
+export { Predictor, CLOSED, TRIGGERED, RETRIGGERED }

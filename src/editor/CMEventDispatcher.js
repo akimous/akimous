@@ -1,4 +1,5 @@
 import g from '../lib/Globals'
+import { CLOSED, TRIGGERED, RETRIGGERED } from './completion/Predictor'
 
 class CMEventDispatcher {
     constructor(editor) {
@@ -9,7 +10,6 @@ class CMEventDispatcher {
             predictor = editor.predictor,
             completion = editor.completion
 
-        let synced = false
         let shouldDismissCompletionOnCursorActivity = false
 
         function getNTokens(n, pos) {
@@ -61,6 +61,7 @@ class CMEventDispatcher {
 
         cm.on('cursorActivity', cm => {
             if (shouldDismissCompletionOnCursorActivity) {
+                predictor.state = CLOSED
                 completion.set({
                     open: false
                 })
@@ -95,11 +96,11 @@ class CMEventDispatcher {
             // handles Jedi sync if the change isn't a single-char input
             const origin = c[0].origin
             if (origin !== '+input' && origin !== '+completion' && origin !== '+delete') {
-                synced = true
                 predictor.sync(doc.getValue())
-            } else if (!synced && origin === '+input') {
+            } else if ((predictor.state === TRIGGERED || predictor.state === RETRIGGERED) &&
+                (origin === '+input' || origin === '+delete')) {
                 predictor.retrigger({ lineContent, ...cursor })
-            } else if (!synced) {
+            } else if (predictor.state === CLOSED) {
                 let minLine = Number.MAX_VALUE,
                     maxLine = 0
                 for (const ci of c) {
@@ -109,15 +110,11 @@ class CMEventDispatcher {
                 for (let line = minLine, end = maxLine; line <= end; line++) {
                     predictor.syncLine(doc.getLine(line), line)
                 }
-                if (origin === '+delete')
-                    predictor.retrigger({ lineContent, ...cursor })
             }
         })
 
         cm.on('beforeChange', (cm, c) => {
-            shouldDismissCompletionOnCursorActivity = false
             formatter.setContext(cm, c)
-            synced = false
             if (editor.debug) console.log('beforeChange', c)
             const startTime = performance.now()
             try {
@@ -162,17 +159,18 @@ class CMEventDispatcher {
                         // TODO: move predictor above formatter
                         const isInputDot = /\./.test(input)
                         const ch0 = cursor.ch === 0 ? '' : lineContent[cursor.ch - 1]
-                        const inputShouldTriggerPrediction = t0.type !== 'number' &&
-                            (
+                        const inputShouldTriggerPrediction = (
+                            t0.type !== 'number' && (
                                 (/[A-Za-z_]/.test(input) &&
                                     !/[A-Za-z_]/.test(ch0) &&
-                                    !completion.get().open
+                                    predictor.state === CLOSED
                                 ) || isInputDot
                             )
+                        )
                         // handle completion and predictions
                         const newLineContent = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
+                        shouldDismissCompletionOnCursorActivity = false
                         if (inputShouldTriggerPrediction) {
-                            synced = true
                             predictor.trigger(
                                 newLineContent,
                                 newCursor.line,
@@ -187,10 +185,13 @@ class CMEventDispatcher {
                             } else {
                                 predictor.passive = forcePassiveCompletion
                             }
-                        } 
+                        }
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }
+                } else if (c.origin === '+delete') {
+                    shouldDismissCompletionOnCursorActivity = false
+                    formatter.deleteHandler()
                 }
             } catch (e) {
                 console.error(e)

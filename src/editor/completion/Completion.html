@@ -30,6 +30,7 @@
     import g from '../../lib/Globals'
     import CompletionRow from './CompletionRow.html'
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
+    import { CLOSED } from './Predictor'
 
     export default {
         components: {
@@ -96,10 +97,6 @@
                 target: this,
                 extraKeyHandler(event, target) {
                     const { key } = event
-                    if (that.get().passive) {
-                        that.set({ open: false })
-                        return true
-                    }
                     if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key))
                         target.enter(null, key)
                     else if (/[=[\](){}]/.test(key))
@@ -186,7 +183,8 @@
                 if (!open) return console.error('closed')
                 const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get().selectedCompletionRow
                 if (!completion) return console.error('no selected completion')
-
+                
+                this.predictor.state = CLOSED
                 const type = completion.get().t
                 let text = completion.get().c
                 this.set({
