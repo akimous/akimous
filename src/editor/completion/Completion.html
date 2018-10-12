@@ -38,7 +38,6 @@
         },
         oncreate() {
             const completion = this.refs.completion
-            const that = this
             this.completionRows = []
             this.completionRowShortcuts = new Array(9)
 
@@ -97,12 +96,16 @@
                 target: this,
                 extraKeyHandler(event, target) {
                     const { key } = event
-                    if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key))
+                    if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key)) {
                         target.enter(null, key)
-                    else if (/[=[\](){}]/.test(key))
+                    } else if (/[=[\](){}]/.test(key)) {
                         target.set({
                             open: false
                         })
+                        target.completionProvider.state = CLOSED
+                    } else if (key === 'Escape') {
+                        target.completionProvider.state = CLOSED
+                    }
                     return true
                 },
             })
@@ -153,7 +156,7 @@
                     this.set({ open: false })
                 } else {
                     this.set({ rows, open: true, passive })
-                    this.repositionCompletionWindow(firstTriggeredCharPos)                    
+                    this.repositionCompletionWindow(firstTriggeredCharPos)
                 }
             },
             repositionCompletionWindow(pos) {
@@ -183,7 +186,7 @@
                 if (!open) return console.error('closed')
                 const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get().selectedCompletionRow
                 if (!completion) return console.error('no selected completion')
-                
+
                 this.completionProvider.state = CLOSED
                 const type = completion.get().t
                 let text = completion.get().c

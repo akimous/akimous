@@ -5,6 +5,7 @@ function EventDispatcherFactory(options) {
     const target = options.target
 
     const handleKeyEvent = event => {
+        let propagate = false
         switch (event.key) {
             case 'ArrowDown':
                 target.move(1)
@@ -19,13 +20,12 @@ function EventDispatcherFactory(options) {
                 break
             case ' ':
             case 'Enter':
-                return target.enter(null, event.key)
-
-            default:
-                if (!extraKeyHandler) return true
-                return extraKeyHandler(event, target)
+                propagate = target.enter(null, event.key)
+                break
         }
-        return false
+        if (extraKeyHandler)
+            return extraKeyHandler(event, target)
+        return propagate
     }
 
     const handleCommand = command => {

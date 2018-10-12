@@ -1,15 +1,15 @@
 import Sorter from './Sorter'
 
 const CLOSED = 0,
-      TRIGGERED = 1,
-      RETRIGGERED = 2
+    TRIGGERED = 1,
+    RETRIGGERED = 2
 const debug = false
 
 class CompletionProvider {
     static get debug() {
         return false
     }
-    
+
     constructor(editor) {
         this.editor = editor
         this.completion = editor.completion
@@ -17,7 +17,7 @@ class CompletionProvider {
         this.enabled = true
         this.passive = false
         this.state = CLOSED
-        
+
         this.firstTriggeredCharPos = {
             line: 0,
             ch: 0
@@ -26,10 +26,11 @@ class CompletionProvider {
         this.isClassDefinition = false
         this.currentCompletions = []
         this.input = ''
-        
+
         editor.ws.addHandler('predict-result', (data) => {
-            const input = this.lineContent[this.firstTriggeredCharPos.ch]
             if (debug) console.log('CompletionProvider.recieve', data)
+            const input = this.lineContent[this.firstTriggeredCharPos.ch]
+            this.state = TRIGGERED
             this.currentCompletions = data.result
             if (data.result.length < 1)
                 return this.completion.set({
@@ -47,7 +48,6 @@ class CompletionProvider {
     trigger(lineContent, line, ch, triggerdCharOffset) {
         if (!this.enabled) return
         this.startTime = performance.now()
-        this.state = TRIGGERED
         this.firstTriggeredCharPos.line = line
         this.firstTriggeredCharPos.ch = ch + triggerdCharOffset
         this.lineContent = lineContent
@@ -61,6 +61,7 @@ class CompletionProvider {
     }
 
     retrigger({ lineContent, line, ch }) {
+        console.warn('retriggered')
         if (!this.enabled) return
         if (this.firstTriggeredCharPos.ch === ch) {
             this.completion.set({
@@ -80,8 +81,7 @@ class CompletionProvider {
                 line,
                 ch,
             })
-        }
-        else
+        } else
             this.completion.setCompletions(completions, this.firstTriggeredCharPos, this.passive)
     }
 
@@ -101,17 +101,6 @@ class CompletionProvider {
             text: lineContent,
             line
         })
-    }
-
-    receive(data) {
-        const input = this.lineContent[this.firstTriggeredCharPos.ch]
-        if (debug) console.log('CompletionProvider.recieve', data)
-        this.currentCompletions = data.result
-        if (data.result.length < 1)
-            return this.completion.set({
-                open: false
-            })
-        this.completion.setCompletions(this.sortAndFilter(input), this.firstTriggeredCharPos, this.passive)
     }
 
     sortAndFilter(input) {

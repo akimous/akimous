@@ -88,7 +88,7 @@ class CMEventDispatcher {
             if (indent !== undefined) {
                 const diff = indent - cursor.ch
                 if (diff > 0)
-                    cm.doc.replaceRange(' '.repeat(diff), pos, pos)
+                    cm.doc.replaceRange(' '.repeat(diff), cursor, cursor)
                 else if (diff < 0)
                     cm.execCommand('indentLess')
             }
