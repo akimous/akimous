@@ -1,13 +1,17 @@
 from ws import WS
-from functools import partial
-from pathlib import Path
-import jedi
 from online_feature_extractor import OnlineFeatureExtractor
-from sklearn.externals import joblib
-from logzero import logger as log
 from doc_generator import DocGenerator
 from utils import detect_doc_type
+
+from functools import partial
+from pathlib import Path
+from sklearn.externals import joblib
+from logzero import logger as log
+from boltons.fileutils import atomic_save
+
+import jedi
 import wordsegment
+
 
 DEBUG = False
 doc_generator = DocGenerator()
@@ -66,8 +70,8 @@ async def modification_time(msg, send, context):
 
 @register('saveFile')
 async def save_file(msg, send, context):
-    with open(context.path, 'w') as f:
-        f.write(msg['content'])
+    with atomic_save(str(context.path)) as f:
+        f.write(msg['content'].encode('utf-8'))
     await send({
         'cmd': 'saveFile-ok',
         'mtime': str(context.path.stat().st_mtime)
@@ -194,7 +198,7 @@ async def get_function_documentation(msg, send, context):
     j = jedi.Script(doc, line_number + 1, ch, context.path)
     call_signatures = j.call_signatures()
     if not call_signatures:
-        log.warn('call signature is empty while obtaining docstring')
+        log.debug('call signature is empty while obtaining docstring')
         return
     signature = call_signatures[0]
     docstring = signature.docstring()
