@@ -1,5 +1,5 @@
 import g from '../lib/Globals'
-import { CLOSED, TRIGGERED, RETRIGGERED } from './completion/Predictor'
+import { CLOSED, TRIGGERED, RETRIGGERED } from './completion/CompletionProvider'
 
 class CMEventDispatcher {
     constructor(editor) {
@@ -7,7 +7,6 @@ class CMEventDispatcher {
             doc = cm.doc,
             formatter = editor.realtimeFormatter,
             completionProvider = editor.completionProvider,
-            predictor = editor.predictor,
             completion = editor.completion
 
         let shouldDismissCompletionOnCursorActivity = false
@@ -61,7 +60,7 @@ class CMEventDispatcher {
 
         cm.on('cursorActivity', cm => {
             if (shouldDismissCompletionOnCursorActivity) {
-                predictor.state = CLOSED
+                completionProvider.state = CLOSED
                 completion.set({
                     open: false
                 })
@@ -96,11 +95,13 @@ class CMEventDispatcher {
             // handles Jedi sync if the change isn't a single-char input
             const origin = c[0].origin
             if (origin !== '+input' && origin !== '+completion' && origin !== '+delete') {
-                predictor.sync(doc.getValue())
-            } else if ((predictor.state === TRIGGERED || predictor.state === RETRIGGERED) &&
-                (origin === '+input' || origin === '+delete')) {
-                predictor.retrigger({ lineContent, ...cursor })
-            } else if (predictor.state === CLOSED) {
+                completionProvider.sync(doc.getValue())
+            } else if (
+                (completionProvider.state === TRIGGERED || completionProvider.state === RETRIGGERED) &&
+                (origin === '+input' || origin === '+delete')
+            ) {
+                completionProvider.retrigger({ lineContent, ...cursor })
+            } else if (completionProvider.state === CLOSED) {
                 let minLine = Number.MAX_VALUE,
                     maxLine = 0
                 for (const ci of c) {
@@ -108,7 +109,7 @@ class CMEventDispatcher {
                     maxLine = Math.max(maxLine, ci.from.line, ci.to.line)
                 }
                 for (let line = minLine, end = maxLine; line <= end; line++) {
-                    predictor.syncLine(doc.getLine(line), line)
+                    completionProvider.syncLine(doc.getLine(line), line)
                 }
             }
         })
@@ -132,7 +133,7 @@ class CMEventDispatcher {
                     let forcePassiveCompletion = false
                     const newCursor = { line: cursor.line, ch: cursor.ch + input.length }
 
-                    // if it is not single char input, handle by predictor.sync()
+                    // if it is not single char input, handle by completionProvider.sync()
                     if (c.text.length === 1 &&
                         c.from.line === c.to.line &&
                         input.length === 1
@@ -156,14 +157,14 @@ class CMEventDispatcher {
                         if (!cm.somethingSelected())
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
 
-                        // TODO: move predictor above formatter
+                        // TODO: move completionProvider above formatter
                         const isInputDot = /\./.test(input)
                         const ch0 = cursor.ch === 0 ? '' : lineContent[cursor.ch - 1]
                         const inputShouldTriggerPrediction = (
                             t0.type !== 'number' && (
                                 (/[A-Za-z_]/.test(input) &&
                                     !/[A-Za-z_]/.test(ch0) &&
-                                    predictor.state === CLOSED
+                                    completionProvider.state === CLOSED
                                 ) || isInputDot
                             )
                         )
@@ -171,7 +172,7 @@ class CMEventDispatcher {
                         const newLineContent = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
                         shouldDismissCompletionOnCursorActivity = false
                         if (inputShouldTriggerPrediction) {
-                            predictor.trigger(
+                            completionProvider.trigger(
                                 newLineContent,
                                 newCursor.line,
                                 newCursor.ch,
@@ -181,9 +182,9 @@ class CMEventDispatcher {
                                 t0.type === 'comment' ||
                                 t1.string === 'for' // for var_name in ... should not complete var_name
                             ) {
-                                predictor.passive = true
+                                completionProvider.passive = true
                             } else {
-                                predictor.passive = forcePassiveCompletion
+                                completionProvider.passive = forcePassiveCompletion
                             }
                         }
                     } else {

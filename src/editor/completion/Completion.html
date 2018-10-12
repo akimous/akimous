@@ -30,7 +30,7 @@
     import g from '../../lib/Globals'
     import CompletionRow from './CompletionRow.html'
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
-    import { CLOSED } from './Predictor'
+    import { CLOSED } from './CompletionProvider'
 
     export default {
         components: {
@@ -138,7 +138,7 @@
             bindReferences(editor) {
                 this.editor = editor
                 this.cm = editor.cm
-                this.predictor = editor.predictor
+                this.completionProvider = editor.completionProvider
             },
             requestCompletionDocstring(name) {
                 if (name === this.lastRequestedCompletionForDocstring) return
@@ -184,7 +184,7 @@
                 const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get().selectedCompletionRow
                 if (!completion) return console.error('no selected completion')
                 
-                this.predictor.state = CLOSED
+                this.completionProvider.state = CLOSED
                 const type = completion.get().t
                 let text = completion.get().c
                 this.set({
@@ -211,7 +211,7 @@
                 }
                 this.cm.replaceRange(
                     text,
-                    this.predictor.firstTriggeredCharPos,
+                    this.completionProvider.firstTriggeredCharPos,
                     this.cm.doc.getCursor(),
                     '+completion'
                 )

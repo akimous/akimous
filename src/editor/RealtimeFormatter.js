@@ -15,7 +15,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const ensureSpaceBefore = (t0) => {
         if (/\s+/.test(t0.string)) return // don't duplicate spaces
         c.text[0] = ' ' + c.text[0]
-        editor.predictor.firstTriggeredCharPos.ch++
+        editor.completionProvider.firstTriggeredCharPos.ch++
     }
     const stripTrailingSpaces = (line) => {
         for (let i = c.from.ch - 1; i >= 0; i--) {

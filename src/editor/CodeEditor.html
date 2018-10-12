@@ -14,7 +14,7 @@
     import CMEventDispatcher from './CMEventDispatcher'
     import registerCMCommands from './CMCommands'
     import RealtimeFormatter from './RealtimeFormatter'
-    import { Predictor } from './completion/Predictor'
+    import { CompletionProvider } from './completion/CompletionProvider'
     import { getIconByFileName } from '../lib/FileTypeToIcon'
     import { onIdle } from '../lib/Utils'
 
@@ -143,10 +143,10 @@
             initializeCM.then(() => onIdle(() => {
                 this.completion = this.refs.completion
                 this.cm.refresh() // prevent CM occasionally shifts to the right
-                this.predictor = new Predictor(this)
-                // only enable predictor when the document is a Python file
+                this.completionProvider = new CompletionProvider(this)
+                // only enable completionProvider when the document is a Python file
                 if (mode && mode.mode !== 'python') {
-                    this.predictor.enabled = false
+                    this.completionProvider.enabled = false
                 }
                 this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
                 this.cmEventDispatcher = new CMEventDispatcher(this)

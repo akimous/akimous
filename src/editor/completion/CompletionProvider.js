@@ -3,8 +3,9 @@ import Sorter from './Sorter'
 const CLOSED = 0,
       TRIGGERED = 1,
       RETRIGGERED = 2
+const debug = false
 
-class Predictor {
+class CompletionProvider {
     static get debug() {
         return false
     }
@@ -28,7 +29,7 @@ class Predictor {
         
         editor.ws.addHandler('predict-result', (data) => {
             const input = this.lineContent[this.firstTriggeredCharPos.ch]
-            if (Predictor.debug) console.log('Predictor.recieve', data)
+            if (debug) console.log('CompletionProvider.recieve', data)
             this.currentCompletions = data.result
             if (data.result.length < 1)
                 return this.completion.set({
@@ -104,7 +105,7 @@ class Predictor {
 
     receive(data) {
         const input = this.lineContent[this.firstTriggeredCharPos.ch]
-        if (Predictor.debug) console.log('Predictor.recieve', data)
+        if (debug) console.log('CompletionProvider.recieve', data)
         this.currentCompletions = data.result
         if (data.result.length < 1)
             return this.completion.set({
@@ -127,7 +128,7 @@ class Predictor {
             }
         }
         this.currentCompletions.sort((a, b) => b.sortScore - a.sortScore + b.s - a.s)
-        if (Predictor.debug) console.log('Predictor.sort', this.currentCompletions)
+        if (debug) console.log('CompletionProvider.sort', this.currentCompletions)
 
         const { passive } = this.completion.get()
         const filteredCompletions = this.currentCompletions.filter(row => {
@@ -138,4 +139,4 @@ class Predictor {
     }
 }
 
-export { Predictor, CLOSED, TRIGGERED, RETRIGGERED }
+export { CompletionProvider, CLOSED, TRIGGERED, RETRIGGERED }
