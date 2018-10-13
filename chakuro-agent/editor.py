@@ -2,6 +2,7 @@ from ws import WS
 from online_feature_extractor import OnlineFeatureExtractor
 from doc_generator import DocGenerator
 from utils import detect_doc_type
+from importlib.resources import open_binary
 
 from functools import partial
 from pathlib import Path
@@ -18,10 +19,10 @@ doc_generator = DocGenerator()
 wordsegment.load()
 
 register = partial(WS.register, 'editor')
-MODEL_PATH = './resources/v10.model'
-model = joblib.load(Path(MODEL_PATH))
+MODEL_NAME = 'v10.model'
+model = joblib.load(open_binary('resources', MODEL_NAME))
 model.n_jobs = 1
-log.info(f'Model {MODEL_PATH} loaded, n_jobs={model.n_jobs}')
+log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
 
 
 @register('openFile')

@@ -3,12 +3,13 @@ from types import SimpleNamespace
 from collections import OrderedDict
 from tokenize import generate_tokens, TokenError
 from io import StringIO
+from importlib.resources import open_binary
 
 import msgpack
 import numpy as np
 
 from modeling.token_map import TokenMap, DirtyMap
-from modeling.utility import p, to_key_value_columns, working_dir
+from modeling.utility import p, to_key_value_columns
 
 NOT_APPLICABLE = -99999
 MAX = 99999
@@ -19,7 +20,7 @@ _EMPTY = tuple()
 
 
 def _load_token_statistics(file_name):
-    with lzma.open(working_dir / file_name, 'rb') as f:
+    with lzma.open(open_binary('resources', file_name), 'rb') as f:
         return msgpack.unpack(f, use_list=False, raw=False)
 
 
@@ -30,7 +31,7 @@ class FeatureDefinition:
     completion_feature_indices_require_normalization = []
     context_names_required_by_preprocessors = OrderedDict()
 
-    token_frequency = _load_token_statistics('token.xz')
+    token_frequency = _load_token_statistics('unigram.xz')
     bigram_frequency = _load_token_statistics('bigram.xz')
     trigram_frequency = _load_token_statistics('trigram.xz')
 
