@@ -1,6 +1,7 @@
 from ws import WS
 from online_feature_extractor import OnlineFeatureExtractor
 from doc_generator import DocGenerator
+from word_completer import search_prefix
 from utils import detect_doc_type
 from importlib.resources import open_binary
 
@@ -16,7 +17,8 @@ import wordsegment
 
 DEBUG = False
 doc_generator = DocGenerator()
-wordsegment.load()
+if not wordsegment.UNIGRAMS:
+    wordsegment.load()
 
 register = partial(WS.register, 'editor')
 MODEL_NAME = 'v10.model'
@@ -143,7 +145,13 @@ async def predict_extra(msg, send, context):
     text = msg['input']
     line_number = msg['line']
     ch = msg['ch']
-    result = [dict(c='_'.join(wordsegment.segment(text)) + ' = ', t=' snake', s=1)]
+
+    words = search_prefix(text)
+    result = [dict(c=word + ' = ', t='word', s=999-i) for i, word in enumerate(words)]
+    if len(result) < 6:
+        segmented = wordsegment.segment(text)
+        if segmented not in words:
+            result.append(dict(c='_'.join(wordsegment.segment(text)) + ' = ', t=' snake', s=1))
     await send({
         'cmd': 'predictExtra-result',
         'line': line_number,

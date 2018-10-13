@@ -8,20 +8,7 @@ from docutils.io import StringOutput
 from sphinx.util import rst, relative_uri
 from os import path
 from sphinx.io import read_doc
-import time
-
-
-class Timer:
-    def __init__(self, description):
-        self.description = description
-
-    def __enter__(self):
-        self.start = time.perf_counter()
-        return self
-
-    def __exit__(self, *args):
-        self.end = time.perf_counter()
-        # print(self.description, 'took', self.end - self.start)
+from utils import Timer
 
 
 class DocGenerator:
