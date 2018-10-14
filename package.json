@@ -10,7 +10,7 @@
     "devDependencies": {
         "autoprefixer": "^9.1.5",
         "babel-plugin-transform-remove-console": "^6.9.4",
-        "browserslist": "^4.2.0",
+        "browserslist": "^4.2.1",
         "cloc": "^2.3.4",
         "codemirror": "^5.40.2",
         "css-element-queries": "^1.0.2",

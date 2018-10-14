@@ -164,7 +164,6 @@ async def predict_extra(msg, send, context):
             continue
         result.append(dict(c=token, t='token', s=990-i))
         result_set.add(token)
-    print('1', result)
 
     # 2. words from dictionary
     if len(result) < 6:
@@ -174,7 +173,6 @@ async def predict_extra(msg, send, context):
                 continue
             result.append(dict(c=word + ' = ', t='word', s=980-i))
             result_set.add(word)
-    print('2', result)
 
     # 3. segmented words
     if len(result) < 6:
@@ -182,7 +180,6 @@ async def predict_extra(msg, send, context):
         snake = '_'.join(segmented_words)
         if snake not in result_set:
             result.append(dict(c=snake + ' = ', t=' snake', s=1))
-    print('3', result)
 
     await send({
         'cmd': 'predictExtra-result',
