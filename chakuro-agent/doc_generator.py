@@ -1,7 +1,7 @@
 import tempfile
 import shutil
 from pathlib import Path
-from sphinx.application import Sphinx
+from sphinx.application import Sphinx, logger
 from docutils.frontend import OptionParser
 from sphinx.util.docutils import sphinx_domains
 from docutils.io import StringOutput
@@ -9,10 +9,12 @@ from sphinx.util import rst, relative_uri
 from os import path
 from sphinx.io import read_doc
 from utils import Timer
+from logging import ERROR
 
 
 class DocGenerator:
     def __init__(self):
+        logger.setLevel(ERROR)
         self.temp_dir = tempfile.TemporaryDirectory()
         self.doc_dir = Path(self.temp_dir.name) / 'doc'
         self.doc_output_dir = Path(self.temp_dir.name) / 'doc_output'
@@ -21,6 +23,7 @@ class DocGenerator:
         absolute_doc_path = str(self.doc_dir.absolute())
         absolute_doc_output_path = str(self.doc_output_dir.absolute())
         app = Sphinx(absolute_doc_path, absolute_doc_path, absolute_doc_output_path, absolute_doc_path, 'html', freshenv=True)
+        app.verbosity = -1
         config = app.builder.config
         app.builder.env.srcdir = app.builder.srcdir
         app.builder.env.doctreedir = app.builder.doctreedir

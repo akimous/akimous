@@ -22,4 +22,4 @@ class Timer:
 
     def __exit__(self, *args):
         self.end = perf_counter()
-        log.debug(f'{self.description} took {self.end - self.start} s')
+        log.debug(f'{self.description} took {(self.end - self.start) * 1000: .3f} ms')

@@ -4,6 +4,7 @@ from collections import OrderedDict
 from tokenize import generate_tokens, TokenError
 from io import StringIO
 from importlib.resources import open_binary
+from utils import Timer
 
 import msgpack
 import numpy as np
@@ -184,6 +185,7 @@ def tokenize(string):
 @FeatureDefinition.register_context_preprocessor_for_token_features(
     line_to_tokens={},
     dirty_map=DirtyMap(),
+    t0map=TokenMap(),
     t1map=TokenMap(),
     t2map=TokenMap(),
     t3map=TokenMap(),
@@ -191,6 +193,7 @@ def tokenize(string):
 )
 def f(doc, context, line, ch, **_):
     dirty_map = context.dirty_map
+    t0map = context.t0map
     t1map = context.t1map
     t2map = context.t2map
     t3map = context.t3map

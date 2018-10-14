@@ -2,7 +2,7 @@ from ws import WS
 from online_feature_extractor import OnlineFeatureExtractor
 from doc_generator import DocGenerator
 from word_completer import search_prefix
-from utils import detect_doc_type
+from utils import detect_doc_type, Timer
 from importlib.resources import open_binary
 
 from functools import partial
@@ -10,6 +10,7 @@ from pathlib import Path
 from sklearn.externals import joblib
 from logzero import logger as log
 from boltons.fileutils import atomic_save
+from boltons.gcutils import toggle_gc_postcollect
 
 import jedi
 import wordsegment
@@ -32,15 +33,21 @@ async def open_file(msg, send, context):
     context.path = Path(*msg['filePath'])
     with open(context.path) as f:
         content = f.read()
-    context.doc = content.splitlines()
-    context.feature_extractor = OnlineFeatureExtractor()
-    for line, line_content in enumerate(context.doc):
-        context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
+    # somehow risky, but it should not wait until the extractor ready
     await send({
         'cmd': 'openFile',
         'mtime': str(context.path.stat().st_mtime),
         'content': content
     })
+    with Timer('Initializing extractor'):
+        with toggle_gc_postcollect:
+            context.doc = content.splitlines()
+            context.feature_extractor = OnlineFeatureExtractor()
+            for line, line_content in enumerate(context.doc):
+                context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
+            # warm up Jedi
+            j = jedi.Script('\n'.join(context.doc), len(context.doc), 1, context.path)
+            j.completions()
 
 
 @register('reload')
@@ -109,28 +116,30 @@ async def predict(msg, send, context):
     ch = msg['ch']
     set_line(context, line_number, line_content)
     doc = '\n'.join(context.doc)
-    j = jedi.Script(doc, line_number + 1, ch, context.path)
-    completions = j.completions()
+    with Timer(f'Prediction ({line_number}, {ch})'):
+        j = jedi.Script(doc, line_number + 1, ch, context.path)
+        completions = j.completions()
 
     if DEBUG:
         print('completions:', completions)
 
-    if completions:
-        context.currentCompletions = {
-            completion.name: completion for completion in completions
-        }
-        feature_extractor = context.feature_extractor
-        feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc, j.call_signatures())
-        scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
-        result = [
-            {
-                'c': c.name,  # completion
-                't': c.type,  # type
-                's': int(s)  # score
-            } for c, s in zip(completions, scores)
-        ]
-    else:
-        result = []
+    with Timer(f'Rest ({line_number}, {ch})'):
+        if completions:
+            context.currentCompletions = {
+                completion.name: completion for completion in completions
+            }
+            feature_extractor = context.feature_extractor
+            feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc, j.call_signatures())
+            scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
+            result = [
+                {
+                    'c': c.name,  # completion
+                    't': c.type,  # type
+                    's': int(s)  # score
+                } for c, s in zip(completions, scores)
+            ]
+        else:
+            result = []
 
     await send({
         'cmd': 'predict-result',
