@@ -154,13 +154,36 @@ async def predict_extra(msg, send, context):
     text = msg['input']
     line_number = msg['line']
     ch = msg['ch']
+    result = []
+    result_set = set()
 
-    words = search_prefix(text)
-    result = [dict(c=word + ' = ', t='word', s=999-i) for i, word in enumerate(words)]
+    # 1. existed tokens
+    tokens = context.feature_extractor.context.t0map.query_prefix(text, line_number)
+    for i, token in enumerate(tokens):
+        if token in result_set:
+            continue
+        result.append(dict(c=token, t='token', s=990-i))
+        result_set.add(token)
+    print('1', result)
+
+    # 2. words from dictionary
     if len(result) < 6:
-        segmented = wordsegment.segment(text)
-        if segmented not in words:
-            result.append(dict(c='_'.join(wordsegment.segment(text)) + ' = ', t=' snake', s=1))
+        words = search_prefix(text)
+        for i, word in enumerate(words):
+            if word in result_set:
+                continue
+            result.append(dict(c=word + ' = ', t='word', s=980-i))
+            result_set.add(word)
+    print('2', result)
+
+    # 3. segmented words
+    if len(result) < 6:
+        segmented_words = wordsegment.segment(text)
+        snake = '_'.join(segmented_words)
+        if snake not in result_set:
+            result.append(dict(c=snake + ' = ', t=' snake', s=1))
+    print('3', result)
+
     await send({
         'cmd': 'predictExtra-result',
         'line': line_number,

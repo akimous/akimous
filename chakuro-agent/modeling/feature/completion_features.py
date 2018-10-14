@@ -2,6 +2,7 @@ from .feature_definition import FeatureDefinition, MAX, MAX_SCAN_LINES
 import re
 import token as token_
 from fuzzywuzzy import fuzz
+from utils import Timer
 
 COMPLETION_TYPES = [
     'class',
@@ -169,6 +170,8 @@ def f(completion, line, context, **_):
 @FeatureDefinition.register_feature_generator('t1_match')
 def f(context, line, completion, **_):
     bigram = (context.t1, completion.name)
+    # min_line, max_line = context.t1map.query_min_max(bigram)
+    # result = min(abs(min_line - line), abs(max_line - line))
     matched_line_numbers = context.t1map.query(bigram)
     if not matched_line_numbers:
         return MAX

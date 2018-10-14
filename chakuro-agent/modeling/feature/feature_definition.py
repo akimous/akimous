@@ -2,6 +2,7 @@ import lzma
 from types import SimpleNamespace
 from collections import OrderedDict
 from tokenize import generate_tokens, TokenError
+from token import NAME
 from io import StringIO
 from importlib.resources import open_binary
 from utils import Timer
@@ -9,7 +10,7 @@ from utils import Timer
 import msgpack
 import numpy as np
 
-from modeling.token_map import TokenMap, DirtyMap
+from modeling.token_map import TokenMap, DirtyMap, PrefixTokenMap
 from modeling.utility import p, to_key_value_columns
 
 NOT_APPLICABLE = -99999
@@ -185,7 +186,7 @@ def tokenize(string):
 @FeatureDefinition.register_context_preprocessor_for_token_features(
     line_to_tokens={},
     dirty_map=DirtyMap(),
-    t0map=TokenMap(),
+    t0map=PrefixTokenMap(),
     t1map=TokenMap(),
     t2map=TokenMap(),
     t3map=TokenMap(),
@@ -207,21 +208,22 @@ def f(doc, context, line, ch, **_):
 
     for line_number in dirty_lines:
         line_content = doc[line_number]
-        t1map.remove_line(line_number)
-        t2map.remove_line(line_number)
-        t3map.remove_line(line_number)
-        trigram_map.remove_line(line_number)
+        for i in (t0map, t1map, t2map, t3map, trigram_map):
+            i.remove_line(line_number)
         dirty_map.set_clear(line_number, line_content)
 
         tokens0 = line_to_tokens.get(line_number, _EMPTY)
         tokens1 = line_to_tokens.get(line_number - 1, _EMPTY)
         t1, t2, t3 = '', '', ''
         if tokens1:
-            t2 = tokens1[-1]
+            t2 = tokens1[-1].string.strip()
             if len(tokens1) > 1:
-                t3 = tokens1[-2]
+                t3 = tokens1[-2].string.strip()
+        # leave t1 alone to indicate a line break
         for token in tokens0:
-            t0 = token.string
+            t0 = token.string.strip()
+            if token.type == NAME and len(t0) > 3:
+                t0map.add(line_number, t0)
             t1map.add(line_number, (t1, t0))
             t2map.add(line_number, (t2, t0))
             t3map.add(line_number, (t3, t0))

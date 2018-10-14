@@ -36,12 +36,19 @@ class CompletionProvider {
                 return this.completion.set({
                     open: false
                 })
-            this.completion.setCompletions(this.sortAndFilter(input), this.firstTriggeredCharPos, this.passive)
+            this.completion.setCompletions(
+                this.sortAndFilter(input, this.currentCompletions),
+                this.firstTriggeredCharPos, 
+                this.passive
+            )
         })
         editor.ws.addHandler('predictExtra-result', (data) => {
             const { result } = data
-            result.forEach(i => i.highlight = i.c)
-            this.completion.setCompletions(result, this.firstTriggeredCharPos, true)
+            this.completion.setCompletions(
+                this.sortAndFilter(this.input, result),
+                this.firstTriggeredCharPos,
+                true  // passive
+            )
         })
     }
 
@@ -73,7 +80,7 @@ class CompletionProvider {
         this.state = RETRIGGERED
         const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
         this.input = input
-        let completions = this.sortAndFilter(input)
+        let completions = this.sortAndFilter(input, this.currentCompletions)
         if (!completions.length) {
             this.editor.ws.send({
                 cmd: 'predictExtra',
@@ -103,24 +110,24 @@ class CompletionProvider {
         })
     }
 
-    sortAndFilter(input) {
+    sortAndFilter(input, completions) {
         if (!input) { // for prediction immediately after dot
-            this.currentCompletions.forEach(i => {
+            completions.forEach(i => {
                 i.sortScore = 1
                 i.highlight = i.c
             })
         } else {
             this.sorter.setInput(input)
-            for (let i of this.currentCompletions) {
+            for (let i of completions) {
                 i.sortScore = this.sorter.score(i.c) * 10
                 i.highlight = this.sorter.highlight()
             }
         }
-        this.currentCompletions.sort((a, b) => b.sortScore - a.sortScore + b.s - a.s)
-        if (debug) console.log('CompletionProvider.sort', this.currentCompletions)
+        completions.sort((a, b) => b.sortScore - a.sortScore + b.s - a.s)
+        if (debug) console.log('CompletionProvider.sort', completions)
 
         const { passive } = this.completion.get()
-        const filteredCompletions = this.currentCompletions.filter(row => {
+        const filteredCompletions = completions.filter(row => {
             if (passive && row.c.length < 3) return false
             return row.sortScore > 0
         })

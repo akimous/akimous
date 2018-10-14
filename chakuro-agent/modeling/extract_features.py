@@ -119,7 +119,7 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
         log.info(f'Naive Accuracy: {sum_of_successful_rates / successful_completion_count}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('Bad arguments. Should be either train, test, both or a path to a Python file.')
         exit(1)

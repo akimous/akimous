@@ -1,6 +1,7 @@
 import tempfile
 import shutil
 from pathlib import Path
+from importlib import resources
 from sphinx.application import Sphinx, logger
 from docutils.frontend import OptionParser
 from sphinx.util.docutils import sphinx_domains
@@ -19,7 +20,8 @@ class DocGenerator:
         self.doc_dir = Path(self.temp_dir.name) / 'doc'
         self.doc_output_dir = Path(self.temp_dir.name) / 'doc_output'
         self.doc_file = self.doc_dir / 'index.rst'
-        shutil.copytree(Path('./resources/doc_template'), self.doc_dir)
+        with resources.path('resources', 'doc_template') as f:
+            shutil.copytree(f, self.doc_dir)
         absolute_doc_path = str(self.doc_dir.absolute())
         absolute_doc_output_path = str(self.doc_output_dir.absolute())
         app = Sphinx(absolute_doc_path, absolute_doc_path, absolute_doc_output_path, absolute_doc_path, 'html', freshenv=True)
