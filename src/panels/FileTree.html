@@ -107,7 +107,7 @@
                 // return true if handled
                 return data => {
                     const node = this.getNode(data.path.slice(0, -1))
-                    const arr = node.get(target)
+                    const arr = node.get()[target]
                     const name = data.path[data.path.length - 1]
                     const position = binarySearch(arr, name)
                     if (eventType === 'created')

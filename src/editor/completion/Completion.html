@@ -1,7 +1,8 @@
-<div ref:completion class="completion non-selectable" style="display:{open?'block':'none'}">
+<div ref:container class="completion non-selectable" style="display:{open?'block':'none'}">
     {#if passive}
     <CompletionRow ref:passivePlaceholder parent={ null } rowNumber="⇥" highlight="Press tab to commit selected item"></CompletionRow>
     {/if}
+    <div ref:completion></div>
 </div>
 
 <style>
@@ -38,6 +39,7 @@
         },
         oncreate() {
             const completion = this.refs.completion
+            const container = this.refs.container
             this.completionRows = []
             this.completionRowShortcuts = new Array(9)
 
@@ -46,7 +48,7 @@
             const scrollHandler = () => {
                 const rowHeight = this.completionRows[0].refs.completionRow.clientHeight
                 const { passive } = this.get()
-                let firstVisibleIndex = Math.floor(completion.scrollTop / rowHeight) - passive
+                let firstVisibleIndex = Math.floor(container.scrollTop / rowHeight) - passive
                 if (firstVisibleIndex < 0)
                     firstVisibleIndex = 0
                 if (firstVisibleIndex > this.completionRows.length)
@@ -65,11 +67,27 @@
                 }
                 lastFVI = firstVisibleIndex
             }
-            completion.addEventListener('scroll', scrollHandler, {
+            container.addEventListener('scroll', scrollHandler, {
                 passive: true
             })
 
-            this.on('state', ({ changed, current }) => {
+            this.on('state', ({ changed, current, previous }) => {
+                if (!previous) return
+                if (changed.open) {
+                    if (current.open) g.pushFocus(this)
+                    else {
+                        g.popFocus(this)
+                        g.docs.set({ completionDoc: null })
+                    }
+                }
+                if (changed.selectedCompletionRow) {
+                    if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({
+                        selected: false
+                    })
+                    if (current.selectedCompletionRow) current.selectedCompletionRow.set({
+                        selected: true
+                    })
+                }
                 if (changed.rows) {
                     const rows = current.rows
                     for (const row of this.completionRows)
@@ -110,24 +128,6 @@
                 },
             })
         },
-        onstate({ changed, current, previous }) {
-            if (!previous) return
-            if (changed.open) {
-                if (current.open) g.pushFocus(this)
-                else {
-                    g.popFocus(this)
-                    g.docs.set({ completionDoc: null })
-                }
-            }
-            if (changed.selectedCompletionRow) {
-                if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({
-                    selected: false
-                })
-                if (current.selectedCompletionRow) current.selectedCompletionRow.set({
-                    selected: true
-                })
-            }
-        },
         data() {
             return {
                 open: false,
@@ -163,14 +163,14 @@
                 if (!this.get().open)
                     return
                 const editorElement = this.editor.refs.codeEditor
-                const completionElement = this.refs.completion
+                const container = this.refs.container
 
                 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
                 const coords = this.cm.charCoords(pos, 'window')
                 const charHeight = coords.bottom - coords.top
 
                 const editorArea = editorElement.getBoundingClientRect()
-                const completionArea = completionElement.getBoundingClientRect()
+                const completionArea = container.getBoundingClientRect()
                 const completionHeight = completionArea.bottom - completionArea.top
 
                 let x = coords.left - editorArea.left - 3 * rem
@@ -178,8 +178,8 @@
                 if (y + completionHeight > editorArea.bottom) {
                     y = coords.top - completionHeight - 1.3 * charHeight
                 }
-                completionElement.style.left = `${x}px`
-                completionElement.style.top = `${y}px`
+                container.style.left = `${x}px`
+                container.style.top = `${y}px`
             },
             enter(rowNumber, key) {
                 const { open, passive } = this.get()

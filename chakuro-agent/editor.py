@@ -156,7 +156,7 @@ async def predict_extra(msg, send, context):
     ch = msg['ch']
     result = []
     result_set = set()
-
+    # 
     # 1. existed tokens
     tokens = context.feature_extractor.context.t0map.query_prefix(text, line_number)
     for i, token in enumerate(tokens):
