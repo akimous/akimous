@@ -29,6 +29,7 @@ const editorCommandKeymap = {
     'Backspace': 'delGroupBefore',
     'Delete': 'delGroupAfter',
     
+    'Minus': 'fold',
 }
 
 const genericCommandKeymap = {

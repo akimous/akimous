@@ -8,7 +8,7 @@
     "license": "MIT",
     "private": true,
     "devDependencies": {
-        "autoprefixer": "^9.1.5",
+        "autoprefixer": "^9.2.0",
         "babel-plugin-transform-remove-console": "^6.9.4",
         "browserslist": "^4.2.1",
         "cloc": "^2.3.4",

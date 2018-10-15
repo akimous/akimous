@@ -186,6 +186,10 @@ span.tooltipped::after {
     color: var(--red);
 }
 
+.l-brighter-red {
+    color: var(--brighter-red);
+}
+
 .l-white {
     color: lightgray;
 }

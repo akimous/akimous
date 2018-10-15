@@ -411,6 +411,14 @@ function registerCMCommands(CodeMirror) {
             return tail || range.to()
         })
     }
+    
+    commands.fold = cm => {
+        const cursor = cm.getCursor()
+        cm.foldCode(cursor, {
+            scanUp: true,
+            minFoldSize: 2,
+        })
+    }
 }
 
 export default registerCMCommands
