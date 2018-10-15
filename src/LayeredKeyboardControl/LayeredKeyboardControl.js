@@ -59,6 +59,7 @@ class LayeredKeyboardControl {
                         this.sendEditorCommand(editorCommand)
                         if (extending) this.sendEditorCommand('unsetExtending')
                         g.keyboardControlHint.showDescription(key)
+                        g.keyboardControlHint.highlight(key)
                         return false
                     } else {
                         const handler = focus.keyEventHandler
@@ -66,12 +67,14 @@ class LayeredKeyboardControl {
                         const shouldPropagate = handler.handleCommand(command, focus)
                         if (shouldPropagate) continue
                         g.keyboardControlHint.showDescription(key)
+                        g.keyboardControlHint.highlight(key)
                         return false
                     }
                 }
                 return true
         }
         g.keyboardControlHint.showDescription(key)
+        g.keyboardControlHint.highlight(key)
     }
     stopPropagation(event) {
         event.preventDefault()
@@ -107,6 +110,7 @@ class LayeredKeyboardControl {
                     if (g.focus.get().allowWhiteSpace) return true
                     spacePressed = true
                     this.commandSent = false
+                    g.keyboardControlHint.highlightModifier('Space')
                     break
                 case 'Meta':
                 case 'Control':
@@ -185,6 +189,7 @@ class LayeredKeyboardControl {
                         e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
                         g.activeEditor.insertText(' ')
                     }
+                    g.keyboardControlHint.dimModifier('Space')
                     return this.stopPropagation(e)
                 case 'Meta':
                 case 'Control':

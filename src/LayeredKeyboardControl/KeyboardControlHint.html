@@ -230,6 +230,26 @@
     :global(#keyboard-control-hint .active) {
         box-shadow: var(--blue) 0 0 0 .2rem;
     }
+    
+    :global(#keyboard-control-hint .highlight) {
+        animation-name: highlight-animation;
+        animation-duration: 1s;
+    }
+    
+    @keyframes highlight-animation {
+        0% {
+            background: var(--blue);
+            border-top: .05rem solid var(--blue);
+            border-bottom: .05rem solid var(--blue);
+        }
+        100% {
+            background: var(--darker-color);
+        }
+    }
+    
+    :global(#keyboard-control-hint .persistant-highlight) {
+        background: var(--blue);
+    }
 
 </style>
 
@@ -365,6 +385,28 @@
                 }
                 document.getElementById(`key-${key}`).classList.add('active')
             },
+            highlight(key) {
+                const { open } = this.get()
+                if (!open) return
+                const element = document.getElementById(`key-${key}`)
+                element.classList.remove('highlight')
+                requestAnimationFrame(() => {
+                    element.classList.add('highlight')
+                })
+            },
+            highlightModifier(key) {
+                const { open } = this.get()
+                if (!open) return
+                const element = document.getElementById(`key-${key}`)
+                if (element.classList.contains('persistant-highlight')) return
+                element.classList.add('persistant-highlight')
+            },
+            dimModifier(key) {
+                const { open } = this.get()
+                if (!open) return
+                const element = document.getElementById(`key-${key}`)
+                element.classList.remove('persistant-highlight')
+            }
         }
     }
 
