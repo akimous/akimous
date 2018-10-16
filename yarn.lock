@@ -744,10 +744,10 @@ css-color-names@0.0.4:
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
   integrity sha1-gIrcLnnPhHOAabZGyyDsJ762KeA=
 
-css-element-queries@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/css-element-queries/-/css-element-queries-1.0.2.tgz#a32edfee4a5023688ef4d45f402077306d51d44c"
-  integrity sha512-LOtFjyFwjzPfk84hK8Xd3KfBoyzgeqAUREor5vncYegEEjpAFcQ9+Qi/gZIzsNb2XU9sbP+cNqp8bfOoZknYSA==
+css-element-queries@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/css-element-queries/-/css-element-queries-1.0.4.tgz#937b849e6378f39ab3304ee730389457cde45eb0"
+  integrity sha512-XZWY4VvP7zDqCSjW3LbyL+PDQLjtBjdYDjuWF0+Ixv3lRoyxnbI7f0+Qo1KGwVrJ92Kkgiz0fCt5glYo4yb1TQ==
 
 css-modules-loader-core@^1.1.0:
   version "1.1.0"

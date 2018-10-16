@@ -13,7 +13,7 @@
         "browserslist": "^4.2.1",
         "cloc": "^2.3.4",
         "codemirror": "^5.40.2",
-        "css-element-queries": "^1.0.2",
+        "css-element-queries": "^1.0.4",
         "eslint": "^5.7.0",
         "eslint-plugin-html": "^4.0.6",
         "http-server": "^0.11.1",
