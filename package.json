@@ -8,12 +8,12 @@
     "license": "MIT",
     "private": true,
     "devDependencies": {
-        "autoprefixer": "^9.2.0",
+        "autoprefixer": "^9.2.1",
         "babel-plugin-transform-remove-console": "^6.9.4",
         "browserslist": "^4.2.1",
         "cloc": "^2.3.4",
         "codemirror": "^5.40.2",
-        "css-element-queries": "^1.0.4",
+        "css-element-queries": "^1.0.5",
         "eslint": "^5.7.0",
         "eslint-plugin-html": "^4.0.6",
         "http-server": "^0.11.1",
@@ -34,7 +34,7 @@
         "rollup-plugin-terser": "^3.0.0",
         "sortablejs": "^1.7.0",
         "svelte": "^2.13.5",
-        "terser": "^3.10.0",
+        "terser": "^3.10.1",
         "xterm": "^3.8.0"
     },
     "dependencies": {},

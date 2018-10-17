@@ -257,13 +257,13 @@ autoprefixer@^6.3.1:
     postcss "^5.2.16"
     postcss-value-parser "^3.2.3"
 
-autoprefixer@^9.2.0:
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-9.2.0.tgz#e46f893882b19a160370e7bcd3ec6bbeaace4d10"
-  integrity sha512-OuxUyTvzRe9EvKyouPqfr8QUkQ0pH400NOFzI1LFINO8zwgJr7ZTybLql03P//LjR0iWile2lCoy2vRTRSFpMw==
+autoprefixer@^9.2.1:
+  version "9.2.1"
+  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-9.2.1.tgz#1f2f1179ceed4711b7ab064dbd5c3f9e83d9dc62"
+  integrity sha512-qlK4GnZk8OXLK+8kBn9ttfzu2PkhRe8kVYoWcc9HsrZEMWiBkQuRYdXyJg9cIIKxfMzhh6UbvlJ1CsstMIzxwA==
   dependencies:
     browserslist "^4.2.1"
-    caniuse-lite "^1.0.30000890"
+    caniuse-lite "^1.0.30000892"
     normalize-range "^0.1.2"
     num2fraction "^1.2.2"
     postcss "^7.0.5"
@@ -461,6 +461,11 @@ caniuse-lite@^1.0.30000890:
   version "1.0.30000890"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000890.tgz#86a18ffcc65d79ec6a437e985761b8bf1c4efeaf"
   integrity sha512-4NI3s4Y6ROm+SgZN5sLUG4k7nVWQnedis3c/RWkynV5G6cHSY7+a8fwFyn2yoBDE3E6VswhTNNwR3PvzGqlTkg==
+
+caniuse-lite@^1.0.30000892:
+  version "1.0.30000892"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000892.tgz#344d2b51ee3ff5977537da4aa449c90eec40b759"
+  integrity sha512-X9rxMaWZNbJB5qjkDqPtNv/yfViTeUL6ILk0QJNxLV3OhKC5Acn5vxsuUvllR6B48mog8lmS+whwHq/QIYSL9w==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -744,10 +749,10 @@ css-color-names@0.0.4:
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
   integrity sha1-gIrcLnnPhHOAabZGyyDsJ762KeA=
 
-css-element-queries@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/css-element-queries/-/css-element-queries-1.0.4.tgz#937b849e6378f39ab3304ee730389457cde45eb0"
-  integrity sha512-XZWY4VvP7zDqCSjW3LbyL+PDQLjtBjdYDjuWF0+Ixv3lRoyxnbI7f0+Qo1KGwVrJ92Kkgiz0fCt5glYo4yb1TQ==
+css-element-queries@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/css-element-queries/-/css-element-queries-1.0.5.tgz#4f032f017693a2d410872db46a4caa932c62c71a"
+  integrity sha512-CtSZISHGWI7DT0ee+f1XJs0qvYn72XptLCrUx6RNvghpBEzjeBdAK6sQ2byiukosr6aNwQvoF9y7LXGbWB5DLQ==
 
 css-modules-loader-core@^1.1.0:
   version "1.1.0"
@@ -3911,10 +3916,10 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-terser@^3.10.0:
-  version "3.10.0"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.10.0.tgz#6ae15dafecbd02c9788d5f36d27fca32196b533a"
-  integrity sha512-hNh2WR3YxtKoY7BNSb3+CJ9Xv9bbUuOU9uriIf2F1tiAYNA4rNy2wWuSDV8iKcag27q65KPJ/sPpMWEh6qttgw==
+terser@^3.10.1:
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-3.10.1.tgz#59c8cf87262d59e018ded4df30f834b602b1e232"
+  integrity sha512-GE0ShECt1/dZUZt9Kyr/IC6xXG46pTbm1C1WfzQbbnRB5LhdJlF8p5NBZ38RjspD7hEM9O5ud8aIcOFY6evl4A==
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"
