@@ -122,7 +122,7 @@ class CMEventDispatcher {
                 const cursor = c.from
                 const lineContent = cm.doc.getLine(cursor.line)
                 if (c.origin === '+input') {
-                    const input = c.text[0]
+                    let input = c.text[0]
                     const [t0, t1, t2] = getNTokens(3, {
                         line: c.from.line,
                         ch: c.from.ch
@@ -131,8 +131,6 @@ class CMEventDispatcher {
                     // for forcing passive in function definition
                     let isInFunctionSignatureDefinition = false
                     let forcePassiveCompletion = false
-                    const newCursor = { line: cursor.line, ch: cursor.ch + input.length }
-
                     // if it is not single char input, handle by completionProvider.sync()
                     if (c.text.length === 1 &&
                         c.from.line === c.to.line &&
@@ -158,6 +156,7 @@ class CMEventDispatcher {
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
 
                         // TODO: move completionProvider above formatter
+                        input = c.text[0]  // might change after handled by formatter, so reassign
                         const isInputDot = /\./.test(input)
                         const ch0 = cursor.ch === 0 ? '' : lineContent[cursor.ch - 1]
                         const inputShouldTriggerPrediction = (
@@ -169,8 +168,10 @@ class CMEventDispatcher {
                             )
                         )
                         // handle completion and predictions
-                        const newLineContent = lineContent.slice(0, cursor.ch) + c.text[0] + lineContent.slice(cursor.ch)
+                        const newCursor = { line: cursor.line, ch: cursor.ch + input.length }
+                        const newLineContent = lineContent.slice(0, cursor.ch) + input + lineContent.slice(cursor.ch)
                         shouldDismissCompletionOnCursorActivity = false
+                        
                         if (inputShouldTriggerPrediction) {
                             completionProvider.trigger(
                                 newLineContent,

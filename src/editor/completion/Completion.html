@@ -72,22 +72,7 @@
             })
 
             this.on('state', ({ changed, current, previous }) => {
-                if (!previous) return
-                if (changed.open) {
-                    if (current.open) g.pushFocus(this)
-                    else {
-                        g.popFocus(this)
-                        g.docs.set({ completionDoc: null })
-                    }
-                }
-                if (changed.selectedCompletionRow) {
-                    if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({
-                        selected: false
-                    })
-                    if (current.selectedCompletionRow) current.selectedCompletionRow.set({
-                        selected: true
-                    })
-                }
+                // Don't merge this with onstate, or the completion selection will break
                 if (changed.rows) {
                     const rows = current.rows
                     for (const row of this.completionRows)
@@ -135,6 +120,25 @@
                 rows: [],
                 selectedCompletionRow: null,
                 closable: true
+            }
+        },
+        onstate({ changed, current, previous }) {
+            // Don't merge this with on('stat), or the completion selection will break
+            if (!previous) return
+            if (changed.open) {
+                if (current.open) g.pushFocus(this)
+                else {
+                    g.popFocus(this)
+                    g.docs.set({ completionDoc: null })
+                }
+            }
+            if (changed.selectedCompletionRow) {
+                if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({
+                    selected: false
+                })
+                if (current.selectedCompletionRow) current.selectedCompletionRow.set({
+                    selected: true
+                })
             }
         },
         methods: {

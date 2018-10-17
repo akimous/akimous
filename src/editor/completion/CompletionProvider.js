@@ -1,4 +1,5 @@
 import Sorter from './Sorter'
+import RuleBasedPredictor from './RuleBasedPredictor'
 
 const CLOSED = 0,
     TRIGGERED = 1,
@@ -14,6 +15,7 @@ class CompletionProvider {
         this.editor = editor
         this.completion = editor.completion
         this.sorter = new Sorter()
+        this.predictor = new RuleBasedPredictor(this.editor.cm)
         this.enabled = true
         this.passive = false
         this.state = CLOSED
@@ -36,9 +38,15 @@ class CompletionProvider {
                 return this.completion.set({
                     open: false
                 })
+            const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
+
+            console.log(this.predictor.predict({
+                topHit: sortedCompletions[0]
+            }))
+
             this.completion.setCompletions(
-                this.sortAndFilter(input, this.currentCompletions),
-                this.firstTriggeredCharPos, 
+                sortedCompletions,
+                this.firstTriggeredCharPos,
                 this.passive
             )
         })
@@ -47,7 +55,7 @@ class CompletionProvider {
             this.completion.setCompletions(
                 this.sortAndFilter(this.input, result),
                 this.firstTriggeredCharPos,
-                true  // passive
+                true // passive
             )
         })
     }
@@ -65,6 +73,12 @@ class CompletionProvider {
             ch,
         })
         this.isClassDefinition = /^\s*class\s/.test(lineContent)
+        this.predictor.setContext({
+            firstTriggeredCharPos: this.firstTriggeredCharPos,
+            lineContent: this.lineContent,
+            line,
+            ch
+        })
     }
 
     retrigger({ lineContent, line, ch }) {
