@@ -1,7 +1,5 @@
 <div ref:container class="completion non-selectable" style="display:{open?'block':'none'}">
-    {#if passive}
-    <CompletionRow ref:passivePlaceholder parent={ null } rowNumber="⇥" highlight="Press tab to commit selected item"></CompletionRow>
-    {/if}
+    <CompletionRow ref:passivePlaceholder visible={passive} parent={null} t="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
     <div ref:completion></div>
 </div>
 
@@ -9,7 +7,7 @@
     .completion {
         position: absolute;
         height: 14rem;
-        width: 24rem;
+        width: 28rem;
         z-index: 100;
         background: var(--main-bg-color);
 
@@ -83,10 +81,12 @@
                         row.index = i
                         row.rowNumber = i + 1
                         row.parent = this
-                        this.completionRows.push(new CompletionRow({
+                        const completionRow = new CompletionRow({
                             target: completion,
                             data: row
-                        }))
+                        })
+                        this.completionRows.push(completionRow)
+                        this.completionRowShortcuts[row.rowNumber] = completionRow
                     }
                     lastFVI = 999
                     this.set({

@@ -1,3 +1,5 @@
+import { highlightSequentially } from '../../lib/Utils'
+
 function sameAsAbove({lineContent, l1, topHit}) {
     if (!topHit) return
     const index = l1.indexOf(topHit.c)
@@ -24,13 +26,23 @@ class RuleBasedPredictor {
     predict(context) {
         const cm = this.cm
         context = Object.assign(this.context, context)
-        const { line, ch } = context
+        const { line, ch, input } = context
         const l1 = cm.getLine(line - 1)
         
         Object.assign(context, { l1 })
         
         console.log(context)
-        const result = this.predictors.map(predictor => predictor(context)).filter(x => x)
+        const result = this.predictors.map(predictor => predictor(context))
+            .filter(x => x)
+            .map(c => {
+                return {
+                    c, 
+                    t: 'full-statement',
+                    s: 0,
+                    sortScore: 0,
+                    highlight: highlightSequentially(c, input)
+                }
+            })
         return result
     }
 

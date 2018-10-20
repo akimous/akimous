@@ -1,10 +1,17 @@
 import Sorter from './Sorter'
 import RuleBasedPredictor from './RuleBasedPredictor'
+import { highlightSequentially } from '../../lib/Utils'
 
 const CLOSED = 0,
     TRIGGERED = 1,
     RETRIGGERED = 2
 const debug = false
+
+const shouldUseSequentialHighlighter = new Set([
+    'word-segment',
+    'word',
+    'full-statement'
+])
 
 class CompletionProvider {
     static get debug() {
@@ -15,7 +22,7 @@ class CompletionProvider {
         this.editor = editor
         this.completion = editor.completion
         this.sorter = new Sorter()
-        this.predictor = new RuleBasedPredictor(this.editor.cm)
+        this.ruleBasedPredictor = new RuleBasedPredictor(this.editor.cm)
         this.enabled = true
         this.passive = false
         this.state = CLOSED
@@ -40,10 +47,12 @@ class CompletionProvider {
                 })
             const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
 
-            console.log(this.predictor.predict({
-                topHit: sortedCompletions[0]
-            }))
-
+            const ruleBasedPrediction = this.ruleBasedPredictor.predict({
+                topHit: sortedCompletions[0],
+                input
+            })
+            console.log({ruleBasedPrediction, sortedCompletions})
+            sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
             this.completion.setCompletions(
                 sortedCompletions,
                 this.firstTriggeredCharPos,
@@ -73,7 +82,7 @@ class CompletionProvider {
             ch,
         })
         this.isClassDefinition = /^\s*class\s/.test(lineContent)
-        this.predictor.setContext({
+        this.ruleBasedPredictor.setContext({
             firstTriggeredCharPos: this.firstTriggeredCharPos,
             lineContent: this.lineContent,
             line,
@@ -94,8 +103,15 @@ class CompletionProvider {
         this.state = RETRIGGERED
         const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
         this.input = input
-        let completions = this.sortAndFilter(input, this.currentCompletions)
-        if (!completions.length) {
+        let sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
+        
+        const ruleBasedPrediction = this.ruleBasedPredictor.predict({
+            topHit: sortedCompletions[0],
+            input
+        })
+        sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
+        
+        if (!sortedCompletions.length) {
             this.editor.ws.send({
                 cmd: 'predictExtra',
                 input,
@@ -103,7 +119,7 @@ class CompletionProvider {
                 ch,
             })
         } else
-            this.completion.setCompletions(completions, this.firstTriggeredCharPos, this.passive)
+            this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.passive)
     }
 
     sync(doc) {
@@ -134,7 +150,10 @@ class CompletionProvider {
             this.sorter.setInput(input)
             for (let i of completions) {
                 i.sortScore = this.sorter.score(i.c) * 10
-                i.highlight = this.sorter.highlight()
+                if (shouldUseSequentialHighlighter.has(i.t))
+                    i.highlight = highlightSequentially(i.c, input)
+                else
+                    i.highlight = this.sorter.highlight()
             }
         }
         completions.sort((a, b) => b.sortScore - a.sortScore + b.s - a.s)

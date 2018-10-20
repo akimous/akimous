@@ -196,6 +196,31 @@ function inBraces(cm, cursor) {
     return inSomething(cm, cursor, '{', '}')
 }
 
+function highlightSequentially(target, input) {
+    const result = []
+    let t = 0
+    let i = 0
+    const tLength = target.length
+    const iLength = input.length
+    let iChar = input.charAt(i)
+    
+    for (; t < tLength; t++) {
+        const tChar = target.charAt(t)
+        if (tChar === iChar) {
+            result.push(`<em>${tChar}</em>`)
+            i += 1
+            if (i >= iLength) {
+                result.push(target.substring(t + 1))
+                break
+            }
+            iChar = input.charAt(i)
+        } else {
+            result.push(tChar)
+        }
+    }
+    return result.join('').replace(/<\/em><em>/g, '')
+}
+
 export {
     binarySearch,
     onIdle,
@@ -210,4 +235,5 @@ export {
     inParentheses,
     inBrackets,
     inBraces,
+    highlightSequentially,
 }

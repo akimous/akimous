@@ -195,7 +195,7 @@ async def predict_extra(msg, send, context):
         if segmented_words:
             snake = '_'.join(segmented_words)
             if snake not in result_set:
-                result.append(dict(c=snake + ' = ', t=' snake', s=1))
+                result.append(dict(c=snake + ' = ', t='word-segment', s=1))
 
     await send({
         'cmd': 'predictExtra-result',
