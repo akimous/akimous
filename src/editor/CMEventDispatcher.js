@@ -133,6 +133,9 @@ class CMEventDispatcher {
                         line: c.from.line,
                         ch: c.from.ch
                     })
+                    completionProvider.ruleBasedPredictor.setContext({
+                        t0, t1, t2
+                    })
 
                     // for forcing passive in function definition
                     let isInFunctionSignatureDefinition = false

@@ -10,12 +10,33 @@ function sameAsAbove({lineContent, l1, topHit}) {
     }
 }
 
+const fixedPredictionRules = {
+    'import': {
+        'matplotlib': '.pyplot as plt',
+        'numpy': ' as np',
+        'pandas': ' as pd',
+        'seaborn': ' as sns',
+        'tensorflow': ' as tf',
+    }
+}
+function fixedPrediction({ t2, t1, topHit }) {
+    if (!topHit || !t1) return
+    let leftToken = t1.string
+    if (leftToken.trim().length === 0)
+        leftToken = t2.string
+    let result = fixedPredictionRules[leftToken]
+    if (!result) return
+    result = result[topHit.c]
+    return topHit.c + result
+}
+
 class RuleBasedPredictor {
     constructor(cm) {
         this.cm = cm
         this.context = {}
         this.predictors = [
-            sameAsAbove
+            sameAsAbove,
+            fixedPrediction
         ]
     }
 
@@ -32,17 +53,21 @@ class RuleBasedPredictor {
         Object.assign(context, { l1 })
         
         console.log(context)
-        const result = this.predictors.map(predictor => predictor(context))
-            .filter(x => x)
-            .map(c => {
-                return {
-                    c, 
-                    t: 'full-statement',
-                    s: 0,
-                    sortScore: 0,
-                    highlight: highlightSequentially(c, input)
-                }
-            })
+        const result = this.predictors.map(predictor => {
+            try {
+                return predictor(context)
+            } catch (e) {
+                console.error(e)
+            }
+        }).filter(x => x).map(c => {
+            return {
+                c,
+                t: 'full-statement',
+                s: 0,
+                sortScore: 0,
+                highlight: highlightSequentially(c, input)
+            }
+        })
         return result
     }
 
