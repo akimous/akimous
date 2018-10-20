@@ -45,6 +45,12 @@ class CMEventDispatcher {
             })
             g.setFocus([g.panelMiddle, editor])
         })
+        
+        cm.on('blur', () => {
+            editor.completion.set({
+                open: false
+            })
+        })
 
         cm.on('gutterClick', (cm, line, gutter /*, event*/ ) => {
             if (gutter !== 'CodeMirror-linenumbers') return

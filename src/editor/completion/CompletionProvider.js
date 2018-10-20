@@ -51,7 +51,6 @@ class CompletionProvider {
                 topHit: sortedCompletions[0],
                 input
             })
-            console.log({ruleBasedPrediction, sortedCompletions})
             sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
             this.completion.setCompletions(
                 sortedCompletions,
