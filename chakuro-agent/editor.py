@@ -170,7 +170,7 @@ async def predict_extra(msg, send, context):
         for i, word in enumerate(words):
             if word in result_set:
                 continue
-            result.append(dict(c=word + ' = ', t='word', s=980-i))
+            result.append(dict(c=word, t='word', s=980-i))
             result_set.add(word)
 
     # 3. segmented words
@@ -179,7 +179,7 @@ async def predict_extra(msg, send, context):
         if segmented_words:
             snake = '_'.join(segmented_words)
             if snake not in result_set:
-                result.append(dict(c=snake + ' = ', t='word-segment', s=1))
+                result.append(dict(c=snake, t='word-segment', s=1))
 
     await send({
         'cmd': 'predictExtra-result',

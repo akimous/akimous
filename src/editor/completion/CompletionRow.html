@@ -1,6 +1,6 @@
 <div on:click="click()" ref:completionRow class="row {selected?'selected':''}">
     <div class="row-number"> {rowNumber} </div>
-    <div class="row-content">{@html highlight}{#if withBraces}(){/if}</div>
+    <div class="row-content">{@html highlight}{tail}</div>
     <div class="type-indicator {t}"> {@html typeIcon} </div>
 </div>
 
@@ -177,6 +177,7 @@
                 rowNumber: 0,
                 selected: false,
                 index: 0,
+                tail: '',
             }
         },
         methods: {
@@ -188,12 +189,12 @@
         },
         computed: {
             // TODO: this logic should be moved to CompletionProvider
-            withBraces: ({ parent, t }) => {
-                if (parent && parent.get().passive) return false
-                if (t === 'function') return true
-                if (t === 'class' && !parent.completionProvider.isClassDefinition) return true
-                return false
-            },
+//            withBraces: ({ parent, t }) => {
+//                if (parent && parent.get().passive) return false
+//                if (t === 'function') return true
+//                if (t === 'class' && !parent.completionProvider.isClassDefinition) return true
+//                return false
+//            },
             typeIcon: ({ t }) => {
                 const icon = typeIcons[t]
                 if (icon)

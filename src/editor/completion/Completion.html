@@ -194,8 +194,8 @@
                 if (!completion) return console.error('no selected completion')
 
                 this.completionProvider.state = CLOSED
-                const type = completion.get().t
-                let text = completion.get().c
+                const { c, tail } = completion.get()
+                const text = c + tail
                 this.set({
                     open: false
                 })
@@ -209,22 +209,13 @@
                     return true // let it propagate
                 }
 
-                let needGoingLeft = false
-                if (key === 'commit' || /\d/.test(key)) {
-                    if (type === 'keyword' || type === 'module')
-                        text += ' '
-                    else if (completion.get().withBraces) {
-                        needGoingLeft = true
-                        text += '()'
-                    }
-                }
                 this.cm.replaceRange(
                     text,
                     this.completionProvider.firstTriggeredCharPos,
                     this.cm.doc.getCursor(),
                     '+completion'
                 )
-                if (needGoingLeft)
+                if (tail === '()')
                     this.cm.execCommand('goCharLeft')
                 this.cm.focus()
             },

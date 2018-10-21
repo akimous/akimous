@@ -14,7 +14,10 @@ rm -rf dist/*
 Copy index.html and resources to dist directory.
 
 ```bash
-cp -r src/index.html resources/* dist/
+cp -r src/index.html dist/
+cp -r resources/* dist/
+cp -r node_modules/@fortawesome/fontawesome-free/webfonts dist/
+cp -r node_modules/@fortawesome/fontawesome-free/css/all.min.css dist/webfonts
 ```
 
 ## lint

@@ -13,6 +13,24 @@ const shouldUseSequentialHighlighter = new Set([
     'full-statement'
 ])
 
+const tails = {
+    'class': '()',
+    'function': '()',
+    'param': '=',
+    'word': ' = ',
+    'word-segment': ' = ',  // TODO: no space if in paranthesis
+    'token': ' = ', // TODO: keyword
+    'keyword': ' ',
+    'module': ' ',
+}
+function addTail(completion) {
+    const { t } = completion
+    const tail = tails[t]
+    if (tail)
+        completion.tail = tail
+    console.log(completion)
+}
+
 class CompletionProvider {
     static get debug() {
         return false
@@ -60,8 +78,9 @@ class CompletionProvider {
         })
         editor.ws.addHandler('predictExtra-result', (data) => {
             const { result } = data
+            const sortedCompletions = this.sortAndFilter(this.input, result)
             this.completion.setCompletions(
-                this.sortAndFilter(this.input, result),
+                sortedCompletions,
                 this.firstTriggeredCharPos,
                 true // passive
             )
@@ -163,6 +182,7 @@ class CompletionProvider {
             if (passive && row.c.length < 3) return false
             return row.sortScore > 0
         })
+        filteredCompletions.forEach(addTail)
         return filteredCompletions
     }
 }

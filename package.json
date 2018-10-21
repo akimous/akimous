@@ -8,6 +8,7 @@
     "license": "MIT",
     "private": true,
     "devDependencies": {
+        "@fortawesome/fontawesome-free": "^5.4.1",
         "autoprefixer": "^9.2.1",
         "babel-plugin-transform-remove-console": "^6.9.4",
         "browserslist": "^4.3.0",
