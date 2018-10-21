@@ -108,7 +108,8 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
                     ch = forward ? token.end : token.start
                     continue
                 }
-                stackTop = stack.pop()
+                stack.pop()
+                stackTop = stack[stack.length-1]
                 continue
             }
             if (stack.length === 0) {

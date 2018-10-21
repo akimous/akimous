@@ -1,13 +1,54 @@
 import { highlightSequentially } from '../../lib/Utils'
+import { scanInSameLevelOfBraces } from '../EditorFunctions'
 
-function sameAsAbove({lineContent, l1, topHit}) {
+const RIGHT_HALVES = new Set([',', ')', ']', '}'])
+
+function sameAsAbove({ topHit, cm, line }) {
     if (!topHit) return
-    const index = l1.indexOf(topHit.c)
     
-    if (index >= 0) {
-        const tail = l1.substring(index)
-        return tail
+    const topHitCompletion = topHit.c
+    const lineCount = cm.lineCount()
+    let lineUp = line - 1
+    let lineDown = line + 1
+    let lineTarget = -1
+    let lineContent = ''
+    let index = -1
+    
+    // find the nearest line including topHit.c
+    while (lineUp >= 0 || lineDown < lineCount) {
+        if (lineUp >= 0) {
+            lineContent = cm.getLine(lineUp)
+            index = lineContent.indexOf(topHitCompletion)
+            if (index >= 0) {
+                lineTarget = lineUp
+                break
+            }
+            lineUp -= 1
+        }
+        if (lineDown < lineCount) {
+            lineContent = cm.getLine(lineDown)
+            index = lineContent.indexOf(topHitCompletion)
+            if (index >= 0) {
+                lineTarget = lineDown
+                break
+            }
+            lineDown += 1
+        }
     }
+    if (index === -1) return
+
+    const result = scanInSameLevelOfBraces(cm, {
+        line: lineTarget,
+        ch: index
+    }, (cm, char, pos) => {
+        if (pos.line !== lineTarget)
+            return lineContent.length
+        if (RIGHT_HALVES.has(char))
+            return pos.ch
+    }, 1)
+    
+    if (result)
+        return lineContent.substring(index, result)
 }
 
 const fixedPredictionRules = {
@@ -33,7 +74,7 @@ function fixedPrediction({ t2, t1, topHit }) {
 class RuleBasedPredictor {
     constructor(cm) {
         this.cm = cm
-        this.context = {}
+        this.context = { cm }
         this.predictors = [
             sameAsAbove,
             fixedPrediction
@@ -48,10 +89,7 @@ class RuleBasedPredictor {
         const cm = this.cm
         context = Object.assign(this.context, context)
         const { line, ch, input } = context
-        const l1 = cm.getLine(line - 1)
-        
-        Object.assign(context, { l1 })
-        
+                
         console.log(context)
         const result = this.predictors.map(predictor => {
             try {
