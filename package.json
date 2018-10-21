@@ -33,7 +33,7 @@
         "rollup-plugin-svelte": "^4.3.2",
         "rollup-plugin-terser": "^3.0.0",
         "sortablejs": "^1.7.0",
-        "svelte": "^2.14.0",
+        "svelte": "^2.14.1",
         "terser": "^3.10.1",
         "xterm": "^3.8.0"
     },

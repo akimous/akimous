@@ -1,5 +1,7 @@
 <div ref:container class="completion non-selectable" style="display:{open?'block':'none'}">
-    <CompletionRow ref:passivePlaceholder visible={passive} parent={null} t="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
+    {#if passive}
+    <CompletionRow ref:passivePlaceholder parent={null} t="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
+    {/if}
     <div ref:completion></div>
 </div>
 
