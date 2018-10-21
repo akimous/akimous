@@ -1,6 +1,5 @@
 from ws import WS
 from online_feature_extractor import OnlineFeatureExtractor
-from modeling.rule_based_predictor import RuleBasedPredictor
 from doc_generator import DocGenerator
 from word_completer import search_prefix
 from utils import detect_doc_type, Timer
@@ -15,7 +14,6 @@ from boltons.gcutils import toggle_gc_postcollect
 
 import jedi
 import wordsegment
-import numpy as np
 
 
 DEBUG = False
@@ -46,7 +44,6 @@ async def open_file(msg, send, context):
             context.feature_extractor = OnlineFeatureExtractor()
             for line, line_content in enumerate(context.doc):
                 context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
-            context.rule_based_predictor = RuleBasedPredictor()
             # warm up Jedi
             j = jedi.Script('\n'.join(context.doc), len(context.doc), 1, context.path)
             j.completions()
@@ -143,24 +140,11 @@ async def predict(msg, send, context):
         else:
             result = []
 
-    with Timer(f'Rule-based ({line_number}, {ch})'):
-        top_completion = None
-        if completions:
-            top_completion = completions[np.argmax(scores)]
-
-        rule_based_results = context.rule_based_predictor.predict(
-            top_completion=top_completion,
-            doc=context.doc,
-            line=line_number,
-            ch=ch
-        )
-
     await send({
         'cmd': 'predict-result',
         'line': line_number,
         'ch': ch,
         'result': result,
-        'rule_based_results': rule_based_results
     })
 
 

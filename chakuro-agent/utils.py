@@ -1,5 +1,12 @@
 from time import perf_counter
 from logzero import logger as log
+import os
+import psutil
+
+
+def get_memory_usage():
+    process = psutil.Process(os.getpid())
+    return f'{process.memory_info().rss / 1024 / 1024:.3f} M'
 
 
 def detect_doc_type(docstring):
@@ -17,9 +24,11 @@ class Timer:
         self.description = description
 
     def __enter__(self):
+        log.debug(f'Starting {self.description}; memory = {get_memory_usage()}')
         self.start = perf_counter()
         return self
 
     def __exit__(self, *args):
         self.end = perf_counter()
-        log.debug(f'{self.description} took {(self.end - self.start) * 1000: .3f} ms')
+        log.debug(f'{self.description} took {(self.end - self.start) * 1000: .3f} ms;'
+                  f' memory = {get_memory_usage()}')
