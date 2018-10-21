@@ -18,6 +18,7 @@ cp -r src/index.html dist/
 cp -r resources/* dist/
 cp -r node_modules/@fortawesome/fontawesome-free/webfonts dist/
 cp -r node_modules/@fortawesome/fontawesome-free/css/all.min.css dist/webfonts
+cp -r node_modules/devicon/fonts dist
 ```
 
 ## lint

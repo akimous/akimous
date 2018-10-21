@@ -188,13 +188,6 @@
             }
         },
         computed: {
-            // TODO: this logic should be moved to CompletionProvider
-//            withBraces: ({ parent, t }) => {
-//                if (parent && parent.get().passive) return false
-//                if (t === 'function') return true
-//                if (t === 'class' && !parent.completionProvider.isClassDefinition) return true
-//                return false
-//            },
             typeIcon: ({ t }) => {
                 const icon = typeIcons[t]
                 if (icon)

@@ -86,9 +86,8 @@ class RuleBasedPredictor {
     }
     
     predict(context) {
-        const cm = this.cm
         context = Object.assign(this.context, context)
-        const { line, ch, input } = context
+        const { input } = context
                 
         console.log(context)
         const result = this.predictors.map(predictor => {

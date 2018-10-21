@@ -71,7 +71,7 @@
                 passive: true
             })
 
-            this.on('state', ({ changed, current, previous }) => {
+            this.on('state', ({ changed, current }) => {
                 // Don't merge this with onstate, or the completion selection will break
                 if (changed.rows) {
                     const rows = current.rows

@@ -1,6 +1,6 @@
 import Sorter from './Sorter'
 import RuleBasedPredictor from './RuleBasedPredictor'
-import { highlightSequentially } from '../../lib/Utils'
+import { highlightSequentially, inParentheses } from '../../lib/Utils'
 
 const CLOSED = 0,
     TRIGGERED = 1,
@@ -18,17 +18,18 @@ const tails = {
     'function': '()',
     'param': '=',
     'word': ' = ',
-    'word-segment': ' = ',  // TODO: no space if in paranthesis
-    'token': ' = ', // TODO: keyword
+    'word-segment': ' = ',
+    'token': ' = ',
     'keyword': ' ',
     'module': ' ',
 }
-function addTail(completion) {
+function addTail(completion, noSpaceAroundEqualSign = false) {
     const { t } = completion
-    const tail = tails[t]
+    let tail = tails[t]
+    if (noSpaceAroundEqualSign && tail === ' = ')
+        tail = '='
     if (tail)
         completion.tail = tail
-    console.log(completion)
 }
 
 class CompletionProvider {
@@ -182,7 +183,10 @@ class CompletionProvider {
             if (passive && row.c.length < 3) return false
             return row.sortScore > 0
         })
-        filteredCompletions.forEach(addTail)
+        let tail_ = addTail
+        if (inParentheses(this.editor.cm, this.firstTriggeredCharPos))
+            tail_ = x => addTail(x, true)
+        filteredCompletions.forEach(tail_)
         return filteredCompletions
     }
 }
