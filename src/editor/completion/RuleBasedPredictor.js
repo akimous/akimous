@@ -68,7 +68,33 @@ function fixedPrediction({ t2, t1, topHit }) {
     let result = fixedPredictionRules[leftToken]
     if (!result) return
     result = result[topHit.c]
+    if (!result) return
     return topHit.c + result
+}
+
+function fromImport({ lineContent, topHit }) {
+    if (!topHit) return
+    if (topHit.t !== 'module') return
+    if (!/^\s*from/.test(lineContent)) return
+    if (/\simport\s/.test(lineContent)) return
+    return topHit.c + ' import '
+}
+
+function importAs({ lineContent, topHit }) {
+    if (!topHit) return
+    if (!/import/.test(lineContent)) return
+    if (/\sas\s/.test(lineContent)) return
+    return topHit.c + ' as '
+}
+
+function isNone({ input }) {
+    if (input === 'is') 
+        return 'is None'
+}
+
+function isNot({ input }) {
+    if (input === 'isn' || input === 'isnt') 
+        return 'is not '
 }
 
 class RuleBasedPredictor {
@@ -77,7 +103,11 @@ class RuleBasedPredictor {
         this.context = { cm }
         this.predictors = [
             sameAsAbove,
-            fixedPrediction
+            fixedPrediction,
+            fromImport,
+            importAs,
+            isNone,
+            isNot
         ]
     }
 
@@ -88,7 +118,8 @@ class RuleBasedPredictor {
     predict(context) {
         context = Object.assign(this.context, context)
         const { input } = context
-                
+        
+        context.lineContent = context.cm.getLine(context.line)
         console.log(context)
         const result = this.predictors.map(predictor => {
             try {

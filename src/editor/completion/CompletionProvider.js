@@ -16,12 +16,14 @@ const shouldUseSequentialHighlighter = new Set([
 const tails = {
     'class': '()',
     'function': '()',
-    'param': '=',
+    // 'param': '=', // `if p=` is wrong, when p is a function parameter, but it is not calling
     'word': ' = ',
     'word-segment': ' = ',
     'token': ' = ',
     'keyword': ' ',
     'module': ' ',
+    'variable': ' ',
+    'param': ' ',
 }
 function addTail(completion, noSpaceAroundEqualSign = false) {
     const { t } = completion
