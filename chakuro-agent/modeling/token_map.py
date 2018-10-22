@@ -88,16 +88,13 @@ class PrefixTokenMap:
     def query_min_max(self, token):
         with Timer(f'query_min_max "{token}"'):
             result = self.db.execute('SELECT min(l), max(l) FROM d WHERE t=?', (str(token), )).fetchall()[0]
-        # print(self.db.execute('EXPLAIN QUERY PLAN SELECT min(l), max(l) FROM d WHERE t=?', (token, )).fetchall())
         return result
 
     def query_prefix(self, prefix, line):
-        with Timer(f'query_prefix "{prefix}"'):
-            result = self.db.execute('SELECT DISTINCT t FROM d WHERE t GLOB ? ORDER BY abs(l-?)',
-                                     (f'{prefix}*', line)).fetchall()
-            result = [i[0] for i in result]
-        # print(self.db.execute('EXPLAIN QUERY PLAN SELECT t FROM d WHERE t GLOB ? ORDER BY abs(l-?)',
-        #                       (f'{prefix}*', line)).fetchall())
+        # with Timer(f'query_prefix "{prefix}"'):
+        result = self.db.execute('SELECT DISTINCT t FROM d WHERE t GLOB ? ORDER BY abs(l-?)',
+                                 (f'{prefix}*', line)).fetchall()
+        result = [i[0] for i in result]
         return result
 
     def __del__(self):
