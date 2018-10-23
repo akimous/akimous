@@ -1,11 +1,11 @@
-import { highlightSequentially } from '../../lib/Utils'
+import { highlightSequentially, inSomething } from '../../lib/Utils'
 import { scanInSameLevelOfBraces } from '../EditorFunctions'
 
 const RIGHT_HALVES = new Set([',', ')', ']', '}'])
 
 function sameAsAbove({ topHit, cm, line }) {
     if (!topHit) return
-    
+
     const topHitCompletion = topHit.c
     const lineCount = cm.lineCount()
     let lineUp = line - 1
@@ -13,7 +13,7 @@ function sameAsAbove({ topHit, cm, line }) {
     let lineTarget = -1
     let lineContent = ''
     let index = -1
-    
+
     // find the nearest line including topHit.c
     while (lineUp >= 0 || lineDown < lineCount) {
         if (lineUp >= 0) {
@@ -46,7 +46,7 @@ function sameAsAbove({ topHit, cm, line }) {
         if (RIGHT_HALVES.has(char))
             return pos.ch
     }, 1)
-    
+
     if (result)
         return lineContent.substring(index, result)
 }
@@ -60,6 +60,7 @@ const fixedPredictionRules = {
         'tensorflow': ' as tf',
     }
 }
+
 function fixedPrediction({ t2, t1, topHit }) {
     if (!topHit || !t1) return
     let leftToken = t1.string
@@ -88,13 +89,27 @@ function importAs({ lineContent, topHit }) {
 }
 
 function isNone({ input }) {
-    if (input === 'is') 
+    if (input === 'is')
         return 'is None'
 }
 
 function isNot({ input }) {
-    if (input === 'isn' || input === 'isnt') 
+    if (input === 'isn' || input === 'isnt')
         return 'is not '
+}
+
+function args({ cm, input, line, ch, lineContent }) {
+    if (input !== '*') return
+    const openBrace = inSomething(cm, { line, ch }, '(', ')')
+    if (!openBrace) return
+    let openLine = lineContent
+    if (openBrace.line !== line)
+        openLine = cm.getLine(openBrace.line)
+    if (!/\s*def\s/.test(openLine)) return
+    const lastChar = lineContent.charAt(ch - 2)
+    if (lastChar === '*')
+        return '*kwargs'
+    return ['*args', '*args, **kwargs']
 }
 
 class RuleBasedPredictor {
@@ -107,27 +122,35 @@ class RuleBasedPredictor {
             fromImport,
             importAs,
             isNone,
-            isNot
+            isNot,
+            args,
         ]
     }
 
     setContext(context) {
         Object.assign(this.context, context)
     }
-    
+
     predict(context) {
         context = Object.assign(this.context, context)
         const { input } = context
-        
+
         context.lineContent = context.cm.getLine(context.line)
         console.log(context)
-        const result = this.predictors.map(predictor => {
+
+        const result = []
+        this.predictors.forEach(predictor => {
             try {
-                return predictor(context)
+                const predict = predictor(context)
+                if (!predict) return
+                if (Array.isArray(predict))
+                    result.splice(-1, 0, ...predict)
+                else result.push(predict)
             } catch (e) {
                 console.error(e)
             }
-        }).filter(x => x).map(c => {
+        })
+        return result.map(c => {
             return {
                 c,
                 t: 'full-statement',
@@ -136,7 +159,6 @@ class RuleBasedPredictor {
                 highlight: highlightSequentially(c, input)
             }
         })
-        return result
     }
 
 }

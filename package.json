@@ -9,9 +9,9 @@
     "private": true,
     "devDependencies": {
         "@fortawesome/fontawesome-free": "^5.4.1",
-        "autoprefixer": "^9.2.1",
+        "autoprefixer": "^9.3.0",
         "babel-plugin-transform-remove-console": "^6.9.4",
-        "browserslist": "^4.3.1",
+        "browserslist": "^4.3.2",
         "cloc": "^2.3.4",
         "codemirror": "^5.40.2",
         "css-element-queries": "^1.0.5",
@@ -35,7 +35,7 @@
         "rollup-plugin-svelte": "^4.3.2",
         "rollup-plugin-terser": "^3.0.0",
         "sortablejs": "^1.7.0",
-        "svelte": "^2.14.1",
+        "svelte": "^2.14.2",
         "terser": "^3.10.2",
         "xterm": "^3.8.0"
     },

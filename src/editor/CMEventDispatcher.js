@@ -170,8 +170,8 @@ class CMEventDispatcher {
                         const ch0 = cursor.ch === 0 ? '' : lineContent[cursor.ch - 1]
                         const inputShouldTriggerPrediction = (
                             t0.type !== 'number' && (
-                                (/[A-Za-z_]/.test(input) &&
-                                    !/[A-Za-z_]/.test(ch0) &&
+                                (/[A-Za-z_=+\-*/|&^~%@><!]/.test(input) &&
+                                 !/[A-Za-z_]/.test(ch0) &&
                                     completionProvider.state === CLOSED
                                 ) || isInputDot
                             )
