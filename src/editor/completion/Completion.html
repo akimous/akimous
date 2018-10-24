@@ -142,6 +142,8 @@
                     selected: true
                 })
             }
+            if (changed.open && !current.open)
+                this.completionProvider.state = CLOSED
         },
         methods: {
             bindReferences(editor) {

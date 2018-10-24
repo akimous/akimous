@@ -10,38 +10,38 @@ function sameAsAbove({ topHit, cm, line }) {
     const lineCount = cm.lineCount()
     let lineUp = line - 1
     let lineDown = line + 1
-    let lineTarget = -1
+    let targetLine = -1
     let lineContent = ''
     let index = -1
 
+    const containsTopHit = l => {
+        lineContent = cm.getLine(l)
+        index = lineContent.indexOf(topHitCompletion)
+        if (index < 0) return false
+        
+        const commentStart = lineContent.indexOf('#')
+        if (commentStart > 0 && index > commentStart) return false
+        
+        if (index > 0 && /\w|\d/.test(lineContent.charAt(index - 1))) return false
+        
+        targetLine = l
+        return true
+    }
+
     // find the nearest line including topHit.c
     while (lineUp >= 0 || lineDown < lineCount) {
-        if (lineUp >= 0) {
-            lineContent = cm.getLine(lineUp)
-            index = lineContent.indexOf(topHitCompletion)
-            if (index >= 0) {
-                lineTarget = lineUp
-                break
-            }
-            lineUp -= 1
-        }
-        if (lineDown < lineCount) {
-            lineContent = cm.getLine(lineDown)
-            index = lineContent.indexOf(topHitCompletion)
-            if (index >= 0) {
-                lineTarget = lineDown
-                break
-            }
-            lineDown += 1
-        }
+        if (lineUp >= 0 && containsTopHit(lineUp--))
+            break
+        if (lineDown < lineCount && containsTopHit(lineDown++))
+            break
     }
     if (index === -1) return
 
     const result = scanInSameLevelOfBraces(cm, {
-        line: lineTarget,
+        line: targetLine,
         ch: index
     }, (cm, char, pos) => {
-        if (pos.line !== lineTarget)
+        if (pos.line !== targetLine)
             return lineContent.length
         if (RIGHT_HALVES.has(char))
             return pos.ch
@@ -61,8 +61,9 @@ const fixedPredictionRules = {
     }
 }
 
-function fixedPrediction({ t2, t1, topHit }) {
+function fixedPredictionForImport({ t2, t1, topHit, lineContent }) {
     if (!topHit || !t1) return
+    if (!/\s*import\s/.test(lineContent)) return
     let leftToken = t1.string
     if (leftToken.trim().length === 0)
         leftToken = t2.string
@@ -112,18 +113,25 @@ function args({ cm, input, line, ch, lineContent }) {
     return ['*args', '*args, **kwargs']
 }
 
+function withAs({ lineContent, topHit }) {
+    if (topHit.c !== 'as') return
+    if (!/\s*with\s\w/.test(lineContent)) return
+    if (/\s*with open\(/.test(lineContent)) return 'as f:'
+}
+
 class RuleBasedPredictor {
     constructor(cm) {
         this.cm = cm
         this.context = { cm }
         this.predictors = [
             sameAsAbove,
-            fixedPrediction,
+            fixedPredictionForImport,
             fromImport,
             importAs,
             isNone,
             isNot,
             args,
+            withAs,
         ]
     }
 
@@ -139,6 +147,7 @@ class RuleBasedPredictor {
         console.log(context)
 
         const result = []
+        const startTime = performance.now()
         this.predictors.forEach(predictor => {
             try {
                 const predict = predictor(context)
@@ -150,6 +159,7 @@ class RuleBasedPredictor {
                 console.error(e)
             }
         })
+        console.log(`Rule-based prediction took ${performance.now() - startTime}`)
         return result.map(c => {
             return {
                 c,

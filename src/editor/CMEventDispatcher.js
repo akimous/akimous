@@ -45,7 +45,7 @@ class CMEventDispatcher {
             })
             g.setFocus([g.panelMiddle, editor])
         })
-        
+
         cm.on('blur', () => {
             editor.completion.set({
                 open: false
@@ -134,7 +134,9 @@ class CMEventDispatcher {
                         ch: c.from.ch
                     })
                     completionProvider.ruleBasedPredictor.setContext({
-                        t0, t1, t2
+                        t0,
+                        t1,
+                        t2
                     })
 
                     // for forcing passive in function definition
@@ -165,23 +167,32 @@ class CMEventDispatcher {
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
 
                         // TODO: move completionProvider above formatter
-                        input = c.text[0]  // might change after handled by formatter, so reassign
+                        input = c.text[0] // might change after handled by formatter, so reassign
                         const isInputDot = /\./.test(input)
-                        const ch0 = cursor.ch === 0 ? '' : lineContent[cursor.ch - 1]
-                        const inputShouldTriggerPrediction = (
-                            t0.type !== 'number' && (
-                                (/[A-Za-z_=+\-*/|&^~%@><!]/.test(input) &&
-                                 !/[A-Za-z_]/.test(ch0) &&
-                                    completionProvider.state === CLOSED
-                                ) || isInputDot
-                            )
-                        )
+                        //                        const ch0 = cursor.ch === 0 ? '' : lineContent[cursor.ch - 1]
+
+
+                        const inputShouldTriggerPrediction = () => {
+                            if (isInputDot) return true
+                            if (t0.type === 'number') return false
+                            if (completionProvider.state !== CLOSED) return false
+                            if (/[A-Za-z_=+\-*/|&^~%@><!]$/.test(input)) return true
+                            return false
+                        }
+                        //                        const inputShouldTriggerPrediction = (
+                        //                            t0.type !== 'number' && (
+                        //                                (/[A-Za-z_=+\-*/|&^~%@><!]/.test(input) &&
+                        //                                 !/[A-Za-z_]/.test(ch0) &&
+                        //                                    completionProvider.state === CLOSED
+                        //                                ) || isInputDot
+                        //                            )
+                        //                        )
                         // handle completion and predictions
                         const newCursor = { line: cursor.line, ch: cursor.ch + input.length }
                         const newLineContent = lineContent.slice(0, cursor.ch) + input + lineContent.slice(cursor.ch)
                         shouldDismissCompletionOnCursorActivity = false
-                        
-                        if (inputShouldTriggerPrediction) {
+
+                        if (inputShouldTriggerPrediction()) {
                             completionProvider.trigger(
                                 newLineContent,
                                 newCursor.line,
