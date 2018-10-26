@@ -18,10 +18,10 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@fortawesome/fontawesome-free@^5.4.1":
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-5.4.1.tgz#6194786c1a705ab84253e06429834466670e3c3f"
-  integrity sha512-ZcxfUmLFl4RLG71cPeZcTXRa6rt3xLnMmomAb7aYKRzUmlRRj7E8EVqSwYSXBiV2x6XpSQmGOQmNQx6HSeSwVQ==
+"@fortawesome/fontawesome-free@^5.4.2":
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-5.4.2.tgz#b2d782da69c45ea61954291e2615a8f7741c96b2"
+  integrity sha512-lpruVv/4AkKUujyzHCNJ8yOceBf7Na/pFaX52ZI/BFMCYkUEwiQ1P0viZg//+WelrNNEgvMOvCMDEDaOMZ/u1w==
 
 "@types/estree@0.0.39":
   version "0.0.39"
@@ -592,10 +592,10 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-codemirror@^5.40.2:
-  version "5.40.2"
-  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.40.2.tgz#f4a41fee2d84e679543591b3680af259d903330b"
-  integrity sha512-yoWuvEiD3v5vTwdoMc/wu/Ld6dh9K/yEiEBTKOPGM+/pN0gTAqFNtrLHv1IJ1UJvzFpNRvMi92XCi3+8/iIaEw==
+codemirror@^5.41.0:
+  version "5.41.0"
+  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.41.0.tgz#57e245be197643c39440d2840236d3edc4bb1162"
+  integrity sha512-mkCwbneCx2WHg1MNCYrI+8Zuq0KMMaZ5yTFpQlAZazy3yxME8bHcuSc9WUFzgPZ114WqWu1FIHlx8CavLzBDIg==
 
 collection-visit@^1.0.0:
   version "1.0.0"
@@ -3870,10 +3870,10 @@ supports-color@^5.5.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.14.2:
-  version "2.14.2"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.14.2.tgz#df8d39a440d37b3d4129a03f3e9eb4d2c3b13bb8"
-  integrity sha512-J/KYOmqest4r58wm9dKQEr5tAvwL7Lc5n7Njov8YfvG1Ev0kKxp90Ky9aBQ8sCavaVz5VRUGxKoC2IR//lhHSA==
+svelte@^2.14.3:
+  version "2.14.3"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.14.3.tgz#978bb788603a05f7e63ec1db43b9f99264d9ae0f"
+  integrity sha512-+iUBo++4TxOLZNtsPGz4mTy7TumIuk15YQ67p/8RQ1/Kmq1YfTn4sKdTnIh6fI9W4KULDdNxh95NwfQVJvK6vw==
 
 svgo@^0.7.0:
   version "0.7.2"
@@ -3921,10 +3921,10 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-terser@^3.10.2:
-  version "3.10.2"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.10.2.tgz#a61d2c97065f9fdc8c49a18655e2a80ca7298a94"
-  integrity sha512-+QrFoqBImmsQGB4c/HvaqgZynmbNvNBwoBxuu7fYXtq5EEtlLUzph+WimDj+xMkuqawXPMl2lgCIz81CdXvt+w==
+terser@^3.10.3:
+  version "3.10.3"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-3.10.3.tgz#4085f9e62171ca746c5759fe955d921291703ee6"
+  integrity sha512-uyL5hwDICjnv49JANhZvQYLikt/HADWNbUFsKQpZ/i+JSOkL2T4V7WUpW7S/5QGZceVq2x0HRVhEQQuW2ZpX6g==
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"
