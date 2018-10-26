@@ -1,10 +1,11 @@
-from ws import WS
-from online_feature_extractor import OnlineFeatureExtractor
-from doc_generator import DocGenerator
-from word_completer import search_prefix
 from utils import detect_doc_type, Timer
-from importlib.resources import open_binary
 
+from ws import WS
+from online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
+from doc_generator import DocGenerator  # 165ms, 13M memory
+from word_completer import search_prefix
+
+from importlib.resources import open_binary
 from functools import partial
 from pathlib import Path
 from sklearn.externals import joblib
@@ -15,13 +16,11 @@ from boltons.gcutils import toggle_gc_postcollect
 import jedi
 import wordsegment
 
-
 DEBUG = False
 doc_generator = DocGenerator()
-
 register = partial(WS.register, 'editor')
 MODEL_NAME = 'v10.model'
-model = joblib.load(open_binary('resources', MODEL_NAME))
+model = joblib.load(open_binary('resources', MODEL_NAME))  # 300 ms
 model.n_jobs = 1
 log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
 

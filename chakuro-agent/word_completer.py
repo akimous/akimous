@@ -5,16 +5,18 @@ import asyncio
 
 conn = sqlite3.connect(':memory:')
 c = conn.cursor()
+c.execute('CREATE TABLE d(p TEXT, w TEXT, f INT, PRIMARY KEY(p, w))')
 
 
-def initialize():
-    with Timer('Initializing word segment'):
+def initialize_word_segment():
+    with Timer('initializing word segment'):
         if not wordsegment.UNIGRAMS:
             wordsegment.load()  # takes 500ms, 100M memory
+            asyncio.get_event_loop().call_later(.1, initialize_word_database)
 
-    with Timer('Initializing SQLite3'):
 
-        c.execute('CREATE TABLE d(p TEXT, w TEXT, f INT, PRIMARY KEY(p, w))')
+def initialize_word_database():
+    with Timer('initializing SQLite3'):
         # takes 900ms, 15M memory
         c.executemany('INSERT INTO d VALUES (?,?,?)',
                       ((k[:3], k[3:], int(v)) for k, v in wordsegment.UNIGRAMS.items() if len(k) > 3))
@@ -23,7 +25,8 @@ def initialize():
         conn.commit()
 
 
-asyncio.get_event_loop().call_soon(initialize)
+def initialize(event_loop):
+    event_loop.call_later(.1, initialize_word_segment)
 
 
 def search_prefix(s):

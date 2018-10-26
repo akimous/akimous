@@ -5,6 +5,9 @@ import traceback
 from types import SimpleNamespace
 from logzero import logger as log
 from contextlib import suppress
+from static_server import serve_http
+from multiprocessing import Process
+from word_completer import initialize as initialize_word_completer
 
 
 class WS:
@@ -70,15 +73,26 @@ class WS:
                     context.observer.stop()
 
     @staticmethod
-    def start_server(host='127.0.0.1', port=3179):
-        log.info('Server started, listening on %s:%d', host, port)
+    def start_server(host='127.0.0.1', http_port=3178, websocket_port=3179):
+        # serve static content
+        process = Process(target=serve_http, name='http_process', kwargs={
+            'host': host,
+            'port': http_port
+        })
+        process.start()
+
+        # serve websocket
         loop = asyncio.get_event_loop()
         loop.set_debug(True)
-        # loop.slow_callback_duration = 0.016
-        server = websockets.serve(WS.socket_handler, host=host, port=port)
-        loop.run_until_complete(server)
+        loop.slow_callback_duration = 0.1
+        websocket_server = websockets.serve(WS.socket_handler, host=host, port=websocket_port)
+        loop.run_until_complete(websocket_server)
+        initialize_word_completer(loop)
+        log.info('Server started, listening on %s:%d', host, websocket_port)
+
         try:
             loop.run_forever()
+            process.join()
         except KeyboardInterrupt:
             for clients in WS.clients.values():
                 for ws in clients:
