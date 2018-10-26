@@ -1,6 +1,7 @@
 import sqlite3
 import wordsegment
 from utils import Timer
+import asyncio
 
 conn = sqlite3.connect(':memory:')
 c = conn.cursor()
@@ -22,7 +23,7 @@ def initialize():
         conn.commit()
 
 
-initialize()
+asyncio.get_event_loop().call_soon(initialize)
 
 
 def search_prefix(s):
