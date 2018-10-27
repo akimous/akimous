@@ -1,5 +1,26 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400|Source+Code+Pro');
+/*@import url('https://fonts.googleapis.com/css?family=Roboto:300,400|Source+Code+Pro');*/
 /*https://flatuicolors.com*/
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Roboto Light'), local('Roboto-Light'), url(fonts/Roboto-Light.ttf);
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Roboto'), local('Roboto-Regular'), url(fonts/Roboto-Regular.ttf);
+}
+
+@font-face {
+    font-family: 'Source Code Pro';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(fonts/SourceCodePro-Regular.ttf);
+}
 
 :root {
     --main-bg-color: rgb(36, 36, 36);
@@ -42,7 +63,7 @@
     --basic-ui-line-height: 1.6rem;
 
     --basic-monospace-font-color: #ccc;
-    --basic-monospace-font-family: "Source Code Pro", monospace;
+    --basic-monospace-font-family: 'Source Code Pro', 'Menlo', 'Consola', monospace;
     --basic-monospace-font-size: 1.2rem;
     --basic-monospace-line-height: 1.6rem;
 

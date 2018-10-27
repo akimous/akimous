@@ -181,6 +181,7 @@ class LayeredKeyboardControl {
             if (e.isComposing) return true // do not interfere with IME
             switch (e.key) {
                 case 'Shift':
+                    g.activeEditor.cm.display.shift = false
                     break
                 case ' ':
                     spacePressed = false

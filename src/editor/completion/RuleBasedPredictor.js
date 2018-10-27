@@ -1,5 +1,6 @@
 import { highlightSequentially, inSomething } from '../../lib/Utils'
 import { scanInSameLevelOfBraces } from '../EditorFunctions'
+import snakecase from 'lodash.snakecase'
 
 const RIGHT_HALVES = new Set([',', ')', ']', '}'])
 
@@ -22,7 +23,10 @@ function sameAsAbove({ topHit, cm, line }) {
         const commentStart = lineContent.indexOf('#')
         if (commentStart > 0 && index > commentStart) return false
         
+        // previous character is alphanumeric
         if (index > 0 && /\w|\d/.test(lineContent.charAt(index - 1))) return false
+        
+        if (/\s*import\s/.test(lineContent)) return false
         
         targetLine = l
         return true
@@ -114,9 +118,21 @@ function args({ cm, input, line, ch, lineContent }) {
 }
 
 function withAs({ lineContent, topHit }) {
+    if (!topHit) return
     if (topHit.c !== 'as') return
     if (!/\s*with\s\w/.test(lineContent)) return
-    if (/\s*with open\(/.test(lineContent)) return 'as f:'
+    if (/\s*with open\(/.test(lineContent)) return 'as f: '
+    
+    // Example:
+    // lineContent: with tf.Session(graph=graph) as session:
+    // match: with tf.Session(
+    // identifier: tf.Session
+    // snake: session
+    const match = /with\s[\w_][\w\d_\.]+(\(|\s)/.exec(lineContent)[0]
+    const identifiers = match.substring(5, match.length - 1).split('.')
+    const lastIdentifier = identifiers[identifiers.length - 1]
+    const snake = snakecase(lastIdentifier)
+    return `as ${snake}: `
 }
 
 class RuleBasedPredictor {

@@ -2,7 +2,6 @@ import svelte from 'rollup-plugin-svelte'
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import { terser } from 'rollup-plugin-terser'
-//import sizes from 'rollup-plugin-sizes'
 import postcss from 'rollup-plugin-postcss'
 import progress from 'rollup-plugin-progress'
 import autoprefixer from 'autoprefixer'
@@ -45,9 +44,6 @@ export default {
                 passes: 3
             }
         }),
-        // Causing TypeError: details.bundle.modules.forEach is not a function
-        // production && sizes(),
-
         !production && livereload('dist'),
         !production && serve('dist')
     ]
