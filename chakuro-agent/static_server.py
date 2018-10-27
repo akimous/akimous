@@ -10,7 +10,7 @@ def get_http_server(host, port):
     return http.server.HTTPServer((host, port), handler)
 
 
-def serve_http(host='127.0.0.1', port=3178):
+def serve_http(host, port):
     http_server = get_http_server(host, port)
     try:
         http_server.serve_forever()

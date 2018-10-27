@@ -2,6 +2,7 @@ import asyncio
 import websockets
 import json
 import traceback
+import webbrowser
 from types import SimpleNamespace
 from logzero import logger as log
 from contextlib import suppress
@@ -73,11 +74,11 @@ class WS:
                     context.observer.stop()
 
     @staticmethod
-    def start_server(host='127.0.0.1', http_port=3178, websocket_port=3179):
+    def start_server(host, port, ws_port, no_browser):
         # serve static content
         process = Process(target=serve_http, name='http_process', kwargs={
             'host': host,
-            'port': http_port
+            'port': port
         })
         process.start()
 
@@ -85,10 +86,13 @@ class WS:
         loop = asyncio.get_event_loop()
         loop.set_debug(True)
         loop.slow_callback_duration = 0.1
-        websocket_server = websockets.serve(WS.socket_handler, host=host, port=websocket_port)
+        websocket_server = websockets.serve(WS.socket_handler, host=host, port=ws_port)
         loop.run_until_complete(websocket_server)
         initialize_word_completer(loop)
-        log.info('Server started, listening on %s:%d', host, websocket_port)
+        log.info('Starting websocket server, listening on %s:%d', host, ws_port)
+
+        if not no_browser and not webbrowser.open(f'http://{host}:{port}'):
+            log.warn(f'No browsers available. Please open http://{host}:{port} manually.')
 
         try:
             loop.run_forever()
