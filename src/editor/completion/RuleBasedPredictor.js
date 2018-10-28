@@ -3,6 +3,7 @@ import { scanInSameLevelOfBraces } from '../EditorFunctions'
 import snakecase from 'lodash.snakecase'
 
 const RIGHT_HALVES = new Set([',', ')', ']', '}'])
+const MAX_SCAN_LINES = 100
 
 function sameAsAbove({ topHit, cm, line }) {
     if (!topHit) return
@@ -32,11 +33,14 @@ function sameAsAbove({ topHit, cm, line }) {
         return true
     }
 
+    let scannedCount = 0
     // find the nearest line including topHit.c
     while (lineUp >= 0 || lineDown < lineCount) {
         if (lineUp >= 0 && containsTopHit(lineUp--))
             break
         if (lineDown < lineCount && containsTopHit(lineDown++))
+            break
+        if (scannedCount++ === MAX_SCAN_LINES)
             break
     }
     if (index === -1) return
@@ -128,11 +132,58 @@ function withAs({ lineContent, topHit }) {
     // match: with tf.Session(
     // identifier: tf.Session
     // snake: session
-    const match = /with\s[\w_][\w\d_\.]+(\(|\s)/.exec(lineContent)[0]
+    const match = /with\s[\w_][\w\d_.]+(\(|\s)/.exec(lineContent)[0]
     const identifiers = match.substring(5, match.length - 1).split('.')
     const lastIdentifier = identifiers[identifiers.length - 1]
     const snake = snakecase(lastIdentifier)
     return `as ${snake}: `
+}
+
+const nextVariablePartMapping = {
+    'a': 'b',
+    'b': 'c',
+    'c': 'd',
+    'i': 'j',
+    'j': 'k',
+    'k': 'l',
+    'x': 'y',
+    'y': 'z',
+}
+function nextPossibleVariableName(name) {
+    // something_a => something_b
+    const splits = name.split('_')
+    for (let i = splits.length - 1; i > 0; i--) {
+        const part = splits[i]
+        if (Number.isInteger(+part)) {
+            splits[i] = (+part + 1).toString()
+            return splits.join('_')
+        } else if (nextVariablePartMapping[part]) {
+            splits[i] = nextVariablePartMapping[part]
+            return splits.join('_')
+        }
+    }
+    // something1 => something2
+    const lastChar = name.charAt(name.length - 1)
+    if (Number.isInteger(+lastChar)) {
+        const nextNumber = +lastChar + 1
+        if (nextNumber < 10)
+            return name.substring(0, name.length - 1) + nextNumber
+    }
+}
+function sequentialVariableNaming({ topHit, line, cm, completions }) {
+    if (line < 1) return
+    if (!topHit) return
+    if (topHit.t !== 'statement') return
+    const lastLine = cm.getLine(line - 1)
+    const index = lastLine.indexOf(topHit.c)
+    if (index === -1) return
+    if (index + topHit.c.length + 3 >= lastLine.length) return
+    const charsAfterTopHitInLastLine = lastLine.substr(index + topHit.c.length, 3)
+    if (charsAfterTopHitInLastLine !== ' = ') return
+    const result = nextPossibleVariableName(topHit.c)
+    if (!result) return
+    if (completions.some(i => i.c === result)) return
+    return result + ' = '
 }
 
 class RuleBasedPredictor {
@@ -148,6 +199,7 @@ class RuleBasedPredictor {
             isNot,
             args,
             withAs,
+            sequentialVariableNaming,
         ]
     }
 

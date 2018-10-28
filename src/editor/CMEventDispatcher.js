@@ -78,9 +78,9 @@ class CMEventDispatcher {
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
-            const { clean } = editor.get()
+            const { clean } = editor.get()  // 0.02 ms
             if (clean === doc.isClean()) return
-            editor.set({
+            editor.set({  // 0.25 ms
                 clean: !clean
             })
         })

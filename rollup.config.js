@@ -5,7 +5,7 @@ import { terser } from 'rollup-plugin-terser'
 import postcss from 'rollup-plugin-postcss'
 import progress from 'rollup-plugin-progress'
 import autoprefixer from 'autoprefixer'
-import serve from 'rollup-plugin-serve'
+//import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
 
 const production = !process.env.ROLLUP_WATCH
@@ -45,6 +45,6 @@ export default {
             }
         }),
         !production && livereload('dist'),
-        !production && serve('dist')
+        //!production && serve('dist')  // use python instead
     ]
 }

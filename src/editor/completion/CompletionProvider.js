@@ -70,6 +70,7 @@ class CompletionProvider {
 
             const ruleBasedPrediction = this.ruleBasedPredictor.predict({
                 topHit: sortedCompletions[0],
+                completions: sortedCompletions,
                 input
             })
             sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
@@ -128,6 +129,7 @@ class CompletionProvider {
         
         const ruleBasedPrediction = this.ruleBasedPredictor.predict({
             topHit: sortedCompletions[0],
+            completions: sortedCompletions,
             input
         })
         sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
@@ -182,7 +184,7 @@ class CompletionProvider {
 
         const { passive } = this.completion.get()
         const filteredCompletions = completions.filter(row => {
-            if (passive && row.c.length < 3) return false
+            if (passive && row.c.length < 2) return false
             return row.sortScore > 0
         })
         let tail_ = addTail
