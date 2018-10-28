@@ -5,32 +5,48 @@ import pluralize from 'pluralize'
 
 const RIGHT_HALVES = new Set([',', ')', ']', '}'])
 const MAX_SCAN_LINES = 100
+const FULL_STATEMENT_COMPLETION_CONSISTENCY_CHECKS = [
+    /\s*for\s/,
+    /\s*def\s/,
+    /\s*class\s/,
+    /\s*with\s/,
+]
 
-function fullStatementCompletion({ topHit, cm, line }) {
+
+function fullStatementCompletion({ topHit, cm, line, lineContent }) {
     if (!topHit) return
 
     const topHitCompletion = topHit.c
     const lineCount = cm.lineCount()
     let lineUp = line - 1
     let lineDown = line + 1
-    let targetLine = -1
-    let lineContent = ''
+    let sourceLine = -1
+    let sourceLineContent = ''
     let index = -1
-
+    
+    const targetLineConsistencyCheckResults = FULL_STATEMENT_COMPLETION_CONSISTENCY_CHECKS.map(check => {
+        return check.test(lineContent)
+    })
+    
     const containsTopHit = l => {
-        lineContent = cm.getLine(l)
-        index = lineContent.indexOf(topHitCompletion)
+        sourceLineContent = cm.getLine(l)
+        index = sourceLineContent.indexOf(topHitCompletion)
         if (index < 0) return false
         
-        const commentStart = lineContent.indexOf('#')
+        const commentStart = sourceLineContent.indexOf('#')
         if (commentStart > 0 && index > commentStart) return false
         
         // previous character is alphanumeric
-        if (index > 0 && /\w|\d/.test(lineContent.charAt(index - 1))) return false
+        if (index > 0 && /\w|\d/.test(sourceLineContent.charAt(index - 1))) return false
         
-        if (/\s*import\s/.test(lineContent)) return false
+        if (/\s*import\s/.test(sourceLineContent)) return false
         
-        targetLine = l
+        for (let i = 0; i < FULL_STATEMENT_COMPLETION_CONSISTENCY_CHECKS.length; i++) {
+            if (FULL_STATEMENT_COMPLETION_CONSISTENCY_CHECKS[i].test(sourceLineContent) ^
+                targetLineConsistencyCheckResults[i]) return false
+        }
+        
+        sourceLine = l
         return true
     }
 
@@ -47,17 +63,17 @@ function fullStatementCompletion({ topHit, cm, line }) {
     if (index === -1) return
 
     const result = scanInSameLevelOfBraces(cm, {
-        line: targetLine,
+        line: sourceLine,
         ch: index
     }, (cm, char, pos) => {
-        if (pos.line !== targetLine)
-            return lineContent.length
+        if (pos.line !== sourceLine)
+            return sourceLineContent.length
         if (RIGHT_HALVES.has(char))
             return pos.ch
     }, 1)
 
     if (result)
-        return lineContent.substring(index, result)
+        return sourceLineContent.substring(index, result)
 }
 
 const fixedPredictionRules = {
