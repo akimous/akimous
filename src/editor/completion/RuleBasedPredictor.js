@@ -1,11 +1,12 @@
 import { highlightSequentially, inSomething } from '../../lib/Utils'
 import { scanInSameLevelOfBraces } from '../EditorFunctions'
 import snakecase from 'lodash.snakecase'
+import pluralize from 'pluralize'
 
 const RIGHT_HALVES = new Set([',', ')', ']', '}'])
 const MAX_SCAN_LINES = 100
 
-function sameAsAbove({ topHit, cm, line }) {
+function fullStatementCompletion({ topHit, cm, line }) {
     if (!topHit) return
 
     const topHitCompletion = topHit.c
@@ -186,12 +187,21 @@ function sequentialVariableNaming({ topHit, line, cm, completions }) {
     return result + ' = '
 }
 
+function forElementInCollection({ topHit, lineContent }) {
+    if (!topHit) return
+    if (!/^\s*for\s/.test(lineContent)) return
+    if (pluralize.isPlural(topHit.c)) {
+        const singular = pluralize.singular(topHit.c)
+        if (singular !== topHit.c) return `${singular} in ${topHit.c}`
+    }
+}
+
 class RuleBasedPredictor {
     constructor(cm) {
         this.cm = cm
         this.context = { cm }
         this.predictors = [
-            sameAsAbove,
+            fullStatementCompletion,
             fixedPredictionForImport,
             fromImport,
             importAs,
@@ -200,6 +210,7 @@ class RuleBasedPredictor {
             args,
             withAs,
             sequentialVariableNaming,
+            forElementInCollection,
         ]
     }
 

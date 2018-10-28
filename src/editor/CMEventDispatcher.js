@@ -1,5 +1,14 @@
 import g from '../lib/Globals'
-import { CLOSED, TRIGGERED, RETRIGGERED } from './completion/CompletionProvider'
+import {
+    CLOSED,
+    TRIGGERED,
+    RETRIGGERED,
+    NORMAL,
+    STRING,
+    COMMENT,
+    FOR,
+    PARAMETER_DEFINITION
+} from './completion/CompletionProvider'
 
 class CMEventDispatcher {
     constructor(editor) {
@@ -78,9 +87,9 @@ class CMEventDispatcher {
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
-            const { clean } = editor.get()  // 0.02 ms
+            const { clean } = editor.get() // 0.02 ms
             if (clean === doc.isClean()) return
-            editor.set({  // 0.25 ms
+            editor.set({ // 0.25 ms
                 clean: !clean
             })
         })
@@ -141,7 +150,7 @@ class CMEventDispatcher {
 
                     // for forcing passive in function definition
                     let isInFunctionSignatureDefinition = false
-                    let forcePassiveCompletion = false
+                    
                     // if it is not single char input, handle by completionProvider.sync()
                     if (c.text.length === 1 &&
                         c.from.line === c.to.line &&
@@ -160,7 +169,8 @@ class CMEventDispatcher {
                                 if (tr3.string === 'def')
                                     isInFunctionSignatureDefinition = true
                                 if (isInFunctionSignatureDefinition && t0.string !== '=')
-                                    forcePassiveCompletion = true
+                                    completionProvider = PARAMETER_DEFINITION
+//                                    forcePassiveCompletion = true
                             }
                         }
                         if (!cm.somethingSelected())
@@ -169,7 +179,6 @@ class CMEventDispatcher {
                         // TODO: move completionProvider above formatter
                         input = c.text[0] // might change after handled by formatter, so reassign
                         const isInputDot = /\./.test(input)
-                        //                        const ch0 = cursor.ch === 0 ? '' : lineContent[cursor.ch - 1]
 
 
                         const inputShouldTriggerPrediction = () => {
@@ -179,14 +188,6 @@ class CMEventDispatcher {
                             if (/[A-Za-z_=+\-*/|&^~%@><!]$/.test(input)) return true
                             return false
                         }
-                        //                        const inputShouldTriggerPrediction = (
-                        //                            t0.type !== 'number' && (
-                        //                                (/[A-Za-z_=+\-*/|&^~%@><!]/.test(input) &&
-                        //                                 !/[A-Za-z_]/.test(ch0) &&
-                        //                                    completionProvider.state === CLOSED
-                        //                                ) || isInputDot
-                        //                            )
-                        //                        )
                         // handle completion and predictions
                         const newCursor = { line: cursor.line, ch: cursor.ch + input.length }
                         const newLineContent = lineContent.slice(0, cursor.ch) + input + lineContent.slice(cursor.ch)
@@ -199,14 +200,10 @@ class CMEventDispatcher {
                                 newCursor.ch,
                                 -(!isInputDot)
                             )
-                            if (t0.type === 'string' ||
-                                t0.type === 'comment' ||
-                                t1.string === 'for' // for var_name in ... should not complete var_name
-                            ) {
-                                completionProvider.passive = true
-                            } else {
-                                completionProvider.passive = forcePassiveCompletion
-                            }
+                            if (t0.type === 'string') completionProvider.type = STRING
+                            else if (t0.type === 'comment') completionProvider.type = COMMENT
+                            else if (t1.string === 'for') completionProvider.type = FOR
+                            else completionProvider.type = NORMAL
                         }
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)

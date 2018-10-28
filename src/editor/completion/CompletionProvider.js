@@ -2,9 +2,15 @@ import Sorter from './Sorter'
 import RuleBasedPredictor from './RuleBasedPredictor'
 import { highlightSequentially, inParentheses } from '../../lib/Utils'
 
+// state
 const CLOSED = 0,
     TRIGGERED = 1,
     RETRIGGERED = 2
+const NORMAL = 0,
+    STRING = 1,
+    COMMENT = 2,
+    FOR = 3,
+    PARAMETER_DEFINITION = 4
 const debug = false
 
 const shouldUseSequentialHighlighter = new Set([
@@ -25,19 +31,29 @@ const tails = {
     'variable': ' ',
     'param': ' ',
 }
-function addTail(completion, noSpaceAroundEqualSign = false) {
-    const { t } = completion
-    let tail = tails[t]
-    if (noSpaceAroundEqualSign && tail === ' = ')
-        tail = '='
-    if (tail)
-        completion.tail = tail
-}
+
 
 class CompletionProvider {
     static get debug() {
         return false
     }
+
+    set passive(x) {
+        console.error('set passive')
+    }
+    get passive() {
+        console.error('get passive')
+        return false
+    }
+
+    //    set type(x) {
+    //        this._type = x
+    //        console.warn('set type', x)
+    //    }
+    //    
+    //    get type() {
+    //        return this._type
+    //    }
 
     constructor(editor) {
         this.editor = editor
@@ -45,8 +61,8 @@ class CompletionProvider {
         this.sorter = new Sorter()
         this.ruleBasedPredictor = new RuleBasedPredictor(this.editor.cm)
         this.enabled = true
-        this.passive = false
         this.state = CLOSED
+        this.type = NORMAL
 
         this.firstTriggeredCharPos = {
             line: 0,
@@ -77,7 +93,7 @@ class CompletionProvider {
             this.completion.setCompletions(
                 sortedCompletions,
                 this.firstTriggeredCharPos,
-                this.passive
+                this.type
             )
         })
         editor.ws.addHandler('predictExtra-result', (data) => {
@@ -86,7 +102,7 @@ class CompletionProvider {
             this.completion.setCompletions(
                 sortedCompletions,
                 this.firstTriggeredCharPos,
-                true // passive
+                this.type
             )
         })
     }
@@ -126,14 +142,14 @@ class CompletionProvider {
         const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
         this.input = input
         let sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
-        
+
         const ruleBasedPrediction = this.ruleBasedPredictor.predict({
             topHit: sortedCompletions[0],
             completions: sortedCompletions,
             input
         })
         sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
-        
+
         if (!sortedCompletions.length) {
             this.editor.ws.send({
                 cmd: 'predictExtra',
@@ -142,7 +158,7 @@ class CompletionProvider {
                 ch,
             })
         } else
-            this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.passive)
+            this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.type)
     }
 
     sync(doc) {
@@ -182,17 +198,36 @@ class CompletionProvider {
         completions.sort((a, b) => b.sortScore - a.sortScore + b.s - a.s)
         if (debug) console.log('CompletionProvider.sort', completions)
 
-        const { passive } = this.completion.get()
+        const { type } = this.completion.get()
         const filteredCompletions = completions.filter(row => {
-            if (passive && row.c.length < 2) return false
+            if (type !== NORMAL && row.c.length < 2) return false
             return row.sortScore > 0
         })
-        let tail_ = addTail
-        if (inParentheses(this.editor.cm, this.firstTriggeredCharPos))
-            tail_ = x => addTail(x, true)
-        filteredCompletions.forEach(tail_)
+        filteredCompletions.forEach(this.addTail, this)
         return filteredCompletions
+    }
+
+    addTail(completion) {
+        const { t } = completion
+        const type = this.type
+        let tail = tails[t]
+        if (type === PARAMETER_DEFINITION && tail === ' = ')
+            tail = '='
+        if (type === STRING || type === COMMENT)
+            tail = null
+        if (tail)
+            completion.tail = tail
     }
 }
 
-export { CompletionProvider, CLOSED, TRIGGERED, RETRIGGERED }
+export {
+    CompletionProvider,
+    CLOSED,
+    TRIGGERED,
+    RETRIGGERED,
+    NORMAL,
+    STRING,
+    COMMENT,
+    FOR,
+    PARAMETER_DEFINITION
+}

@@ -31,7 +31,7 @@
     import g from '../../lib/Globals'
     import CompletionRow from './CompletionRow.html'
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
-    import { CLOSED } from './CompletionProvider'
+    import { CLOSED, NORMAL } from './CompletionProvider'
 
     export default {
         components: {
@@ -159,7 +159,8 @@
                     name
                 })
             },
-            setCompletions(rows, firstTriggeredCharPos, passive) {
+            setCompletions(rows, firstTriggeredCharPos, type) {
+                const passive = type !== NORMAL
                 if (!rows.length) {
                     this.set({ open: false })
                 } else {

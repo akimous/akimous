@@ -22,6 +22,7 @@
         "lodash.snakecase": "^4.1.1",
         "maid": "^0.3.0",
         "normalize.css": "^8.0.0",
+        "pluralize": "^7.0.0",
         "pressure": "^2.1.2",
         "primer-tooltips": "^1.5.8",
         "rollup": "^0.66.6",

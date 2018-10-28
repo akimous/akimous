@@ -15,7 +15,7 @@ export default class {
         
         this.socket.onmessage = event => {
             const msg = JSON.parse(event.data)
-            if (this.debug) console.log(`Recieved message from ${this.path}:`, msg)
+            if (this.debug) console.debug(`Recieved message from ${this.path}:`, msg)
             const handler = this.handlers[msg.cmd]
             if (handler != undefined)
                 handler(msg)
@@ -42,7 +42,7 @@ export default class {
     }
     
     send(obj) {
-        if (this.debug) console.log(`Sending message from ${this.path}:`, obj)
+        if (this.debug) console.debug(`Sending message from ${this.path}:`, obj)
         this.socket.send(JSON.stringify(obj))
     }
     
