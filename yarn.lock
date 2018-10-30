@@ -3853,10 +3853,10 @@ supports-color@^5.5.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.14.3:
-  version "2.14.3"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.14.3.tgz#978bb788603a05f7e63ec1db43b9f99264d9ae0f"
-  integrity sha512-+iUBo++4TxOLZNtsPGz4mTy7TumIuk15YQ67p/8RQ1/Kmq1YfTn4sKdTnIh6fI9W4KULDdNxh95NwfQVJvK6vw==
+svelte@^2.15.0:
+  version "2.15.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.15.0.tgz#27b27b033abcba97f4392ff04faa707b1345b6da"
+  integrity sha512-rSrDbOftOHfPN8Epy8FHFUfr7L1WaZZBUC1UloNNH7+S7QHPyvbQw1KdrhtVYSuOslpjHe20xgTDR/tZn/sDMg==
 
 svgo@^0.7.0:
   version "0.7.2"
@@ -3904,10 +3904,10 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-terser@^3.10.3:
-  version "3.10.3"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.10.3.tgz#4085f9e62171ca746c5759fe955d921291703ee6"
-  integrity sha512-uyL5hwDICjnv49JANhZvQYLikt/HADWNbUFsKQpZ/i+JSOkL2T4V7WUpW7S/5QGZceVq2x0HRVhEQQuW2ZpX6g==
+terser@^3.10.4:
+  version "3.10.4"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-3.10.4.tgz#63ed0b5266d39cbdcb9c2bf6506f6444b70184a3"
+  integrity sha512-Gobjr6j9ZbA0oAFW+foiqp8LUZjBkd5UHxCVL0cPOlHO7wKKa3FwHW/j9p7d1/ypPl6m9Bf0LAFbbHf3k97asA==
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"
