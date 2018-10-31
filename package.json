@@ -34,8 +34,8 @@
         "rollup-plugin-svelte": "^4.3.2",
         "rollup-plugin-terser": "^3.0.0",
         "sortablejs": "^1.7.0",
-        "svelte": "^2.15.0",
-        "terser": "^3.10.4",
+        "svelte": "^2.15.1",
+        "terser": "^3.10.7",
         "xterm": "^3.8.0"
     },
     "dependencies": {},

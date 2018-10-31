@@ -131,7 +131,7 @@ async def predict(msg, send, context):
             scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
             result = [
                 {
-                    'c': c.name,  # completion
+                    'c': c.name_with_symbols,  # completion
                     't': c.type,  # type
                     's': int(s)  # score
                 } for c, s in zip(completions, scores)

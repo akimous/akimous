@@ -22,14 +22,13 @@ const shouldUseSequentialHighlighter = new Set([
 const tails = {
     'class': '()',
     'function': '()',
-    // 'param': '=', // `if p=` is wrong, when p is a function parameter, but it is not calling
+    // 'param': '=', // already handled by Jedi in completion.name_with_symbols
     'word': ' = ',
     'word-segment': ' = ',
     'token': ' = ',
     'keyword': ' ',
     'module': ' ',
     'variable': ' ',
-    'param': ' ',
 }
 
 

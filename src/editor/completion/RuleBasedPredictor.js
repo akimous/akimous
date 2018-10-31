@@ -241,7 +241,7 @@ class RuleBasedPredictor {
         context.lineContent = context.cm.getLine(context.line)
         console.log(context)
 
-        const result = []
+        let result = []
         const startTime = performance.now()
         this.predictors.forEach(predictor => {
             try {
@@ -254,6 +254,10 @@ class RuleBasedPredictor {
                 console.error(e)
             }
         })
+        
+        // deduplicate and order by length
+        result = [...new Set(result)].sort((a, b) => a.length - b.length)
+        
         console.log(`Rule-based prediction took ${performance.now() - startTime}`)
         return result.map(c => {
             return {
