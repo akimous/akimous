@@ -142,11 +142,7 @@ class CMEventDispatcher {
                         line: c.from.line,
                         ch: c.from.ch
                     })
-                    completionProvider.ruleBasedPredictor.setContext({
-                        t0,
-                        t1,
-                        t2
-                    })
+                    Object.assign(completionProvider.context, { t0, t1, t2 })
 
                     // for forcing passive in function definition
                     let isInFunctionSignatureDefinition = false
@@ -169,8 +165,7 @@ class CMEventDispatcher {
                                 if (tr3.string === 'def')
                                     isInFunctionSignatureDefinition = true
                                 if (isInFunctionSignatureDefinition && t0.string !== '=')
-                                    completionProvider = PARAMETER_DEFINITION
-//                                    forcePassiveCompletion = true
+                                    completionProvider.type = PARAMETER_DEFINITION
                             }
                         }
                         if (!cm.somethingSelected())

@@ -213,9 +213,8 @@ function forElementInCollection({ topHit, lineContent }) {
 }
 
 class RuleBasedPredictor {
-    constructor(cm) {
-        this.cm = cm
-        this.context = { cm }
+    constructor(context) {
+        this.context = context
         this.predictors = [
             fullStatementCompletion,
             fixedPredictionForImport,
@@ -228,10 +227,6 @@ class RuleBasedPredictor {
             sequentialVariableNaming,
             forElementInCollection,
         ]
-    }
-
-    setContext(context) {
-        Object.assign(this.context, context)
     }
 
     predict(context) {

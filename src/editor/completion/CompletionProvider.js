@@ -1,6 +1,6 @@
 import Sorter from './Sorter'
 import RuleBasedPredictor from './RuleBasedPredictor'
-import { highlightSequentially, inParentheses } from '../../lib/Utils'
+import { highlightSequentially } from '../../lib/Utils'
 
 // state
 const CLOSED = 0,
@@ -22,15 +22,16 @@ const shouldUseSequentialHighlighter = new Set([
 const tails = {
     'class': '()',
     'function': '()',
-    // 'param': '=', // already handled by Jedi in completion.name_with_symbols
-    'word': ' = ',
-    'word-segment': ' = ',
-    'token': ' = ',
+    // 'param': '=',  // already handled by Jedi in completion.name_with_symbols
+    // 'word': ' = ',  // handled in addTail()
+    // 'word-segment': ' = ',  // handled in addTail()
+    // 'token': ' = ',  // handled in addTail()
     'keyword': ' ',
     'module': ' ',
     'variable': ' ',
 }
 
+const passiveTokenCompletionSet = new Set(['word', 'word-segment', 'token'])
 
 class CompletionProvider {
     static get debug() {
@@ -58,7 +59,8 @@ class CompletionProvider {
         this.editor = editor
         this.completion = editor.completion
         this.sorter = new Sorter()
-        this.ruleBasedPredictor = new RuleBasedPredictor(this.editor.cm)
+        this.context = { cm: this.editor.cm }
+        this.ruleBasedPredictor = new RuleBasedPredictor(this.context)
         this.enabled = true
         this.state = CLOSED
         this.type = NORMAL
@@ -119,7 +121,7 @@ class CompletionProvider {
             ch,
         })
         this.isClassDefinition = /^\s*class\s/.test(lineContent)
-        this.ruleBasedPredictor.setContext({
+        Object.assign(this.context, {
             firstTriggeredCharPos: this.firstTriggeredCharPos,
             lineContent: this.lineContent,
             line,
@@ -210,10 +212,18 @@ class CompletionProvider {
         const { t } = completion
         const type = this.type
         let tail = tails[t]
-        if (type === PARAMETER_DEFINITION && tail === ' = ')
-            tail = '='
+        const { lineContent, firstTriggeredCharPos } = this.context
         if (type === STRING || type === COMMENT)
             tail = null
+        else if (passiveTokenCompletionSet.has(t)) {
+            if (type === PARAMETER_DEFINITION) tail = '='
+            else {
+                const head = lineContent.substring(0, firstTriggeredCharPos.ch)
+                if (/^\s*def\s$/.test(head)) tail = '()'
+                else if (!/^\s*$/.test(head)) tail = null
+            }
+        }
+        
         if (tail)
             completion.tail = tail
     }
