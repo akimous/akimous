@@ -25,4 +25,3 @@ with Timer('initialization'):
 if __name__ == '__main__':
     host = args.host
     WS.start_server(**args.__dict__)
-

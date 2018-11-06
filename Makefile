@@ -1,4 +1,4 @@
-all: test lint clean | static
+all: test lint | clean static
 	yarn run cloc src resources chakuro-agent
 	yarn run rollup -c
 	brotli -o dist/bundle.js.br dist/bundle.js

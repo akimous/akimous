@@ -1,15 +1,72 @@
 <div class="container {active?'':'gone'}">
-    <div ref:linter id="linter">Under Contruction</div>
+    <div ref:linter id="linter">
+    	<div class="title non-selectable">Prospector</div>
+    	<table id="prospector-result" class="non-selectable">
+            {#each prospectorResults.messages as message, i}
+            <tr>
+                <td class="line-number">{prospectorResults.lines[i]}</td>
+                <td>
+                    <div class="message">{message}</div>
+                </td>
+            </tr>
+            {/each}
+        </table>
+    </div>
 </div>
 
 <style>
     .container {
-        padding: .4rem;
         height: calc(100% - var(--indicator-height) - .1rem);
     }
+	
+	.title {
+        padding: .3rem;
+        color: var(--gray3);
+        font-size: var(--ui-font-size-large);
+    }
+	
+	#prospector-result {
+        width: 100%;
+        background: var(--main-bg-color);
+    }
 
-    #linter {
-        background: gray;
+    table,
+    td {
+        padding: 0;
+        margin: 0;
+        border-spacing: 0;
+    }
+	
+	td {
+        vertical-align: top;
+        cursor: default;
+        border-bottom: 1px solid var(--panel-delimiter-color);
+    }
+
+    tr:hover {
+        color: white;
+        background: var(--gray4);
+    }
+
+    .line-number {
+        width: 1rem;
+        padding: .3rem;
+        text-align: right;
+        color: var(--ui-font-color);
+        background: var(--gray5);
+		font-family: var(--basic-monospace-font-family);
+    }
+
+    tr:hover>.line-number {
+        color: white;
+        background: var(--ui-highlight-color);
+    }
+	
+	.message {
+        padding: .3rem .5rem;
+        max-height: 3.8rem;
+        white-space: pre;
+        overflow: hidden;
     }
 
 </style>
@@ -27,7 +84,11 @@
         },
         data() {
             return {
-                active: false
+                active: false,
+				prospectorResults: {
+					lines: [],
+					messages: [],
+				}
             }
         },
         methods: {}

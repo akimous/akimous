@@ -236,6 +236,11 @@
                     g.docs.set({ functionDoc: doc, functionDocType: type })
                     g.docs.highlightActiveParameter(this.cm)
                 })
+				
+				this.ws.addHandler('linterOutput', data => {
+					this.linterOutput = data.result
+					g.linter.set({prospectorResults: data.result})
+				})
             }), 500)
         },
         ondestroy() {

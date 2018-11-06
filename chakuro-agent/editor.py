@@ -12,6 +12,10 @@ from sklearn.externals import joblib
 from logzero import logger as log
 from boltons.fileutils import atomic_save
 from boltons.gcutils import toggle_gc_postcollect
+from asyncio import create_subprocess_shell, subprocess
+import shlex
+import json
+import asyncio
 
 import jedi
 import wordsegment
@@ -23,6 +27,28 @@ MODEL_NAME = 'v10.model'
 model = joblib.load(open_binary('resources', MODEL_NAME))  # 300 ms
 model.n_jobs = 1
 log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
+
+
+async def lint(context, send):
+    with Timer('Linting'):
+        context.linter_process = await create_subprocess_shell(
+            f'prospector {shlex.quote(str(context.path))} -o json --strictness verylow',
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        stdout, stderr = await context.linter_process.communicate()
+        context.linter_output = json.loads(stdout)
+        messages = context.linter_output['messages']
+        messages.sort(key=lambda i: (i['location']['line'], i['location']['character']))
+        result = {
+            'messages': [i['message'] for i in messages],
+            'lines': [i['location']['line'] for i in messages]
+        }
+        await send({
+            'cmd': 'linterOutput',
+            'result': result,
+            'all': context.linter_output
+        })
 
 
 @register('openFile')
@@ -46,6 +72,8 @@ async def open_file(msg, send, context):
             # warm up Jedi
             j = jedi.Script('\n'.join(context.doc), len(context.doc), 1, context.path)
             j.completions()
+
+    context.linter_task = asyncio.create_task(lint(context, send))
 
 
 @register('reload')
