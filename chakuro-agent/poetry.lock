@@ -684,7 +684,7 @@ numpy = "*"
 scipy = "*"
 
 [metadata]
-content-hash = "1bc1b3d4a48dd9ea9d76206dfcccbf6f181ae501085c2f96a77563e2c3397dad"
+content-hash = "685caf735367fe594c3b79c6b084dc15dbfb3b36d3b0a25b88606bce0a614980"
 python-versions = ">=3.6"
 
 [metadata.hashes]

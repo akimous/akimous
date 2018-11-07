@@ -1,12 +1,12 @@
 <div class="container {active?'':'gone'}">
     <div ref:linter id="linter">
-    	<div class="title non-selectable">Prospector</div>
-    	<table id="prospector-result" class="non-selectable">
-            {#each prospectorResults.messages as message, i}
-            <tr>
-                <td class="line-number">{prospectorResults.lines[i]}</td>
+        <div class="title non-selectable">Pylint</div>
+        <table id="pylint-result" class="non-selectable">
+            {#each fullLintingResult as message}
+            <tr on:click="jumpTo(message.line, message.column)">
+                <td class="line-number">{message.line}</td>
                 <td>
-                    <div class="message">{message}</div>
+                    <div class="message">{message.message}</div>
                 </td>
             </tr>
             {/each}
@@ -18,14 +18,19 @@
     .container {
         height: calc(100% - var(--indicator-height) - .1rem);
     }
-	
-	.title {
+
+    #linter {
+        height: calc(100% - var(--indicator-height) - .1rem);
+        overflow-y: scroll;
+    }
+
+    .title {
         padding: .3rem;
         color: var(--gray3);
         font-size: var(--ui-font-size-large);
     }
-	
-	#prospector-result {
+
+    #pylint-result {
         width: 100%;
         background: var(--main-bg-color);
     }
@@ -36,8 +41,8 @@
         margin: 0;
         border-spacing: 0;
     }
-	
-	td {
+
+    td {
         vertical-align: top;
         cursor: default;
         border-bottom: 1px solid var(--panel-delimiter-color);
@@ -54,15 +59,15 @@
         text-align: right;
         color: var(--ui-font-color);
         background: var(--gray5);
-		font-family: var(--basic-monospace-font-family);
+        font-family: var(--basic-monospace-font-family);
     }
 
     tr:hover>.line-number {
         color: white;
         background: var(--ui-highlight-color);
     }
-	
-	.message {
+
+    .message {
         padding: .3rem .5rem;
         max-height: 3.8rem;
         white-space: pre;
@@ -85,13 +90,18 @@
         data() {
             return {
                 active: false,
-				prospectorResults: {
-					lines: [],
-					messages: [],
-				}
+                fullLintingResult: []
             }
         },
-        methods: {}
+        methods: {
+            jumpTo(line, ch) {
+                const editor = g.activeEditor
+                if (!editor) return
+                g.activeEditor.cm.setCursor(line - 1, ch)
+                editor.cm.focus()
+
+            }
+        }
     }
 
 </script>

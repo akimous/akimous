@@ -13,6 +13,7 @@ from logzero import logger as log
 from boltons.fileutils import atomic_save
 from boltons.gcutils import toggle_gc_postcollect
 from asyncio import create_subprocess_shell, subprocess
+
 import shlex
 import json
 import asyncio
@@ -31,24 +32,21 @@ log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
 
 async def lint(context, send):
     with Timer('Linting'):
+        absolute_path = context.path.absolute()
         context.linter_process = await create_subprocess_shell(
-            f'prospector {shlex.quote(str(context.path))} -o json --strictness verylow',
+            f'cd {shlex.quote(str(absolute_path.parent))} && '
+            f'pylint {shlex.quote(str(absolute_path))} --output-format=json',
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
         stdout, stderr = await context.linter_process.communicate()
+        if stderr:
+            log.error(stderr)
         context.linter_output = json.loads(stdout)
-        messages = context.linter_output['messages']
-        messages.sort(key=lambda i: (i['location']['line'], i['location']['character']))
-        result = {
-            'messages': [i['message'] for i in messages],
-            'lines': [i['location']['line'] for i in messages]
-        }
-        await send({
-            'cmd': 'linterOutput',
-            'result': result,
-            'all': context.linter_output
-        })
+    await send({
+        'cmd': 'fullLinting-result',
+        'result': context.linter_output,
+    })
 
 
 @register('openFile')

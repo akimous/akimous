@@ -237,9 +237,10 @@
                     g.docs.highlightActiveParameter(this.cm)
                 })
 				
-				this.ws.addHandler('linterOutput', data => {
-					this.linterOutput = data.result
-					g.linter.set({prospectorResults: data.result})
+				this.ws.addHandler('fullLinting-result', data => {
+					this.fullLintingResult = data.result
+					this.fullLintingResult.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
+					g.linter.set({fullLintingResult: this.fullLintingResult})
 				})
             }), 500)
         },
