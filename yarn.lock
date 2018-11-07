@@ -617,10 +617,10 @@ css-color-names@0.0.4:
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
   integrity sha1-gIrcLnnPhHOAabZGyyDsJ762KeA=
 
-css-element-queries@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/css-element-queries/-/css-element-queries-1.0.5.tgz#4f032f017693a2d410872db46a4caa932c62c71a"
-  integrity sha512-CtSZISHGWI7DT0ee+f1XJs0qvYn72XptLCrUx6RNvghpBEzjeBdAK6sQ2byiukosr6aNwQvoF9y7LXGbWB5DLQ==
+css-element-queries@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/css-element-queries/-/css-element-queries-1.1.0.tgz#aa411134bfecacab1240d9b760b1ed2ed2c3e3b4"
+  integrity sha512-oLFKjj8eWnyJuZaH9hYc8Z79m1KflQtR8ft1NsAjTARGZHSiqk6i7hzjNnkQc+U+sVPRII9n+Jhx9/xnzFER/g==
 
 css-modules-loader-core@^1.1.0:
   version "1.1.0"
@@ -3130,10 +3130,10 @@ supports-color@^5.5.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.15.2:
-  version "2.15.2"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.15.2.tgz#6aaf4a10307409099ec30dd7c73f746fef32c949"
-  integrity sha512-l/YAQQ/ArmUTlEdspyLS7viFtKX0ZRKVmYeizAlvFoJ4vKos+7/aBD8xWxQTUd8EPh1JD95DVy7NK3h8+ITlxw==
+svelte@^2.15.3:
+  version "2.15.3"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.15.3.tgz#d9ba5b48eae30f5501b3266c563add2399c67b40"
+  integrity sha512-0bKpXppM/YlPZ8F0mREaUYpE8Te11RvG62ttFr+n1U3G2qdr3cZzuXCnQMcVZukwAUJAjRM55OSH7FLmXnPGRA==
 
 svgo@^0.7.0:
   version "0.7.2"

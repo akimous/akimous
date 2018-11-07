@@ -13,7 +13,7 @@
         "browserslist": "^4.3.4",
         "cloc": "^2.3.4",
         "codemirror": "^5.41.0",
-        "css-element-queries": "^1.0.5",
+        "css-element-queries": "^1.1.0",
         "devicon": "^2.0.0",
         "eslint": "^5.8.0",
         "eslint-plugin-html": "^4.0.6",
@@ -32,7 +32,7 @@
         "rollup-plugin-svelte": "^4.3.2",
         "rollup-plugin-terser": "^3.0.0",
         "sortablejs": "^1.7.0",
-        "svelte": "^2.15.2",
+        "svelte": "^2.15.3",
         "terser": "^3.10.11",
         "xterm": "^3.8.0"
     },
