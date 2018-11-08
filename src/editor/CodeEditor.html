@@ -236,12 +236,12 @@
                     g.docs.set({ functionDoc: doc, functionDocType: type })
                     g.docs.highlightActiveParameter(this.cm)
                 })
-				
-				this.ws.addHandler('fullLinting-result', data => {
-					this.fullLintingResult = data.result
-					this.fullLintingResult.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
-					g.linter.set({fullLintingResult: this.fullLintingResult})
-				})
+
+                this.ws.addHandler('fullLinting-result', data => {
+                    this.fullLintingResult = data.result
+                    this.fullLintingResult.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
+                    g.linter.set({ fullLintingResult: this.fullLintingResult })
+                })
             }), 500)
         },
         ondestroy() {

@@ -5,8 +5,9 @@
             {#each fullLintingResult as message}
             <tr on:click="jumpTo(message.line, message.column)">
                 <td class="line-number">{message.line}</td>
-                <td>
-                    <div class="message {message.type}">{message.message}</div>
+                <td class="{message.type}">
+                    <div class="message">{getFirstLine(message.message)}</div>
+                    <div class="indication">{getRemainingLines(message.message)}</div>
                 </td>
             </tr>
             {/each}
@@ -35,6 +36,10 @@
         background: var(--main-bg-color);
     }
 
+    table {
+        table-layout: fixed;
+    }
+    
     table,
     td {
         padding: 0;
@@ -54,7 +59,7 @@
     }
 
     .line-number {
-        width: 1rem;
+        width: 2rem;
         padding: .3rem;
         text-align: right;
         color: var(--ui-font-color);
@@ -69,9 +74,11 @@
 
     .message {
         padding: .3rem .5rem;
-        max-height: 3.8rem;
+    }
+    
+    .indication {
+        font-family: var(--basic-monospace-font-family);
         white-space: pre;
-        overflow: hidden;
     }
     
     .informational {
@@ -100,9 +107,21 @@
 <script>
     import g from '../lib/Globals'
     import { initializeTabView } from '../lib/Utils'
-
+    
     export default {
         components: {},
+        helpers: {
+            getFirstLine(s) {
+                const index = s.indexOf('\n')
+                if (index > 0) return s.substring(0, index)
+                return s
+            },
+            getRemainingLines(s) {
+                const index = s.indexOf('\n')
+                if (index > 0) return s.substring(index + 1)
+                return ''
+            }
+        },
         oncreate() {
             g.linter = this
             initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
@@ -119,8 +138,7 @@
                 if (!editor) return
                 g.activeEditor.cm.setCursor(line - 1, ch)
                 editor.cm.focus()
-
-            }
+            },
         }
     }
 
