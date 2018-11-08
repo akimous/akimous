@@ -36,7 +36,6 @@ class LayeredKeyboardControl {
                 break
             case 'panelMiddle':
                 g.setFocus([g.panelMiddle])
-                console.log('bingo')
                 break
             case 'panelRight':
                 g.setFocus([g.panelRight])

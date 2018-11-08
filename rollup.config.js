@@ -5,7 +5,6 @@ import { terser } from 'rollup-plugin-terser'
 import postcss from 'rollup-plugin-postcss'
 import progress from 'rollup-plugin-progress'
 import autoprefixer from 'autoprefixer'
-//import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
 
 const production = !process.env.ROLLUP_WATCH
@@ -13,7 +12,7 @@ const production = !process.env.ROLLUP_WATCH
 export default {
     input: 'src/main.js',
     output: {
-        sourcemap: !production, // enable sourcemap when not in production
+        sourcemap: true,
         format: 'iife',
         name: 'app',
         file: 'dist/bundle.js'
@@ -45,6 +44,5 @@ export default {
             }
         }),
         !production && livereload('dist'),
-        //!production && serve('dist')  // use python instead
     ]
 }

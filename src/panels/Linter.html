@@ -6,7 +6,7 @@
             <tr on:click="jumpTo(message.line, message.column)">
                 <td class="line-number">{message.line}</td>
                 <td>
-                    <div class="message">{message.message}</div>
+                    <div class="message {message.type}">{message.message}</div>
                 </td>
             </tr>
             {/each}
@@ -16,11 +16,11 @@
 
 <style>
     .container {
-        height: calc(100% - var(--indicator-height) - .1rem);
+        height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
     }
 
     #linter {
-        height: calc(100% - var(--indicator-height) - .1rem);
+        height: 100%;
         overflow-y: scroll;
     }
 
@@ -72,6 +72,26 @@
         max-height: 3.8rem;
         white-space: pre;
         overflow: hidden;
+    }
+    
+    .informational {
+        color: var(--purple);
+    }
+    
+    .refactor {
+        color: var(--blue);
+    }
+    
+    .convention {
+        color: var(--ao);
+    }
+    
+    .warning {
+        color: var(--yellow);
+    }
+    
+    .error {
+        color: var(--brighter-red);
     }
 
 </style>
