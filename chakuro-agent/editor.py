@@ -68,7 +68,7 @@ async def open_file(msg, send, context):
             for line, line_content in enumerate(context.doc):
                 context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
             # warm up Jedi
-            j = jedi.Script('\n'.join(context.doc), len(context.doc), 1, context.path)
+            j = jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path)
             j.completions()
 
     context.linter_task = asyncio.create_task(lint(context, send))

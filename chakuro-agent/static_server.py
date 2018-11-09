@@ -27,6 +27,3 @@ if __name__ == '__main__':
         process.join()
     except KeyboardInterrupt:
         pass
-
-
-
