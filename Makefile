@@ -1,4 +1,6 @@
 all: test lint | clean static
+	yarn install
+	yarn check
 	yarn run cloc src resources chakuro-agent
 	yarn run rollup -c
 	brotli -o dist/bundle.js.br dist/bundle.js
@@ -16,6 +18,7 @@ static:
 
 lint:
 	yarn run eslint --ext .html,.js .
+	cd chakuro-agent && poetry check
 
 test:
 	cd chakuro-agent && poetry run python -m pytest -sx

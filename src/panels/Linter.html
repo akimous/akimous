@@ -2,8 +2,8 @@
     <div ref:linter id="linter">
         <div class="title non-selectable">Pylint</div>
         <table id="pylint-result" class="non-selectable">
-            {#each fullLintingResult as message}
-            <tr on:click="jumpTo(message.line, message.column)">
+            {#each fullLintingResult as message, i}
+            <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)">
                 <td class="line-number">{message.line}</td>
                 <td class="{message.type}">
                     <div class="message">{getFirstLine(message.message)}</div>
@@ -27,7 +27,7 @@
 
     .title {
         padding: .3rem;
-        color: var(--gray6);
+        color: var(--gray7);
         font-size: var(--ui-font-size-large);
     }
 
@@ -39,7 +39,7 @@
     table {
         table-layout: fixed;
     }
-    
+
     table,
     td {
         padding: 0;
@@ -75,28 +75,28 @@
     .message {
         padding: .3rem .5rem;
     }
-    
+
     .indication {
         font-family: var(--monospace-font-family);
         white-space: pre;
     }
-    
+
     .informational {
         color: var(--purple);
     }
-    
+
     .refactor {
         color: var(--blue);
     }
-    
+
     .convention {
         color: var(--ao);
     }
-    
+
     .warning {
         color: var(--yellow);
     }
-    
+
     .error {
         color: var(--brighter-red);
     }
@@ -107,7 +107,7 @@
 <script>
     import g from '../lib/Globals'
     import { initializeTabView } from '../lib/Utils'
-    
+
     export default {
         components: {},
         helpers: {
@@ -139,6 +139,31 @@
                 g.activeEditor.cm.setCursor(line - 1, ch)
                 editor.cm.focus()
             },
+            showPopup(i, event) {
+                const { x, y } = event.currentTarget.getBoundingClientRect()
+                const message = this.get().fullLintingResult[i]
+                g.popup.set({
+                    content: `<table  class="non-selectable">
+                            <tr>
+				                <td class="key">Location: </td>
+				                <td class="value">line ${message.line}, column ${message.column}</td>
+			                </tr>
+                            <tr>
+				                <td class="key">Name: </td>
+				                <td class="value">${message['message-id']}: ${message.symbol}</td>
+			                </tr>
+                            <tr>
+				                <td class="key">Type: </td>
+				                <td class="value">${message.type}</td>
+			                </tr>
+                            <tr>
+				                <td class="key">Message: </td>
+				                <td class="value">${message.message}</td>
+			                </tr>
+                        </table>`
+                })
+                g.popup.reposition(x, y)
+            }
         }
     }
 
