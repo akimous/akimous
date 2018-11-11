@@ -23,23 +23,24 @@
 }
 
 :root {
-    --main-bg-color: rgb(36, 36, 36);
-    --panel-color: rgb(63, 63, 63);
-    --dark-color: rgb(54, 54, 54);
-    --darker-color: #151515;
-    --darkest-color: #111;
-    --panel-delimiter-color: rgb(88, 88, 88);
-    --panel-delimiter-hover-color: var(--gray4);
-    --ui-highlight-color: var(--blue);
-    --ui-selected-item: rgb(35, 106, 210);
+    --main-bg-color: var(--gray2);
+    --panel-color: var(--gray4);
+    --dark-color: var(--gray3);
+    --darker-color: var(--gray1);
+    --darkest-color: var(--gray0);
+    
+    --panel-delimiter-color: var(--gray5);
+    
+    --ui-highlight-color: var(--primary5);
     --ui-danger-color: var(--brighter-red);
+    
     --default-radius: .5rem;
     --small-radius: .3rem;
 
     --default-shadow: 0 .1rem 1rem .1rem rgba(0, 0, 0, .7);
     --small-shadow: 0 0 1rem 0 rgba(0, 0, 0, .3);
     --panel-border-thickness: 0.07rem;
-    --panel-border: var(--panel-border-thickness) solid var(--panel-delimiter-color);
+    --panel-border: var(--panel-border-thickness) solid var(--gray5);
 
     --toolbar-height: 2rem;
     --tab-bar-height: 2rem;
@@ -52,23 +53,23 @@
 
     --tab-bar-icon-size: 1.4rem;
 
-    --basic-ui-font-color: #ccc;
-    --darker-ui-font-color: #aaa;
-    --brighter-ui-font-color: #eee;
-    --basic-ui-font-family: 'Roboto', 'Lucida Grande', 'Helvetica Neue', sans-serif;
-    --basic-ui-font-size: 1rem;
+    --basic-ui-font-color: var(--gray8);
+    --darker-ui-font-color: var(--gray7);
+    --brighter-ui-font-color: var(--gray9);
+    --ui-font-family: 'Roboto', 'Lucida Grande', 'Helvetica Neue', sans-serif;
     --ui-font-size-small: .85rem;
+    --ui-font-size-default: 1rem;
     --ui-font-size-large: 1.6rem;
-    --large-ui-line-height: 1.7rem;
-    --basic-ui-line-height: 1.6rem;
+    --ui-line-height-default: 1.6rem;
+    --ui-line-height-large: 1.7rem;
 
-    --basic-monospace-font-color: #ccc;
-    --basic-monospace-font-family: 'Source Code Pro', 'Menlo', 'Consola', monospace;
-    --basic-monospace-font-size: 1.2rem;
-    --basic-monospace-line-height: 1.6rem;
+    --monospace-font-color: var(--gray8);
+    --monospace-font-family: 'Source Code Pro', 'Menlo', 'Consola', monospace;
+    --monospace-font-size: 1.2rem;
+    --monospace-line-height: 1.6rem;
 
-    --modal-bg-color: #eee;
-    --modal-text-color: #111;
+    --modal-bg-color: var(--gray9);
+    --modal-text-color: var(--gray0);
 
     --red: #c0392b;
     --brighter-red: #e74c3c;
@@ -101,21 +102,39 @@
     --purple: #8e44ad;
     --brighter-purple: #9b59b6;
     --darker-purple: #6F3587;
-
-    --gray1: #ecf0f1;
-    --gray2: #bdc3c7;
-    --gray3: #95a5a6;
-    --gray4: #47637F;
-    --gray5: #34495e;
-    --gray55: #777;
-    --gray6: #2c3e50;
+    
+    --accent2: #233D3D;
+    --accent3: #325C58;
+    --accent4: #498F87;
+    --accent5: #5DACA3;
+    --accent6: #87D5D2;
+    
+    --primary2: #2B3F52;
+    --primary3: #264A6E;
+    --primary4: #34689D;
+    --primary5: #4583C3;
+    --primary6: #6FA1D3;
+    --primary7: #B1D3F2;
+    --primary8: #F0F8FE;
+    
+    /* Grays should be neutral */
+    --gray0: #111;
+    --gray1: #161616;
+    --gray2: #242424;
+    --gray3: #363636;
+    --gray4: #444;
+    --gray5: #585858;
+    --gray6: #777;
+    --gray7: #AAA;
+    --gray8: #CCC;
+    --gray9: #EEE;
 }
 
 
 body {
     background-color: var(--main-bg-color);
     color: var(--basic-ui-font-color);
-    font-family: var(--basic-ui-font-family);
+    font-family: var(--ui-font-family);
     font-weight: 300;
 }
 
@@ -127,7 +146,7 @@ body {
 div.tooltipped::after,
 span.tooltipped::after {
     background: rgba(0, 0, 0, 0.7);
-    font: var(--ui-font-size-small) var(--basic-ui-font-family);
+    font: var(--ui-font-size-small) var(--ui-font-family);
     padding: .3em .75em;
 }
 

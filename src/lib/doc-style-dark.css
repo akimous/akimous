@@ -55,16 +55,16 @@
     /*    margin: 20px 0 35px -45px;*/
     padding-left: 45px;
     margin-left: -45px;
-    background-color: var(--gray5);
+    background-color: var(--primary3);
     /*    width: calc(100% + 90px);*/
     width: calc(100% + 0px);
-    border-bottom: 1px solid var(--gray3);
+    border-bottom: 1px solid var(--gray6);
 }
 
 #docs h2 {
     font-size: 34px;
     padding: .2em 0;
-    border-bottom: 1px solid var(--gray3);
+    border-bottom: 1px solid var(--gray6);
 }
 
 #docs h3 {
@@ -106,7 +106,7 @@
 #docs pre,
 #docs tt {
     font-size: 15px;
-    font-family: var(--basic-monospace-font-family), Consolas, monospace;
+    font-family: var(--monospace-font-family), Consolas, monospace;
 }
 
 #docs code,
@@ -189,7 +189,7 @@
     border-spacing: 0;
     border-radius: 5px;
     border-collapse: collapse;
-    color: var(--gray1);
+    color: var(--gray9);
 }
 
 #docs tbody {

@@ -1,9 +1,9 @@
 .cm-s-legato.CodeMirror {
     background: var(--main-bg-color);
-    color: var(--basic-monospace-font-color);
-    font-family: var(--basic-monospace-font-family);
-    font-size: var(--basic-monospace-font-size);
-    line-height: var(--basic-monospace-line-height);
+    color: var(--monospace-font-color);
+    font-family: var(--monospace-font-family);
+    font-size: var(--monospace-font-size);
+    line-height: var(--monospace-line-height);
     height: 100%;
 }
 
@@ -41,16 +41,16 @@
 }
 
 .cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-folded {
-    color: var(--gray3);
+    color: var(--gray6);
 }
 
 .cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open {
-    color: var(--gray6);
+    color: var(--gray3);
 }
 
 .cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open:hover,
 .cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-folded:hover {
-    color: var(--gray2);
+    color: var(--gray8);
     cursor: default;
 }
 
