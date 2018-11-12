@@ -28,3 +28,7 @@ jsdev: | clean static
 	
 pydev:
 	cd chakuro-agent && poetry run python main.py --no-browser
+
+upgrade:
+	cd chakuro-agent && poetry update
+	yarn upgrade-interactive --latest
