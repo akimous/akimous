@@ -238,9 +238,9 @@
                 })
 
                 this.ws.addHandler('offlineLinting-result', data => {
-                    this.offlineLintingResult = data.result
-                    this.offlineLintingResult.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
-                    this.offlineLintingResult.forEach(x => {
+                    this.offlineLints = data.result
+                    this.offlineLints.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
+                    this.offlineLints.forEach(x => {
                         const message = x.message
                         const index = message.indexOf('\n')
                         if (index <= 0) {
@@ -252,7 +252,7 @@
                         }
                     })
                     if (g.activeEditor === this)
-                        g.linter.set({ offlineLintingResult: this.offlineLintingResult })
+                        g.linter.set({ offlineLints: this.offlineLints })
                 })
             }), 500)
         },
