@@ -47,7 +47,8 @@ class WS:
             def main_thread_send(message):
                 context.event_loop.call_soon_threadsafe(asyncio.ensure_future, send(message))
 
-            context = SimpleNamespace(observer=None,
+            context = SimpleNamespace(linter_task=None,
+                                      observer=None,
                                       observed_watches={},
                                       event_loop=asyncio.get_event_loop(),
                                       main_thread_send=main_thread_send)
@@ -67,8 +68,10 @@ class WS:
                         traceback.print_exc()
 
         except websockets.exceptions.ConnectionClosed:
-            log.info('Connection %s closed.', path)
+            log.info('Connection %s is closing.', path)
             WS.clients[path].remove(ws)
+            if context.linter_task:
+                context.linter_task.cancel()
             if context.observer:
                 with suppress(Exception):
                     context.observer.stop()

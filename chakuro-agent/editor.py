@@ -110,6 +110,7 @@ async def save_file(msg, send, context):
         'cmd': 'saveFile-ok',
         'mtime': str(context.path.stat().st_mtime)
     })
+    context.linter_task = asyncio.create_task(lint(context, send))
 
 
 @register('sync')
