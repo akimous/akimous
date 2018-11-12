@@ -44,7 +44,7 @@ async def lint(context, send):
             log.error(stderr)
         context.linter_output = json.loads(stdout)
     await send({
-        'cmd': 'fullLinting-result',
+        'cmd': 'offlineLinting-result',
         'result': context.linter_output,
     })
 

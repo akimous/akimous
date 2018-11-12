@@ -2,7 +2,7 @@
     <div ref:linter id="linter">
         <div class="title non-selectable">Pylint</div>
         <table id="pylint-result" class="non-selectable">
-            {#each fullLintingResult as message, i}
+            {#each offlineLintingResult as message, i}
             <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
                 <td class="line-number">{message.line}</td>
                 <td class="{message.type} message">{message.message0}</td>
@@ -109,7 +109,7 @@
         data() {
             return {
                 active: false,
-                fullLintingResult: []
+                offlineLintingResult: []
             }
         },
         methods: {
@@ -121,7 +121,7 @@
             },
             showPopup(i, event) {
                 const { x, y, height } = event.currentTarget.getBoundingClientRect()
-                const message = this.get().fullLintingResult[i]
+                const message = this.get().offlineLintingResult[i]
                 g.popup.set({
                     open: true,
                     content: `<table>

@@ -104,6 +104,8 @@
                 const cursor = cm.getCursor()
                 g.cursorPosition.set(cursor)
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
+                if (editor.offlineLintingResult)
+                    g.linter.set({ offlineLintingResult: editor.offlineLintingResult })
             },
             renameDir(newDirPath, oldDirPath) {
                 const oldDirPathString = oldDirPath.join('/')

@@ -1,4 +1,4 @@
-<div id="popup" ref:popup style="display:{open?'block':'none'}" on:mouseleave="set({open: false})">{@html content}</div>
+<div id="popup" ref:popup style="display:{open?'block':'none'}" on:mouseleave="set({open: false})">{@html content} <div id="popup-arrow"></div></div>
 
 
 <style>
@@ -32,16 +32,16 @@
     }
 
     /* https://leaverou.github.io/bubbly/ */
-    #popup:after {
+    #popup-arrow {
         content: '';
         position: absolute;
         top: 50%;
         right: 0;
-        margin-top: -0.5rem;
+        margin-top: -.5rem;
         border: .5rem solid transparent;
         border-left-color: var(--modal-bg-color);
         border-right: 0;
-        margin-right: -.5rem;
+        margin-right: -.2rem;
     }
 
     #popup:before {
@@ -53,6 +53,7 @@
         margin-right: -.5rem;
         height: 100%;
         width: 1rem;
+        z-index: 9;
     }
 
 </style>
@@ -76,8 +77,15 @@
             reposition(x, y) {
                 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
                 const { height } = this.refs.popup.getBoundingClientRect()
+                let yAdjusted = y - height / 2
+                if (y + height / 2 > document.documentElement.clientHeight)
+                    yAdjusted = document.documentElement.clientHeight - height
+                if (yAdjusted < 0)
+                    yAdjusted = 0
                 this.refs.popup.style.left = `${x - 31 * rem}px`
-                this.refs.popup.style.top = `${y - height / 2}px`
+                this.refs.popup.style.top = `${yAdjusted}px`
+                const el = document.querySelector('#popup-arrow')
+                el.style.top = `${y - yAdjusted}px`
             },
             closeIfNotHovered(event) {
                 if (event.relatedTarget && event.relatedTarget.id === 'popup') return

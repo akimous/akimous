@@ -237,10 +237,10 @@
                     g.docs.highlightActiveParameter(this.cm)
                 })
 
-                this.ws.addHandler('fullLinting-result', data => {
-                    this.fullLintingResult = data.result
-                    this.fullLintingResult.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
-                    this.fullLintingResult.forEach(x => {
+                this.ws.addHandler('offlineLinting-result', data => {
+                    this.offlineLintingResult = data.result
+                    this.offlineLintingResult.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
+                    this.offlineLintingResult.forEach(x => {
                         const message = x.message
                         const index = message.indexOf('\n')
                         if (index <= 0) {
@@ -251,7 +251,8 @@
                             x.message1 = message.substring(index + 1)
                         }
                     })
-                    g.linter.set({ fullLintingResult: this.fullLintingResult })
+                    if (g.activeEditor === this)
+                        g.linter.set({ offlineLintingResult: this.offlineLintingResult })
                 })
             }), 500)
         },
