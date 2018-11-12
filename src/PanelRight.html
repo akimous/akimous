@@ -46,7 +46,7 @@
 
             // we must activate console upon initialization, or xterm will break
             setTimeout(() => {
-                this.activateView(this.refs.docs)
+                this.activateView(this.refs.linter)
             })
         },
         onstate({ changed, current }) {
@@ -57,17 +57,23 @@
                 } else if (this.originalWidth)
                     document.documentElement.style.setProperty('--panel-right-width', this.originalWidth + 'px')
             }
+			if (changed.width && this.refs.linter) {
+				this.refs.linter.set({ width: current.width })
+			}
         },
         data() {
             return {
                 focused: false,
                 hidden: false,
-                autoHide: false
+                autoHide: false,
+				width: 0,
             }
         },
         methods: {
             activateView(view) {
                 activateView(this, view)
+				const { width } = this.refs.panelRight.getBoundingClientRect()
+				view.set({ width })
             },
             closeView( /*view*/ ) {
                 // not allowed to close view for now

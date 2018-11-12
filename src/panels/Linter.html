@@ -1,130 +1,193 @@
 <div class="container {active?'':'gone'}">
-    <div ref:linter id="linter">
-        <div class="title non-selectable">Pylint</div>
-        <table id="pylint-result" class="non-selectable">
-            {#each offlineLintingResult as message, i}
-            <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
-                <td class="line-number">{message.line}</td>
-                <td class="{message.type} message">{message.message0}</td>
-            </tr>
-            {/each}
-        </table>
-    </div>
+	<div ref:linter id="linter">
+		<div class="title non-selectable">Offline Linter</div>
+		<div id="offline-linter-filter">
+			<div class="type-filter non-selectable">
+				<div class="type informational">{typeStrings.I}</div>
+				<div class="count informational">300</div>
+			</div>
+			<div class="type-filter non-selectable">
+				<div class="type refactor">{typeStrings.R}</div>
+				<div class="count refactor">300</div>
+			</div>
+			<div class="type-filter non-selectable">
+				<div class="type convention">{typeStrings.C}</div>
+				<div class="count convention">300</div>
+			</div>
+			<div class="type-filter non-selectable">
+				<div class="type warning">{typeStrings.W}</div>
+				<div class="count warning">300</div>
+			</div>
+			<div class="type-filter non-selectable">
+				<div class="type error">{typeStrings.E}</div>
+				<div class="count error">300</div>
+			</div>
+		</div>
+		<table id="pylint-result" class="non-selectable">
+			{#each offlineLintingResult as message, i}
+			<tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
+				<td class="line-number">{message.line}</td>
+				<td class="{message.type} message">{message.message0}</td>
+			</tr>
+			{/each}
+		</table>
+	</div>
 </div>
 
 <style>
-    .container {
-        height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
-    }
+	.container {
+		height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
+	}
 
-    #linter {
-        height: 100%;
-        overflow-y: scroll;
-    }
+	#linter {
+		height: 100%;
+		overflow-y: scroll;
+	}
 
-    .title {
-        padding: .3rem;
-        color: var(--accent6);
-        font-size: var(--ui-font-size-large);
-    }
+	#offline-linter-filter {
+		display: table;
+		table-layout: fixed;
+		width: 100%;
+	}
 
-    #pylint-result {
-        width: 100%;
-        background: var(--gray2);
-    }
+	.type-filter {
+		display: table-cell;
+	}
 
-    table {
-        table-layout: fixed;
-    }
+	.type-filter .type,
+	.type-filter .count {
+		width: 100%;
+		text-align: center;
+	}
 
-    table,
-    td {
-        padding: 0;
-        margin: 0;
-        border-spacing: 0;
-    }
+	.type-filter .type {
+		font-weight: 400;
+	}
 
-    td {
-        vertical-align: top;
-        cursor: default;
-        border-bottom: 1px solid var(--panel-delimiter-color);
-    }
+	.title {
+		padding: .3rem;
+		color: var(--accent6);
+		font-size: var(--ui-font-size-large);
+	}
 
-    tr:hover {
-        color: white;
-        background: var(--gray3);
-    }
+	#pylint-result {
+		width: 100%;
+		background: var(--gray2);
+	}
 
-    .line-number {
-        width: 2rem;
-        padding: .3rem;
-        text-align: right;
-        color: var(--ui-font-color);
-        background: var(--primary2);
-        font-family: var(--monospace-font-family);
-    }
+	table {
+		table-layout: fixed;
+	}
 
-    tr:hover>.line-number {
-        color: white;
-        background: var(--ui-highlight-color);
-    }
+	table,
+	td {
+		padding: 0;
+		margin: 0;
+		border-spacing: 0;
+	}
 
-    .message {
-        padding: .3rem .5rem;
-    }
+	td {
+		vertical-align: top;
+		cursor: default;
+		border-bottom: 1px solid var(--panel-delimiter-color);
+	}
 
-    .informational {
-        color: var(--purple);
-    }
+	tr:hover {
+		color: white;
+		background: var(--gray3);
+	}
 
-    .refactor {
-        color: var(--blue);
-    }
+	.line-number {
+		width: 2rem;
+		padding: .3rem;
+		text-align: right;
+		color: var(--ui-font-color);
+		background: var(--primary2);
+		font-family: var(--monospace-font-family);
+	}
 
-    .convention {
-        color: var(--ao);
-    }
+	tr:hover>.line-number {
+		color: white;
+		background: var(--ui-highlight-color);
+	}
 
-    .warning {
-        color: var(--yellow);
-    }
+	.message {
+		padding: .3rem .5rem;
+	}
 
-    .error {
-        color: var(--brighter-red);
-    }
+	.informational {
+		color: var(--brighter-purple);
+	}
+
+	.refactor {
+		color: var(--blue);
+	}
+
+	.convention {
+		color: var(--ao);
+	}
+
+	.warning {
+		color: var(--yellow);
+	}
+
+	.error {
+		color: var(--brighter-red);
+	}
 
 </style>
 
 
 <script>
-    import g from '../lib/Globals'
-    import { initializeTabView, capitalize } from '../lib/Utils'
+	import g from '../lib/Globals'
+	import { initializeTabView, capitalize } from '../lib/Utils'
 
-    export default {
-        components: {},
-        oncreate() {
-            g.linter = this
-            initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
-        },
-        data() {
-            return {
-                active: false,
-                offlineLintingResult: []
-            }
-        },
-        methods: {
-            jumpTo(line, ch) {
-                const editor = g.activeEditor
-                if (!editor) return
-                g.activeEditor.cm.setCursor(line - 1, ch)
-                editor.cm.focus()
-            },
-            showPopup(i, event) {
-                const { x, y, height } = event.currentTarget.getBoundingClientRect()
-                const message = this.get().offlineLintingResult[i]
-                g.popup.set({
-                    open: true,
-                    content: `<table>
+	export default {
+		components: {},
+		oncreate() {
+			g.linter = this
+			initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
+		},
+		data() {
+			return {
+				active: false,
+				offlineLintingResult: [],
+				width: 100,
+			}
+		},
+		computed: {
+			typeStrings: ({ width }) => {
+				const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+				if (width > 24 * rem)
+					return {
+						I: 'Info',
+						R: 'Refactor',
+						C: 'Convention',
+						W: 'Warning',
+						E: 'Error',
+					}
+				return {
+					I: 'I',
+					R: 'R',
+					C: 'C',
+					W: 'W',
+					E: 'E',
+				}
+			},
+		},
+		methods: {
+			jumpTo(line, ch) {
+				const editor = g.activeEditor
+				if (!editor) return
+				g.activeEditor.cm.setCursor(line - 1, ch)
+				editor.cm.focus()
+			},
+			showPopup(i, event) {
+				const { x, y, height } = event.currentTarget.getBoundingClientRect()
+				const message = this.get().offlineLintingResult[i]
+				g.popup.set({
+					open: true,
+					content: `<table>
                             <tr>
 				                <td class="key">Location</td>
 				                <td class="value">
@@ -141,13 +204,13 @@
 				                <td class="value">${message.message0}</td>
 			                </tr>
                         </table>`
-                })
-                g.popup.reposition(x, y + height / 2)
-            },
-            closePopup(event) {
-                g.popup.closeIfNotHovered(event)
-            },
-        }
-    }
+				})
+				g.popup.reposition(x, y + height / 2)
+			},
+			closePopup(event) {
+				g.popup.closeIfNotHovered(event)
+			},
+		}
+	}
 
 </script>
