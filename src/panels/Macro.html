@@ -6,7 +6,7 @@
         {/if}
         <table id="clipboard" class="non-selectable">
             {#each clipboard as text, i}
-            <tr on:click="paste(text)">
+            <tr on:click="paste(text)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
                 <td class="clipboard-index">{(i+1)%10}</td>
                 <td>
                     <div class="clipboard-text">{text}</div>
@@ -118,6 +118,18 @@
                     if (number === 0) number = 10
                     this.paste(this.get().clipboard[number - 1])
                 }
+            },
+            showPopup(i, event) {
+                const { x, y, height } = event.currentTarget.getBoundingClientRect()
+                const content = this.get().clipboard[i]
+                g.popup.set({
+                    open: true,
+                    content: `<div class="code">${content}</div>`
+                })
+                g.popup.reposition(x, y + height / 2)
+            },
+            closePopup(event) {
+                g.popup.closeIfNotHovered(event)
             }
         }
     }

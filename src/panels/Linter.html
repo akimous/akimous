@@ -24,7 +24,7 @@
 
     .title {
         padding: .3rem;
-        color: var(--gray7);
+        color: var(--accent6);
         font-size: var(--ui-font-size-large);
     }
 
@@ -66,7 +66,7 @@
 
     tr:hover>.line-number {
         color: white;
-        background: var(--primary4);
+        background: var(--ui-highlight-color);
     }
 
     .message {
@@ -129,7 +129,7 @@
 				                <td class="key">Location</td>
 				                <td class="value">
                                     Line ${message.line}, column ${message.column}
-                                    <div class="lint-location">${message.message1}</div>
+                                    <div class="code">${message.message1}</div>
                                 </td>
 			                </tr>
                             <tr>
@@ -146,7 +146,7 @@
             },
             closePopup(event) {
                 g.popup.closeIfNotHovered(event)
-            }
+            },
         }
     }
 

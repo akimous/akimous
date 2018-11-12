@@ -12,6 +12,7 @@
         box-shadow: var(--default-shadow);
         color: var(--gray3);
         padding: .5rem .5rem;
+        max-height: 80%;
     }
 
     :global(#popup table) {
@@ -26,9 +27,11 @@
         vertical-align: top;
     }
     
-    :global(#popup td.value .lint-location) {
+    :global(#popup .code) {
         font-family: var(--monospace-font-family);
         white-space: pre;
+        max-height: 30rem;
+        overflow-y: scroll;
     }
 
     /* https://leaverou.github.io/bubbly/ */
