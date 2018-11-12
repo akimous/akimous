@@ -3,12 +3,9 @@
         <div class="title non-selectable">Pylint</div>
         <table id="pylint-result" class="non-selectable">
             {#each fullLintingResult as message, i}
-            <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)">
+            <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
                 <td class="line-number">{message.line}</td>
-                <td class="{message.type}">
-                    <div class="message">{getFirstLine(message.message)}</div>
-                    <div class="indication">{getRemainingLines(message.message)}</div>
-                </td>
+                <td class="{message.type} message">{message.message0}</td>
             </tr>
             {/each}
         </table>
@@ -76,11 +73,6 @@
         padding: .3rem .5rem;
     }
 
-    .indication {
-        font-family: var(--monospace-font-family);
-        white-space: pre;
-    }
-
     .informational {
         color: var(--purple);
     }
@@ -106,22 +98,10 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView } from '../lib/Utils'
+    import { initializeTabView, capitalize } from '../lib/Utils'
 
     export default {
         components: {},
-        helpers: {
-            getFirstLine(s) {
-                const index = s.indexOf('\n')
-                if (index > 0) return s.substring(0, index)
-                return s
-            },
-            getRemainingLines(s) {
-                const index = s.indexOf('\n')
-                if (index > 0) return s.substring(index + 1)
-                return ''
-            }
-        },
         oncreate() {
             g.linter = this
             initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
@@ -140,29 +120,32 @@
                 editor.cm.focus()
             },
             showPopup(i, event) {
-                const { x, y } = event.currentTarget.getBoundingClientRect()
+                const { x, y, height } = event.currentTarget.getBoundingClientRect()
                 const message = this.get().fullLintingResult[i]
                 g.popup.set({
-                    content: `<table  class="non-selectable">
+                    open: true,
+                    content: `<table>
                             <tr>
-				                <td class="key">Location: </td>
-				                <td class="value">line ${message.line}, column ${message.column}</td>
+				                <td class="key">Location</td>
+				                <td class="value">
+                                    Line ${message.line}, column ${message.column}
+                                    <div class="lint-location">${message.message1}</div>
+                                </td>
 			                </tr>
                             <tr>
-				                <td class="key">Name: </td>
+				                <td class="key">Name</td>
 				                <td class="value">${message['message-id']}: ${message.symbol}</td>
 			                </tr>
                             <tr>
-				                <td class="key">Type: </td>
-				                <td class="value">${message.type}</td>
-			                </tr>
-                            <tr>
-				                <td class="key">Message: </td>
-				                <td class="value">${message.message}</td>
+				                <td class="key">Message</td>
+				                <td class="value">${message.message0}</td>
 			                </tr>
                         </table>`
                 })
-                g.popup.reposition(x, y)
+                g.popup.reposition(x, y + height / 2)
+            },
+            closePopup(event) {
+                g.popup.closeIfNotHovered(event)
             }
         }
     }

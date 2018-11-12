@@ -240,6 +240,17 @@
                 this.ws.addHandler('fullLinting-result', data => {
                     this.fullLintingResult = data.result
                     this.fullLintingResult.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
+                    this.fullLintingResult.forEach(x => {
+                        const message = x.message
+                        const index = message.indexOf('\n')
+                        if (index <= 0) {
+                            x.message0 = message
+                            x.message1 = ''
+                        } else {
+                            x.message0 = message.substring(0, index)
+                            x.message1 = message.substring(index + 1)
+                        }
+                    })
                     g.linter.set({ fullLintingResult: this.fullLintingResult })
                 })
             }), 500)

@@ -1,0 +1,89 @@
+<div id="popup" ref:popup style="display:{open?'block':'none'}" on:mouseleave="set({open: false})">{@html content}</div>
+
+
+<style>
+    #popup {
+        z-index: 999;
+        position: absolute;
+        width: 30rem;
+        min-height: 3rem;
+        background: var(--gray9);
+        border-radius: var(--default-radius);
+        box-shadow: var(--default-shadow);
+        color: var(--gray3);
+        padding: .5rem .5rem;
+    }
+
+    :global(#popup table) {
+        border-spacing: 1rem .5rem;
+        margin-bottom: 0;
+    }
+
+    :global(#popup td.key) {
+        color: var(--primary5);
+        text-align: right;
+        font-weight: 400;
+        vertical-align: top;
+    }
+    
+    :global(#popup td.value .lint-location) {
+        font-family: var(--monospace-font-family);
+        white-space: pre;
+    }
+
+    /* https://leaverou.github.io/bubbly/ */
+    #popup:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 0;
+        margin-top: -0.5rem;
+        border: .5rem solid transparent;
+        border-left-color: var(--modal-bg-color);
+        border-right: 0;
+        margin-right: -.5rem;
+    }
+
+    #popup:before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        border-right: 0;
+        margin-right: -.5rem;
+        height: 100%;
+        width: 1rem;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.popup = this
+        },
+        data() {
+            return {
+                open: false,
+                content: '',
+            }
+        },
+        methods: {
+            reposition(x, y) {
+                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+                const { height } = this.refs.popup.getBoundingClientRect()
+                this.refs.popup.style.left = `${x - 31 * rem}px`
+                this.refs.popup.style.top = `${y - height / 2}px`
+            },
+            closeIfNotHovered(event) {
+                if (event.relatedTarget && event.relatedTarget.id === 'popup') return
+                this.set({ open: false })
+            }
+        }
+    }
+
+</script>
