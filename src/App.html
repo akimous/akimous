@@ -31,9 +31,9 @@
     .split-bar:hover {
         background: var(--accent4);
         background: linear-gradient(to right,
-        transparent 40%, var(--accent4) 40%,
-        var(--accent4) 60%,
-        transparent 60%);
+            transparent 40%, var(--accent4) 40%,
+            var(--accent4) 60%,
+            transparent 60%);
     }
 
 </style>
@@ -44,15 +44,15 @@
     import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
 
     // register service worker
-//    if ('serviceWorker' in navigator) {
-//        window.addEventListener('load', () => {
-//            navigator.serviceWorker.register('serviceWorker.js').then(registration => {
-//                console.log('ServiceWorker registration successful with scope: ', registration.scope)
-//            }, err => {
-//                console.log('ServiceWorker registration failed: ', err)
-//            })
-//        })
-//    }
+    //    if ('serviceWorker' in navigator) {
+    //        window.addEventListener('load', () => {
+    //            navigator.serviceWorker.register('serviceWorker.js').then(registration => {
+    //                console.log('ServiceWorker registration successful with scope: ', registration.scope)
+    //            }, err => {
+    //                console.log('ServiceWorker registration failed: ', err)
+    //            })
+    //        })
+    //    }
 
     // polyfill scrollIntoViewIfNeeded
     // from https://gist.github.com/hsablonniere/2581101
@@ -112,7 +112,7 @@
                         const width = viewportWidth - e.pageX
                         requestAnimationFrame(() => {
                             document.documentElement.style.setProperty('--panel-right-width', `${width}px`)
-							this.refs.panelRight.set({ width })
+                            this.refs.panelRight.set({ width })
                         })
                     }
                 }

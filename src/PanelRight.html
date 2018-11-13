@@ -18,7 +18,7 @@
         background: var(--panel-color);
         border-left: var(--panel-border);
         box-sizing: border-box;
-        z-index: 1; 
+        z-index: 1;
     }
 
 </style>
@@ -57,23 +57,23 @@
                 } else if (this.originalWidth)
                     document.documentElement.style.setProperty('--panel-right-width', this.originalWidth + 'px')
             }
-			if (changed.width && this.refs.linter) {
-				this.refs.linter.set({ width: current.width })
-			}
+            if (changed.width && this.refs.linter) {
+                this.refs.linter.set({ width: current.width })
+            }
         },
         data() {
             return {
                 focused: false,
                 hidden: false,
                 autoHide: false,
-				width: 0,
+                width: 0,
             }
         },
         methods: {
             activateView(view) {
                 activateView(this, view)
-				const { width } = this.refs.panelRight.getBoundingClientRect()
-				view.set({ width })
+                const { width } = this.refs.panelRight.getBoundingClientRect()
+                view.set({ width })
             },
             closeView( /*view*/ ) {
                 // not allowed to close view for now

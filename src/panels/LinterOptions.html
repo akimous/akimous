@@ -1,0 +1,149 @@
+{#if open}
+<div ref:linterOptions id="linter-options">
+    <div class="container non-selectable">
+        <div class="title">Real-Time Linter</div>
+        <div class="message">Check for errors as you type.</div>
+        <div class="option" on:click="set({pyflakes: !pyflakes})">
+            <span class="checkbox">
+                {#if pyflakes}
+                <i class="fas fa-check-circle checked"></i>
+                {:else}
+                <i class="far fa-circle"></i>
+                {/if}
+            </span>
+            <span class="description">Pyflakes</span>
+        </div>
+
+        <div class="title">Beautifier</div>
+        <div class="message">Reformat code before saving.</div>
+        <div class="option" on:click="set({yapf: !yapf})">
+            <span class="checkbox">
+                {#if yapf}
+                <i class="fas fa-check-circle checked"></i>
+                {:else}
+                <i class="far fa-circle"></i>
+                {/if}
+            </span>
+            <span class="description">YAPF</span>
+        </div>
+
+        <div class="title">Offline Linter</div>
+        <div class="message">Check for subtle problems after saving.</div>
+        <div class="option" on:click="set({pylint: !pylint})">
+            <span class="checkbox">
+                {#if pylint}
+                <i class="fas fa-check-circle checked"></i>
+                {:else}
+                <i class="far fa-circle"></i>
+                {/if}
+            </span>
+            <span class="description">Pylint</span>
+        </div>
+    </div>
+</div>
+{/if}
+
+
+<style>
+    #linter-options {
+        position: absolute;
+        right: 1rem;
+        top: calc(var(--toolbar-height) + 0.5rem);
+        width: 20rem;
+        min-height: 10rem;
+        max-height: 40rem;
+        z-index: 11;
+        background: var(--modal-bg-color);
+        box-sizing: border-box;
+        border-radius: var(--default-radius);
+        box-shadow: var(--default-shadow);
+    }
+
+    /* https://leaverou.github.io/bubbly/ */
+    #linter-options:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 7.5rem;
+        width: 0;
+        height: 0;
+        border: 0.5rem solid transparent;
+        border-bottom-color: var(--modal-bg-color);
+        border-top: 0;
+        margin-top: -0.5rem;
+    }
+
+    .container {
+        min-height: 10rem;
+        max-height: 39rem;
+        overflow-y: scroll;
+        margin: 0 0 1rem 0;
+    }
+
+    .title {
+        color: var(--primary5);
+        font-weight: 400;
+        margin-top: 1.5rem;
+        padding-left: 1.5rem;
+    }
+
+    .message {
+        color: var(--gray7);
+        padding-left: 1.5rem;
+    }
+
+    .option {
+        color: var(--gray5);
+        padding: .4rem;
+        margin: .5rem 1.5rem;
+        font-size: var(--monospace-font-size);
+        border-radius: var(--default-radius);
+    }
+
+    .option:hover {
+        background: var(--primary8);
+
+    }
+
+    .checkbox {
+        padding-left: .4rem;
+        vertical-align: middle;
+        color: var(--primary7);
+    }
+
+    .checked {
+        color: var(--green);
+    }
+
+    .description {
+        padding-left: .4rem;
+        vertical-align: middle;
+    }
+
+    .option:hover .description {
+        color: var(--primary3);
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.linterOptions = this
+        },
+        data() {
+            return {
+                open: true,
+                pyflakes: true,
+                yapf: true,
+                pylint: true,
+            }
+        },
+        methods: {}
+    }
+
+</script>

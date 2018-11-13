@@ -1,223 +1,228 @@
 <div class="container {active?'':'gone'}">
-	<div ref:linter id="linter">
-		<div class="title non-selectable">Offline Lints</div>
-		<div id="offline-linter-filter" class="non-selectable">
-			{#each OFFLINE_LINT_TYPES as type}
-			<div class="type-filter {offlineLintActiveTypes.has(type)?'active':''}" on:click="toggle('offlineLintActiveTypes', type)">
-				<div class="type {type}">{typeStrings[type]}</div>
-				<div class="count {type}">{offlineLintCounts[type]}</div>
-			</div>
-			{/each}
-		</div>
-		<table id="pylint-result" class="non-selectable">
-			{#each filteredOfflineLints as message, i}
-			<tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
-				<td class="line-number">{message.line}</td>
-				<td class="{message.type} message">{message.message0}</td>
-			</tr>
-			{/each}
-		</table>
-	</div>
+    <div ref:linter id="linter">
+        <div class="title non-selectable">Offline Lints</div>
+        <div id="offline-linter-filter" class="non-selectable">
+            {#each OFFLINE_LINT_TYPES as type}
+            <div class="type-filter {offlineLintActiveTypes.has(type)?'active':''}" on:click="toggle('offlineLintActiveTypes', type)">
+                <div class="type {type}">{typeStrings[type]}</div>
+                <div class="count {type}">{offlineLintCounts[type]}</div>
+            </div>
+            {/each}
+        </div>
+        <table id="pylint-result" class="non-selectable">
+            {#each filteredOfflineLints as message, i}
+            <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
+                <td class="line-number">{message.line}</td>
+                <td class="{message.type} message">{message.message0}</td>
+            </tr>
+            {/each}
+        </table>
+    </div>
 </div>
 
 <style>
-	.container {
-		height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
-	}
+    .container {
+        height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
+    }
 
-	#linter {
-		height: 100%;
-		overflow-y: scroll;
-	}
+    #linter-option-button {
+        position: absolute;
+        right: 0;
+        background: var(--gray3);
+        border-radius: var(--small-radius);
+        display: inline-block;
+        padding: .3rem;
+        margin: .1rem;
+    }
 
-	#offline-linter-filter {
-		display: table;
-		table-layout: fixed;
-		width: 100%;
-		padding-bottom: .5rem;
-	}
+    #linter {
+        height: 100%;
+        overflow-y: scroll;
+    }
 
-	.type-filter {
-		display: table-cell;
-		padding: .3rem 0 .4rem 0;
-	}
+    #offline-linter-filter {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+        padding-bottom: .5rem;
+    }
 
-	.type-filter.active {
-		background: linear-gradient(to bottom, var(--gray2) 0%, var(--gray2) 94%,
-			var(--ui-highlight-color) 94%, var(--ui-highlight-color) 100%);
-	}
+    .type-filter {
+        display: table-cell;
+        padding: .3rem 0 .4rem 0;
+    }
 
-	.type-filter:hover {
-		background: var(--gray3);
-	}
+    .type-filter.active {
+        background: linear-gradient(to bottom, var(--gray2) 0%, var(--gray2) 94%,
+            var(--ui-highlight-color) 94%, var(--ui-highlight-color) 100%);
+    }
 
-	.type-filter.active:hover {
-		background: linear-gradient(to bottom, var(--gray1) 0%, var(--gray1) 94%,
-			var(--ui-highlight-color) 94%, var(--ui-highlight-color) 100%);
-	}
+    .type-filter:hover {
+        background: var(--gray3);
+    }
 
-	.type-filter .type,
-	.type-filter .count {
-		width: 100%;
-		text-align: center;
-	}
+    .type-filter.active:hover {
+        background: linear-gradient(to bottom, var(--gray1) 0%, var(--gray1) 94%,
+            var(--ui-highlight-color) 94%, var(--ui-highlight-color) 100%);
+    }
 
-	.type-filter .type {
-		font-weight: 400;
-	}
+    .type-filter .type,
+    .type-filter .count {
+        width: 100%;
+        text-align: center;
+    }
 
-	.title {
-		padding: .3rem;
-		color: var(--accent6);
-		font-size: var(--ui-font-size-large);
-	}
+    .type-filter .type {
+        font-weight: 400;
+    }
 
-	#pylint-result {
-		width: 100%;
-		background: var(--gray2);
-	}
+    .title {
+        padding: .3rem;
+        color: var(--accent6);
+        font-size: var(--ui-font-size-large);
+    }
 
-	table {
-		table-layout: fixed;
-	}
+    #pylint-result {
+        width: 100%;
+        background: var(--gray2);
+    }
 
-	table,
-	td {
-		padding: 0;
-		margin: 0;
-		border-spacing: 0;
-	}
+    table {
+        table-layout: fixed;
+    }
 
-	td {
-		vertical-align: top;
-		cursor: default;
-		border-bottom: 1px solid var(--panel-delimiter-color);
-	}
+    table,
+    td {
+        padding: 0;
+        margin: 0;
+        border-spacing: 0;
+    }
 
-	tr:hover {
-		color: white;
-		background: var(--gray3);
-	}
+    td {
+        vertical-align: top;
+        cursor: default;
+        border-bottom: 1px solid var(--panel-delimiter-color);
+    }
 
-	.line-number {
-		width: 2rem;
-		padding: .3rem;
-		text-align: right;
-		color: var(--ui-font-color);
-		background: var(--primary2);
-		font-family: var(--monospace-font-family);
-	}
+    tr:hover {
+        color: white;
+        background: var(--gray3);
+    }
 
-	tr:hover>.line-number {
-		color: white;
-		background: var(--ui-highlight-color);
-	}
+    .line-number {
+        width: 2rem;
+        padding: .3rem;
+        text-align: right;
+        color: var(--ui-font-color);
+        background: var(--primary2);
+        font-family: var(--monospace-font-family);
+    }
 
-	.message {
-		padding: .3rem .5rem;
-	}
+    tr:hover>.line-number {
+        color: white;
+        background: var(--ui-highlight-color);
+    }
 
-	.informational {
-		color: var(--brighter-purple);
-	}
+    .message {
+        padding: .3rem .5rem;
+    }
 
-	.refactor {
-		color: var(--blue);
-	}
+    .informational {
+        color: var(--brighter-purple);
+    }
 
-	.convention {
-		color: var(--ao);
-	}
+    .refactor {
+        color: var(--blue);
+    }
 
-	.warning {
-		color: var(--yellow);
-	}
+    .convention {
+        color: var(--ao);
+    }
 
-	.error {
-		color: var(--brighter-red);
-	}
+    .warning {
+        color: var(--yellow);
+    }
+
+    .error {
+        color: var(--brighter-red);
+    }
 
 </style>
 
 
 <script>
-	import g from '../lib/Globals'
-	import { initializeTabView, capitalize } from '../lib/Utils'
+    import g from '../lib/Globals'
+    import { initializeTabView } from '../lib/Utils'
 
-	const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
+    const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
 
-	export default {
-		components: {},
-		oncreate() {
-			g.linter = this
-			initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
-		},
-		data() {
-			return {
-				active: false,
-				offlineLints: [],
-				width: 100,
-				OFFLINE_LINT_TYPES,
-				offlineLintActiveTypes: new Set(OFFLINE_LINT_TYPES)
-			}
-		},
-		computed: {
-			typeStrings: ({ width }) => {
-				const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-				if (width > 24 * rem)
-					return {
-						informational: 'Info',
-						refactor: 'Refactor',
-						convention: 'Convention',
-						warning: 'Warning',
-						error: 'Error',
-					}
-				return {
-					informational: 'I',
-					refactor: 'R',
-					convention: 'C',
-					warning: 'W',
-					error: 'E',
-				}
-			},
-			offlineLintCounts: ({ offlineLints }) => {
-				const result = {
-					informational: 0,
-					refactor: 0,
-					convention: 0,
-					warning: 0,
-					error: 0
-				}
-				for (const x of offlineLints) {
-					if (result[x.type] === undefined) continue
-					result[x.type] += 1
-				}
-				return result
-			},
-			filteredOfflineLints: ({ offlineLints, offlineLintActiveTypes }) => {
-				return offlineLints.filter(x => {
-					return offlineLintActiveTypes.has(x.type)
-				})
-			}
-		},
-		onstate({ changed, current }) {
-			if (changed.offlineLints) {
-
-			}
-		},
-		methods: {
-			jumpTo(line, ch) {
-				const editor = g.activeEditor
-				if (!editor) return
-				g.activeEditor.cm.setCursor(line - 1, ch)
-				editor.cm.focus()
-			},
-			showPopup(i, event) {
-				const { x, y, height } = event.currentTarget.getBoundingClientRect()
-				const message = this.get().offlineLints[i]
-				g.popup.set({
-					open: true,
-					content: `<table>
+    export default {
+        components: {},
+        oncreate() {
+            g.linter = this
+            initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
+        },
+        data() {
+            return {
+                active: false,
+                offlineLints: [],
+                width: 100,
+                OFFLINE_LINT_TYPES,
+                offlineLintActiveTypes: new Set(OFFLINE_LINT_TYPES)
+            }
+        },
+        computed: {
+            typeStrings: ({ width }) => {
+                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+                if (width > 24 * rem)
+                    return {
+                        informational: 'Info',
+                        refactor: 'Refactor',
+                        convention: 'Convention',
+                        warning: 'Warning',
+                        error: 'Error',
+                    }
+                return {
+                    informational: 'I',
+                    refactor: 'R',
+                    convention: 'C',
+                    warning: 'W',
+                    error: 'E',
+                }
+            },
+            offlineLintCounts: ({ offlineLints }) => {
+                const result = {
+                    informational: 0,
+                    refactor: 0,
+                    convention: 0,
+                    warning: 0,
+                    error: 0
+                }
+                for (const x of offlineLints) {
+                    if (result[x.type] === undefined) continue
+                    result[x.type] += 1
+                }
+                return result
+            },
+            filteredOfflineLints: ({ offlineLints, offlineLintActiveTypes }) => {
+                return offlineLints.filter(x => {
+                    return offlineLintActiveTypes.has(x.type)
+                })
+            }
+        },
+        methods: {
+            jumpTo(line, ch) {
+                const editor = g.activeEditor
+                if (!editor) return
+                g.activeEditor.cm.setCursor(line - 1, ch)
+                editor.cm.focus()
+            },
+            showPopup(i, event) {
+                const { x, y, height } = event.currentTarget.getBoundingClientRect()
+                const message = this.get().offlineLints[i]
+                g.popup.set({
+                    open: true,
+                    content: `<table>
                             <tr>
 				                <td class="key">Location</td>
 				                <td class="value">
@@ -226,7 +231,7 @@
                                 </td>
 			                </tr>
                             <tr>
-				                <td class="key">Name</td>
+				                <td class="key">Problem</td>
 				                <td class="value">${message['message-id']}: ${message.symbol}</td>
 			                </tr>
                             <tr>
@@ -234,23 +239,23 @@
 				                <td class="value">${message.message0}</td>
 			                </tr>
                         </table>`
-				})
-				g.popup.reposition(x, y + height / 2)
-			},
-			closePopup(event) {
-				g.popup.closeIfNotHovered(event)
-			},
-			toggle(setName, item) {
-				const set = this.get()[setName]
-				if (set.has(item))
-					set.delete(item)
-				else
-					set.add(item)
-				this.set({
-					[setName]: set
-				})
-			},
-		}
-	}
+                })
+                g.popup.reposition(x, y + height / 2)
+            },
+            closePopup(event) {
+                g.popup.closeIfNotHovered(event)
+            },
+            toggle(setName, item) {
+                const set = this.get()[setName]
+                if (set.has(item))
+                    set.delete(item)
+                else
+                    set.add(item)
+                this.set({
+                    [setName]: set
+                })
+            },
+        }
+    }
 
 </script>

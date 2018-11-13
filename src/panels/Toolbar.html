@@ -3,6 +3,7 @@
         <ToolbarButton ref:run iconClass="fas fa-play" title="Run" />
         <ToolbarButton ref:run iconClass="fas fa-square" title="Stop" />
         <ToolbarButton ref:run iconClass="fas fa-bug" title="Run" />
+        <ToolbarButton ref:linterOptions iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
         <ToolbarButton ref:keyboardControlHint iconClass="fas fa-fw fa-keyboard" title="Keyboard Hint" />
         <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell" title="Notification History" />
         <CursorPosition ref:cursorPosition />
@@ -12,6 +13,7 @@
 <NotificationBar></NotificationBar>
 <TabNumber></TabNumber>
 <NotificationHistory></NotificationHistory>
+<LinterOptions></LinterOptions>
 
 <style>
     #toolbar {
@@ -37,6 +39,7 @@
         components: {
             NotificationBar: '../panels/NotificationBar.html',
             NotificationHistory: '../panels/NotificationHistory.html',
+            LinterOptions: '../panels/LinterOptions.html',
             TabNumber: '../panels/TabNumber.html',
             ToolbarButton: './ToolbarButton.html',
             MenuBar: '../panels/MenuBar.html',
@@ -55,6 +58,13 @@
                 callback: () => {
                     g.keyboardControlHint.set({
                         open: !g.keyboardControlHint.get().open
+                    })
+                }
+            })
+            this.refs.linterOptions.set({
+                callback: () => {
+                    g.linterOptions.set({
+                        open: !g.linterOptions.get().open
                     })
                 }
             })
