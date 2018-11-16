@@ -18,6 +18,7 @@ static:
 
 lint:
 	yarn run eslint --ext .html,.js .
+	yarn run stylelint "resources/*.css src/**/*.html src/**/*.css"
 	cd chakuro-agent && poetry check
 
 test:

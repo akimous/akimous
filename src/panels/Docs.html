@@ -216,7 +216,7 @@
                 }
                 if (!activeParameter) return
                 for (const node of document.querySelectorAll('#function-doc dt')) {
-                    if (node.innerText.startsWith(activeParameter)) {
+                    if (node.textContent.startsWith(activeParameter)) {
                         node.scrollIntoView(true)
                         node.classList.add('highlight-parameter')
                         break
@@ -379,7 +379,7 @@
                     const { functionDoc, functionDocType } = this.get()
                     let functionSignature
                     if (functionDocType === 'html') {
-                        functionSignature = document.querySelector('#function-doc p').innerText
+                        functionSignature = document.querySelector('#function-doc p').textContent
                     } else {
                         functionSignature = functionDoc.substring(0, functionDoc.indexOf('\n\n'))
                     }
