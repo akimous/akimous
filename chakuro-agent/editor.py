@@ -4,6 +4,7 @@ from ws import WS
 from online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
 from doc_generator import DocGenerator  # 165ms, 13M memory
 from word_completer import search_prefix
+from pyflakes_reporter import PyflakesReporter
 
 from importlib.resources import open_binary
 from functools import partial
@@ -13,6 +14,8 @@ from logzero import logger as log
 from boltons.fileutils import atomic_save
 from boltons.gcutils import toggle_gc_postcollect
 from asyncio import create_subprocess_shell, subprocess
+
+import pyflakes.api
 
 import shlex
 import json
@@ -30,7 +33,7 @@ model.n_jobs = 1
 log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
 
 
-async def lint(context, send):
+async def lint_offline(context, send):
     with Timer('Linting'):
         absolute_path = context.path.absolute()
         context.linter_process = await create_subprocess_shell(
@@ -52,6 +55,8 @@ async def lint(context, send):
 @register('openFile')
 async def open_file(msg, send, context):
     context.path = Path(*msg['filePath'])
+    context.is_python = context.path.suffix in ('.py', '.pyx')
+    context.pyflakes_reporter = PyflakesReporter()
     with open(context.path) as f:
         content = f.read()
     # somehow risky, but it should not wait until the extractor ready
@@ -60,6 +65,10 @@ async def open_file(msg, send, context):
         'mtime': str(context.path.stat().st_mtime),
         'content': content
     })
+    # skip all completion, linting etc. if it is not a Python file
+    if not context.is_python:
+        return
+
     with Timer('Initializing extractor'):
         with toggle_gc_postcollect:
             context.doc = content.splitlines()
@@ -71,7 +80,9 @@ async def open_file(msg, send, context):
             j = jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path)
             j.completions()
 
-    context.linter_task = asyncio.create_task(lint(context, send))
+    context.linter_task = asyncio.create_task(lint_offline(context, send))
+    with Timer('pyflakes'):
+        pyflakes.api.check(content, '', context.pyflakes_reporter)
 
 
 @register('reload')
@@ -110,7 +121,9 @@ async def save_file(msg, send, context):
         'cmd': 'saveFile-ok',
         'mtime': str(context.path.stat().st_mtime)
     })
-    context.linter_task = asyncio.create_task(lint(context, send))
+    if not context.is_python:
+        return
+    context.linter_task = asyncio.create_task(lint_offline(context, send))
 
 
 @register('sync')

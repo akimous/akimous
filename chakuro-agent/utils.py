@@ -32,3 +32,19 @@ class Timer:
         self.end = perf_counter()
         log.debug(f'{self.description} took {(self.end - self.start) * 1000: .3f} ms;'
                   f' memory = {get_memory_usage()}')
+
+#
+# class CompactDict:
+#     def __init__(self, columns):
+#         self._type = set(columns)
+#         self.d = {
+#             name: [] for name in columns,
+#         }
+#
+#     def add(self, **items):
+#         columns = self.columns
+#         d = self.d
+#         assert len(items) == len(columns)
+#         for k, v in items.items():
+#             assert k in columns
+#             d
