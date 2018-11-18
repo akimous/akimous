@@ -17,11 +17,11 @@ with Timer('initialization'):
                             help='Do not open the IDE in a browser after startup.')
         args = parser.parse_args()
 
-        from ws import WS  # 44 ms, 6M memory
+        from websocket import start_server
         import file_tree  # 11ms, 4M memory
         import editor  # 800ms, 80M memory
 
 
 if __name__ == '__main__':
     host = args.host
-    WS.start_server(**args.__dict__)
+    start_server(**args.__dict__)

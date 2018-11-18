@@ -74,15 +74,13 @@ class CompletionProvider {
         this.currentCompletions = []
         this.input = ''
 
-        editor.ws.addHandler('predict-result', (data) => {
+        editor.socket.addHandler('Prediction', (data) => {
             if (debug) console.log('CompletionProvider.recieve', data)
             const input = this.lineContent[this.firstTriggeredCharPos.ch]
             this.state = TRIGGERED
             this.currentCompletions = data.result
             if (data.result.length < 1)
-                return this.completion.set({
-                    open: false
-                })
+                return this.completion.set({ open: false })
             const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
 
             const ruleBasedPrediction = this.ruleBasedPredictor.predict({
@@ -97,7 +95,7 @@ class CompletionProvider {
                 this.type
             )
         })
-        editor.ws.addHandler('predictExtra-result', (data) => {
+        editor.socket.addHandler('ExtraPredition', (data) => {
             const { result } = data
             const sortedCompletions = this.sortAndFilter(this.input, result)
             this.completion.setCompletions(
@@ -114,12 +112,7 @@ class CompletionProvider {
         this.firstTriggeredCharPos.line = line
         this.firstTriggeredCharPos.ch = ch + triggerdCharOffset
         this.lineContent = lineContent
-        this.editor.ws.send({
-            cmd: 'predict',
-            text: lineContent,
-            line,
-            ch,
-        })
+        this.editor.socket.send('Predict', { line, ch, text: lineContent })
         this.isClassDefinition = /^\s*class\s/.test(lineContent)
         Object.assign(this.context, {
             firstTriggeredCharPos: this.firstTriggeredCharPos,
@@ -152,32 +145,20 @@ class CompletionProvider {
         sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
 
         if (!sortedCompletions.length) {
-            this.editor.ws.send({
-                cmd: 'predictExtra',
-                input,
-                line,
-                ch,
-            })
+            this.editor.socket.send('PredictExtra', { input, line, ch })
         } else
             this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.type)
     }
 
     sync(doc) {
         if (!this.enabled) return
-        this.editor.ws.send({
-            cmd: 'sync',
-            doc
-        })
+        this.editor.socket.send('Sync', { doc })
         console.warn('syncing')
     }
 
     syncLine(lineContent, line) {
         if (!this.enabled) return
-        this.editor.ws.send({
-            cmd: 'syncLine',
-            text: lineContent,
-            line
-        })
+        this.editor.socket.send('SyncLine', { line, text: lineContent })
     }
 
     sortAndFilter(input, completions) {
@@ -223,7 +204,7 @@ class CompletionProvider {
                 else if (!/^\s*$/.test(head)) tail = null
             }
         }
-        
+
         if (tail)
             completion.tail = tail
     }

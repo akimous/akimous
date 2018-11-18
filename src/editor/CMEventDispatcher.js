@@ -43,42 +43,28 @@ class CMEventDispatcher {
         })
 
         cm.on('scroll', () => {
-            completion.set({
-                open: false
-            })
+            completion.set({ open: false })
         })
 
         cm.on('focus', () => {
-            editor.ws.send({
-                cmd: 'mtime'
-            })
+            editor.socket.send('Mtime', {})
             g.setFocus([g.panelMiddle, editor])
         })
 
         cm.on('blur', () => {
-            editor.completion.set({
-                open: false
-            })
+            editor.completion.set({ open: false })
         })
 
         cm.on('gutterClick', (cm, line, gutter /*, event*/ ) => {
             if (gutter !== 'CodeMirror-linenumbers') return
             const lineLength = cm.getLine(line).length
-            cm.setSelection({
-                line,
-                ch: 0
-            }, {
-                line,
-                ch: lineLength
-            })
+            cm.setSelection({ line, ch: 0 }, { line, ch: lineLength })
         })
 
         cm.on('cursorActivity', cm => {
             if (shouldDismissCompletionOnCursorActivity) {
                 completionProvider.state = CLOSED
-                completion.set({
-                    open: false
-                })
+                completion.set({ open: false })
             }
             shouldDismissCompletionOnCursorActivity = true
             const cursor = cm.getCursor()
@@ -89,9 +75,7 @@ class CMEventDispatcher {
         doc.on('change', (doc /*, changeObj*/ ) => {
             const { clean } = editor.get() // 0.02 ms
             if (clean === doc.isClean()) return
-            editor.set({ // 0.25 ms
-                clean: !clean
-            })
+            editor.set({ clean: !clean }) // 0.25 ms
         })
 
         cm.on('changes', (cm, c) => {
@@ -146,7 +130,7 @@ class CMEventDispatcher {
 
                     // for forcing passive in function definition
                     let isInFunctionSignatureDefinition = false
-                    
+
                     // if it is not single char input, handle by completionProvider.sync()
                     if (c.text.length === 1 &&
                         c.from.line === c.to.line &&
@@ -174,7 +158,6 @@ class CMEventDispatcher {
                         // TODO: move completionProvider above formatter
                         input = c.text[0] // might change after handled by formatter, so reassign
                         const isInputDot = /\./.test(input)
-
 
                         const inputShouldTriggerPrediction = () => {
                             if (isInputDot) return true

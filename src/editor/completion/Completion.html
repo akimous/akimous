@@ -154,10 +154,7 @@
             requestCompletionDocstring(name) {
                 if (name === this.lastRequestedCompletionForDocstring) return
                 this.lastRequestedCompletionForDocstring = name
-                this.editor.ws.send({
-                    cmd: 'getCompletionDocstring',
-                    name
-                })
+                this.editor.socket.send('GetCompletionDocstring', { name })
             },
             setCompletions(rows, firstTriggeredCharPos, type) {
                 const passive = type !== NORMAL

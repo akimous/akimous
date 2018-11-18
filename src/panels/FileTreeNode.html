@@ -1,6 +1,6 @@
 <div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node {selected?'selected':''}" style="padding-left: {0.3 + level}rem;">
     <span class="icon {icon}"></span> {#if !renaming}
-    <span class="display-name"> 
+    <span class="display-name">
         {name}
     </span> {:else}
     <input ref:input class="display-name" type="text" value="{name}" on:blur="commitRename()"> {/if}
@@ -8,11 +8,11 @@
 </div>
 
 {#if newNode}
-<svelte:self ref:placeholderNode placeholderMode={true} level={level+isDir} parent={self} isDir={newNode==='dir' }/> {/if}
+<svelte:self ref:placeholderNode placeholderMode={true} level={level+isDir} parent={self} isDir={newNode==='dir' } /> {/if}
 
 <div ref:children>
     {#each dirs as i (i.uid)}
-    <svelte:self level={level+1} name={i.name} parent={self} isDir/> {/each} {#each files as i (i.uid)}
+    <svelte:self level={level+1} name={i.name} parent={self} isDir /> {/each} {#each files as i (i.uid)}
     <svelte:self level={level+1} name={i.name} parent={self} /> {/each}
 </div>
 
@@ -26,7 +26,7 @@
         min-width: 100%;
         font-size: var(--ui-font-size-default);
         /* don't remove this or the font on non-retina display with Safari will become crappy. */
-        background: var(--panel-color); 
+        background: var(--panel-color);
     }
 
     .file-tree-node.selected {
@@ -245,8 +245,7 @@
                     open = !open
                     this.set({ open })
                     if (open) {
-                        g.fileTree.ws.send({
-                            cmd: 'openFolder',
+                        g.fileTree.socket.send('OpenDir', {
                             path: this.getPath(),
                         })
                     } else {
@@ -254,8 +253,7 @@
                             files: [],
                             dirs: []
                         })
-                        g.fileTree.ws.send({
-                            cmd: 'closeFolder',
+                        g.fileTree.socket.send('CloseDir', {
                             path: this.getPath()
                         })
                     }
@@ -303,21 +301,15 @@
                         this.set({ name: this.refs.input.value })
                         const path = this.getPath()
                         const { parent } = this.get()
-                        if (!parent.get().isDir)
+                        const { isDir, newNode } = parent.get()
+                        if (!isDir)
                             path.splice(-2, 1) // remove if its parent is a file, not the real parent
-                        if (parent.get().newNode == 'file') { // file or dir 
-                            g.fileTree.ws.send({
-                                cmd: 'newFile',
-                                path
-                            })
-                        } else if (parent.get().newNode == 'dir') {
-                            g.fileTree.ws.send({
-                                cmd: 'newFolder',
-                                path
-                            })
+                        if (newNode === 'file') { // file or dir 
+                            g.fileTree.socket.send('CreateFile', { path })
+                        } else if (newNode === 'dir') {
+                            g.fileTree.socket.send('CreateDir', { path })
                         }
-                    } else g.fileTree.ws.send({
-                        cmd: 'rename',
+                    } else g.fileTree.socket.send('Rename', {
                         path: this.getPath(),
                         newName: this.refs.input.value
                     })

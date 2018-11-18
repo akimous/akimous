@@ -10,7 +10,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import WSClient from '../lib/WSClient'
+    import { Socket } from '../lib/Socket'
     import CMEventDispatcher from './CMEventDispatcher'
     import registerCMCommands from './CMCommands'
     import RealtimeFormatter from './RealtimeFormatter'
@@ -85,17 +85,14 @@
             const readFile = new Promise(resolve => {
                 let startTime = performance.now()
                 this.shouldClose = false
-                this.ws = new WSClient('ws://127.0.0.1:3179/editor')
-                this.ws.addHandler('openFile', data => {
-                    console.warn('transmission took', performance.now() - startTime)
-                    resolve(data) // <-- exit here
-                })
-                this.ws.connect(() => {
-                    this.ws.send({
-                        cmd: 'openFile',
-                        filePath: this.get().filePath
+                this.socket = new Socket('ws://127.0.0.1:3179/editor')
+                    .addHandler('FileOpened', data => {
+                        console.warn('transmission took', performance.now() - startTime)
+                        resolve(data) // <-- exit here
                     })
-                })
+                    .connect(() => {
+                        this.socket.send('OpenFile', { filePath: this.get().filePath })
+                    })
             })
 
             // Step 2: Open editor
@@ -150,14 +147,7 @@
                 }
                 this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
                 this.cmEventDispatcher = new CMEventDispatcher(this)
-
                 this.completion.bindReferences(this)
-                this.ws.addHandler('saveFile-ok', data => {
-                    this.markClean()
-                    this.mtime = data.mtime
-                    if (this.shouldClose)
-                        g.panelMiddle.closeFile(this.get().filePath)
-                })
 
                 // resolve Safari overscroll jitter issue
                 const scroller = this.refs.codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
@@ -169,91 +159,89 @@
                     }
                 }
 
-                // prompt to reload if modified by another program
-                this.ws.addHandler('reload-ok', data => {
-                    this.cm.setValue(data.content)
-                    this.markClean()
-                })
-                this.ws.addHandler('mtime', data => {
-                    if (this.mtime === data.mtime) return
-                    this.mtime = data.mtime
-                    g.notificationBar.show(
-                        'question',
-                        `The file "<b>${this.get().fileName}</b>" has been modified by another program. Do you want to reload it?`, [{
-                            name: 'Reload',
-                            callback: () => {
-                                this.ws.send({
-                                    cmd: 'reload'
-                                })
-                            }
-                        }]
-                    )
-                })
-
-                // prompt to reload if deleted or moved
-                this.ws.addHandler('event-FileDeleted', () => {
-                    g.notificationBar.show(
-                        'question',
-                        `The file "<b>${this.get().fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
-                            name: 'Close',
-                            callback: () => {
-                                this.markClean()
-                                g.panelMiddle.closeFile(this.get().filePath)
-                            }
-                        }]
-                    )
-                })
-
-                this.ws.addHandler('findUsages-ok', data => {
-                    const selections = []
-                    for (const pos of data.pos) {
-                        const [line, ch] = pos
-                        const startPos = { line, ch }
-                        const token = this.cm.getTokenAt(startPos)
-                        startPos.ch -= 1
-                        const endPos = { line, ch: token.end }
-                        if (token.string !== data.token) {
-                            console.warn('variable name not match', token.string, data.token)
-                            continue
-                        }
-                        selections.push({
-                            anchor: startPos,
-                            head: endPos
-                        })
-                    }
-                    this.cm.setSelections(selections)
-                })
-
-                this.ws.addHandler('getCompletionDocstring-result', data => {
-                    let { doc, type } = data
-                    if (doc.length === 0) doc = null
-                    g.docs.set({ completionDoc: doc, completionDocType: type })
-                })
-
-                this.ws.addHandler('getFunctionDocumentation-result', data => {
-                    let { doc, type } = data
-                    if (doc.length === 0) doc = null
-                    g.docs.set({ functionDoc: doc, functionDocType: type })
-                    g.docs.highlightActiveParameter(this.cm)
-                })
-
-                this.ws.addHandler('offlineLinting-result', data => {
-                    this.offlineLints = data.result
-                    this.offlineLints.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
-                    this.offlineLints.forEach(x => {
-                        const message = x.message
-                        const index = message.indexOf('\n')
-                        if (index <= 0) {
-                            x.message0 = message
-                            x.message1 = ''
-                        } else {
-                            x.message0 = message.substring(0, index)
-                            x.message1 = message.substring(index + 1)
-                        }
+                this.socket
+                    .addHandler('FileSaved', data => {
+                        this.markClean()
+                        this.mtime = data.mtime
+                        if (this.shouldClose)
+                            g.panelMiddle.closeFile(this.get().filePath)
                     })
-                    if (g.activeEditor === this)
-                        g.linter.set({ offlineLints: this.offlineLints })
-                })
+                    // prompt to reload if modified by another program
+                    .addHandler('Reloaded', data => {
+                        this.cm.setValue(data.content)
+                        this.markClean()
+                    })
+                    .addHandler('Mtime', data => {
+                        if (this.mtime === data.mtime) return
+                        this.mtime = data.mtime
+                        g.notificationBar.show(
+                            'question',
+                            `The file "<b>${this.get().fileName}</b>" has been modified by another program. Do you want to reload it?`, [{
+                                name: 'Reload',
+                                callback: () => this.socket.send('Reload', {})
+                            }]
+                        )
+                    })
+                    // prompt to reload if deleted or moved
+                    .addHandler('FileDeleted', () => {
+                        g.notificationBar.show(
+                            'question',
+                            `The file "<b>${this.get().fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
+                                name: 'Close',
+                                callback: () => {
+                                    this.markClean()
+                                    g.panelMiddle.closeFile(this.get().filePath)
+                                }
+                            }]
+                        )
+                    })
+                    .addHandler('UsageFound', data => {
+                        const selections = []
+                        for (const pos of data.pos) {
+                            const [line, ch] = pos
+                            const startPos = { line, ch }
+                            const token = this.cm.getTokenAt(startPos)
+                            startPos.ch -= 1
+                            const endPos = { line, ch: token.end }
+                            if (token.string !== data.token) {
+                                console.warn('variable name not match', token.string, data.token)
+                                continue
+                            }
+                            selections.push({
+                                anchor: startPos,
+                                head: endPos
+                            })
+                        }
+                        this.cm.setSelections(selections)
+                    })
+                    .addHandler('CompletionDocstring', data => {
+                        let { doc, type } = data
+                        if (doc.length === 0) doc = null
+                        g.docs.set({ completionDoc: doc, completionDocType: type })
+                    })
+                    .addHandler('FunctionDocumentation', data => {
+                        let { doc, type } = data
+                        if (doc.length === 0) doc = null
+                        g.docs.set({ functionDoc: doc, functionDocType: type })
+                        g.docs.highlightActiveParameter(this.cm)
+                    })
+                    .addHandler('OfflineLints', data => {
+                        this.offlineLints = data.result
+                        this.offlineLints.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
+                        this.offlineLints.forEach(x => {
+                            const { message } = x
+                            const index = message.indexOf('\n')
+                            if (index <= 0) {
+                                x.message0 = message
+                                x.message1 = ''
+                            } else {
+                                x.message0 = message.substring(0, index)
+                                x.message1 = message.substring(index + 1)
+                            }
+                        })
+                        if (g.activeEditor === this)
+                            g.linter.set({ offlineLints: this.offlineLints })
+                    })
             }), 500)
         },
         ondestroy() {
@@ -267,27 +255,20 @@
                 g.panelMiddle.pathToEditor[newPath.join('/')] = this
                 if (previous.filePath) {
                     delete g.panelMiddle.pathToEditor[previous.filePath.join('/')]
-                    this.ws.send({
-                        cmd: 'mtime',
-                        newPath
-                    })
+                    this.socket.send('Mtime', { newPath })
                 }
             }
-            if (!this.tab) return
+            const tab = this.tab
+            if (!tab) return
+
             if (changed.fileName) {
-                this.tab.set({
-                    name: current.fileName
-                })
+                tab.set({ name: current.fileName })
             }
             if (changed.clean) {
-                this.tab.set({
-                    clean: current.clean
-                })
+                tab.set({ clean: current.clean })
             }
             if (changed.active) {
-                this.tab.set({
-                    active: current.active
-                })
+                tab.set({ active: current.active })
             }
         },
         data() {
@@ -300,10 +281,7 @@
         },
         methods: {
             save() {
-                this.ws.send({
-                    cmd: 'saveFile',
-                    content: this.cm.getValue()
-                })
+                this.socket.send('SaveFile', { content: this.cm.getValue() })
             },
             insertText(text) {
                 g.activeEditor && g.activeEditor.cm.hasFocus()
@@ -311,9 +289,7 @@
                 this.cm.doc.replaceRange(text, this.cm.doc.getCursor('from'), this.cm.doc.getCursor('to'), '+input')
             },
             markClean() {
-                this.set({
-                    clean: true
-                })
+                this.set({ clean: true })
                 this.cm.doc.markClean()
             }
         }

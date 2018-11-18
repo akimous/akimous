@@ -1,6 +1,5 @@
 from utils import detect_doc_type, Timer
 
-from ws import WS
 from online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
 from doc_generator import DocGenerator  # 165ms, 13M memory
 from word_completer import search_prefix
@@ -14,7 +13,7 @@ from logzero import logger as log
 from boltons.fileutils import atomic_save
 from boltons.gcutils import toggle_gc_postcollect
 from asyncio import create_subprocess_shell, subprocess
-
+from websocket import register_handler
 import pyflakes.api
 
 import shlex
@@ -24,9 +23,9 @@ import asyncio
 import jedi
 import wordsegment
 
+handles = partial(register_handler, 'editor')
 DEBUG = False
 doc_generator = DocGenerator()
-register = partial(WS.register, 'editor')
 MODEL_NAME = 'v10.model'
 model = joblib.load(open_binary('resources', MODEL_NAME))  # 300 ms
 model.n_jobs = 1
@@ -46,13 +45,12 @@ async def lint_offline(context, send):
         if stderr:
             log.error(stderr)
         context.linter_output = json.loads(stdout)
-    await send({
-        'cmd': 'offlineLinting-result',
+    await send('OfflineLints', {
         'result': context.linter_output,
     })
 
 
-@register('openFile')
+@handles('OpenFile')
 async def open_file(msg, send, context):
     context.path = Path(*msg['filePath'])
     context.is_python = context.path.suffix in ('.py', '.pyx')
@@ -60,8 +58,7 @@ async def open_file(msg, send, context):
     with open(context.path) as f:
         content = f.read()
     # somehow risky, but it should not wait until the extractor ready
-    await send({
-        'cmd': 'openFile',
+    await send('FileOpened', {
         'mtime': str(context.path.stat().st_mtime),
         'content': content
     })
@@ -85,40 +82,35 @@ async def open_file(msg, send, context):
         pyflakes.api.check(content, '', context.pyflakes_reporter)
 
 
-@register('reload')
+@handles('Reload')
 async def reload(msg, send, context):
     with open(context.path) as f:
         content = f.read()
     context.doc = content.splitlines()
-    await send({
-        'cmd': 'reload-ok',
+    await send('Reloaded', {
         'content': content
     })
 
 
-@register('mtime')
+@handles('Mtime')
 async def modification_time(msg, send, context):
     new_path = msg.get('newPath', None)
     if new_path is not None:
         print('path modified', context.path, new_path)
         context.path = Path(*new_path)
     try:
-        await send({
-            'cmd': 'mtime',
+        await send('Mtime', {
             'mtime': str(context.path.stat().st_mtime)
         })
     except FileNotFoundError:
-        await send({
-            'cmd': 'event-FileDeleted'
-        })
+        await send('FileDeleted', {})
 
 
-@register('saveFile')
+@handles('SaveFile')
 async def save_file(msg, send, context):
     with atomic_save(str(context.path)) as f:
         f.write(msg['content'].encode('utf-8'))
-    await send({
-        'cmd': 'saveFile-ok',
+    await send('FileSaved', {
         'mtime': str(context.path.stat().st_mtime)
     })
     if not context.is_python:
@@ -126,14 +118,14 @@ async def save_file(msg, send, context):
     context.linter_task = asyncio.create_task(lint_offline(context, send))
 
 
-@register('sync')
+@handles('Sync')
 async def sync(msg, send, context):
     context.doc = msg['doc'].splitlines()
     for line, line_content in enumerate(context.doc):
         context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
 
 
-@register('syncLine')
+@handles('SyncLine')
 async def sync(msg, send, context):
     line_content = msg['text']
     line = msg['line']
@@ -147,7 +139,7 @@ def set_line(context, line_number, line_content):
     context.doc[line_number] = line_content
 
 
-@register('predict')
+@handles('Predict')
 async def predict(msg, send, context):
     line_content = msg['text']
     line_number = msg['line']
@@ -179,15 +171,14 @@ async def predict(msg, send, context):
         else:
             result = []
 
-    await send({
-        'cmd': 'predict-result',
+    await send('Prediction', {
         'line': line_number,
         'ch': ch,
         'result': result,
     })
 
 
-@register('predictExtra')
+@handles('PredictExtra')
 async def predict_extra(msg, send, context):
     text = msg['input']
     line_number = msg['line']
@@ -220,15 +211,14 @@ async def predict_extra(msg, send, context):
             if snake not in result_set:
                 result.append(dict(c=snake, t='word-segment', s=1))
 
-    await send({
-        'cmd': 'predictExtra-result',
+    await send('ExtraPredition', {
         'line': line_number,
         'ch': ch,
         'result': result
     })
 
 
-@register('getCompletionDocstring')
+@handles('GetCompletionDocstring')
 async def get_completion_docstring(msg, send, context):
     # get docstring
     completion = context.currentCompletions.get(msg['name'], None)
@@ -256,14 +246,13 @@ async def get_completion_docstring(msg, send, context):
             html = doc_generator.make_html(docstring)
         except Exception as e:
             print(e)
-    await send({
-        'cmd': 'getCompletionDocstring-result',
+    await send('CompletionDocstring', {
         'doc': html if html else docstring,
         'type': 'html' if html else 'text'
     })
 
 
-@register('getFunctionDocumentation')
+@handles('GetFunctionDocumentation')
 async def get_function_documentation(msg, send, context):
     line_content = msg['text']
     line_number = msg['line']
@@ -289,21 +278,19 @@ async def get_function_documentation(msg, send, context):
         except Exception as e:
             print(e)
 
-    await send({
-        'cmd': 'getFunctionDocumentation-result',
+    await send('FunctionDocumentation', {
         'doc': html if html else docstring,
         'fullName': signature.full_name,
         'type': 'html' if html else 'text'
     })
 
 
-@register('findUsages')
+@handles('FindUsages')
 async def find_usage(msg, send, context):
     doc = '\n'.join(context.doc)
     j = jedi.Script(doc, msg['line'] + 1, msg['ch'], context.path)
     usages = j.usages()
-    await send({
-        'cmd': 'findUsages-ok',
+    await send('UsageFound', {
         'pos': [
             (i.line - 1, i.column + 1) for i in usages
         ],

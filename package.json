@@ -19,6 +19,7 @@
         "eslint-plugin-html": "^5.0.0",
         "keyboardjs": "^2.5.1",
         "lodash.snakecase": "^4.1.1",
+        "msgpack-lite": "^0.1.26",
         "normalize.css": "^8.0.1",
         "pluralize": "^7.0.0",
         "pressure": "^2.1.2",

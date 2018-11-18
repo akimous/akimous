@@ -51,8 +51,7 @@ function bindHotkeys() {
             g.notificationBar.show('warning', 'Please select a variable.')
             return
         }
-        editor.ws.send({
-            cmd: 'findUsages',
+        editor.socket.send('FindUsages', {
             line: cursor.line,
             ch: cursor.ch,
             token: token.string

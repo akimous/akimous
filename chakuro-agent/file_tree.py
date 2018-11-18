@@ -3,7 +3,7 @@ from functools import partial
 from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from ws import WS
+from websocket import register_handler
 from logzero import logger as log
 
 
@@ -16,15 +16,13 @@ class ChangeHandler(FileSystemEventHandler):
         log.info('on create %s', repr(event))
         # do not rely on event.is_directory, it might be wrong on Windows
         is_directory = Path(event.src_path).is_dir()
-        self.context.main_thread_send({
-            'cmd': 'event-DirCreated' if is_directory else 'event-FileCreated',
+        self.context.main_thread_send('DirCreated' if is_directory else 'FileCreated', {
             'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
         })
 
     def on_deleted(self, event):
         log.info('on delete %s', repr(event))
-        self.context.main_thread_send({
-            'cmd': 'event-DirDeleted' if event.is_directory else 'event-FileDeleted',
+        self.context.main_thread_send('DirDeleted' if event.is_directory else 'FileDeleted',{
             'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
         })
         for k in tuple(self.context.observed_watches.keys()):
@@ -39,8 +37,7 @@ class ChangeHandler(FileSystemEventHandler):
         print(event.event_type, event.src_path, event.dest_path)
         # do not rely on event.is_directory, it might be wrong on Windows
         is_directory = Path(event.dest_path).is_dir()
-        self.context.main_thread_send({
-            'cmd': 'event-DirRenamed' if is_directory else 'event-FileRenamed',
+        self.context.main_thread_send('DirRenamed' if is_directory else 'FileRenamed', {
             'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
             'newName': Path(event.dest_path).name
         })
@@ -50,7 +47,7 @@ class ChangeHandler(FileSystemEventHandler):
                 start_monitor(k.replace(event.src_path + '/', event.dest_path + '/'), self.context)
 
 
-register = partial(WS.register, 'fileTree')
+handles = partial(register_handler, 'fileTree')
 
 
 def get_observer(context):
@@ -82,8 +79,8 @@ def stop_monitor(path, context):
     del context.observed_watches[path]
 
 
-@register('openFolder')
-async def open_folder(msg, send, context):
+@handles('OpenDir')
+async def open_dir(msg, send, context):
     is_root = msg.get('isRoot', False)
     if is_root:
         path = Path(msg['path']).resolve()
@@ -92,21 +89,20 @@ async def open_folder(msg, send, context):
         path = Path(context.fileRoot, *msg['path'])
     root, dirs, files = next(os.walk(path))
     result = {
-        'cmd': 'openFolder-ok',
         'path': path.relative_to(context.fileRoot).parts,
         'dirs': dirs,
         'files': files
     }
     start_monitor(path, context)
-    await send(result)
+    await send('DirOpened', result)
 
 
-@register('closeFolder')
-async def close_folder(msg, send, context):
+@handles('CloseDir')
+async def close_dir(msg, send, context):
     stop_monitor(Path(context.fileRoot, *msg['path']), context)
 
 
-@register('rename')
+@handles('Rename')
 async def rename(msg, send, context):
     old_path = Path(context.fileRoot, *msg['path'])
     new_path = old_path.with_name(msg['newName'])
@@ -132,8 +128,8 @@ async def rename(msg, send, context):
     await send(result)
 
 
-@register('newFile')
-async def new_file(msg, send, context):
+@handles('CreateFile')
+async def create_file(msg, send, context):
     path = Path(context.fileRoot, *msg['path'])
     result = {
         'path': msg['path'],
@@ -145,25 +141,21 @@ async def new_file(msg, send, context):
         try:
             with path.open('w'):
                 pass
-            result.update(cmd='newFile-ok')
+            result.update(cmd='FileCreated')
         except OSError as e:
             result.update(cmd='newFile-failed', reason=e.strerror)
     await send(result)
 
 
-@register('newFolder')
-async def new_folder(msg, send, context):
+@handles('CreateDir')
+async def create_dir(msg, send, context):
     path = Path(context.fileRoot, *msg['path'])
-    result = {
-        'path': msg['path'],
-        'folderName': msg['path'][-1]
-    }
+    dir_name = msg['path'][-1]
     if path.exists():
-        result.update(cmd='newFolder-failed', reason='Folder already exists')
+        await send('Failed', f'Failed to create folder "<b>{dir_name}</b>". Folder already exists.')
     else:
         try:
             path.mkdir(parents=True, exist_ok=False)
-            result.update(cmd='newFolder-ok')
+            await send('Done', f'New folder "<b>{dir_name}</b>" created.')
         except OSError as e:
-            result.update(cmd='newFolder-failed', reason=e.strerror)
-    await send(result)
+            await send('Failed', f'Failed to create folder "<b>{dir_name}</b>". {e.strerror}')

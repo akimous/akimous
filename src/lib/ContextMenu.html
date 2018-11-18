@@ -44,9 +44,9 @@
                     selectedRow: undefined
                 })
                 if (current.open) {
-                    g.activeEditor && g.activeEditor.completion.set({
-                        open: false
-                    })
+                    try {
+                        g.activeEditor.completion.set({ open: false })
+                    } catch (e) { /* do nothing */ }
                     g.pushFocus(this)
                 } else {
                     g.popFocus(this)

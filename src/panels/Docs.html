@@ -192,14 +192,12 @@
                 }
                 this.set({ functionDocTriggeredPos: pos, functionDocTriggeredFile: filePath })
 
-                editor.ws.send({
-                    cmd: 'getFunctionDocumentation',
+                editor.socket.send('GetFunctionDocumentation', {
                     line: cursor.line,
                     ch: cursor.ch,
                     text: cm.getLine(cursor.line)
                 })
                 return true
-
             },
             highlightActiveParameter(cm, cursor) {
                 if (!cursor) cursor = cm.getCursor()
@@ -222,8 +220,6 @@
                         break
                     }
                 }
-
-
             },
             /**
              * ('load_iris(return_X_y=False)', 0) -> 'return_X_y'

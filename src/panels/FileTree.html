@@ -27,8 +27,23 @@
 
 <script>
     import g from '../lib/Globals'
-    import WSClient from '../lib/WSClient'
     import { binarySearch, initializeTabView } from '../lib/Utils'
+    import { Socket } from '../lib/Socket'
+
+    function sortAndAddUid(arr) {
+        return arr.sort().map(i => {
+            return {
+                name: i,
+                uid: g.uid
+            }
+        })
+    }
+
+    function sortChildren(node, type) {
+        node.set({
+            type: node.get()[type].sort((a, b) => a.name > b.name)
+        })
+    }
 
     export default {
         components: {
@@ -38,33 +53,34 @@
             g.fileTree = this
             initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
             g.setFocus([g.panelLeft, g.fileTree])
-            this.ws = new WSClient('ws://127.0.0.1:3179/fileTree')
 
-            const sortAndAddUid = arr => arr.sort().map(i => {
-                return {
-                    name: i,
-                    uid: g.uid
-                }
-            })
-            this.ws.addHandler('openFolder-ok', data => {
-                this.getNode(data.path).set({
-                    dirs: sortAndAddUid(data.dirs),
-                    files: sortAndAddUid(data.files)
+            this.socket = new Socket('ws://127.0.0.1:3179/fileTree')
+                .addHandler('DirOpened', data => {
+                    this.getNode(data.path).set({
+                        dirs: sortAndAddUid(data.dirs),
+                        files: sortAndAddUid(data.files)
+                    })
+                    this.moveToFirstChild()
                 })
-                this.moveToFirstChild()
-            })
+                .addHandler('Done', data => {
+                    g.notificationBar.show('success', data)
+                })
+                .addHandler('Failed', data => {
+                    g.notificationBar.show('error', data)
+                })
+                .connect(() => {
+                    this.socket.send('OpenDir', {
+                        path: this.get().root,
+                        isRoot: true
+                    })
+                })
 
-            const sortChildren = (node, type) => {
-                node.set({
-                    type: node.get()[type].sort((a, b) => a.name > b.name)
-                })
-            }
-            const renamingEventHandler = data => {
+            const renamingEventHandler = (data, event) => {
                 // change file tree names
                 const node = this.getNode(data.path)
                 const { parent } = node.get()
                 const oldName = data.path[data.path.length - 1]
-                const target = data.cmd === 'event-FileRenamed' ? 'files' : 'dirs'
+                const target = event === 'FileRenamed' ? 'files' : 'dirs'
                 const destPath = [...data.path]
                 destPath[destPath.length - 1] = data.newName
                 node.set({
@@ -81,27 +97,6 @@
                 }
                 g.panelMiddle.renameDir(destPath, data.path)
             }
-            this.ws.addHandler('event-FileRenamed', renamingEventHandler)
-            this.ws.addHandler('event-DirRenamed', renamingEventHandler)
-            this.ws.addHandler('rename-ok', data => {
-                g.notificationBar.show('success', `"<b>${data.oldName}</b>" has been renamed to "<b>${data.newName}</b>"`)
-            })
-            this.ws.addHandler('rename-failed', data => {
-                g.notificationBar.show('warning', `Failed to rename "<b>${data.oldName}</b>". ${data.reason}.`)
-            })
-
-            this.ws.addHandler('newFile-ok', data => {
-                g.notificationBar.show('success', `New file "<b>${data.fileName}</b>" created.`)
-            })
-            this.ws.addHandler('newFile-failed', data => {
-                g.notificationBar.show('warning', `Failed to create file "<b>${data.fileName}</b>". ${data.reason}.`)
-            })
-            this.ws.addHandler('newFolder-ok', data => {
-                g.notificationBar.show('success', `New folder "<b>${data.folderName}</b>" created.`)
-            })
-            this.ws.addHandler('newFolder-failed', data => {
-                g.notificationBar.show('warning', `Failed to create folder "<b>${data.folderName}</b>". ${data.reason}.`)
-            })
 
             const handlerFactory = (target, eventType) => {
                 // return true if handled
@@ -120,36 +115,27 @@
                             arr.splice(position, 1)
                         else return false
                     }
-                    if (target === 'files')
-                        node.set({
-                            files: arr
-                        })
-                    else
-                        node.set({
-                            dirs: arr
-                        })
+                    node.set({
+                        [target]: arr
+                    })
                     return true
                 }
             }
-            this.ws.addHandler('event-FileCreated', handlerFactory('files', 'created'))
-            this.ws.addHandler('event-DirCreated', handlerFactory('dirs', 'created'))
 
             // On Windows, directory deletion event might be reported as file deletion.
             // Thus we need to handle both
             const fileDeleteHandler = handlerFactory('files', 'deleted')
             const dirDeleteHandler = handlerFactory('dirs', 'deleted')
-            this.ws.addHandler('event-FileDeleted', data => {
-                fileDeleteHandler(data) || dirDeleteHandler(data)
-            })
-            this.ws.addHandler('event-DirDeleted', handlerFactory('dirs', 'deleted'))
 
-            this.ws.connect(() => {
-                this.ws.send({
-                    cmd: 'openFolder',
-                    path: this.get().root,
-                    isRoot: true
+            this.socket
+                .addHandler('DirRenamed', renamingEventHandler)
+                .addHandler('FileRenamed', renamingEventHandler)
+                .addHandler('DirCreated', handlerFactory('dirs', 'created'))
+                .addHandler('FileCreated', handlerFactory('files', 'created'))
+                .addHandler('DirDeleted', handlerFactory('dirs', 'deleted'))
+                .addHandler('FileDeleted', data => {
+                    fileDeleteHandler(data) || dirDeleteHandler(data)
                 })
-            })
 
             this.keyEventHandler = {
                 handleKeyEvent(event, target) {
