@@ -214,13 +214,11 @@
                         }
                         this.cm.setSelections(selections)
                     })
-                    .addHandler('CompletionDocstring', data => {
-                        let { doc, type } = data
+                    .addHandler('CompletionDocstring', ({ doc, type }) => {
                         if (doc.length === 0) doc = null
                         g.docs.set({ completionDoc: doc, completionDocType: type })
                     })
-                    .addHandler('FunctionDocumentation', data => {
-                        let { doc, type } = data
+                    .addHandler('FunctionDocumentation', ({ doc, type }) => {
                         if (doc.length === 0) doc = null
                         g.docs.set({ functionDoc: doc, functionDocType: type })
                         g.docs.highlightActiveParameter(this.cm)

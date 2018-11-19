@@ -55,18 +55,18 @@
             g.setFocus([g.panelLeft, g.fileTree])
 
             this.socket = new Socket('ws://127.0.0.1:3179/fileTree')
-                .addHandler('DirOpened', data => {
-                    this.getNode(data.path).set({
-                        dirs: sortAndAddUid(data.dirs),
-                        files: sortAndAddUid(data.files)
+                .addHandler('DirOpened', ({ path, dirs, files }) => {
+                    this.getNode(path).set({
+                        dirs: sortAndAddUid(dirs),
+                        files: sortAndAddUid(files)
                     })
                     this.moveToFirstChild()
                 })
-                .addHandler('Done', data => {
-                    g.notificationBar.show('success', data)
+                .addHandler('Done', message => {
+                    g.notificationBar.show('success', message)
                 })
-                .addHandler('Failed', data => {
-                    g.notificationBar.show('error', data)
+                .addHandler('Failed', message => {
+                    g.notificationBar.show('error', message)
                 })
                 .connect(() => {
                     this.socket.send('OpenDir', {
@@ -75,35 +75,35 @@
                     })
                 })
 
-            const renamingEventHandler = (data, event) => {
+            const renamingEventHandler = ({ path, newName }, event) => {
                 // change file tree names
-                const node = this.getNode(data.path)
+                const node = this.getNode(path)
                 const { parent } = node.get()
-                const oldName = data.path[data.path.length - 1]
+                const oldName = path[path.length - 1]
                 const target = event === 'FileRenamed' ? 'files' : 'dirs'
-                const destPath = [...data.path]
-                destPath[destPath.length - 1] = data.newName
+                const destPath = [...path]
+                destPath[destPath.length - 1] = newName
                 node.set({
-                    name: data.newName
+                    name: newName
                 })
                 // change paths to opened files
-                parent.get()[target].find(x => x.name == oldName).name = data.newName
+                parent.get()[target].find(x => x.name == oldName).name = newName
                 sortChildren(parent, target)
                 if (target === 'files') {
-                    const editor = g.panelMiddle.getEditor(data.path)
+                    const editor = g.panelMiddle.getEditor(path)
                     editor && editor.set({
-                        fileName: data.newName
+                        fileName: newName
                     })
                 }
-                g.panelMiddle.renameDir(destPath, data.path)
+                g.panelMiddle.renameDir(destPath, path)
             }
 
             const handlerFactory = (target, eventType) => {
                 // return true if handled
-                return data => {
-                    const node = this.getNode(data.path.slice(0, -1))
+                return ({ path }) => {
+                    const node = this.getNode(path.slice(0, -1))
                     const arr = node.get()[target]
-                    const name = data.path[data.path.length - 1]
+                    const name = path[path.length - 1]
                     const position = binarySearch(arr, name)
                     if (eventType === 'created')
                         arr.splice(position, 0, {
