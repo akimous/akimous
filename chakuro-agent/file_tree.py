@@ -105,46 +105,38 @@ async def close_dir(msg, send, context):
 @handles('Rename')
 async def rename(msg, send, context):
     old_path = Path(context.fileRoot, *msg['path'])
-    new_path = old_path.with_name(msg['newName'])
+    new_name = msg['newName']
+    new_path = old_path.with_name(new_name)
+    log.info('renaming %s to %s', old_path, new_path)
 
-    log.info('renaming %s to %s', str(old_path), str(new_path))
-    result = {
-        'oldPath': str(old_path),
-        'newPath': str(new_path),
-        'oldName': str(old_path.name),
-        'newName': msg['newName']
-    }
     if new_path.exists():
-        result.update(cmd='rename-failed', reason='existed')
+        await send('Failed',
+                   f'Failed to rename "<b>{old_path.name}</b>" to "<b>{new_name}</b>". '
+                   f'Already exists.')
     else:
         try:
             old_path.rename(new_path)
-            result.update(cmd='rename-ok')
+            await send('Done', f'"<b>{old_path.name}</b>" renamed to "<b>{new_name}</b>"')
             if str(old_path) in context.observed_watches:
                 stop_monitor(old_path, context)
                 start_monitor(new_path, context)
         except OSError as e:
-            result.update(cmd='rename-failed', reason=e.strerror)
-    await send(result)
+            await send('Failed', f'Failed to rename "<b>{old_path.name}</b>". {e.strerror}')
 
 
 @handles('CreateFile')
 async def create_file(msg, send, context):
     path = Path(context.fileRoot, *msg['path'])
-    result = {
-        'path': msg['path'],
-        'fileName': msg['path'][-1]
-    }
+    file_name = msg['path'][-1]
     if path.exists():
-        result.update(cmd='newFile-failed', reason='File already exists')
+        await send('Failed', f'Failed to create file "<b>{file_name}</b>". File already exists.')
     else:
         try:
             with path.open('w'):
                 pass
-            result.update(cmd='FileCreated')
+            await send('Done', f'New file "<b>{file_name}</b>" created.')
         except OSError as e:
-            result.update(cmd='newFile-failed', reason=e.strerror)
-    await send(result)
+            await send('Failed', f'Failed to create file "<b>{file_name}</b>". {e.strerror}')
 
 
 @handles('CreateDir')

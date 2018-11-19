@@ -4,7 +4,6 @@
         {name}
     </span> {:else}
     <input ref:input class="display-name" type="text" value="{name}" on:blur="commitRename()"> {/if}
-
 </div>
 
 {#if newNode}
@@ -144,16 +143,12 @@
             })
 
             g.fileTree.on('cancelAllSelection', () => {
-                this.set({
-                    selected: false
-                })
+                this.set({ selected: false })
             })
 
             // todo: find a way to move event handler outside
             pressure.set(this.refs.row, {
-                startDeepPress: () => {
-                    this.rename()
-                }
+                startDeepPress: () => { this.rename() }
             })
 
             if (this.get().placeholderMode)
@@ -184,13 +179,9 @@
                 parent.children[current.name] = this
             } else if (changed.open && current.isDir) {
                 if (current.open) {
-                    this.set({
-                        icon: fileTypeToIcon['folder-open']
-                    })
+                    this.set({ icon: fileTypeToIcon['folder-open'] })
                 } else {
-                    this.set({
-                        icon: fileTypeToIcon['folder']
-                    })
+                    this.set({ icon: fileTypeToIcon['folder'] })
                 }
             }
         },
@@ -264,9 +255,7 @@
             },
             onContextMenu(e) {
                 g.fileTree.fire('cancelAllSelection')
-                this.set({
-                    selected: true
-                })
+                this.set({ selected: true })
                 g.contextMenu.set({
                     open: true,
                     x: e.clientX,
@@ -290,17 +279,16 @@
                 })
             },
             rename() {
-                this.set({
-                    renaming: true
-                })
+                this.set({ renaming: true })
                 this.refs.input.focus()
             },
             commitRename() {
+                const { renaming, parent } = this.get()
+                if (!renaming) return // prevent event being triggered twice (one from enter, one from blur)
                 if (this.refs.input.value !== this.get().name && this.refs.input.value.length > 0) {
                     if (this.get().placeholderMode) {
                         this.set({ name: this.refs.input.value })
                         const path = this.getPath()
-                        const { parent } = this.get()
                         const { isDir, newNode } = parent.get()
                         if (!isDir)
                             path.splice(-2, 1) // remove if its parent is a file, not the real parent
@@ -309,35 +297,29 @@
                         } else if (newNode === 'dir') {
                             g.fileTree.socket.send('CreateDir', { path })
                         }
-                    } else g.fileTree.socket.send('Rename', {
-                        path: this.getPath(),
-                        newName: this.refs.input.value
-                    })
+                    } else {
+                        g.fileTree.socket.send('Rename', {
+                            path: this.getPath(),
+                            newName: this.refs.input.value
+                        })
+                    }
                 }
                 this.endRenaming()
             },
             endRenaming() {
                 if (this.get().placeholderMode) {
-                    this.get().parent.set({
-                        newNode: null
-                    })
+                    this.get().parent.set({ newNode: null })
                 } else {
-                    this.set({
-                        renaming: false
-                    })
+                    this.set({ renaming: false })
                 }
             },
             newfile() {
-                this.set({
-                    newNode: 'file'
-                })
+                this.set({ newNode: 'file' })
                 this.refs.placeholderNode.rename()
                 //TODO: focus on new file
             },
             newfolder() {
-                this.set({
-                    newNode: 'dir'
-                })
+                this.set({ newNode: 'dir' })
                 this.refs.placeholderNode.rename()
             },
             siblin(direction) {
