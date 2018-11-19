@@ -153,6 +153,10 @@
             },
             requestCompletionDocstring(name) {
                 if (name === this.lastRequestedCompletionForDocstring) return
+                // remove redundent punctuations
+                const match = name.match(/^[^\d\W]\w*/)
+                if (match)
+                    name = match[0]
                 this.lastRequestedCompletionForDocstring = name
                 this.editor.socket.send('GetCompletionDocstring', { name })
             },
@@ -163,6 +167,7 @@
                 } else {
                     this.set({ rows, open: true, passive })
                     this.repositionCompletionWindow(firstTriggeredCharPos)
+                    this.requestCompletionDocstring(rows[0].c)
                 }
             },
             repositionCompletionWindow(pos) {

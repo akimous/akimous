@@ -36,7 +36,7 @@ class Socket {
         }
         this.socket.onmessage = event => {
             const [e, obj] = msgpack.decode(new Uint8Array(event.data)) // event.data is ArrayBuffer
-            console.debug(`Recieved message from ${this.path}:`, obj)
+            console.debug(`Recieved message from ${this.path}: ${e}`, obj)
             const handler = this.handlers[e]
             if (!handler) {
                 console.warn('Unhandled event', e)

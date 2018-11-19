@@ -60,14 +60,14 @@
     }
 
     #function-doc-container.expand {
-        height: calc(100% - var(--tab-bar-height));
+        height: 100%;
         border-bottom: none;
     }
 
     #completion-doc-container {
         position: absolute;
         top: var(--function-doc-height);
-        height: calc(100% - var(--function-doc-height) - var(--tab-bar-height));
+        height: calc(100% - var(--function-doc-height));
         width: 100%;
         overflow-y: scroll;
     }
