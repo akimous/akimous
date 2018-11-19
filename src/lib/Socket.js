@@ -2,13 +2,20 @@ import msgpack from 'msgpack-lite/dist/msgpack.min'
 
 // For performance's sake, expand it as function. About 6.5X faster than array mapping
 const rowPreprocessor = {
-    predict(tuple) {
+    Prediction(tuple) {
         return {
-            'completion': tuple[0],
-            'type': tuple[1],
-            'score': tuple[2],
+            c: tuple[0],
+            t: tuple[1],
+            s: tuple[2],
         }
-    }
+    },
+    ExtraPrediction(tuple) {
+        return {
+            c: tuple[0],
+            t: tuple[1],
+            s: tuple[2],
+        }
+    },
 }
 
 class Socket {
@@ -37,6 +44,11 @@ class Socket {
         this.socket.onmessage = event => {
             const [e, obj] = msgpack.decode(new Uint8Array(event.data)) // event.data is ArrayBuffer
             console.debug(`Recieved message from ${this.path}: ${e}`, obj)
+            const preprocessor = rowPreprocessor[e]
+            if (preprocessor && obj.result) {
+                obj.result = obj.result.map(preprocessor)
+            }
+            // console.debug(`Preprocessed ${e}`, obj)
             const handler = this.handlers[e]
             if (!handler) {
                 console.warn('Unhandled event', e)

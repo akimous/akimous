@@ -14,6 +14,7 @@ from boltons.fileutils import atomic_save
 from boltons.gcutils import toggle_gc_postcollect
 from asyncio import create_subprocess_shell, subprocess
 from websocket import register_handler
+from collections import namedtuple
 import pyflakes.api
 
 import shlex
@@ -30,6 +31,8 @@ MODEL_NAME = 'v10.model'
 model = joblib.load(open_binary('resources', MODEL_NAME))  # 300 ms
 model.n_jobs = 1
 log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
+
+PredictionRow = namedtuple('PredictionRow', ('c', 't', 's'))
 
 
 async def lint_offline(context, send):
@@ -162,11 +165,8 @@ async def predict(msg, send, context):
             feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc, j.call_signatures())
             scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
             result = [
-                {
-                    'c': c.name_with_symbols,  # completion
-                    't': c.type,  # type
-                    's': int(s)  # score
-                } for c, s in zip(completions, scores)
+                PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s))
+                for c, s in zip(completions, scores)
             ]
         else:
             result = []
@@ -191,7 +191,7 @@ async def predict_extra(msg, send, context):
     for i, token in enumerate(tokens):
         if token in result_set:
             continue
-        result.append(dict(c=token, t='token', s=990-i))
+        result.append(PredictionRow(c=token, t='token', s=990-i))
         result_set.add(token)
 
     # 2. words from dictionary
@@ -200,7 +200,7 @@ async def predict_extra(msg, send, context):
         for i, word in enumerate(words):
             if word in result_set:
                 continue
-            result.append(dict(c=word, t='word', s=980-i))
+            result.append(PredictionRow(c=word, t='word', s=980-i))
             result_set.add(word)
 
     # 3. segmented words
@@ -209,9 +209,9 @@ async def predict_extra(msg, send, context):
         if segmented_words:
             snake = '_'.join(segmented_words)
             if snake not in result_set:
-                result.append(dict(c=snake, t='word-segment', s=1))
+                result.append(PredictionRow(c=snake, t='word-segment', s=1))
 
-    await send('ExtraPredition', {
+    await send('ExtraPrediction', {
         'line': line_number,
         'ch': ch,
         'result': result

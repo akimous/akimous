@@ -95,7 +95,7 @@ class CompletionProvider {
                 this.type
             )
         })
-        editor.socket.addHandler('ExtraPredition', ({ result }) => {
+        editor.socket.addHandler('ExtraPrediction', ({ result }) => {
             const sortedCompletions = this.sortAndFilter(this.input, result)
             this.completion.setCompletions(
                 sortedCompletions,
