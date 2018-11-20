@@ -85,10 +85,12 @@
             const readFile = new Promise(resolve => {
                 let startTime = performance.now()
                 this.shouldClose = false
+                this.completion = this.refs.completion
                 this.socket = new Socket('ws://127.0.0.1:3179/editor')
                     .addHandler('FileOpened', data => {
                         console.warn('transmission took', performance.now() - startTime)
                         resolve(data) // <-- exit here
+                        console.warn('1 end')
                     })
                     .addHandler('RealTimeLints', ({ result }) => {
                         this.realTimeLints = result
@@ -98,71 +100,8 @@
                     .connect(() => {
                         this.socket.send('OpenFile', { filePath: this.get().filePath })
                     })
-            })
-
-            // Step 2: Open editor
-            const initializeCM = readFile.then(data => {
-                this.cm = CodeMirror(this.refs.codeEditor, {
-                    value: data.content,
-                    mode: mode ? mode.mime : undefined,
-                    theme: 'legato',
-                    indentUnit: 4,
-                    lineNumbers: true,
-                    autofocus: true,
-                    // addons
-                    matchBrackets: true, // edit/matchbrackets
-                    autoCloseBrackets: true, // edit/closebrackets
-                    highlightSelectionMatches: { // search/match-highlighter
-                        style: 'matchhighlight',
-                        minChars: 1,
-                        delay: 50,
-                        wordsOnly: false,
-                        annotateScrollbar: false,
-                        showToken: false,
-                        trim: false
-                    },
-                    styleActiveLine: true, // selection/active-line
-
-                    foldGutter: true, // fold/foldgutter
-                    gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
-
-                    // keymap
-                    // TODO: add sublime shortcuts
-                    extraKeys: {
-                        'Tab': 'indentMore',
-                        'Shift-Tab': 'indentLess',
-                        'Cmd-/': 'toggleCommentIndented',
-                        'Cmd-Backspace': 'deleteLineAndGoLineEnd',
-                        'Cmd-D': 'duplicateLine',
-                        'Cmd-J': 'joinLines',
-                        'Cmd-B': 'selectNextOccurrence',
-                    }
-                })
-                this.mtime = data.mtime
-            })
-
-            // Step 3: Do the rest of things (about 20 ms)
-            initializeCM.then(() => {
-                this.completion = this.refs.completion
-                this.cm.refresh() // prevent CM occasionally shifts to the right
-                this.completionProvider = new CompletionProvider(this)
-                // only enable completionProvider when the document is a Python file
-                if (mode && mode.mode !== 'python') {
-                    this.completionProvider.enabled = false
-                }
-                this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
-                this.cmEventDispatcher = new CMEventDispatcher(this)
-                this.completion.bindReferences(this)
-
-                // resolve Safari overscroll jitter issue
-                const scroller = this.refs.codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
-                scroller.onwheel = e => {
-                    if (e.deltaY <= 0) return
-                    const scrollInfo = this.cm.getScrollInfo()
-                    if (scrollInfo.top + scrollInfo.clientHeight >= scrollInfo.height) {
-                        e.preventDefault()
-                    }
-                }
+                
+                // add rest of handlers
                 this.socket
                     .addHandler('FileSaved', data => {
                         this.markClean()
@@ -245,6 +184,70 @@
                             g.linter.set({ offlineLints: this.offlineLints })
                     })
             })
+
+            // Step 2: Open editor
+            const initializeCM = readFile.then(data => {
+                this.cm = CodeMirror(this.refs.codeEditor, {
+                    value: data.content,
+                    mode: mode ? mode.mime : undefined,
+                    theme: 'legato',
+                    indentUnit: 4,
+                    lineNumbers: true,
+                    autofocus: true,
+                    // addons
+                    matchBrackets: true, // edit/matchbrackets
+                    autoCloseBrackets: true, // edit/closebrackets
+                    highlightSelectionMatches: { // search/match-highlighter
+                        style: 'matchhighlight',
+                        minChars: 1,
+                        delay: 50,
+                        wordsOnly: false,
+                        annotateScrollbar: false,
+                        showToken: false,
+                        trim: false
+                    },
+                    styleActiveLine: true, // selection/active-line
+
+                    foldGutter: true, // fold/foldgutter
+                    gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
+
+                    // keymap
+                    // TODO: add sublime shortcuts
+                    extraKeys: {
+                        'Tab': 'indentMore',
+                        'Shift-Tab': 'indentLess',
+                        'Cmd-/': 'toggleCommentIndented',
+                        'Cmd-Backspace': 'deleteLineAndGoLineEnd',
+                        'Cmd-D': 'duplicateLine',
+                        'Cmd-J': 'joinLines',
+                        'Cmd-B': 'selectNextOccurrence',
+                    }
+                })
+                this.mtime = data.mtime
+            })
+
+            // Step 3: Do the rest of things (about 20 ms)
+            initializeCM.then(() => onIdle(() => {
+                this.cm.refresh() // prevent CM occasionally shifts to the right
+                this.completionProvider = new CompletionProvider(this)
+                // only enable completionProvider when the document is a Python file
+                if (mode && mode.mode !== 'python') {
+                    this.completionProvider.enabled = false
+                }
+                this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
+                this.cmEventDispatcher = new CMEventDispatcher(this)
+                this.completion.bindReferences(this)
+
+                // resolve Safari overscroll jitter issue
+                const scroller = this.refs.codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
+                scroller.onwheel = e => {
+                    if (e.deltaY <= 0) return
+                    const scrollInfo = this.cm.getScrollInfo()
+                    if (scrollInfo.top + scrollInfo.clientHeight >= scrollInfo.height) {
+                        e.preventDefault()
+                    }
+                }
+            }, 500))
         },
         ondestroy() {
             this.tab.destroy()
