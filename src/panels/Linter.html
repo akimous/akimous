@@ -1,5 +1,15 @@
 <div class="container {active?'':'gone'}">
     <div ref:linter id="linter">
+        <div class="title non-selectable">Real-time Lints</div>
+        <table id="pyflakes-result" class="non-selectable">
+            {#each realTimeLints as message}
+            <tr on:click="jumpTo(message.line, message.ch)">
+                <td class="line-number">{message.line}</td>
+                <td class="{message.type} message error">{message.message}</td>
+            </tr>
+            {/each}
+        </table>
+        
         <div class="title non-selectable">Offline Lints</div>
         <div id="offline-linter-filter" class="non-selectable">
             {#each OFFLINE_LINT_TYPES as type}
@@ -82,7 +92,8 @@
         font-size: var(--ui-font-size-large);
     }
 
-    #pylint-result {
+    #pylint-result,
+    #pyflakes-result {
         width: 100%;
         background: var(--gray2);
     }
@@ -166,6 +177,7 @@
             return {
                 active: false,
                 offlineLints: [],
+                realTimeLints: [],
                 width: 100,
                 OFFLINE_LINT_TYPES,
                 offlineLintActiveTypes: new Set(OFFLINE_LINT_TYPES)

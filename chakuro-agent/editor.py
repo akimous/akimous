@@ -83,6 +83,7 @@ async def open_file(msg, send, context):
     context.linter_task = asyncio.create_task(lint_offline(context, send))
     with Timer('pyflakes'):
         pyflakes.api.check(content, '', context.pyflakes_reporter)
+        await send('RealTimeLints', dict(result=context.pyflakes_reporter.errors))
 
 
 @handles('Reload')
@@ -129,7 +130,7 @@ async def sync(msg, send, context):
 
 
 @handles('SyncLine')
-async def sync(msg, send, context):
+async def sync_line(msg, send, context):
     line_content = msg['text']
     line = msg['line']
     set_line(context, line, line_content)
@@ -162,7 +163,8 @@ async def predict(msg, send, context):
                 completion.name: completion for completion in completions
             }
             feature_extractor = context.feature_extractor
-            feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc, j.call_signatures())
+            feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc,
+                                             j.call_signatures())
             scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
             result = [
                 PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s))
@@ -191,7 +193,7 @@ async def predict_extra(msg, send, context):
     for i, token in enumerate(tokens):
         if token in result_set:
             continue
-        result.append(PredictionRow(c=token, t='token', s=990-i))
+        result.append(PredictionRow(c=token, t='token', s=990 - i))
         result_set.add(token)
 
     # 2. words from dictionary
@@ -200,7 +202,7 @@ async def predict_extra(msg, send, context):
         for i, word in enumerate(words):
             if word in result_set:
                 continue
-            result.append(PredictionRow(c=word, t='word', s=980-i))
+            result.append(PredictionRow(c=word, t='word', s=980 - i))
             result_set.add(word)
 
     # 3. segmented words

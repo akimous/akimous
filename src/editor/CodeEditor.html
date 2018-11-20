@@ -90,6 +90,11 @@
                         console.warn('transmission took', performance.now() - startTime)
                         resolve(data) // <-- exit here
                     })
+                    .addHandler('RealTimeLints', ({ result }) => {
+                        this.realTimeLints = result
+                        if (g.activeEditor === this)
+                            g.linter.set({ realTimeLints: this.realTimeLints })
+                    })
                     .connect(() => {
                         this.socket.send('OpenFile', { filePath: this.get().filePath })
                     })
@@ -137,7 +142,7 @@
             })
 
             // Step 3: Do the rest of things (about 20 ms)
-            initializeCM.then(() => onIdle(() => {
+            initializeCM.then(() => {
                 this.completion = this.refs.completion
                 this.cm.refresh() // prevent CM occasionally shifts to the right
                 this.completionProvider = new CompletionProvider(this)
@@ -158,7 +163,6 @@
                         e.preventDefault()
                     }
                 }
-
                 this.socket
                     .addHandler('FileSaved', data => {
                         this.markClean()
@@ -240,7 +244,7 @@
                         if (g.activeEditor === this)
                             g.linter.set({ offlineLints: this.offlineLints })
                     })
-            }), 500)
+            })
         },
         ondestroy() {
             this.tab.destroy()

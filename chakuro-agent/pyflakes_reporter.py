@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-Error = namedtuple('Error', ('msg', 'line', 'ch'))
+PyflakesError = namedtuple('PyflakesError', ('msg', 'line', 'ch'))
 
 
 class PyflakesReporter:
@@ -10,10 +10,13 @@ class PyflakesReporter:
         self.errors = []
 
     def unexpectedError(self, filename, msg):
-        self.errors.append(Error(msg, 0, 0))
+        self.errors.append(PyflakesError(msg, 0, 0))
 
     def syntaxError(self, filename, msg, lineno, offset, text):
-        self.errors.append(Error(msg + ' ' + text, lineno, offset))
+        self.errors.append(PyflakesError(msg + ' ' + text, lineno, offset))
 
     def flake(self, msg):
-        self.errors.append(Error(msg.message % msg.message_args, msg.lineno, msg.col))
+        self.errors.append(PyflakesError(msg.message % msg.message_args, msg.lineno, msg.col))
+
+    def clear(self):
+        self.errors.clear()
