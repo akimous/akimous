@@ -62,7 +62,7 @@ async def isort(context, send):
             absolute_path = context.path.absolute()
             context.isort_process = await create_subprocess_shell(
                 f'cd {shlex.quote(str(absolute_path.parent))} && '
-                f'isort {shlex.quote(str(absolute_path))}',
+                f'isort {shlex.quote(str(absolute_path))} --atomic',
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
             )
@@ -84,7 +84,7 @@ async def open_file(msg, send, context):
         content = f.read()
     # somehow risky, but it should not wait until the extractor ready
     await send('FileOpened', {
-        'mtime': str(context.path.stat().st_mtime),
+        'mtime': context.path.stat().st_mtime,
         'content': content
     })
     # skip all completion, linting etc. if it is not a Python file
@@ -126,7 +126,7 @@ async def modification_time(msg, send, context):
         context.path = Path(*new_path)
     try:
         await send('Mtime', {
-            'mtime': str(context.path.stat().st_mtime)
+            'mtime': context.path.stat().st_mtime
         })
     except FileNotFoundError:
         await send('FileDeleted', {})
@@ -136,12 +136,22 @@ async def modification_time(msg, send, context):
 async def save_file(msg, send, context):
     with atomic_save(str(context.path)) as f:
         f.write(msg['content'].encode('utf-8'))
-    await send('FileSaved', {
-        'mtime': str(context.path.stat().st_mtime)
-    })
+    mtime_before_formatting = context.path.stat().st_mtime
+    result = {
+            'mtime': mtime_before_formatting
+        }
     if not context.is_python:
+        await send('FileSaved', result)
         return
+
     await isort(context, send)
+    mtime_after_formatting = context.path.stat().st_mtime
+    if mtime_after_formatting != mtime_before_formatting:
+        with open(context.path) as f:
+            content = f.read()
+        result['mtime'] = mtime_after_formatting
+        result['content'] = content
+    await send('FileSaved', result)
     context.linter_task = asyncio.create_task(lint_offline(context, send))
 
 

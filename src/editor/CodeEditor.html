@@ -75,6 +75,7 @@
         },
         oncreate() {
             this.parent = this.get().parent
+            this.saving = false
             const { fileName } = this.get()
             this.tab = this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
             g.panelMiddle.pathToEditor[this.get().filePath.join('/')] = this
@@ -90,7 +91,6 @@
                     .addHandler('FileOpened', data => {
                         console.warn('transmission took', performance.now() - startTime)
                         resolve(data) // <-- exit here
-                        console.warn('1 end')
                     })
                     .addHandler('RealTimeLints', ({ result }) => {
                         this.realTimeLints = result
@@ -100,14 +100,24 @@
                     .connect(() => {
                         this.socket.send('OpenFile', { filePath: this.get().filePath })
                     })
-                
+
                 // add rest of handlers
                 this.socket
                     .addHandler('FileSaved', data => {
-                        this.markClean()
                         this.mtime = data.mtime
+                        this.saving = false
                         if (this.shouldClose)
                             g.panelMiddle.closeFile(this.get().filePath)
+                        else if (data.content) {
+                            this.cm.setValue(data.content)
+                        }
+                        if (!this.shouldClose)
+                            this.markClean()
+                        g.notificationBar.show('success',
+                            data.content ?
+                            `"<b>${this.get().fileName}</b>" formatted and saved.` :
+                            `"<b>${this.get().fileName}</b>" saved.`
+                        )
                     })
                     // prompt to reload if modified by another program
                     .addHandler('Reloaded', data => {
@@ -115,7 +125,7 @@
                         this.markClean()
                     })
                     .addHandler('Mtime', data => {
-                        if (this.mtime === data.mtime) return
+                        if (this.mtime === data.mtime || this.saving) return
                         this.mtime = data.mtime
                         g.notificationBar.show(
                             'question',
@@ -127,6 +137,7 @@
                     })
                     // prompt to reload if deleted or moved
                     .addHandler('FileDeleted', () => {
+                        if (this.saving) return
                         g.notificationBar.show(
                             'question',
                             `The file "<b>${this.get().fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
@@ -286,6 +297,7 @@
         },
         methods: {
             save() {
+                this.saving = true
                 this.socket.send('SaveFile', { content: this.cm.getValue() })
             },
             insertText(text) {
