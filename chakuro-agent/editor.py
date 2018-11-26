@@ -10,7 +10,6 @@ from pathlib import Path
 import jedi
 import pyflakes.api
 import wordsegment
-from boltons.fileutils import atomic_save
 from boltons.gcutils import toggle_gc_postcollect
 from logzero import logger as log
 from sklearn.externals import joblib
@@ -50,6 +49,25 @@ async def lint_offline(context, send):
         await send('OfflineLints', {
             'result': context.linter_output,
         })
+    except Exception as e:
+        log.error(e)
+
+
+async def yapf(context, send):
+    try:
+        with Timer('YAPF'):
+            absolute_path = context.path.absolute()
+            context.yapf_process = await create_subprocess_shell(
+                f'cd {shlex.quote(str(absolute_path.parent))} && '
+                f'yapf {shlex.quote(str(absolute_path))} --in-place',
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            stdout, stderr = await context.yapf_process.communicate()
+            if stdout:
+                log.info(stdout)
+            if stderr:
+                log.error(stderr)
     except Exception as e:
         log.error(e)
 
@@ -144,6 +162,7 @@ async def save_file(msg, send, context):
         await send('FileSaved', result)
         return
 
+    await yapf(context, send)
     await isort(context, send)
     mtime_after_formatting = context.path.stat().st_mtime
     if mtime_after_formatting != mtime_before_formatting:

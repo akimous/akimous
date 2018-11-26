@@ -24,17 +24,20 @@ def register_handler(path, command):
     def decorator(coroutine):
         _handlers[path][command] = coroutine
         return coroutine
+
     return decorator
 
 
 async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
     def main_thread_send(event, obj):
         context.event_loop.call_soon_threadsafe(asyncio.ensure_future, send(event, obj))
-    context = SimpleNamespace(linter_task=None,
-                              observer=None,
-                              observed_watches={},
-                              event_loop=asyncio.get_event_loop(),
-                              main_thread_send=main_thread_send)
+
+    context = SimpleNamespace(
+        linter_task=None,
+        observer=None,
+        observed_watches={},
+        event_loop=asyncio.get_event_loop(),
+        main_thread_send=main_thread_send)
     try:
         path_handler = _handlers.get(path, None)
         if path_handler is None:
@@ -75,10 +78,7 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
 
 def start_server(host, port, ws_port, no_browser):
     # serve static content
-    process = Process(target=serve_http, name='http_process', kwargs={
-        'host': host,
-        'port': port
-    })
+    process = Process(target=serve_http, name='http_process', kwargs={'host': host, 'port': port})
     process.start()
 
     # serve websocket

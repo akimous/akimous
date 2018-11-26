@@ -596,8 +596,16 @@ version = "0.72.1"
 numpy = "*"
 scipy = "*"
 
+[[package]]
+category = "main"
+description = "A formatter for Python code."
+name = "yapf"
+optional = false
+python-versions = "*"
+version = "0.25.0"
+
 [metadata]
-content-hash = "2abc27eddf4f98257a91d0abe8a8901d2c3c0f2229b41ca1a6f267f30a1cab86"
+content-hash = "82b69d646e92f14b4c8a58b358e2e5dbebbd7cdebeb73ec43a625145ae378b39"
 python-versions = ">=3.6"
 
 [metadata.hashes]
@@ -663,3 +671,4 @@ websockets = ["0e2f7d6567838369af074f0ef4d0b802d19fa1fee135d864acc656ceefa33136"
 wordsegment = ["3dcc7cd1e9bba3f3ffe6a0e54d98377bc502fc34e9e9d8c8199ac5636924f023", "dd10e32fdb890079532ddffc1d179f839627af8345ecf52b84627a536449648d"]
 wrapt = ["d4d560d479f2c21e1b5443bbd15fe7ec4b37fe7e53d335d3b9b0a7b1226fe3c6"]
 xgboost = ["8cc0358ad97f2e75141e6d93b0be1ee245adbdc0fa4d9318e5560b6e0889c8af", "a4be2482694351b6610f1d8faf79eb049ca572aec80c8ba00c7020b8d44d8c1d"]
+yapf = ["8aa7f9abdb97b4da4d3227306b88477982daafef0a96cc41639754ca31f46d55", "f2df5891481f94ddadfbf8ae8ae499080752cfb06005a31bbb102f3012f8b944"]
