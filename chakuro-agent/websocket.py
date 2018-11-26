@@ -1,17 +1,17 @@
 import asyncio
 import traceback
 import webbrowser
+from collections import defaultdict
 from contextlib import suppress
 from multiprocessing import Process
 from types import SimpleNamespace
+
 import msgpack
 import websockets
-from collections import defaultdict
 from logzero import logger as log
 
 from static_server import serve_http
 from word_completer import initialize as initialize_word_completer
-
 
 _handlers = defaultdict(dict)  # [path][event] -> coroutine
 _clients = defaultdict(set)  # [path]{} -> websocket

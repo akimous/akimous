@@ -36,21 +36,43 @@ PredictionRow = namedtuple('PredictionRow', ('c', 't', 's'))
 
 
 async def lint_offline(context, send):
-    with Timer('Linting'):
-        absolute_path = context.path.absolute()
-        context.linter_process = await create_subprocess_shell(
-            f'cd {shlex.quote(str(absolute_path.parent))} && '
-            f'pylint {shlex.quote(str(absolute_path))} --output-format=json',
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        stdout, stderr = await context.linter_process.communicate()
-        if stderr:
-            log.error(stderr)
-        context.linter_output = json.loads(stdout)
-    await send('OfflineLints', {
-        'result': context.linter_output,
-    })
+    try:
+        with Timer('Linting'):
+            absolute_path = context.path.absolute()
+            context.linter_process = await create_subprocess_shell(
+                f'cd {shlex.quote(str(absolute_path.parent))} && '
+                f'pylint {shlex.quote(str(absolute_path))} --output-format=json',
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            stdout, stderr = await context.linter_process.communicate()
+            if stderr:
+                log.error(stderr)
+            context.linter_output = json.loads(stdout)
+        await send('OfflineLints', {
+            'result': context.linter_output,
+        })
+    except Exception as e:
+        log.error(e)
+
+
+async def isort(context, send):
+    try:
+        with Timer('Sorting'):
+            absolute_path = context.path.absolute()
+            context.isort_process = await create_subprocess_shell(
+                f'cd {shlex.quote(str(absolute_path.parent))} && '
+                f'isort {shlex.quote(str(absolute_path))}',
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            stdout, stderr = await context.isort_process.communicate()
+            if stdout:
+                log.info(stdout)
+            if stderr:
+                log.error(stderr)
+    except Exception as e:
+        log.error(e)
 
 
 @handles('OpenFile')
@@ -119,6 +141,7 @@ async def save_file(msg, send, context):
     })
     if not context.is_python:
         return
+    await isort(context, send)
     context.linter_task = asyncio.create_task(lint_offline(context, send))
 
 
