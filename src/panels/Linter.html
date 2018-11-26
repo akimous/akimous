@@ -9,7 +9,7 @@
             </tr>
             {/each}
         </table>
-        
+
         <div class="title non-selectable">Offline Lints</div>
         <div id="offline-linter-filter" class="non-selectable">
             {#each OFFLINE_LINT_TYPES as type}
@@ -223,6 +223,12 @@
             }
         },
         methods: {
+            clear() {
+                this.set({
+                    offlineLints: [],
+                    realTimeLints: [],
+                })
+            },
             jumpTo(line, ch) {
                 const editor = g.activeEditor
                 if (!editor) return

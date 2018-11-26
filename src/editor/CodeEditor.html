@@ -76,6 +76,9 @@
         oncreate() {
             this.parent = this.get().parent
             this.saving = false
+            this.offlineLints = []
+            this.realTimeLints = []
+            g.linter.clear()
             const { fileName } = this.get()
             this.tab = this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
             g.panelMiddle.pathToEditor[this.get().filePath.join('/')] = this
@@ -113,11 +116,9 @@
                         }
                         if (!this.shouldClose)
                             this.markClean()
-                        g.notificationBar.show('success',
-                            data.content ?
-                            `"<b>${this.get().fileName}</b>" formatted and saved.` :
-                            `"<b>${this.get().fileName}</b>" saved.`
-                        )
+                        let message = `"<b>${this.get().fileName}</b>"`
+                        message += data.content ? ' formatted and saved.' : ' saved.'
+                        g.notificationBar.show('success', message)
                     })
                     // prompt to reload if modified by another program
                     .addHandler('Reloaded', data => {
@@ -262,6 +263,7 @@
         },
         ondestroy() {
             this.tab.destroy()
+            g.linter.clear()
             delete g.panelMiddle.pathToEditor[this.get().filePath.join('/')]
         },
         onstate({ changed, current, previous }) {
