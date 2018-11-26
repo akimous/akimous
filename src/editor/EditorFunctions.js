@@ -81,14 +81,20 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
         const lineContent = cm.getLine(line)
         pos.line = line
         if (!lineContent) continue
-        let ch = forward ? 0 : (lineContent.length - 1),
+        let ch = forward ? -1 : lineContent.length,
             end = forward ? lineContent.length : -1
         if (line === cursor.line) {
-            ch = cursor.ch
+            ch = cursor.ch - dir
             if (!forward) ch -= 1
         }
         
-        for (; ch !== end; ch += dir) {
+        for(;;) {
+            ch += dir
+            if (forward) {
+                if (ch >= end) break
+            } else {
+                if (ch <= end) break
+            }
             pos.ch = ch
             const char = lineContent.charAt(ch)
             const anotherHalf = matchingHalves[char]
