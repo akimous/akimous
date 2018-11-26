@@ -1,10 +1,12 @@
 import os
 from functools import partial
 from pathlib import Path
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-from websocket import register_handler
+
 from logzero import logger as log
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+
+from websocket import register_handler
 
 
 class ChangeHandler(FileSystemEventHandler):

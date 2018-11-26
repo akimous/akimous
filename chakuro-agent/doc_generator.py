@@ -1,16 +1,18 @@
-import tempfile
 import shutil
-from pathlib import Path
+import tempfile
 from importlib import resources
-from sphinx.application import Sphinx, logger
-from docutils.frontend import OptionParser
-from sphinx.util.docutils import sphinx_domains
-from docutils.io import StringOutput
-from sphinx.util import rst, relative_uri
-from os import path
-from sphinx.io import read_doc
-from utils import Timer
 from logging import ERROR
+from os import path
+from pathlib import Path
+
+from docutils.frontend import OptionParser
+from docutils.io import StringOutput
+from sphinx.application import Sphinx, logger
+from sphinx.io import read_doc
+from sphinx.util import relative_uri, rst
+from sphinx.util.docutils import sphinx_domains
+
+from utils import Timer
 
 
 class DocGenerator:

@@ -1,4 +1,5 @@
 from multiprocessing import Process
+
 from logzero import logger as log
 
 

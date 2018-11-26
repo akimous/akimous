@@ -1,7 +1,9 @@
-import sqlite3
-import wordsegment
-from utils import Timer
 import asyncio
+import sqlite3
+
+import wordsegment
+
+from utils import Timer
 
 conn = sqlite3.connect(':memory:')
 c = conn.cursor()

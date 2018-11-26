@@ -1,28 +1,26 @@
-from utils import detect_doc_type, Timer
-
-from online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
-from doc_generator import DocGenerator  # 165ms, 13M memory
-from word_completer import search_prefix
-from pyflakes_reporter import PyflakesReporter
-
-from importlib.resources import open_binary
-from functools import partial
-from pathlib import Path
-from sklearn.externals import joblib
-from logzero import logger as log
-from boltons.fileutils import atomic_save
-from boltons.gcutils import toggle_gc_postcollect
-from asyncio import create_subprocess_shell, subprocess
-from websocket import register_handler
-from collections import namedtuple
-import pyflakes.api
-
-import shlex
-import json
 import asyncio
+import json
+import shlex
+from asyncio import create_subprocess_shell, subprocess
+from collections import namedtuple
+from functools import partial
+from importlib.resources import open_binary
+from pathlib import Path
 
 import jedi
+import pyflakes.api
 import wordsegment
+from boltons.fileutils import atomic_save
+from boltons.gcutils import toggle_gc_postcollect
+from logzero import logger as log
+from sklearn.externals import joblib
+
+from doc_generator import DocGenerator  # 165ms, 13M memory
+from online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
+from pyflakes_reporter import PyflakesReporter
+from utils import Timer, detect_doc_type
+from websocket import register_handler
+from word_completer import search_prefix
 
 handles = partial(register_handler, 'editor')
 DEBUG = False
@@ -134,8 +132,10 @@ async def modification_time(msg, send, context):
 
 @handles('SaveFile')
 async def save_file(msg, send, context):
-    with atomic_save(str(context.path)) as f:
-        f.write(msg['content'].encode('utf-8'))
+    # with atomic_save(str(context.path)) as f:
+    #     f.write(msg['content'].encode('utf-8'))
+    with open(context.path, 'w') as f:
+        f.write(msg['content'])
     mtime_before_formatting = context.path.stat().st_mtime
     result = {
             'mtime': mtime_before_formatting
