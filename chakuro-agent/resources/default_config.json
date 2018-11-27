@@ -1,0 +1,8 @@
+{
+  "formatter": {
+    "YAPF": true
+  },
+  "Linters": {
+    "Pyflakes": true
+  }
+}

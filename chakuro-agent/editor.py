@@ -20,6 +20,7 @@ from pyflakes_reporter import PyflakesReporter
 from utils import Timer, detect_doc_type
 from websocket import register_handler
 from word_completer import search_prefix
+from config_manager import config
 
 handles = partial(register_handler, 'editor')
 DEBUG = False
