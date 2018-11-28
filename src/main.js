@@ -1,3 +1,4 @@
+import { config, connect } from './lib/ConfigManager'
 import App from './App.html'
 import './lib/common.css'
 import './lib/doc-style-dark.css'
@@ -9,8 +10,13 @@ import 'primer-tooltips/build/build.css'
 import 'devicon/devicon.min.css'
 import 'devicon/devicon-colors.css'
 
-const app = new App({
-    target: document.body,
+let app
+const start = performance.now()
+connect(() => {
+    console.debug('first round-trip', performance.now() - start)
+    app = new App({
+        target: document.body,
+    })
 })
 
 export default app

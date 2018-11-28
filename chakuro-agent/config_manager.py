@@ -15,12 +15,16 @@ config_path = Path.home() / '.akimous.json'
 if config_path.exists():
     with open(config_path) as f:
         user_config = json.loads(f.read())
-        config = {k: v for d in (config, user_config) for k, v in d.items()}
+        for k, v in user_config.items():
+            section = config.get(k, {})
+            for key, value in v.items():
+                section[key] = value
+        # config = {k: v for d in (config, user_config) for k, v in d.items()}
 
 
 @handles('get')
 async def get(msg, send, context):
-    send(config)
+    await send('Config', config)
 
 
 @handles('set')

@@ -1,6 +1,19 @@
 {#if open}
 <div ref:linterOptions id="linter-options">
     <div class="container non-selectable">
+        <div class="title">Real-Time Formatter</div>
+        <div class="message">Format code as you type.</div>
+        <div class="option" on:click="set({realtime: !realtime})">
+            <span class="checkbox">
+                {#if realtime}
+                <i class="fas fa-check-circle checked"></i>
+                {:else}
+                <i class="far fa-circle"></i>
+                {/if}
+            </span>
+            <span class="description">Built-in</span>
+        </div>
+        
         <div class="title">Real-Time Linter</div>
         <div class="message">Check for errors as you type.</div>
         <div class="option" on:click="set({pyflakes: !pyflakes})">
@@ -16,6 +29,16 @@
 
         <div class="title">Beautifier</div>
         <div class="message">Reformat code before saving.</div>
+        <div class="option" on:click="set({isort: !isort})">
+            <span class="checkbox">
+                {#if isort}
+                <i class="fas fa-check-circle checked"></i>
+                {:else}
+                <i class="far fa-circle"></i>
+                {/if}
+            </span>
+            <span class="description">isort</span>
+        </div>
         <div class="option" on:click="set({yapf: !yapf})">
             <span class="checkbox">
                 {#if yapf}
@@ -129,6 +152,7 @@
 
 <script>
     import g from '../lib/Globals'
+    import { config } from '../lib/ConfigManager'
 
     export default {
         components: {},
@@ -138,9 +162,11 @@
         data() {
             return {
                 open: false,
-                pyflakes: true,
-                yapf: true,
-                pylint: true,
+                realtime: config.formatter.realTime,
+                pyflakes: config.linter.Pyflakes,
+                isort: config.formatter.isort,
+                yapf: config.formatter.YAPF,
+                pylint: config.linter.Pylint,
             }
         },
         methods: {}
