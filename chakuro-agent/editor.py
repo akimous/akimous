@@ -119,8 +119,10 @@ async def open_file(msg, send, context):
             j = jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path)
             j.completions()
 
-    context.linter_task = asyncio.create_task(lint_offline(context, send))
-    with Timer('pyflakes'):
+    if config['linter']['pylint']:
+        context.linter_task = asyncio.create_task(lint_offline(context, send))
+
+    if config['linter']['pyflakes']:
         pyflakes.api.check(content, '', context.pyflakes_reporter)
         await send('RealTimeLints', dict(result=context.pyflakes_reporter.errors))
 
@@ -163,8 +165,12 @@ async def save_file(msg, send, context):
         await send('FileSaved', result)
         return
 
-    await yapf(context, send)
-    await isort(context, send)
+    if config['formatter']['isort']:
+        await isort(context, send)
+
+    if config['formatter']['yapf']:
+        await yapf(context, send)
+    
     mtime_after_formatting = context.path.stat().st_mtime
     if mtime_after_formatting != mtime_before_formatting:
         with open(context.path) as f:
@@ -172,7 +178,9 @@ async def save_file(msg, send, context):
         result['mtime'] = mtime_after_formatting
         result['content'] = content
     await send('FileSaved', result)
-    context.linter_task = asyncio.create_task(lint_offline(context, send))
+
+    if config['linter']['pylint']:
+        context.linter_task = asyncio.create_task(lint_offline(context, send))
 
 
 @handles('Sync')

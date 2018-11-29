@@ -3,7 +3,7 @@
     <div class="container non-selectable">
         <div class="title">Real-Time Formatter</div>
         <div class="message">Format code as you type.</div>
-        <div class="option" on:click="set({realtime: !realtime})">
+        <div class="option" on:click="toggle('realtime')">
             <span class="checkbox">
                 {#if realtime}
                 <i class="fas fa-check-circle checked"></i>
@@ -13,10 +13,10 @@
             </span>
             <span class="description">Built-in</span>
         </div>
-        
+
         <div class="title">Real-Time Linter</div>
         <div class="message">Check for errors as you type.</div>
-        <div class="option" on:click="set({pyflakes: !pyflakes})">
+        <div class="option" on:click="toggle('pyflakes')">
             <span class="checkbox">
                 {#if pyflakes}
                 <i class="fas fa-check-circle checked"></i>
@@ -29,7 +29,7 @@
 
         <div class="title">Beautifier</div>
         <div class="message">Reformat code before saving.</div>
-        <div class="option" on:click="set({isort: !isort})">
+        <div class="option" on:click="toggle('isort')">
             <span class="checkbox">
                 {#if isort}
                 <i class="fas fa-check-circle checked"></i>
@@ -39,7 +39,7 @@
             </span>
             <span class="description">isort</span>
         </div>
-        <div class="option" on:click="set({yapf: !yapf})">
+        <div class="option" on:click="toggle('yapf')">
             <span class="checkbox">
                 {#if yapf}
                 <i class="fas fa-check-circle checked"></i>
@@ -52,7 +52,7 @@
 
         <div class="title">Offline Linter</div>
         <div class="message">Check for subtle problems after saving.</div>
-        <div class="option" on:click="set({pylint: !pylint})">
+        <div class="option" on:click="toggle('pylint')">
             <span class="checkbox">
                 {#if pylint}
                 <i class="fas fa-check-circle checked"></i>
@@ -152,7 +152,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import { config } from '../lib/ConfigManager'
+    import { config, setConfig } from '../lib/ConfigManager'
 
     export default {
         components: {},
@@ -162,14 +162,26 @@
         data() {
             return {
                 open: false,
-                realtime: config.formatter.realTime,
-                pyflakes: config.linter.Pyflakes,
+                realtime: config.formatter.realtime,
+                pyflakes: config.linter.pyflakes,
                 isort: config.formatter.isort,
-                yapf: config.formatter.YAPF,
-                pylint: config.linter.Pylint,
+                yapf: config.formatter.yapf,
+                pylint: config.linter.pylint,
             }
         },
-        methods: {}
+        methods: {
+            toggle(item) {
+                const originalValue = this.get()[item]
+                const changed = {
+                    [item]: !originalValue
+                }
+                this.set(changed)
+                let section = 'formatter'
+                if (item === 'pylint' || item === 'pyflakes')
+                    section = 'linter'
+                setConfig(section, changed)
+            }
+        }
     }
 
 </script>

@@ -1,4 +1,5 @@
 import { inParentheses, inBrackets, inBraces } from '../lib/Utils'
+import { config } from '../lib/ConfigManager'
 
 const RealtimeFormatter = (editor, CodeMirror) => {
     let cm, c
@@ -27,6 +28,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     }
 
     const inputHandler = (line, t0, t1, t2, isInFunctionSignatureDefinition) => {
+        if (!config.formatter.realtime) return
         // skip if there are no characters before cursor 
         if (c.to.ch === 0) return
 
@@ -77,7 +79,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 )
             } else if ((/^\s*(if|def|for|while|with|class)\s.+[^\\:;]$/.test(line) ||
                     /^\s*(try|except|finally)/.test(line)
-            ) && !/(:\s)|;$/.test(line) &&
+                ) && !/(:\s)|;$/.test(line) &&
                 t0.string !== ':'
             ) { // add : if needed
                 c.text[0] = c.text[0] + ':'
@@ -86,7 +88,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 const openBracketLine = cm.doc.getLine(openBracket.to.line)
                 if ((/^\s*(if|def|for|while|with|class)\s/.test(openBracketLine) ||
                         /^\s*(try|except|finally)/.test(openBracketLine)
-                ) && t0.string !== ':') {
+                    ) && t0.string !== ':') {
                     c.text[0] = c.text[0] + ':'
                 }
             } else if (currentState.lastToken === 'break') {
@@ -178,6 +180,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     }
 
     const deleteHandler = () => {
+        if (!config.formatter.realtime) return
         if (cm.somethingSelected()) return
         const cursor = cm.doc.getCursor()
         if (c.from.ch === cursor.ch - 1) { // handle backspace

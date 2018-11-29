@@ -1,11 +1,11 @@
 {
   "formatter": {
-    "realTime": true,
+    "realtime": true,
     "isort": true,
-    "YAPF": true
+    "yapf": true
   },
   "linter": {
-    "Pyflakes": true,
-    "Pylint": true
+    "pyflakes": true,
+    "pylint": true
   }
 }

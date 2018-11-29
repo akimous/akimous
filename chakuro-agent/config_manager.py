@@ -8,18 +8,25 @@ handles = partial(register_handler, 'config')
 
 # load defaults
 with resources.open_text('resources', 'default_config.json') as f:
-    config = json.loads(f.read())
+    config = json.load(f)
+
+
+def merge_dict(primary, secondary):
+    for k, v in secondary.items():
+        section = primary.get(k, None)
+        if section is None:
+            primary[k] = v
+        else:
+            for key, value in v.items():
+                section[key] = value
+
 
 # load user config
 config_path = Path.home() / '.akimous.json'
 if config_path.exists():
     with open(config_path) as f:
         user_config = json.loads(f.read())
-        for k, v in user_config.items():
-            section = config.get(k, {})
-            for key, value in v.items():
-                section[key] = value
-        # config = {k: v for d in (config, user_config) for k, v in d.items()}
+        merge_dict(config, user_config)
 
 
 @handles('get')
@@ -30,6 +37,7 @@ async def get(msg, send, context):
 @handles('set')
 async def set(msg, send, context):
     global config
-    config = {k: v for d in (config, msg) for k, v in d.items()}
+    merge_dict(config, msg)
     with open(config_path, 'w') as f:
-        f.write(json.dumps(config))
+        json.dump(config, f, indent=4, sort_keys=True)
+

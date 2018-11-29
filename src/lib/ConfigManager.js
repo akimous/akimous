@@ -25,6 +25,9 @@ function connect(callback) {
 
 function setConfig(section, content) {
     Object.assign(config[section], content)
+    socket.send('set', {
+        [section]: content
+    })
 }
 
 export { config, connect, setConfig }
