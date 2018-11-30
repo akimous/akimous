@@ -25,6 +25,7 @@ pyroma = "^2.4"
 pylint = "^2.1"
 pyflakes = "^2.0"
 yapf = "^0.25.0"
+pathspec = "^0.5.9"
 
 [tool.poetry.dev-dependencies]
 pandas = "^0.23.4"

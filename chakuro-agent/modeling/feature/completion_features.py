@@ -159,8 +159,8 @@ def f(completion, doc, line, **_):
 
 @FeatureDefinition.register_feature_generator('contains_in_nth_line_lower')
 def f(completion, line, context, **_):
-    completion = completion.name.lower()
-    doc = context.doc_lines_to_lower_case
+    completion = completion.name.casefold()
+    doc = context.casefolded_doc_lines
     for l in range(0, min(line, MAX_SCAN_LINES)):
         if completion in doc[line - l]:
             return l
@@ -240,7 +240,7 @@ def f(context, line, ch, completion, **_):
         return -1
     if ch < token.end[1]:
         return -2
-    return fuzz.partial_ratio(first_token.lower(), completion.name.lower())
+    return fuzz.partial_ratio(first_token.casefold(), completion.name.casefold())
 
 
 @FeatureDefinition.register_feature_generator('last_line_first_token_ratio')
@@ -268,7 +268,7 @@ def f(context, line, completion, **_):
         if token.type in (token_.NAME, token_.STRING):
             first_token = token.string
             break
-    return fuzz.partial_ratio(first_token.lower(), completion.name.lower())
+    return fuzz.partial_ratio(first_token.casefold(), completion.name.casefold())
 
 
 @FeatureDefinition.register_feature_generator('last_n_lines_first_token_partial_ratio')
@@ -284,7 +284,7 @@ def f(context, line, completion, **_):
             if token.type == token_.NAME:
                 first_token = token.string
                 break
-        result = max(result, fuzz.partial_ratio(first_token.lower(), completion.name.lower()))
+        result = max(result, fuzz.partial_ratio(first_token.casefold(), completion.name.casefold()))
     return result
 
 
@@ -360,7 +360,7 @@ def f(completion, call_signatures, **_):
     if index is None:
         return -2
     parameter = cs.params[index].name
-    return fuzz.partial_ratio(completion.name.lower(), parameter.lower())
+    return fuzz.partial_ratio(completion.name.casefold(), parameter.casefold())
 
 
 @FeatureDefinition.register_feature_generator('function_ratio')

@@ -163,12 +163,12 @@ class FeatureDefinition:
 
 
 @FeatureDefinition.register_context_preprocessor_for_token_features(
-    doc_lines_to_lower_case={}
+    casefolded_doc_lines={}
 )
 def f(doc, line, context, **_):
-    context.doc_lines_to_lower_case = {}
+    context.casefolded_doc_lines = {}
     for l in range(0, min(line, MAX_SCAN_LINES)):
-        context.doc_lines_to_lower_case[line - l] = doc[line - l].lower()
+        context.casefolded_doc_lines[line - l] = doc[line - l].casefold()
 
 
 def tokenize(string):

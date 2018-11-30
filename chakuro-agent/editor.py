@@ -170,7 +170,7 @@ async def save_file(msg, send, context):
 
     if config['formatter']['yapf']:
         await yapf(context, send)
-    
+
     mtime_after_formatting = context.path.stat().st_mtime
     if mtime_after_formatting != mtime_before_formatting:
         with open(context.path) as f:
