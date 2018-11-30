@@ -40,9 +40,7 @@
         onstate({ changed, current, previous }) {
             if (!previous) return
             if (changed.open) {
-                this.set({
-                    selectedRow: undefined
-                })
+                this.set({ selectedRow: undefined })
                 if (current.open) {
                     try {
                         g.activeEditor.completion.set({ open: false })
@@ -51,6 +49,9 @@
                 } else {
                     g.popFocus(this)
                 }
+                g.app.set({
+                    popup: current.open ? this : null
+                })
             }
             if (changed.items) {
                 for (const i of this.rows)
