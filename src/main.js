@@ -1,4 +1,4 @@
-import { config, connect } from './lib/ConfigManager'
+import { connect } from './lib/ConfigManager'
 import App from './App.html'
 import './lib/common.css'
 import './lib/doc-style-dark.css'
