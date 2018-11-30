@@ -7,7 +7,10 @@
 <Prompt ref:prompt></Prompt>
 <ContextMenu ref:contextMenu></ContextMenu>
 <KeyboardControlHint ref:keyboardControlHint></KeyboardControlHint>
-<Popup ref:popup></Popup>
+<PanelPopup></PanelPopup>
+{#if popup}
+<div id="dismiss-popup" on:mousedown="dismissPopups()"></div>
+{/if}
 
 <style>
     .split-bar {
@@ -34,6 +37,15 @@
             transparent 40%, var(--accent4) 40%,
             var(--accent4) 60%,
             transparent 60%);
+    }
+
+    #dismiss-popup {
+        background: transparent;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        z-index: 10;
     }
 
 </style>
@@ -90,7 +102,7 @@
             Prompt: './panels/Prompt.html',
             ContextMenu: './lib/ContextMenu.html',
             KeyboardControlHint: './LayeredKeyboardControl/KeyboardControlHint.html',
-            Popup: './panels/Popup.html',
+            PanelPopup: './popups/PanelPopup.html',
         },
 
         oncreate() {
@@ -129,12 +141,6 @@
                         g.contextMenu.set({
                             open: false
                         })
-                    if (g.notificationHistory.get().open &&
-                        !g.notificationHistory.refs.notificationHistory.contains(e.target) &&
-                        !g.toolbar.refs.notificationHistory.refs.button.contains(e.target))
-                        g.notificationHistory.set({
-                            open: false
-                        })
                 }
 
                 //                window.addEventListener('beforeunload', e => {
@@ -150,6 +156,19 @@
                 Hotkeys.bindHotkeys()
                 g.layeredKeyboardControl = new LayeredKeyboardControl()
             }, 300)
+        },
+        data() {
+            return {
+                popup: false,
+            }
+        },
+        methods: {
+            dismissPopups() {
+                const { popup } = this.get()
+                if (popup)
+                    popup.set({ open: false })
+                this.set({ popup: null })
+            }
         }
     }
 

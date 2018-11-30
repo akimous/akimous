@@ -2,7 +2,7 @@
 <div ref:notificationHistory id="notification-history">
     <div class="container">
         {#if items.length===0}
-        <div class="no-notifications">
+        <div id="no-notifications">
             No Notifications
         </div> {/if} {#each items as item}
         <div class="item {item.level}">{@html item.message}</div>
@@ -36,10 +36,11 @@
         font-weight: 400;
     }
 
-    .no-notifications {
+    #no-notifications {
         text-align: center;
         color: var(--gray5);
         padding-top: 4rem;
+        user-select: none;
     }
 
     .item:nth-child(even) {
@@ -103,8 +104,8 @@
         },
         onstate({ changed, current }) {
             if (changed.open && g.toolbar) {
-                g.toolbar.refs.notificationHistory.set({
-                    on: current.open
+                g.app.set({
+                    popup: current.open ? this : null
                 })
             }
         },

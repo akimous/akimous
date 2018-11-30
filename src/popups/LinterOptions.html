@@ -159,6 +159,13 @@
         oncreate() {
             g.linterOptions = this
         },
+        onstate({ changed, current }) {
+            if (changed.open && g.toolbar) {
+                g.app.set({
+                    popup: current.open ? this : null
+                })
+            }
+        },
         data() {
             return {
                 open: false,
