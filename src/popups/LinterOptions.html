@@ -1,5 +1,5 @@
 {#if open}
-<div ref:linterOptions id="linter-options">
+<div ref:linterOptions id="linter-options" class="popup">
     <div class="container non-selectable">
         <div class="title">Real-Time Formatter</div>
         <div class="message">Format code as you type.</div>
@@ -69,17 +69,11 @@
 
 <style>
     #linter-options {
-        position: absolute;
         right: 1rem;
         top: calc(var(--toolbar-height) + 0.5rem);
         width: 20rem;
         min-height: 10rem;
         max-height: 40rem;
-        z-index: 11;
-        background: var(--modal-bg-color);
-        box-sizing: border-box;
-        border-radius: var(--default-radius);
-        box-shadow: var(--default-shadow);
     }
 
     /* https://leaverou.github.io/bubbly/ */
@@ -91,7 +85,7 @@
         width: 0;
         height: 0;
         border: 0.5rem solid transparent;
-        border-bottom-color: var(--modal-bg-color);
+        border-bottom-color: var(--popup-bg-color);
         border-top: 0;
         margin-top: -0.5rem;
     }

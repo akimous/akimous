@@ -23,12 +23,12 @@
 
     #split-bar-l {
         left: calc(var(--panel-left-width) - .4rem);
-        z-index: 3;
+        z-index: 150;
     }
 
     #split-bar-r {
         left: calc(100% - var(--panel-right-width) - .4rem);
-        z-index: 2;
+        z-index: 140;
     }
 
     .split-bar:hover {
@@ -45,7 +45,7 @@
         width: 100%;
         height: 100%;
         top: 0;
-        z-index: 10;
+        z-index: 300;
     }
 
 </style>
@@ -99,7 +99,7 @@
             PanelLeft: './PanelLeft.html',
             PanelMiddle: './PanelMiddle.html',
             PanelRight: './PanelRight.html',
-            Prompt: './panels/Prompt.html',
+            Prompt: './popups/Prompt.html',
             ContextMenu: './popups/ContextMenu.html',
             KeyboardControlHint: './LayeredKeyboardControl/KeyboardControlHint.html',
             PanelPopup: './popups/PanelPopup.html',

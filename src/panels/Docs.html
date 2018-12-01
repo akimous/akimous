@@ -7,8 +7,8 @@
             {/if}
         </div>
     </div>
-    <div ref:splitBar id="split-bar-doc" class="split-bar {completionDoc?'':'gone'}"></div>
-    <div class="mask {completionDoc?'':'gone'}"></div>
+    <div ref:splitBar id="doc-split-bar" class="{completionDoc?'':'gone'}"></div>
+    <div id="doc-mask" class="mask {completionDoc?'':'gone'}"></div>
     <div id="completion-doc-container" class="{completionDoc?'':'gone'}">
         {#if completionDoc}
         <div ref:completionDoc id="completion-doc" class="{completionDocType==='html'?'':'text-docstring'}">
@@ -24,7 +24,7 @@
         width: 100%;
     }
 
-    .split-bar {
+    #doc-split-bar {
         position: absolute;
         top: calc(var(--function-doc-height) - .4rem);
         left: 0;
@@ -34,7 +34,7 @@
         z-index: 3;
     }
 
-    .mask {
+    #doc-mask {
         position: absolute;
         top: calc(var(--function-doc-height) - .4rem);
         z-index: 2;
@@ -43,7 +43,7 @@
         height: .9rem;
     }
 
-    .split-bar:hover {
+    #doc-split-bar:hover {
         background: var(--accent4);
         background: linear-gradient(to bottom,
         transparent 30%, var(--accent4) 30%,

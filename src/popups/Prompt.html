@@ -1,4 +1,4 @@
-<div class="modal" style="display: {active ? 'block' : 'none'}">
+<div id="prompt-modal" class="popup" style="display: {active ? 'block' : 'none'}">
     <div class="icon-area">
         <i class="icon {icon}" aria-hidden="true"></i>
     </div>
@@ -14,21 +14,14 @@
 
 
 <style>
-    .modal {
-        position: absolute;
-        background: var(--modal-bg-color);
+    #prompt-modal {
         width: var(--prompt-width);
         top: calc(var(--toolbar-height) * 2 + .07rem);
         left: calc(50vw - 20rem);
-        color: var(--modal-text-color);
-        font-family: var(--ui-font-family);
         font-size: var(--ui-font-size-large);
         padding: 2rem;
-        box-sizing: border-box;
-        border-radius: var(--default-radius);
         cursor: default;
-        z-index: 9999;
-        box-shadow: var(--default-shadow);
+        z-index: 920;
     }
 
     .icon-area {
@@ -40,7 +33,7 @@
         position: absolute;
     }
 
-    :global(.modal > .text > em) {
+    :global(#prompt-modal > .text > em) {
         color: var(--ui-highlight-color);
         font-style: normal;
         font-weight: bold;

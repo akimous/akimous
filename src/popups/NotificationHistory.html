@@ -1,5 +1,5 @@
 {#if open}
-<div ref:notificationHistory id="notification-history">
+<div ref:notificationHistory id="notification-history" class="popup">
     <div class="container">
         {#if items.length===0}
         <div id="no-notifications">
@@ -14,18 +14,11 @@
 
 <style>
     #notification-history {
-        position: absolute;
         right: 0.5rem;
         top: calc(var(--toolbar-height) + 0.5rem);
-        width: var(--bubble-width);
+        width: 30rem;
         min-height: 10rem;
         max-height: 40rem;
-        z-index: 11;
-        background: var(--modal-bg-color);
-        color: var(--modal-text-color);
-        box-sizing: border-box;
-        border-radius: var(--default-radius);
-        box-shadow: var(--default-shadow);
     }
 
     .container {
@@ -61,7 +54,7 @@
         width: 0;
         height: 0;
         border: 0.5rem solid transparent;
-        border-bottom-color: var(--modal-bg-color);
+        border-bottom-color: var(--popup-bg-color);
         border-top: 0;
         margin-top: -0.5rem;
     }

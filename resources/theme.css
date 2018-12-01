@@ -52,7 +52,6 @@
     --panel-right-width: calc(8rem + 7vw);
     --function-doc-height: 61.8%;
     --prompt-width: 40rem;
-    --bubble-width: 30rem;
 
     --tab-bar-icon-size: 1.4rem;
 
@@ -71,8 +70,7 @@
     --monospace-font-size: 1.2rem;
     --monospace-line-height: 1.6rem;
 
-    --modal-bg-color: var(--gray9);
-    --modal-text-color: var(--gray1);
+    --popup-bg-color: var(--gray9);
 
     --red: #c0392b;
     --brighter-red: #e74c3c;
@@ -187,6 +185,16 @@ span.tooltipped::after {
 
 .gone {
     display: none !important;
+}
+
+.popup {
+    z-index: 320;
+    position: absolute;
+    background: var(--popup-bg-color);
+    color: var(--gray3);
+    border-radius: var(--default-radius);
+    box-shadow: var(--default-shadow);
+    box-sizing: border-box;
 }
 
 .l-ui-text {

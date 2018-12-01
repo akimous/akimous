@@ -1,37 +1,33 @@
-<div id="panel-popup" ref:popup style="display:{open?'block':'none'}" on:mouseleave="set({open: false})">{@html content} <div id="popup-arrow"></div></div>
+<div id="panel-popup" class="popup" ref:popup style="display:{open?'block':'none'}" on:mouseleave="set({open: false})">{@html content} <div id="popup-arrow"></div></div>
 
 
 <style>
     #panel-popup {
-        z-index: 999;
-        position: absolute;
-        width: 30rem;
+        width: 36rem;
         min-height: 3rem;
-        background: var(--gray9);
-        border-radius: var(--default-radius);
-        box-shadow: var(--default-shadow);
-        color: var(--gray3);
         padding: .5rem .5rem;
         max-height: 80%;
+/*        overflow-x: scroll;*/
     }
 
-    :global(#popup table) {
+    :global(#panel-popup table) {
         border-spacing: 1rem .5rem;
         margin-bottom: 0;
     }
 
-    :global(#popup td.key) {
+    :global(#panel-popup td.key) {
         color: var(--primary5);
         text-align: right;
         font-weight: 400;
         vertical-align: top;
     }
     
-    :global(#popup .code) {
+    :global(#panel-popup .code) {
         font-family: var(--monospace-font-family);
         white-space: pre;
-        max-height: 30rem;
-        overflow-y: scroll;
+        max-height: 36rem;
+        max-width: 28rem;
+        overflow: scroll;
     }
 
     /* https://leaverou.github.io/bubbly/ */
@@ -42,12 +38,12 @@
         right: 0;
         margin-top: -.5rem;
         border: .5rem solid transparent;
-        border-left-color: var(--modal-bg-color);
+        border-left-color: var(--popup-bg-color);
         border-right: 0;
-        margin-right: -.2rem;
+        margin-right: -.5rem;
     }
 
-    #popup:before {
+    #panel-popup:before {
         content: '';
         position: absolute;
         right: 0;
@@ -56,7 +52,7 @@
         margin-right: -.5rem;
         height: 100%;
         width: 1rem;
-        z-index: 9;
+        z-index: 310;
     }
 
 </style>
@@ -85,13 +81,13 @@
                     yAdjusted = document.documentElement.clientHeight - height
                 if (yAdjusted < 0)
                     yAdjusted = 0
-                this.refs.popup.style.left = `${x - 31 * rem}px`
+                this.refs.popup.style.left = `${x - 36 * rem}px`
                 this.refs.popup.style.top = `${yAdjusted}px`
                 const el = document.querySelector('#popup-arrow')
                 el.style.top = `${y - yAdjusted}px`
             },
             closeIfNotHovered(event) {
-                if (event.relatedTarget && event.relatedTarget.id === 'popup') return
+                if (event.relatedTarget && event.relatedTarget.id === 'panel-popup') return
                 this.set({ open: false })
             }
         }

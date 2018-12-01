@@ -10,7 +10,7 @@ function binarySearch(array, target) {
     return hi
 }
 
-function onIdle(callback, timeout = 1000, delay = 1) {
+function onIdle(callback, timeout = 1000, delay = 0) {
     setTimeout(() => { // let other things run first
         if (window.requestIdleCallback) {
             window.requestIdleCallback(callback, { timeout })
@@ -24,9 +24,7 @@ function onIdle(callback, timeout = 1000, delay = 1) {
 }
 
 function initializeTabView(view, title, icon) {
-    view.set({
-        self: view,
-    })
+    view.set({ self: view })
     view.children = {}
     setTimeout(() => {
         view.parent = view.get().parent
@@ -52,16 +50,10 @@ function setAttributeForMultipleComponent(obj, ...targets) {
 function activateView(parent, view) {
     const oldView = parent.get().focus
     if (view === oldView) return
-    parent.set({
-        focus: view
-    })
+    parent.set({ focus: view })
     if (!view) return
-    oldView && oldView.set({
-        active: false
-    })
-    view.set({
-        active: true
-    })
+    oldView && oldView.set({ active: false })
+    view.set({ active: true })
 }
 
 function reformatDocstring(doc) {
