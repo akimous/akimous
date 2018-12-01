@@ -37,9 +37,10 @@
             this.pathToEditor = {}
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
             this.activationHistoryIndex = 0
-            setTimeout(() => {
-                this.openFile(['demo', 'demo.py'], 'demo.py')
-            }, 200)
+            if (g.dev)
+                setTimeout(() => {
+                    this.openFile(['demo', 'demo.py'], 'demo.py')
+                }, 200)
         },
         onstate({ changed, current, previous }) {
             if (!previous) return

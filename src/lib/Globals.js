@@ -1,5 +1,6 @@
 let _uid = 0
 const g = {
+    dev: window.location.href.includes('dev=1'),
     focusStack: [],
     get focus() {
         const stack = this.focusStack

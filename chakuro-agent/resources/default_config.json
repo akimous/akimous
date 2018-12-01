@@ -7,5 +7,12 @@
   "linter": {
     "pyflakes": true,
     "pylint": true
+  },
+  "offlineLintType": {
+    "informational": true,
+    "refactor": true,
+    "convention": true,
+    "warning": true,
+    "error": true
   }
 }

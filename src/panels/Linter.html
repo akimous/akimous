@@ -13,7 +13,7 @@
         <div class="title non-selectable">Offline Lints</div>
         <div id="offline-linter-filter" class="non-selectable">
             {#each OFFLINE_LINT_TYPES as type}
-            <div class="type-filter {offlineLintActiveTypes.has(type)?'active':''}" on:click="toggle('offlineLintActiveTypes', type)">
+            <div class="type-filter {offlineLintType.has(type)?'active':''}" on:click="toggle('offlineLintType', type)">
                 <div class="type {type}">{typeStrings[type]}</div>
                 <div class="count {type}">{offlineLintCounts[type]}</div>
             </div>
@@ -163,6 +163,7 @@
 
 <script>
     import g from '../lib/Globals'
+    import { config, setConfig } from '../lib/ConfigManager'
     import { initializeTabView } from '../lib/Utils'
 
     const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
@@ -172,6 +173,14 @@
         oncreate() {
             g.linter = this
             initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
+
+            // fill in enabled types from config
+            const { offlineLintType } = config
+            const set = this.get().offlineLintType
+            for (const k in offlineLintType)
+                if (offlineLintType[k])
+                    set.add(k)
+            this.set({ offlineLintType: set })
         },
         data() {
             return {
@@ -180,7 +189,7 @@
                 realTimeLints: [],
                 width: 100,
                 OFFLINE_LINT_TYPES,
-                offlineLintActiveTypes: new Set(OFFLINE_LINT_TYPES)
+                offlineLintType: new Set()
             }
         },
         computed: {
@@ -216,9 +225,9 @@
                 }
                 return result
             },
-            filteredOfflineLints: ({ offlineLints, offlineLintActiveTypes }) => {
+            filteredOfflineLints: ({ offlineLints, offlineLintType }) => {
                 return offlineLints.filter(x => {
-                    return offlineLintActiveTypes.has(x.type)
+                    return offlineLintType.has(x.type)
                 })
             }
         },
@@ -271,6 +280,9 @@
                     set.add(item)
                 this.set({
                     [setName]: set
+                })
+                setConfig(setName, {
+                    [item]: set.has(item)
                 })
             },
         }
