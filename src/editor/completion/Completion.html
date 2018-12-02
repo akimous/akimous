@@ -33,6 +33,12 @@
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
     import { CLOSED, NORMAL } from './CompletionProvider'
 
+    const EXTRA_PREDICTIONS = new Set([
+        'word-segment',
+        'word',
+        'full-statement'
+    ])
+
     export default {
         components: {
             CompletionRow
@@ -151,8 +157,12 @@
                 this.cm = editor.cm
                 this.completionProvider = editor.completionProvider
             },
-            requestCompletionDocstring(name) {
+            requestCompletionDocstringIfNeeded(completion) {
+                let name = completion.c
                 if (name === this.lastRequestedCompletionForDocstring) return
+                if (EXTRA_PREDICTIONS.has(completion.t))
+                    return // don't request docstring if it is not actually a completion
+
                 // remove redundent punctuations
                 const match = name.match(/^[^\d\W]\w*/)
                 if (match)
@@ -167,7 +177,7 @@
                 } else {
                     this.set({ rows, open: true, passive })
                     this.repositionCompletionWindow(firstTriggeredCharPos)
-                    this.requestCompletionDocstring(rows[0].c)
+                    this.requestCompletionDocstringIfNeeded(rows[0])
                 }
             },
             repositionCompletionWindow(pos) {
@@ -233,7 +243,7 @@
                 else if (targetIndex < 0) targetIndex = 0
 
                 const targetRow = this.completionRows[targetIndex]
-                this.requestCompletionDocstring(targetRow.get().c)
+                this.requestCompletionDocstringIfNeeded(targetRow.get())
                 this.set({
                     selectedCompletionRow: targetRow
                 })
