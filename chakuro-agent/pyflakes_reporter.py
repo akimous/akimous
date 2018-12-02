@@ -13,7 +13,7 @@ class PyflakesReporter:
         self.errors.append(PyflakesError(msg, 0, 0))
 
     def syntaxError(self, filename, msg, lineno, offset, text):
-        self.errors.append(PyflakesError(msg + ' ' + text, lineno, offset))
+        self.errors.append(PyflakesError(msg + '\n' + text, lineno, offset))
 
     def flake(self, msg):
         self.errors.append(PyflakesError(msg.message % msg.message_args, msg.lineno, msg.col))

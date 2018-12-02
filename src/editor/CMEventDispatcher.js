@@ -69,6 +69,7 @@ class CMEventDispatcher {
             shouldDismissCompletionOnCursorActivity = true
             const cursor = cm.getCursor()
             g.cursorPosition.set(cursor)
+            console.warn('cursorActivity', cursor)
             g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
         })
 
@@ -78,8 +79,8 @@ class CMEventDispatcher {
             editor.set({ clean: !clean }) // 0.25 ms
         })
 
-        cm.on('changes', (cm, c) => {
-            if (c[0].origin === 'setValue') return
+        cm.on('changes', (cm, changes) => {
+            if (changes[0].origin === 'setValue') return
             const cursor = doc.getCursor()
             const lineContent = cm.getLine(cursor.line)
             const indent = this.ensureIndent
@@ -92,7 +93,7 @@ class CMEventDispatcher {
                     cm.execCommand('indentLess')
             }
             // handles Jedi sync if the change isn't a single-char input
-            const origin = c[0].origin
+            const origin = changes[0].origin
             if (origin !== '+input' && origin !== '+completion' && origin !== '+delete') {
                 completionProvider.sync(doc.getValue())
             } else if (
@@ -101,15 +102,7 @@ class CMEventDispatcher {
             ) {
                 completionProvider.retrigger({ lineContent, ...cursor })
             } else if (completionProvider.state === CLOSED) {
-                let minLine = Number.MAX_VALUE,
-                    maxLine = 0
-                for (const ci of c) {
-                    minLine = Math.min(minLine, ci.from.line, ci.to.line)
-                    maxLine = Math.max(maxLine, ci.from.line, ci.to.line)
-                }
-                for (let line = minLine, end = maxLine; line <= end; line++) {
-                    completionProvider.syncLine(doc.getLine(line), line)
-                }
+                completionProvider.syncChanges(changes)
             }
         })
 

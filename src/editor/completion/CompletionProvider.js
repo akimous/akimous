@@ -111,7 +111,7 @@ class CompletionProvider {
         this.firstTriggeredCharPos.line = line
         this.firstTriggeredCharPos.ch = ch + triggerdCharOffset
         this.lineContent = lineContent
-        this.editor.socket.send('Predict', { line, ch, text: lineContent })
+        this.editor.socket.send('Predict', [line, ch, lineContent])
         this.isClassDefinition = /^\s*class\s/.test(lineContent)
         Object.assign(this.context, {
             firstTriggeredCharPos: this.firstTriggeredCharPos,
@@ -144,7 +144,7 @@ class CompletionProvider {
         sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
 
         if (!sortedCompletions.length) {
-            this.editor.socket.send('PredictExtra', { input, line, ch })
+            this.editor.socket.send('PredictExtra', [line, ch, input])
         } else
             this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.type)
     }
@@ -155,9 +155,41 @@ class CompletionProvider {
         console.warn('syncing')
     }
 
-    syncLine(lineContent, line) {
+    //    /**
+    //     * Sync specified lines
+    //     * @param {Number}  from line number
+    //     * @param {Number}  to   line number (inclusive)
+    //     * @param {Boolean} lint should trigger pyflakes
+    //     */
+    //    syncRange(from, to, lint = false) {
+    //        if (!this.enabled) return
+    //        const { cm } = this.editor
+    //        const lines = []
+    //        for (let i = from; i <= to; i++) {
+    //            lines.push(cm.getLine(i))
+    //        }
+    //        this.editor.socket.send('SyncRange', [from, to, lint, ...lines])
+    //    }
+
+    syncChanges(changes) {
         if (!this.enabled) return
-        this.editor.socket.send('SyncLine', { line, text: lineContent })
+        const { cm } = this.editor
+        for (let c = 0; c < changes.length; c++) {
+            const change = changes[c]
+            const { text, removed } = change
+            const from = change.from.line
+            const to = change.to.line
+            const lines = []
+            
+            let lint = text.length > 1 || removed.length > 1
+            if (c != changes.length - 1) lint = false // only lint on last change
+            
+            text[0] = cm.getLine(from)
+            if (to != from && to - from === text.length - 1) 
+                text[text.length - 1] = cm.getLine(to)
+            
+            this.editor.socket.send('SyncRange', [from, to + 1, lint, ...text])
+        }
     }
 
     sortAndFilter(input, completions) {

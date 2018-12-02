@@ -31,13 +31,13 @@
         height: .9rem;
         width: 100%;
         cursor: row-resize;
-        z-index: 3;
+        z-index: 120;
     }
 
     #doc-mask {
         position: absolute;
         top: calc(var(--function-doc-height) - .4rem);
-        z-index: 2;
+        z-index: 110;
         width: 100%;
         background: linear-gradient(transparent 0%, var(--panel-color) 45%, var(--gray6) 45%, var(--gray6) 55%, var(--panel-color) 55%, transparent 100%);
         height: .9rem;
@@ -46,9 +46,9 @@
     #doc-split-bar:hover {
         background: var(--accent4);
         background: linear-gradient(to bottom,
-        transparent 30%, var(--accent4) 30%,
-        var(--accent4) 70%,
-        transparent 70%);
+            transparent 30%, var(--accent4) 30%,
+            var(--accent4) 70%,
+            transparent 70%);
     }
 
     #function-doc-container {
@@ -172,32 +172,34 @@
         methods: {
             getFunctionDocIfNeeded(cm, editor, cursor) {
                 if (cm.somethingSelected()) return
-                const token = cm.getTokenAt(cursor)
-                // don't request function doc if the cursor is moving on the same token
-                if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
-                lastTokenStart.line = cursor.line
-                lastTokenStart.ch = token.start
+                onIdle(() => {
 
-                // don't request function doc if the cursor is moving within the same braces
-                const pos = inParentheses(cm, cursor)
+                    const token = cm.getTokenAt(cursor)
+                    // don't request function doc if the cursor is moving on the same token
+                    if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
+                    lastTokenStart.line = cursor.line
+                    lastTokenStart.ch = token.start
 
-                const { filePath } = editor.get()
-                const { functionDocTriggeredFile, functionDocTriggeredPos } = this.get()
-                if (functionDocTriggeredPos && pos &&
-                    functionDocTriggeredPos.ch === pos.ch &&
-                    functionDocTriggeredPos.line === pos.line &&
-                    functionDocTriggeredFile === filePath) {
-                    this.highlightActiveParameter(cm, cursor)
-                    return
-                }
-                this.set({ functionDocTriggeredPos: pos, functionDocTriggeredFile: filePath })
+                    // don't request function doc if the cursor is moving within the same braces
+                    const pos = inParentheses(cm, cursor)
 
-                editor.socket.send('GetFunctionDocumentation', {
-                    line: cursor.line,
-                    ch: cursor.ch,
-                    text: cm.getLine(cursor.line)
+                    const { filePath } = editor.get()
+                    const { functionDocTriggeredFile, functionDocTriggeredPos } = this.get()
+                    if (functionDocTriggeredPos && pos &&
+                        functionDocTriggeredPos.ch === pos.ch &&
+                        functionDocTriggeredPos.line === pos.line &&
+                        functionDocTriggeredFile === filePath) {
+                        this.highlightActiveParameter(cm, cursor)
+                        return
+                    }
+                    this.set({ functionDocTriggeredPos: pos, functionDocTriggeredFile: filePath })
+
+                    editor.socket.send('GetFunctionDocumentation', {
+                        line: cursor.line,
+                        ch: cursor.ch,
+                        //                    text: cm.getLine(cursor.line)
+                    })
                 })
-                return true
             },
             highlightActiveParameter(cm, cursor) {
                 if (!cursor) cursor = cm.getCursor()
@@ -290,7 +292,7 @@
                         if (nextToken.string === '=')
                             kwarg = token.string
                     }
-                }         
+                }
                 // forward search
                 if (!kwarg)
                     kwarg = scanInSameLevelOfBraces(cm, cursor, findParameterName, 1)
@@ -351,7 +353,7 @@
                     const charAfter = lineContent.charAt(cursor.ch)
                     const lineBreakBefore = multiLine && strBefore.length > 0 && !/(\($)|^\s+$/.test(strBefore)
                     const lineBreakAfter = multiLine && charAfter.length > 0 && !/\)|\s/.test(charAfter)
-                    
+
                     if (commaBefore && lineBreakBefore) {
                         cm.replaceSelection(',')
                         cm.execCommand('newlineAndIndent')

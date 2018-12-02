@@ -92,6 +92,14 @@ async def isort(context, send):
         log.error(e)
 
 
+async def run_pyflakes(content, context, send):
+    if config['linter']['pyflakes']:
+        reporter = context.pyflakes_reporter
+        reporter.clear()
+        pyflakes.api.check(content, '', reporter)
+        await send('RealTimeLints', dict(result=reporter.errors))
+
+
 @handles('OpenFile')
 async def open_file(msg, send, context):
     context.path = Path(*msg['filePath'])
@@ -122,9 +130,7 @@ async def open_file(msg, send, context):
     if config['linter']['pylint']:
         context.linter_task = asyncio.create_task(lint_offline(context, send))
 
-    if config['linter']['pyflakes']:
-        pyflakes.api.check(content, '', context.pyflakes_reporter)
-        await send('RealTimeLints', dict(result=context.pyflakes_reporter.errors))
+    await run_pyflakes(content, context, send)
 
 
 @handles('Reload')
@@ -141,7 +147,7 @@ async def reload(msg, send, context):
 async def modification_time(msg, send, context):
     new_path = msg.get('newPath', None)
     if new_path is not None:
-        print('path modified', context.path, new_path)
+        log.info('path modified from %s to %s', context.path, new_path)
         context.path = Path(*new_path)
     try:
         await send('Mtime', {
@@ -153,10 +159,9 @@ async def modification_time(msg, send, context):
 
 @handles('SaveFile')
 async def save_file(msg, send, context):
-    # with atomic_save(str(context.path)) as f:
-    #     f.write(msg['content'].encode('utf-8'))
+    content = msg['content']
     with open(context.path, 'w') as f:
-        f.write(msg['content'])
+        f.write(content)
     mtime_before_formatting = context.path.stat().st_mtime
     result = {
             'mtime': mtime_before_formatting
@@ -182,41 +187,46 @@ async def save_file(msg, send, context):
     if config['linter']['pylint']:
         context.linter_task = asyncio.create_task(lint_offline(context, send))
 
+    await run_pyflakes(content, context, send)
+
 
 @handles('Sync')
 async def sync(msg, send, context):
-    context.doc = msg['doc'].splitlines()
+    content = msg['doc']
+    context.doc = content.splitlines()
     for line, line_content in enumerate(context.doc):
         context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
+    await run_pyflakes(content, context, send)
 
 
-@handles('SyncLine')
-async def sync_line(msg, send, context):
-    line_content = msg['text']
-    line = msg['line']
-    set_line(context, line, line_content)
-    context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
+@handles('SyncRange')
+async def sync_range(msg, send, context):
+    from_line, to_line, lint, *lines = msg  # to_line is exclusive
+    doc = context.doc
+    doc[from_line:to_line] = lines
+
+    for i in range(from_line, to_line):
+        context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
+
+    if lint:
+        await run_pyflakes('\n'.join(doc), context, send)
 
 
-def set_line(context, line_number, line_content):
-    while len(context.doc) <= line_number:
-        context.doc.append('')
-    context.doc[line_number] = line_content
+# def set_line(context, line_number, line_content):
+    # while len(context.doc) <= line_number:
+    #     context.doc.append('')
+    # context.doc[line_number] = line_content
+    # log.info(context.doc)
 
 
 @handles('Predict')
 async def predict(msg, send, context):
-    line_content = msg['text']
-    line_number = msg['line']
-    ch = msg['ch']
-    set_line(context, line_number, line_content)
+    line_number, ch, line_content = msg
+    context.doc[line_number] = line_content
     doc = '\n'.join(context.doc)
     with Timer(f'Prediction ({line_number}, {ch})'):
         j = jedi.Script(doc, line_number + 1, ch, context.path)
         completions = j.completions()
-
-    if DEBUG:
-        print('completions:', completions)
 
     with Timer(f'Rest ({line_number}, {ch})'):
         if completions:
@@ -243,9 +253,7 @@ async def predict(msg, send, context):
 
 @handles('PredictExtra')
 async def predict_extra(msg, send, context):
-    text = msg['input']
-    line_number = msg['line']
-    ch = msg['ch']
+    line_number, ch, text = msg
     result = []
     result_set = set()
     # 
@@ -317,11 +325,11 @@ async def get_completion_docstring(msg, send, context):
 
 @handles('GetFunctionDocumentation')
 async def get_function_documentation(msg, send, context):
-    line_content = msg['text']
+    # line_content = msg['text']
     line_number = msg['line']
     ch = msg['ch']
 
-    set_line(context, line_number, line_content)
+    # set_line(context, line_number, line_content)
     doc = '\n'.join(context.doc)
 
     j = jedi.Script(doc, line_number + 1, ch, context.path)
