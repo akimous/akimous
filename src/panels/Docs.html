@@ -172,33 +172,30 @@
         methods: {
             getFunctionDocIfNeeded(cm, editor, cursor) {
                 if (cm.somethingSelected()) return
-                onIdle(() => {
 
-                    const token = cm.getTokenAt(cursor)
-                    // don't request function doc if the cursor is moving on the same token
-                    if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
-                    lastTokenStart.line = cursor.line
-                    lastTokenStart.ch = token.start
+                const token = cm.getTokenAt(cursor)
+                // don't request function doc if the cursor is moving on the same token
+                if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
+                lastTokenStart.line = cursor.line
+                lastTokenStart.ch = token.start
 
-                    // don't request function doc if the cursor is moving within the same braces
-                    const pos = inParentheses(cm, cursor)
+                // don't request function doc if the cursor is moving within the same braces
+                const pos = inParentheses(cm, cursor)
 
-                    const { filePath } = editor.get()
-                    const { functionDocTriggeredFile, functionDocTriggeredPos } = this.get()
-                    if (functionDocTriggeredPos && pos &&
-                        functionDocTriggeredPos.ch === pos.ch &&
-                        functionDocTriggeredPos.line === pos.line &&
-                        functionDocTriggeredFile === filePath) {
-                        this.highlightActiveParameter(cm, cursor)
-                        return
-                    }
-                    this.set({ functionDocTriggeredPos: pos, functionDocTriggeredFile: filePath })
+                const { filePath } = editor.get()
+                const { functionDocTriggeredFile, functionDocTriggeredPos } = this.get()
+                if (functionDocTriggeredPos && pos &&
+                    functionDocTriggeredPos.ch === pos.ch &&
+                    functionDocTriggeredPos.line === pos.line &&
+                    functionDocTriggeredFile === filePath) {
+                    this.highlightActiveParameter(cm, cursor)
+                    return
+                }
+                this.set({ functionDocTriggeredPos: pos, functionDocTriggeredFile: filePath })
 
-                    editor.socket.send('GetFunctionDocumentation', {
-                        line: cursor.line,
-                        ch: cursor.ch,
-                        //                    text: cm.getLine(cursor.line)
-                    })
+                editor.socket.send('GetFunctionDocumentation', {
+                    line: cursor.line,
+                    ch: cursor.ch,
                 })
             },
             highlightActiveParameter(cm, cursor) {

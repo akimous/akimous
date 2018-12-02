@@ -190,15 +190,6 @@ async def save_file(msg, send, context):
     await run_pyflakes(content, context, send)
 
 
-@handles('Sync')
-async def sync(msg, send, context):
-    content = msg['doc']
-    context.doc = content.splitlines()
-    for line, line_content in enumerate(context.doc):
-        context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
-    await run_pyflakes(content, context, send)
-
-
 @handles('SyncRange')
 async def sync_range(msg, send, context):
     from_line, to_line, lint, *lines = msg  # to_line is exclusive
@@ -210,13 +201,6 @@ async def sync_range(msg, send, context):
 
     if lint:
         await run_pyflakes('\n'.join(doc), context, send)
-
-
-# def set_line(context, line_number, line_content):
-    # while len(context.doc) <= line_number:
-    #     context.doc.append('')
-    # context.doc[line_number] = line_content
-    # log.info(context.doc)
 
 
 @handles('Predict')
@@ -325,11 +309,8 @@ async def get_completion_docstring(msg, send, context):
 
 @handles('GetFunctionDocumentation')
 async def get_function_documentation(msg, send, context):
-    # line_content = msg['text']
     line_number = msg['line']
     ch = msg['ch']
-
-    # set_line(context, line_number, line_content)
     doc = '\n'.join(context.doc)
 
     j = jedi.Script(doc, line_number + 1, ch, context.path)

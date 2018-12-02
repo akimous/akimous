@@ -10,6 +10,8 @@ import {
     PARAMETER_DEFINITION
 } from './completion/CompletionProvider'
 
+const NONE = -1
+
 class CMEventDispatcher {
     constructor(editor) {
         const cm = editor.cm,
@@ -18,6 +20,7 @@ class CMEventDispatcher {
             completionProvider = editor.completionProvider,
             completion = editor.completion
 
+        let dirtyLine = -1
         let shouldDismissCompletionOnCursorActivity = false
 
         function getNTokens(n, pos) {
@@ -32,6 +35,15 @@ class CMEventDispatcher {
                 }
             }
             return tokens
+        }
+
+        function syncIfNeeded(changes) {
+            if (dirtyLine === NONE) return
+            dirtyLine = NONE
+            if (Number.isInteger(changes))
+                editor.syncChanges(changes, cm.getLine(changes))
+            else
+                editor.syncChanges(changes)
         }
 
         // cut event is handled in LayeredKeyboardControl via cmd-X hotkey,
@@ -69,8 +81,14 @@ class CMEventDispatcher {
             shouldDismissCompletionOnCursorActivity = true
             const cursor = cm.getCursor()
             g.cursorPosition.set(cursor)
-            console.warn('cursorActivity', cursor)
-            g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
+
+            const movingToDifferentLine = cursor.line !== dirtyLine
+            if (movingToDifferentLine)
+                syncIfNeeded(dirtyLine)
+            
+            requestAnimationFrame(() => {
+                g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
+            })
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
@@ -95,14 +113,14 @@ class CMEventDispatcher {
             // handles Jedi sync if the change isn't a single-char input
             const origin = changes[0].origin
             if (origin !== '+input' && origin !== '+completion' && origin !== '+delete') {
-                completionProvider.sync(doc.getValue())
+                syncIfNeeded(changes)
             } else if (
                 (completionProvider.state === TRIGGERED || completionProvider.state === RETRIGGERED) &&
                 (origin === '+input' || origin === '+delete')
             ) {
                 completionProvider.retrigger({ lineContent, ...cursor })
             } else if (completionProvider.state === CLOSED) {
-                completionProvider.syncChanges(changes)
+                syncIfNeeded(changes)
             }
         })
 
@@ -112,6 +130,7 @@ class CMEventDispatcher {
             const startTime = performance.now()
             try {
                 const cursor = c.from
+                dirtyLine = cursor.line
                 const lineContent = cm.doc.getLine(cursor.line)
                 if (c.origin === '+input') {
                     let input = c.text[0]
@@ -124,7 +143,7 @@ class CMEventDispatcher {
                     // for forcing passive in function definition
                     let isInFunctionSignatureDefinition = false
 
-                    // if it is not single char input, handle by completionProvider.sync()
+                    // if it is a single char input
                     if (c.text.length === 1 &&
                         c.from.line === c.to.line &&
                         input.length === 1
@@ -171,6 +190,7 @@ class CMEventDispatcher {
                                 newCursor.ch,
                                 -(!isInputDot)
                             )
+                            dirtyLine = NONE
                             if (t0.type === 'string') completionProvider.type = STRING
                             else if (t0.type === 'comment') completionProvider.type = COMMENT
                             else if (t1.string === 'for') completionProvider.type = FOR
