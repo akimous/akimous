@@ -38,12 +38,12 @@ class Socket {
         }
         this.socket.onmessage = event => {
             const [e, obj] = msgpack.decode(new Uint8Array(event.data)) // event.data is ArrayBuffer
-            console.debug(`Recieved message from ${this.path}: ${e}`, obj)
+            // console.debug(`Recieved message from ${this.path}: ${e}`, obj)
             const preprocessor = rowPreprocessor[e]
             if (preprocessor && obj.result) {
                 obj.result = obj.result.map(preprocessor)
             }
-            console.debug(`Preprocessed ${e}`, obj)
+            console.debug(`Preprocessed ${this.path}/${e}`, obj)
             const handler = this.handlers[e]
             if (!handler) {
                 console.warn('Unhandled event', e)

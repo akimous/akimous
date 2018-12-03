@@ -179,11 +179,14 @@
                 lastTokenStart.line = cursor.line
                 lastTokenStart.ch = token.start
 
-                // don't request function doc if the cursor is moving within the same braces
                 const pos = inParentheses(cm, cursor)
-
+                
+                // don't request function doc if the cursor is not in braces
+                if (!pos) return
+                
                 const { filePath } = editor.get()
                 const { functionDocTriggeredFile, functionDocTriggeredPos } = this.get()
+                // don't request function doc if the cursor is moving within the same braces
                 if (functionDocTriggeredPos && pos &&
                     functionDocTriggeredPos.ch === pos.ch &&
                     functionDocTriggeredPos.line === pos.line &&
