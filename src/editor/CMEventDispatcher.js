@@ -7,8 +7,10 @@ import {
     STRING,
     COMMENT,
     FOR,
-    PARAMETER_DEFINITION
+    PARAMETER_DEFINITION,
+    AFTER_OPERATOR,
 } from './completion/CompletionProvider'
+import { OPERATOR } from './RegexDefinitions'
 
 const NONE = -1
 
@@ -153,9 +155,9 @@ class CMEventDispatcher {
                         if (currentState.scopes) {
                             const currentScope = currentState.scopes[currentState.scopes.length - 1]
                             if (currentScope.type === ')') {
-                                let pos = cm.scanForBracket(c.from, -1, undefined, {
+                                let { pos } = cm.scanForBracket(c.from, -1, undefined, {
                                     bracketRegex: /[()]/
-                                }).pos
+                                })
                                 // eslint-disable-next-line
                                 const [tr1, tr2, tr3] = getNTokens(3, pos)
                                 if (tr3.string === 'def')
@@ -194,6 +196,7 @@ class CMEventDispatcher {
                             if (t0.type === 'string') completionProvider.type = STRING
                             else if (t0.type === 'comment') completionProvider.type = COMMENT
                             else if (t1.string === 'for') completionProvider.type = FOR
+                            else if (OPERATOR.test(input)) completionProvider.type = AFTER_OPERATOR
                             else completionProvider.type = NORMAL
                         }
                     } else {

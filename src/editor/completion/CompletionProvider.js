@@ -10,7 +10,8 @@ const NORMAL = 0,
     STRING = 1,
     COMMENT = 2,
     FOR = 3,
-    PARAMETER_DEFINITION = 4
+    PARAMETER_DEFINITION = 4,
+    AFTER_OPERATOR = 5
 const debug = false
 
 const shouldUseSequentialHighlighter = new Set([
@@ -55,6 +56,15 @@ class CompletionProvider {
     //        return this._type
     //    }
 
+    //    set state(x) {
+    //        this._state = x
+    //        console.warn('set state', x)
+    //    }
+    //
+    //    get state() {
+    //        return this._state
+    //    }
+
     constructor(editor) {
         this.editor = editor
         this.completion = editor.completion
@@ -76,19 +86,24 @@ class CompletionProvider {
 
         editor.socket.addHandler('Prediction', (data) => {
             if (debug) console.log('CompletionProvider.recieve', data)
-            const input = this.lineContent[this.firstTriggeredCharPos.ch]
+            let input = this.lineContent[this.firstTriggeredCharPos.ch]
             this.state = TRIGGERED
             this.currentCompletions = data.result
             if (data.result.length < 1)
                 return this.completion.set({ open: false })
+
+            if (this.type === AFTER_OPERATOR)
+                input = null
             const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
 
-            const ruleBasedPrediction = this.ruleBasedPredictor.predict({
-                topHit: sortedCompletions[0],
-                completions: sortedCompletions,
-                input
-            })
-            sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
+            if (this.type === NORMAL) {
+                const ruleBasedPrediction = this.ruleBasedPredictor.predict({
+                    topHit: sortedCompletions[0],
+                    completions: sortedCompletions,
+                    input
+                })
+                sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
+            }
             this.completion.setCompletions(
                 sortedCompletions,
                 this.firstTriggeredCharPos,
@@ -122,12 +137,9 @@ class CompletionProvider {
     }
 
     retrigger({ lineContent, line, ch }) {
-        console.warn('retriggered')
         if (!this.enabled) return
         if (this.firstTriggeredCharPos.ch === ch) {
-            this.completion.set({
-                open: false
-            })
+            this.completion.set({ open: false })
             this.state = CLOSED
             return
         }
@@ -144,13 +156,14 @@ class CompletionProvider {
         sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
 
         if (!sortedCompletions.length) {
+            console.warn({ input })
             this.editor.socket.send('PredictExtra', [line, ch, input])
         } else
             this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.type)
     }
 
     sortAndFilter(input, completions) {
-        if (!input) { // for prediction immediately after dot
+        if (!input) { // for prediction immediately after dot or operator
             completions.forEach(i => {
                 i.sortScore = 1
                 i.highlight = i.c
@@ -207,5 +220,6 @@ export {
     STRING,
     COMMENT,
     FOR,
-    PARAMETER_DEFINITION
+    PARAMETER_DEFINITION,
+    AFTER_OPERATOR,
 }
