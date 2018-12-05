@@ -21,6 +21,8 @@ from utils import Timer, detect_doc_type
 from websocket import register_handler
 from word_completer import search_prefix
 from config_manager import config
+from spell_checker import check_spelling
+
 
 handles = partial(register_handler, 'editor')
 DEBUG = False
@@ -127,10 +129,11 @@ async def open_file(msg, send, context):
             j = jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path)
             j.completions()
 
-    if config['linter']['pylint']:
-        context.linter_task = asyncio.create_task(lint_offline(context, send))
-
-    await run_pyflakes(content, context, send)
+    with Timer('Spelling check'):
+        check_spelling(context.feature_extractor.context.line_to_tokens)
+    # await run_pyflakes(content, context, send)
+    # if config['linter']['pylint']:
+    #     context.linter_task = asyncio.create_task(lint_offline(context, send))
 
 
 @handles('Reload')
