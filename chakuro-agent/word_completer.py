@@ -33,6 +33,11 @@ def initialize(event_loop):
 
 def search_prefix(s):
     return [
-        i[0] for i in c.execute("SELECT p||w FROM d where p=? and w glob ? order by f desc limit 6",
+        i[0] for i in c.execute('SELECT p||w FROM d where p=? and w glob ? order by f desc limit 6',
                                 (s[:3], f'{s[3:]}*')).fetchall()
     ]
+
+
+def is_prefix(s):
+    return bool(c.execute('SELECT 1 FROM d where p=? and w glob ? order by f desc limit 1',
+                          (s[:3], f'{s[3:]}*')).fetchall())

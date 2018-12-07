@@ -1,28 +1,84 @@
 from collections import namedtuple
 from token import NAME
+import re
+from itertools import chain
+from wordsegment import WORDS
+from word_completer import is_prefix
 
-SpellingError = namedtuple('SpellingError', ('line', 'ch', 'token', 'word'))
+SpellingError = namedtuple('SpellingError', ('line', 'ch', 'token', 'highlighted_token'))
 DummyToken = namedtuple('DummyToken', ('string', ))
 dummy = DummyToken('')
 
 
-keywords = {'class', 'as'}
+KEYWORDS = {'class', 'as'}
+DELIMITER_REGEX = re.compile('[_\d]+')
+CAMEL_REGEX = re.compile('([A-Z][a-z]*)')
+MIN_WORD_LENGTH_TO_CHECK = 3
+
+
+def decompose_token(token):
+    """
+    Split token into words.
+    'something' -> ['something']
+    'some_variable' -> ['some', 'variable']
+    'SomeClass' -> ['some', 'class']
+    'SOME_CONSTANT' -> ['some', 'constant']
+    :param token: A token
+    :return: A list of words in lower case
+    """
+    parts = DELIMITER_REGEX.split(token)
+    if not ''.join(parts).isupper():
+        parts = chain.from_iterable(CAMEL_REGEX.split(s) for s in parts)
+    return [s.lower() for s in parts if len(s) >= MIN_WORD_LENGTH_TO_CHECK]
+
+
+def highlight_spelling_errors(token, words, is_correct):
+    """
+    Wrap bad words in <em> tags.
+    :param token: e.g. SomethingWorng
+    :param words: e.g. ['something', 'worng']
+    :param is_correct: e.g. [True, False]
+    :return: e.g. 'Something<em>Worng</em>'
+    """
+    result = token
+    lowercase_result = result.lower()
+
+    index = 0
+    for w, i in zip(words, is_correct):
+        index = lowercase_result.find(w, index)
+        if not i:
+            result = ''.join((result[:index], '<em>', result[index:index+len(w)], '</em>', result[index+len(w):]))
+            lowercase_result = result.lower()
+            index += 9  # length of <em></em>
+    return result
 
 
 def check_spelling(lines_to_tokens):
-    checked_tokens = set()
-    checked_words = set()
+    checked = set()  # both checked tokens and words
+    spelling_errors = []
 
     def check_token(token):
         if token.type != NAME:
             return
         s = token.string
-        if len(s) < 4:
+        if len(s) <= MIN_WORD_LENGTH_TO_CHECK:
             return
-        if s in checked_tokens:
+        if s in checked:
             return
-        print(token)
-        checked_tokens.add(s)
+        words = decompose_token(token.string)
+        checked.add(s)
+        checked.update(words)
+        is_correct = [(i in WORDS) for i in words]
+
+        for i, (word, correct) in enumerate(zip(words, is_correct)):
+            if correct:
+                continue
+            if is_prefix(word):
+                is_correct[i] = True
+
+        if not all(is_correct):
+            highlighted_token = highlight_spelling_errors(token.string, words, is_correct)
+            spelling_errors.append(SpellingError(*token.start, token.string, highlighted_token))
 
     for line in sorted(lines_to_tokens.keys()):
         tokens = lines_to_tokens[line]
@@ -46,7 +102,7 @@ def check_spelling(lines_to_tokens):
                 def_ = False
 
             # class xxx:
-            if t1s in keywords:
+            if t1s in KEYWORDS:
                 check_token(t0)
 
             # def xxx(yyy):
@@ -61,5 +117,4 @@ def check_spelling(lines_to_tokens):
             elif for_:
                 check_token(t0)
 
-
-        # break
+    return spelling_errors

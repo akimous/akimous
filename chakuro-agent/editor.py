@@ -130,7 +130,7 @@ async def open_file(msg, send, context):
             j.completions()
 
     with Timer('Spelling check'):
-        check_spelling(context.feature_extractor.context.line_to_tokens)
+        await send('SpellingErrors', check_spelling(context.feature_extractor.context.line_to_tokens))
     # await run_pyflakes(content, context, send)
     # if config['linter']['pylint']:
     #     context.linter_task = asyncio.create_task(lint_offline(context, send))
