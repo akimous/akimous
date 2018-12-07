@@ -1,7 +1,7 @@
 import re
 from collections import namedtuple
 from itertools import chain
-from token import NAME
+from token import NAME, STRING, COMMENT
 
 from wordsegment import WORDS
 
@@ -12,8 +12,10 @@ DummyToken = namedtuple('DummyToken', ('string', ))
 dummy = DummyToken('')
 
 KEYWORDS = {'class', 'as'}
+STRING_AND_COMMENT = {STRING, COMMENT}
 DELIMITER_REGEX = re.compile(r'[_\d]+')
 CAMEL_REGEX = re.compile(r'([A-Z][a-z]*)')
+NON_WORD = re.compile(r'[\W\d_]+')
 MIN_WORD_LENGTH_TO_CHECK = 3
 
 
@@ -55,10 +57,25 @@ def highlight_spelling_errors(token, words, is_correct):
 
 
 def check_spelling(lines_to_tokens):
-    checked = set()  # both checked tokens and words
+    checked = set('')  # both checked tokens and words
     spelling_errors = []
 
+    def check_word(word, token):
+        if word in checked or len(word) < 4:
+            return
+        if not word.islower():
+            return
+        if word in WORDS:
+            return
+        checked.add(word)
+        spelling_errors.append(SpellingError(
+            line + 1, token.start[1] + token.string.find(word), word, f'<em>{word}</em>'))
+
     def check_token(token):
+        if token.type in STRING_AND_COMMENT:
+            for w in NON_WORD.split(token.string):
+                check_word(w, token)
+            return
         if token.type != NAME:
             return
         s = token.string
@@ -117,6 +134,9 @@ def check_spelling(lines_to_tokens):
 
             # for xxx, yyy in something:
             elif for_:
+                check_token(t0)
+
+            elif t0.type in STRING_AND_COMMENT:
                 check_token(t0)
 
     return spelling_errors
