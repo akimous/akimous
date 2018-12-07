@@ -14,15 +14,14 @@ from boltons.gcutils import toggle_gc_postcollect
 from logzero import logger as log
 from sklearn.externals import joblib
 
+from config_manager import config
 from doc_generator import DocGenerator  # 165ms, 13M memory
 from online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
 from pyflakes_reporter import PyflakesReporter
+from spell_checker import check_spelling
 from utils import Timer, detect_doc_type
 from websocket import register_handler
 from word_completer import search_prefix
-from config_manager import config
-from spell_checker import check_spelling
-
 
 handles = partial(register_handler, 'editor')
 DEBUG = False
@@ -35,7 +34,9 @@ log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
 PredictionRow = namedtuple('PredictionRow', ('c', 't', 's'))
 
 
-async def lint_offline(context, send):
+async def run_pylint(context, send):
+    if not config['linter']['pylint']:
+        return
     try:
         with Timer('Linting'):
             absolute_path = context.path.absolute()
@@ -43,8 +44,7 @@ async def lint_offline(context, send):
                 f'cd {shlex.quote(str(absolute_path.parent))} && '
                 f'pylint {shlex.quote(str(absolute_path))} --output-format=json',
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
+                stderr=subprocess.PIPE)
             stdout, stderr = await context.linter_process.communicate()
             if stderr:
                 log.error(stderr)
@@ -56,7 +56,7 @@ async def lint_offline(context, send):
         log.error(e)
 
 
-async def yapf(context, send):
+async def run_yapf(context, send):
     try:
         with Timer('YAPF'):
             absolute_path = context.path.absolute()
@@ -64,8 +64,7 @@ async def yapf(context, send):
                 f'cd {shlex.quote(str(absolute_path.parent))} && '
                 f'yapf {shlex.quote(str(absolute_path))} --in-place',
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
+                stderr=subprocess.PIPE)
             stdout, stderr = await context.yapf_process.communicate()
             if stdout:
                 log.info(stdout)
@@ -75,7 +74,7 @@ async def yapf(context, send):
         log.error(e)
 
 
-async def isort(context, send):
+async def run_isort(context):
     try:
         with Timer('Sorting'):
             absolute_path = context.path.absolute()
@@ -83,8 +82,7 @@ async def isort(context, send):
                 f'cd {shlex.quote(str(absolute_path.parent))} && '
                 f'isort {shlex.quote(str(absolute_path))} --atomic',
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
+                stderr=subprocess.PIPE)
             stdout, stderr = await context.isort_process.communicate()
             if stdout:
                 log.info(stdout)
@@ -94,12 +92,20 @@ async def isort(context, send):
         log.error(e)
 
 
+async def run_spell_checker(context, send):
+    if not config['linter']['spellChecker']:
+        return
+    with Timer('Spelling check'):
+        await send('SpellingErrors', {'result': check_spelling(context.feature_extractor.context.line_to_tokens)})
+
+
 async def run_pyflakes(content, context, send):
-    if config['linter']['pyflakes']:
-        reporter = context.pyflakes_reporter
-        reporter.clear()
-        pyflakes.api.check(content, '', reporter)
-        await send('RealTimeLints', dict(result=reporter.errors))
+    if not config['linter']['pyflakes']:
+        return
+    reporter = context.pyflakes_reporter
+    reporter.clear()
+    pyflakes.api.check(content, '', reporter)
+    await send('RealTimeLints', dict(result=reporter.errors))
 
 
 @handles('OpenFile')
@@ -110,10 +116,7 @@ async def open_file(msg, send, context):
     with open(context.path) as f:
         content = f.read()
     # somehow risky, but it should not wait until the extractor ready
-    await send('FileOpened', {
-        'mtime': context.path.stat().st_mtime,
-        'content': content
-    })
+    await send('FileOpened', {'mtime': context.path.stat().st_mtime, 'content': content})
     # skip all completion, linting etc. if it is not a Python file
     if not context.is_python:
         return
@@ -129,11 +132,9 @@ async def open_file(msg, send, context):
             j = jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path)
             j.completions()
 
-    with Timer('Spelling check'):
-        await send('SpellingErrors', check_spelling(context.feature_extractor.context.line_to_tokens))
-    # await run_pyflakes(content, context, send)
-    # if config['linter']['pylint']:
-    #     context.linter_task = asyncio.create_task(lint_offline(context, send))
+    await run_spell_checker(context, send)
+    await run_pyflakes(content, context, send)
+    context.linter_task = asyncio.create_task(run_pylint(context, send))
 
 
 @handles('Reload')
@@ -141,9 +142,7 @@ async def reload(msg, send, context):
     with open(context.path) as f:
         content = f.read()
     context.doc = content.splitlines()
-    await send('Reloaded', {
-        'content': content
-    })
+    await send('Reloaded', {'content': content})
 
 
 @handles('Mtime')
@@ -153,9 +152,7 @@ async def modification_time(msg, send, context):
         log.info('path modified from %s to %s', context.path, new_path)
         context.path = Path(*new_path)
     try:
-        await send('Mtime', {
-            'mtime': context.path.stat().st_mtime
-        })
+        await send('Mtime', {'mtime': context.path.stat().st_mtime})
     except FileNotFoundError:
         await send('FileDeleted', {})
 
@@ -166,18 +163,16 @@ async def save_file(msg, send, context):
     with open(context.path, 'w') as f:
         f.write(content)
     mtime_before_formatting = context.path.stat().st_mtime
-    result = {
-            'mtime': mtime_before_formatting
-        }
+    result = {'mtime': mtime_before_formatting}
     if not context.is_python:
         await send('FileSaved', result)
         return
 
     if config['formatter']['isort']:
-        await isort(context, send)
+        await run_isort(context)
 
     if config['formatter']['yapf']:
-        await yapf(context, send)
+        await run_yapf(context, send)
 
     mtime_after_formatting = context.path.stat().st_mtime
     if mtime_after_formatting != mtime_before_formatting:
@@ -187,10 +182,9 @@ async def save_file(msg, send, context):
         result['content'] = content
     await send('FileSaved', result)
 
-    if config['linter']['pylint']:
-        context.linter_task = asyncio.create_task(lint_offline(context, send))
-
+    await run_spell_checker(context, send)
     await run_pyflakes(content, context, send)
+    context.linter_task = asyncio.create_task(run_pylint(context, send))
 
 
 @handles('SyncRange')
@@ -203,6 +197,7 @@ async def sync_range(msg, send, context):
         context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
 
     if lint:
+        await run_spell_checker(context, send)
         await run_pyflakes('\n'.join(doc), context, send)
 
 
@@ -217,17 +212,12 @@ async def predict(msg, send, context):
 
     with Timer(f'Rest ({line_number}, {ch})'):
         if completions:
-            context.currentCompletions = {
-                completion.name: completion for completion in completions
-            }
+            context.currentCompletions = {completion.name: completion for completion in completions}
             feature_extractor = context.feature_extractor
             feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc,
                                              j.call_signatures())
             scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
-            result = [
-                PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s))
-                for c, s in zip(completions, scores)
-            ]
+            result = [PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s)) for c, s in zip(completions, scores)]
         else:
             result = []
 
@@ -243,7 +233,7 @@ async def predict_extra(msg, send, context):
     line_number, ch, text = msg
     result = []
     result_set = set()
-    # 
+    #
     # 1. existed tokens
     tokens = context.feature_extractor.context.t0map.query_prefix(text, line_number)
     for i, token in enumerate(tokens):
@@ -269,11 +259,7 @@ async def predict_extra(msg, send, context):
             if snake not in result_set:
                 result.append(PredictionRow(c=snake, t='word-segment', s=1))
 
-    await send('ExtraPrediction', {
-        'line': line_number,
-        'ch': ch,
-        'result': result
-    })
+    await send('ExtraPrediction', {'line': line_number, 'ch': ch, 'result': result})
 
 
 @handles('GetCompletionDocstring')
@@ -304,10 +290,7 @@ async def get_completion_docstring(msg, send, context):
             html = doc_generator.make_html(docstring)
         except Exception as e:
             print(e)
-    await send('CompletionDocstring', {
-        'doc': html if html else docstring,
-        'type': 'html' if html else 'text'
-    })
+    await send('CompletionDocstring', {'doc': html if html else docstring, 'type': 'html' if html else 'text'})
 
 
 @handles('GetFunctionDocumentation')
@@ -345,9 +328,4 @@ async def find_usage(msg, send, context):
     doc = '\n'.join(context.doc)
     j = jedi.Script(doc, msg['line'] + 1, msg['ch'], context.path)
     usages = j.usages()
-    await send('UsageFound', {
-        'pos': [
-            (i.line - 1, i.column + 1) for i in usages
-        ],
-        'token': msg['token']
-    })
+    await send('UsageFound', {'pos': [(i.line - 1, i.column + 1) for i in usages], 'token': msg['token']})

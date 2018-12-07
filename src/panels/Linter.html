@@ -9,7 +9,15 @@
             </tr>
             {/each}
         </table>
-
+        <div class="title non-selectable">Spelling Errors</div>
+        <table id="spelling-errors" class="non-selectable">
+            {#each spellingErrors as message}
+            <tr on:click="jumpTo(message.line, message.ch)">
+                <td class="line-number">{message.line}</td>
+                <td class="message">{@html message.highlight}</td>
+            </tr>
+            {/each}
+        </table>
         <div class="title non-selectable">Offline Lints</div>
         <div id="offline-linter-filter" class="non-selectable">
             {#each OFFLINE_LINT_TYPES as type}
@@ -93,7 +101,8 @@
     }
 
     #pylint-result,
-    #pyflakes-result {
+    #pyflakes-result,
+    #spelling-errors {
         width: 100%;
         background: var(--gray2);
     }
@@ -153,9 +162,14 @@
     .warning {
         color: var(--yellow);
     }
-
+    
     .error {
         color: var(--brighter-red);
+    }
+    
+    :global(#spelling-errors em) {
+        color: var(--yellow);
+        font-style: normal;
     }
 
 </style>
@@ -187,6 +201,7 @@
                 active: false,
                 offlineLints: [],
                 realTimeLints: [],
+                spellingErrors: [],
                 width: 100,
                 OFFLINE_LINT_TYPES,
                 offlineLintType: new Set()
@@ -236,7 +251,12 @@
                 this.set({
                     offlineLints: [],
                     realTimeLints: [],
+                    spellingErrors: []
                 })
+            },
+            switchEditor(editor) {
+                const { offlineLints, realTimeLints, spellingErrors } = editor
+                this.set({ offlineLints, realTimeLints, spellingErrors })
             },
             jumpTo(line, ch) {
                 const editor = g.activeEditor

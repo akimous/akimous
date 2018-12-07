@@ -1,18 +1,19 @@
-from collections import namedtuple
-from token import NAME
 import re
+from collections import namedtuple
 from itertools import chain
+from token import NAME
+
 from wordsegment import WORDS
+
 from word_completer import is_prefix
 
 SpellingError = namedtuple('SpellingError', ('line', 'ch', 'token', 'highlighted_token'))
 DummyToken = namedtuple('DummyToken', ('string', ))
 dummy = DummyToken('')
 
-
 KEYWORDS = {'class', 'as'}
-DELIMITER_REGEX = re.compile('[_\d]+')
-CAMEL_REGEX = re.compile('([A-Z][a-z]*)')
+DELIMITER_REGEX = re.compile(r'[_\d]+')
+CAMEL_REGEX = re.compile(r'([A-Z][a-z]*)')
 MIN_WORD_LENGTH_TO_CHECK = 3
 
 
@@ -47,7 +48,7 @@ def highlight_spelling_errors(token, words, is_correct):
     for w, i in zip(words, is_correct):
         index = lowercase_result.find(w, index)
         if not i:
-            result = ''.join((result[:index], '<em>', result[index:index+len(w)], '</em>', result[index+len(w):]))
+            result = ''.join((result[:index], '<em>', result[index:index + len(w)], '</em>', result[index + len(w):]))
             lowercase_result = result.lower()
             index += 9  # length of <em></em>
     return result
@@ -66,19 +67,20 @@ def check_spelling(lines_to_tokens):
         if s in checked:
             return
         words = decompose_token(token.string)
-        checked.add(s)
-        checked.update(words)
         is_correct = [(i in WORDS) for i in words]
 
         for i, (word, correct) in enumerate(zip(words, is_correct)):
             if correct:
                 continue
-            if is_prefix(word):
+            if word in checked or is_prefix(word):
                 is_correct[i] = True
+
+        checked.add(s)
+        checked.update(words)
 
         if not all(is_correct):
             highlighted_token = highlight_spelling_errors(token.string, words, is_correct)
-            spelling_errors.append(SpellingError(*token.start, token.string, highlighted_token))
+            spelling_errors.append(SpellingError(line + 1, token.start[1], token.string, highlighted_token))
 
     for line in sorted(lines_to_tokens.keys()):
         tokens = lines_to_tokens[line]

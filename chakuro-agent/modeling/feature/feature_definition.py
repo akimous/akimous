@@ -85,7 +85,7 @@ class FeatureDefinition:
         p(to_key_value_columns(self.name_to_feature_index.keys(), self.name_to_feature_index.values()))
 
         for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
-            setattr(self.context, k, v)
+            setattr(self.context, k, v())
 
     # def get_stack_context_info(self, completion):
     #     '''
@@ -163,7 +163,7 @@ class FeatureDefinition:
 
 
 @FeatureDefinition.register_context_preprocessor_for_token_features(
-    casefolded_doc_lines={}
+    casefolded_doc_lines=dict
 )
 def f(doc, line, context, **_):
     context.casefolded_doc_lines = {}
@@ -184,13 +184,13 @@ def tokenize(string):
 
 
 @FeatureDefinition.register_context_preprocessor_for_token_features(
-    line_to_tokens={},
-    dirty_map=DirtyMap(),
-    t0map=PrefixTokenMap(),
-    t1map=TokenMap(),
-    t2map=TokenMap(),
-    t3map=TokenMap(),
-    trigram_map=TokenMap(),
+    line_to_tokens=dict,
+    dirty_map=DirtyMap,
+    t0map=PrefixTokenMap,
+    t1map=TokenMap,
+    t2map=TokenMap,
+    t3map=TokenMap,
+    trigram_map=TokenMap,
 )
 def f(doc, context, line, ch, **_):
     dirty_map = context.dirty_map

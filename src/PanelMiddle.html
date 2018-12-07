@@ -108,10 +108,7 @@
                 const cursor = cm.getCursor()
                 g.cursorPosition.set(cursor)
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
-                g.linter.set({
-                    offlineLints: editor.offlineLints,
-                    realTimeLints: editor.realTimeLints
-                })
+                g.linter.switchEditor(editor)
             },
             renameDir(newDirPath, oldDirPath) {
                 const oldDirPathString = oldDirPath.join('/')

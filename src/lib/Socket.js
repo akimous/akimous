@@ -10,7 +10,10 @@ const rowPreprocessor = {
     },
     RealTimeLints([message, line, ch]) {
         return { message, line, ch }
-    }
+    },
+    SpellingErrors([line, ch, token, highlight]) {
+        return { line, ch, token, highlight }
+    },
 }
 
 class Socket {

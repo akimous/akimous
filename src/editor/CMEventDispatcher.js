@@ -22,7 +22,7 @@ class CMEventDispatcher {
             completionProvider = editor.completionProvider,
             completion = editor.completion
 
-        let dirtyLine = -1
+        let dirtyLine = NONE
         let shouldDismissCompletionOnCursorActivity = false
 
         function getNTokens(n, pos) {
@@ -40,12 +40,16 @@ class CMEventDispatcher {
         }
 
         function syncIfNeeded(changes) {
-            if (dirtyLine === NONE) return
-            dirtyLine = NONE
-            if (Number.isInteger(changes))
+            // if has multiple changes exist (e.g. new line), must sync
+            if (!Number.isInteger(changes) && 
+                (changes[0].text.length > 1 || changes[0].removed.length > 1))
+                editor.syncChanges(changes)
+            else if (dirtyLine === NONE) return
+            else if (Number.isInteger(changes))
                 editor.syncChanges(changes, cm.getLine(changes))
             else
                 editor.syncChanges(changes)
+            dirtyLine = NONE
         }
 
         // cut event is handled in LayeredKeyboardControl via cmd-X hotkey,
@@ -193,6 +197,7 @@ class CMEventDispatcher {
                                 -(!isInputDot)
                             )
                             dirtyLine = NONE
+                            console.info('bingo')
                             if (t0.type === 'string') completionProvider.type = STRING
                             else if (t0.type === 'comment') completionProvider.type = COMMENT
                             else if (t1.string === 'for') completionProvider.type = FOR

@@ -78,6 +78,7 @@
             this.saving = false
             this.offlineLints = []
             this.realTimeLints = []
+            this.spellingErrors = []
             g.linter.clear()
             const { fileName } = this.get()
             this.tab = this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
@@ -194,6 +195,11 @@
                         })
                         if (g.activeEditor === this)
                             g.linter.set({ offlineLints: this.offlineLints })
+                    })
+                    .addHandler('SpellingErrors', data => {
+                        this.spellingErrors = data.result
+                        if (g.activeEditor === this)
+                            g.linter.set({ spellingErrors: this.spellingErrors })
                     })
             })
 

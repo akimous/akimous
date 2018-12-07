@@ -6,7 +6,8 @@
   },
   "linter": {
     "pyflakes": true,
-    "pylint": true
+    "pylint": true,
+    "spellChecker": true
   },
   "offlineLintType": {
     "informational": true,
