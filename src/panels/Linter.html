@@ -1,5 +1,6 @@
 <div class="container {active?'':'gone'}">
     <div ref:linter id="linter">
+        {#if pyflakes}
         <div class="title non-selectable">Real-time Lints</div>
         <table id="pyflakes-result" class="non-selectable">
             {#each realTimeLints as message}
@@ -9,6 +10,8 @@
             </tr>
             {/each}
         </table>
+        {/if}
+        {#if spellChecker}
         <div class="title non-selectable">Spelling Errors</div>
         <table id="spelling-errors" class="non-selectable">
             {#each spellingErrors as message}
@@ -18,6 +21,8 @@
             </tr>
             {/each}
         </table>
+        {/if}
+        {#if pylint}
         <div class="title non-selectable">Offline Lints</div>
         <div id="offline-linter-filter" class="non-selectable">
             {#each OFFLINE_LINT_TYPES as type}
@@ -35,6 +40,7 @@
             </tr>
             {/each}
         </table>
+        {/if}
     </div>
 </div>
 
@@ -178,7 +184,7 @@
 <script>
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
-    import { initializeTabView } from '../lib/Utils'
+    import { initializeTabView, Pos } from '../lib/Utils'
 
     const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
 
@@ -204,7 +210,10 @@
                 spellingErrors: [],
                 width: 100,
                 OFFLINE_LINT_TYPES,
-                offlineLintType: new Set()
+                offlineLintType: new Set(),
+                spellChecker: config.linter.spellChecker,
+                pylint: config.linter.pylint,
+                pyflakes: config.linter.pyflakes,
             }
         },
         computed: {
@@ -261,8 +270,12 @@
             jumpTo(line, ch) {
                 const editor = g.activeEditor
                 if (!editor) return
-                g.activeEditor.cm.setCursor(line - 1, ch)
-                editor.cm.focus()
+                const { cm } = editor
+                const pos = Pos(line - 1, ch)
+                cm.setCursor(pos)
+                cm.focus()
+                const margin = editor.refs.codeEditor.getBoundingClientRect().height / 2
+                cm.scrollIntoView(pos, margin)
             },
             showPopup(i, event) {
                 const { x, y, height } = event.currentTarget.getBoundingClientRect()

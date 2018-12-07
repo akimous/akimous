@@ -114,7 +114,7 @@ function getRem() {
 }
 
 function Pos(line, ch) {
-    if (ch)
+    if (ch !== undefined)
         return { line, ch }
     return {
         line: line.line,

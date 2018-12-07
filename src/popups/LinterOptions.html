@@ -26,6 +26,16 @@
             </span>
             <span class="description">Pyflakes</span>
         </div>
+        <div class="option" on:click="toggle('spellChecker')">
+            <span class="checkbox">
+                {#if spellChecker}
+                <i class="fas fa-check-circle checked"></i>
+                {:else}
+                <i class="far fa-circle"></i>
+                {/if}
+            </span>
+            <span class="description">Spell checker</span>
+        </div>
 
         <div class="title">Beautifier</div>
         <div class="message">Reformat code before saving.</div>
@@ -159,12 +169,18 @@
                     popup: current.open ? this : null
                 })
             }
+            if (g.linter) {
+                if (changed.spellChecker) g.linter.set({ spellChecker: current.spellChecker })
+                if (changed.pylint) g.linter.set({ pylint: current.pylint })
+                if (changed.pyflakes) g.linter.set({ pyflakes: current.pyflakes })
+            }
         },
         data() {
             return {
                 open: false,
                 realtime: config.formatter.realtime,
                 pyflakes: config.linter.pyflakes,
+                spellChecker: config.linter.spellChecker,
                 isort: config.formatter.isort,
                 yapf: config.formatter.yapf,
                 pylint: config.linter.pylint,
