@@ -1,17 +1,19 @@
 import re
 from collections import namedtuple
 from itertools import chain
-from token import NAME, STRING, COMMENT
+from token import NAME, STRING, COMMENT, NEWLINE
 
 from wordsegment import WORDS
 
 from word_completer import is_prefix
 
 SpellingError = namedtuple('SpellingError', ('line', 'ch', 'token', 'highlighted_token'))
+Token = namedtuple('Token', ('start', 'string', 'type'))
 DummyToken = namedtuple('DummyToken', ('string', ))
 dummy = DummyToken('')
 
 KEYWORDS = {'class', 'as'}
+AFTER_IMPORT = {'as', 'from'}
 STRING_AND_COMMENT = {STRING, COMMENT}
 DELIMITER_REGEX = re.compile(r'[_\d]+')
 CAMEL_REGEX = re.compile(r'([A-Z][a-z]*)')
@@ -59,7 +61,16 @@ def highlight_spelling_errors(token, words, is_correct):
 # def check_spelling(lines_to_tokens):
 def check_spelling(tokens):
     checked = set('')  # both checked tokens and words
+    imported_names = set()
     spelling_errors = []
+
+    def import_name(token):
+        lower = token.lower()
+        if lower in WORDS:
+            return
+        imported_names.add(lower)
+        words = decompose_token(token)
+        imported_names.update(words)
 
     def check_word(word, token):
         if word in checked or len(word) < 4:
@@ -68,9 +79,9 @@ def check_spelling(tokens):
             return
         if word in WORDS:
             return
-        checked.add(word)
-        spelling_errors.append(SpellingError(
-            token.start[0], token.start[1] + token.string.find(word), word, f'<em>{word}</em>'))
+        if word in imported_names:
+            return
+        check_token(Token((token.start[0], token.start[1] + token.string.find(word)), word, NAME))
 
     def check_token(token):
         if token.type in STRING_AND_COMMENT:
@@ -92,6 +103,8 @@ def check_spelling(tokens):
                 continue
             if word in checked or is_prefix(word):
                 is_correct[i] = True
+            if word in imported_names:
+                is_correct[i] = True
 
         checked.add(s)
         checked.update(words)
@@ -102,39 +115,47 @@ def check_spelling(tokens):
 
     for_ = False
     def_ = False
+    import_ = False
     t1, t0 = dummy, dummy
 
     for token in tokens:
-            t1, t0 = t0, token
-            t1s, t0s = t1.string, t0.string
+        t1, t0 = t0, token
+        t1s, t0s = t1.string, t0.string
+        if t1s == 'for':
+            for_ = True
+        elif t0s == 'in':
+            for_ = False
 
-            if t1s == 'for':
-                for_ = True
-            elif t0s == 'in':
-                for_ = False
+        if t1s == 'def':
+            def_ = True
+        elif t0s == ':' and t1s == ')':
+            def_ = False
 
-            if t1s == 'def':
-                def_ = True
-            elif t0s == ':' and t1s == ')':
-                def_ = False
+        if t1s == 'import':
+            import_ = True
+        elif t0.type == NEWLINE or t0s in AFTER_IMPORT:
+            import_ = False
 
-            # class xxx:
-            if t1s in KEYWORDS:
-                check_token(t0)
+        # class xxx:
+        if t1s in KEYWORDS:
+            check_token(t0)
 
-            # def xxx(yyy):
-            elif def_:
-                check_token(t0)
+        # def xxx(yyy):
+        elif def_:
+            check_token(t0)
 
-            # xxx = 123
-            elif t0s == '=':
-                check_token(t1)
+        # xxx = 123
+        elif t0s == '=':
+            check_token(t1)
 
-            # for xxx, yyy in something:
-            elif for_:
-                check_token(t0)
+        # for xxx, yyy in something:
+        elif for_:
+            check_token(t0)
 
-            elif t0.type in STRING_AND_COMMENT:
-                check_token(t0)
+        elif t0.type in STRING_AND_COMMENT:
+            check_token(t0)
+
+        elif import_:
+            import_name(t0s)
 
     return spelling_errors
