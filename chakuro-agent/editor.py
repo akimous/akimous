@@ -1,7 +1,6 @@
-import asyncio
 import json
 import shlex
-from asyncio import create_subprocess_shell, subprocess
+from asyncio import create_subprocess_shell, subprocess, create_task
 from collections import namedtuple
 from functools import partial
 from importlib.resources import open_binary
@@ -57,6 +56,8 @@ async def run_pylint(context, send):
 
 
 async def run_yapf(context, send):
+    if not config['formatter']['yapf']:
+        return
     try:
         with Timer('YAPF'):
             absolute_path = context.path.absolute()
@@ -75,6 +76,8 @@ async def run_yapf(context, send):
 
 
 async def run_isort(context):
+    if not config['formatter']['isort']:
+        return
     try:
         with Timer('Sorting'):
             absolute_path = context.path.absolute()
@@ -108,6 +111,22 @@ async def run_pyflakes(content, context, send):
     await send('RealTimeLints', dict(result=reporter.errors))
 
 
+async def post_content_change(content, context, send):
+    with Timer('Post content change'):
+        with toggle_gc_postcollect:
+            context.doc = content.splitlines()
+            # initialize feature extractor
+            context.feature_extractor = OnlineFeatureExtractor()
+            for line, line_content in enumerate(context.doc):
+                context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
+            # warn up Jedi
+            jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path).completions()
+
+            create_task(run_spell_checker(context, send))
+            create_task(run_pyflakes(content, context, send))
+            context.linter_task = create_task(run_pylint(context, send))
+
+
 @handles('OpenFile')
 async def open_file(msg, send, context):
     context.path = Path(*msg['filePath'])
@@ -121,28 +140,15 @@ async def open_file(msg, send, context):
     if not context.is_python:
         return
 
-    with Timer('Initializing extractor'):
-        with toggle_gc_postcollect:
-            context.doc = content.splitlines()
-            # initialize feature extractor
-            context.feature_extractor = OnlineFeatureExtractor()
-            for line, line_content in enumerate(context.doc):
-                context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
-            # warm up Jedi
-            j = jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path)
-            j.completions()
-
-    await run_spell_checker(context, send)
-    await run_pyflakes(content, context, send)
-    context.linter_task = asyncio.create_task(run_pylint(context, send))
+    await post_content_change(content, context, send)
 
 
 @handles('Reload')
 async def reload(msg, send, context):
     with open(context.path) as f:
         content = f.read()
-    context.doc = content.splitlines()
     await send('Reloaded', {'content': content})
+    await post_content_change(content, context, send)
 
 
 @handles('Mtime')
@@ -168,11 +174,8 @@ async def save_file(msg, send, context):
         await send('FileSaved', result)
         return
 
-    if config['formatter']['isort']:
-        await run_isort(context)
-
-    if config['formatter']['yapf']:
-        await run_yapf(context, send)
+    await run_isort(context)
+    await run_yapf(context, send)
 
     mtime_after_formatting = context.path.stat().st_mtime
     if mtime_after_formatting != mtime_before_formatting:
@@ -181,10 +184,7 @@ async def save_file(msg, send, context):
         result['mtime'] = mtime_after_formatting
         result['content'] = content
     await send('FileSaved', result)
-
-    await run_spell_checker(context, send)
-    await run_pyflakes(content, context, send)
-    context.linter_task = asyncio.create_task(run_pylint(context, send))
+    await post_content_change(content, context, send)
 
 
 @handles('SyncRange')
