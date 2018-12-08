@@ -114,6 +114,11 @@
                             g.panelMiddle.closeFile(this.get().filePath)
                         else if (data.content) {
                             this.cm.setValue(data.content)
+                            if (this.cursorBeforeSaving) {
+                                // restore cursor and viewport position in case formatters changes the content
+                                this.cm.setCursor(this.cursorBeforeSaving)
+                                this.cm.scrollTo(this.scrollInfoBeforSaving.left, this.scrollInfoBeforSaving.top)
+                            }
                         }
                         if (!this.shouldClose)
                             this.markClean()
@@ -307,6 +312,9 @@
             save() {
                 this.saving = true
                 this.socket.send('SaveFile', { content: this.cm.getValue() })
+                // preserve cursor and viewport position in case formatters changes the content
+                this.cursorBeforeSaving = this.cm.getCursor()
+                this.scrollInfoBeforSaving = this.cm.getScrollInfo()
             },
             insertText(text) {
                 g.activeEditor && g.activeEditor.cm.hasFocus()
