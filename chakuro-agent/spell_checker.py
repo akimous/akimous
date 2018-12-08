@@ -56,7 +56,8 @@ def highlight_spelling_errors(token, words, is_correct):
     return result
 
 
-def check_spelling(lines_to_tokens):
+# def check_spelling(lines_to_tokens):
+def check_spelling(tokens):
     checked = set('')  # both checked tokens and words
     spelling_errors = []
 
@@ -69,7 +70,7 @@ def check_spelling(lines_to_tokens):
             return
         checked.add(word)
         spelling_errors.append(SpellingError(
-            line + 1, token.start[1] + token.string.find(word), word, f'<em>{word}</em>'))
+            token.start[0], token.start[1] + token.string.find(word), word, f'<em>{word}</em>'))
 
     def check_token(token):
         if token.type in STRING_AND_COMMENT:
@@ -97,16 +98,13 @@ def check_spelling(lines_to_tokens):
 
         if not all(is_correct):
             highlighted_token = highlight_spelling_errors(token.string, words, is_correct)
-            spelling_errors.append(SpellingError(line + 1, token.start[1], token.string, highlighted_token))
+            spelling_errors.append(SpellingError(*token.start, token.string, highlighted_token))
 
-    for line in sorted(lines_to_tokens.keys()):
-        tokens = lines_to_tokens[line]
-        for_ = False
-        def_ = False
+    for_ = False
+    def_ = False
+    t1, t0 = dummy, dummy
 
-        t1, t0 = dummy, dummy
-
-        for token in tokens:
+    for token in tokens:
             t1, t0 = t0, token
             t1s, t0s = t1.string, t0.string
 

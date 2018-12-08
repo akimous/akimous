@@ -21,6 +21,7 @@ from spell_checker import check_spelling
 from utils import Timer, detect_doc_type
 from websocket import register_handler
 from word_completer import search_prefix
+from modeling.feature.feature_definition import tokenize
 
 handles = partial(register_handler, 'editor')
 DEBUG = False
@@ -99,31 +100,35 @@ async def run_spell_checker(context, send):
     if not config['linter']['spellChecker']:
         return
     with Timer('Spelling check'):
-        await send('SpellingErrors', {'result': check_spelling(context.feature_extractor.context.line_to_tokens)})
+        tokens = tokenize(context.content)
+        await send('SpellingErrors', {'result': check_spelling(tokens)})
 
 
-async def run_pyflakes(content, context, send):
+async def run_pyflakes(context, send):
     if not config['linter']['pyflakes']:
         return
     reporter = context.pyflakes_reporter
     reporter.clear()
-    pyflakes.api.check(content, '', reporter)
+    pyflakes.api.check(context.content, '', reporter)
     await send('RealTimeLints', dict(result=reporter.errors))
 
 
-async def post_content_change(content, context, send):
+async def warm_up_jedi(context):
+    jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path).completions()
+
+
+async def post_content_change(context, send):
     with Timer('Post content change'):
         with toggle_gc_postcollect:
-            context.doc = content.splitlines()
+            context.doc = context.content.splitlines()
             # initialize feature extractor
             context.feature_extractor = OnlineFeatureExtractor()
             for line, line_content in enumerate(context.doc):
                 context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
-            # warn up Jedi
-            jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path).completions()
 
+            create_task(warm_up_jedi(context))
             create_task(run_spell_checker(context, send))
-            create_task(run_pyflakes(content, context, send))
+            create_task(run_pyflakes(context, send))
             context.linter_task = create_task(run_pylint(context, send))
 
 
@@ -134,21 +139,23 @@ async def open_file(msg, send, context):
     context.pyflakes_reporter = PyflakesReporter()
     with open(context.path) as f:
         content = f.read()
+        context.content = content
     # somehow risky, but it should not wait until the extractor ready
     await send('FileOpened', {'mtime': context.path.stat().st_mtime, 'content': content})
     # skip all completion, linting etc. if it is not a Python file
     if not context.is_python:
         return
 
-    await post_content_change(content, context, send)
+    await post_content_change(context, send)
 
 
 @handles('Reload')
 async def reload(msg, send, context):
     with open(context.path) as f:
         content = f.read()
+        context.content = content
     await send('Reloaded', {'content': content})
-    await post_content_change(content, context, send)
+    await post_content_change(context, send)
 
 
 @handles('Mtime')
@@ -166,6 +173,7 @@ async def modification_time(msg, send, context):
 @handles('SaveFile')
 async def save_file(msg, send, context):
     content = msg['content']
+    context.content = content
     with open(context.path, 'w') as f:
         f.write(content)
     mtime_before_formatting = context.path.stat().st_mtime
@@ -181,10 +189,11 @@ async def save_file(msg, send, context):
     if mtime_after_formatting != mtime_before_formatting:
         with open(context.path) as f:
             content = f.read()
+            context.content = content
         result['mtime'] = mtime_after_formatting
         result['content'] = content
     await send('FileSaved', result)
-    await post_content_change(content, context, send)
+    await post_content_change(context, send)
 
 
 @handles('SyncRange')
@@ -197,8 +206,9 @@ async def sync_range(msg, send, context):
         context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
 
     if lint:
+        context.content = '\n'.join(doc)
         await run_spell_checker(context, send)
-        await run_pyflakes('\n'.join(doc), context, send)
+        await run_pyflakes(context, send)
 
 
 @handles('Predict')
@@ -206,6 +216,7 @@ async def predict(msg, send, context):
     line_number, ch, line_content = msg
     context.doc[line_number] = line_content
     doc = '\n'.join(context.doc)
+    context.content = doc
     with Timer(f'Prediction ({line_number}, {ch})'):
         j = jedi.Script(doc, line_number + 1, ch, context.path)
         completions = j.completions()
@@ -297,9 +308,9 @@ async def get_completion_docstring(msg, send, context):
 async def get_function_documentation(msg, send, context):
     line_number = msg['line']
     ch = msg['ch']
-    doc = '\n'.join(context.doc)
+    content = context.content
 
-    j = jedi.Script(doc, line_number + 1, ch, context.path)
+    j = jedi.Script(content, line_number + 1, ch, context.path)
     call_signatures = j.call_signatures()
     if not call_signatures:
         log.debug('call signature is empty while obtaining docstring')
@@ -325,7 +336,7 @@ async def get_function_documentation(msg, send, context):
 
 @handles('FindUsages')
 async def find_usage(msg, send, context):
-    doc = '\n'.join(context.doc)
-    j = jedi.Script(doc, msg['line'] + 1, msg['ch'], context.path)
+    content = context.content
+    j = jedi.Script(content, msg['line'] + 1, msg['ch'], context.path)
     usages = j.usages()
     await send('UsageFound', {'pos': [(i.line - 1, i.column + 1) for i in usages], 'token': msg['token']})
