@@ -18,14 +18,13 @@ class ChangeHandler(FileSystemEventHandler):
         log.info('on create %s', repr(event))
         # do not rely on event.is_directory, it might be wrong on Windows
         is_directory = Path(event.src_path).is_dir()
-        self.context.main_thread_send('DirCreated' if is_directory else 'FileCreated', {
-            'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
-        })
+        self.send = self.context.main_thread_send('DirCreated' if is_directory else 'FileCreated', {
+            'path': Path(event.src_path).relative_to(self.context.file_root).parts, })
 
     def on_deleted(self, event):
         log.info('on delete %s', repr(event))
         self.context.main_thread_send('DirDeleted' if event.is_directory else 'FileDeleted',{
-            'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
+            'path': Path(event.src_path).relative_to(self.context.file_root).parts,
         })
         for k in tuple(self.context.observed_watches.keys()):
             if k.startswith(event.src_path):
@@ -40,7 +39,7 @@ class ChangeHandler(FileSystemEventHandler):
         # do not rely on event.is_directory, it might be wrong on Windows
         is_directory = Path(event.dest_path).is_dir()
         self.context.main_thread_send('DirRenamed' if is_directory else 'FileRenamed', {
-            'path': Path(event.src_path).relative_to(self.context.fileRoot).parts,
+            'path': Path(event.src_path).relative_to(self.context.file_root).parts,
             'newName': Path(event.dest_path).name
         })
         for k in tuple(self.context.observed_watches.keys()):
@@ -86,12 +85,12 @@ async def open_dir(msg, send, context):
     is_root = msg.get('isRoot', False)
     if is_root:
         path = Path(msg['path']).resolve()
-        context.fileRoot = path
+        context.file_root = path
     else:
-        path = Path(context.fileRoot, *msg['path'])
+        path = Path(context.file_root, *msg['path'])
     root, dirs, files = next(os.walk(path))
     result = {
-        'path': path.relative_to(context.fileRoot).parts,
+        'path': path.relative_to(context.file_root).parts,
         'dirs': dirs,
         'files': files
     }
@@ -101,12 +100,12 @@ async def open_dir(msg, send, context):
 
 @handles('CloseDir')
 async def close_dir(msg, send, context):
-    stop_monitor(Path(context.fileRoot, *msg['path']), context)
+    stop_monitor(Path(context.file_root, *msg['path']), context)
 
 
 @handles('Rename')
 async def rename(msg, send, context):
-    old_path = Path(context.fileRoot, *msg['path'])
+    old_path = Path(context.file_root, *msg['path'])
     new_name = msg['newName']
     new_path = old_path.with_name(new_name)
     log.info('renaming %s to %s', old_path, new_path)
@@ -128,7 +127,7 @@ async def rename(msg, send, context):
 
 @handles('CreateFile')
 async def create_file(msg, send, context):
-    path = Path(context.fileRoot, *msg['path'])
+    path = Path(context.file_root, *msg['path'])
     file_name = msg['path'][-1]
     if path.exists():
         await send('Failed', f'Failed to create file "<b>{file_name}</b>". File already exists.')
@@ -143,7 +142,7 @@ async def create_file(msg, send, context):
 
 @handles('CreateDir')
 async def create_dir(msg, send, context):
-    path = Path(context.fileRoot, *msg['path'])
+    path = Path(context.file_root, *msg['path'])
     dir_name = msg['path'][-1]
     if path.exists():
         await send('Failed', f'Failed to create folder "<b>{dir_name}</b>". Folder already exists.')

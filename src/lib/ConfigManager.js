@@ -6,7 +6,7 @@ g.config = config
 
 let startupCallback
 
-const socket = new Socket('ws://127.0.0.1:3179/config')
+const socket = new Socket('config')
     .addHandler('Config', data => {
         console.warn(data)
         Object.assign(config, data)

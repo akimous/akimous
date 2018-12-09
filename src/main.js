@@ -1,4 +1,6 @@
-import { connect } from './lib/ConfigManager'
+import { config } from './lib/ConfigManager'
+import { Socket } from './lib/Socket'
+import g from './lib/Globals'
 import App from './App.html'
 import './lib/common.css'
 import './lib/doc-style-dark.css'
@@ -12,11 +14,20 @@ import 'devicon/devicon-colors.css'
 
 let app
 const start = performance.now()
-connect(() => {
-    console.debug('first round-trip', performance.now() - start)
-    app = new App({
-        target: document.body,
+g.projectRoot = '.'
+const socket = new Socket('')
+    .addHandler('Connected', data => {
+        g.clientId = data.clientId
+        Object.assign(config, data.config)
+        console.debug('first round-trip', performance.now() - start)
+        app = new App({
+            target: document.body,
+        })
     })
-})
+    .connect(() => {
+        console.info('Connected')
+        socket.send('OpenProject', { path: g.projectRoot })
+    })
+g.masterSocket = socket
 
 export default app

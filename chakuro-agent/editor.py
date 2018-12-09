@@ -13,11 +13,10 @@ from boltons.gcutils import toggle_gc_postcollect
 from logzero import logger as log
 from sklearn.externals import joblib
 
-from config_manager import config
+from master import config
 from doc_generator import DocGenerator  # 165ms, 13M memory
 from online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
 from pyflakes_reporter import PyflakesReporter
-from spell_checker import check_spelling
 from utils import Timer, detect_doc_type
 from websocket import register_handler
 from word_completer import search_prefix
@@ -101,7 +100,7 @@ async def run_spell_checker(context, send):
         return
     with Timer('Spelling check'):
         tokens = tokenize(context.content)
-        await send('SpellingErrors', {'result': check_spelling(tokens)})
+        await send('SpellingErrors', {'result': context.shared_context.spell_checker.check_spelling(tokens)})
 
 
 async def run_pyflakes(context, send):

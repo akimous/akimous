@@ -91,9 +91,9 @@
                 let startTime = performance.now()
                 this.shouldClose = false
                 this.completion = this.refs.completion
-                this.socket = new Socket('ws://127.0.0.1:3179/editor')
+                this.socket = new Socket('editor')
                     .addHandler('FileOpened', data => {
-                        console.warn('transmission took', performance.now() - startTime)
+                        console.debug('transmission took', performance.now() - startTime)
                         resolve(data) // <-- exit here
                     })
                     .addHandler('RealTimeLints', ({ result }) => {

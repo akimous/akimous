@@ -13,22 +13,27 @@ from logzero import logger as log
 from static_server import serve_http
 from word_completer import initialize as initialize_word_completer
 
-_handlers = defaultdict(dict)  # [path][event] -> coroutine
-_clients = defaultdict(set)  # [path]{} -> websocket
+
+handlers = defaultdict(dict)  # [path][event] -> coroutine
+clients = defaultdict(lambda: defaultdict(set))  # [client_id][path] -> set of websockets
+shared_contexts = {}  # [client_id] -> SimpleNamespace
+max_client_id = 0
 
 
 def register_handler(path, command):
     path = f'/{path}'
-    assert command not in _handlers[path]
+    assert command not in handlers[path]
 
     def decorator(coroutine):
-        _handlers[path][command] = coroutine
+        handlers[path][command] = coroutine
         return coroutine
 
     return decorator
 
 
 async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
+    global max_client_id
+
     def main_thread_send(event, obj):
         context.event_loop.call_soon_threadsafe(asyncio.ensure_future, send(event, obj))
 
@@ -38,18 +43,38 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
         observed_watches={},
         event_loop=asyncio.get_event_loop(),
         main_thread_send=main_thread_send)
+
+    async def send(event, obj):
+        # log.warn('sending event %s: %s', event, repr(obj))
+        await ws.send(msgpack.packb([event, obj]))
+
     try:
-        path_handler = _handlers.get(path, None)
+        path_handler = handlers.get(path, None)
         if path_handler is None:
             log.error('No handlers associated with path %s', path)
             ws.close()
             return
-        _clients[path].add(ws)
 
-        async def send(event, obj):
-            # log.warn('sending event %s: %s', event, repr(obj))
-            await ws.send(msgpack.packb([event, obj]))
+        # first message: announce client id (for master) or receive client id
+        if path == '/':
+            max_client_id += 1
+            client_id = max_client_id
+            connected_handler = path_handler.get('_connected', None)
+            context.shared_context = SimpleNamespace()
+            shared_contexts[client_id] = context.shared_context
+            print('???', shared_contexts)
+            await connected_handler(client_id, send, context)
+        else:
+            msg = msgpack.unpackb(await ws.recv(), raw=False)
+            client_id = msg.get('clientId', None)
+            context.shared_context = shared_contexts[client_id]
+            if not client_id:
+                log.error('Do not receive client id. Closing connection')
+                ws.close()
+                return
 
+        clients[client_id][path].add(ws)
+        context.client_id = client_id
         log.info('Connection %s established.', path)
 
         while 1:
@@ -62,13 +87,13 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
                 log.warn('Unhandled command %s/%s.', path, event)
                 continue
             try:
-                await path_handler[event](obj, send, context)
+                await event_handler(obj, send, context)
             except Exception:
                 traceback.print_exc()
 
     except websockets.exceptions.ConnectionClosed:
         log.info('Connection %s closed.', path)
-        _clients[path].remove(ws)
+        clients[client_id][path].remove(ws)
         if context.linter_task:
             context.linter_task.cancel()
         if context.observer:
@@ -97,8 +122,9 @@ def start_server(host, port, ws_port, no_browser):
         loop.run_forever()
         process.join()
     except KeyboardInterrupt:
-        for clients in _clients.values():
-            for socket in clients:
-                socket.close()
+        for paths in clients.values():
+            for path in paths.values():
+                for socket in path:
+                    socket.close()
         loop.stop()
         exit(0)

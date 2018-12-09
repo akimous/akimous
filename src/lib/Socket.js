@@ -1,4 +1,5 @@
 import msgpack from 'msgpack-lite/dist/msgpack.min'
+import g from './Globals'
 
 // For performance's sake, expand it as function. About 6.5X faster than array mapping
 const rowPreprocessor = {
@@ -28,13 +29,21 @@ class Socket {
     }
 
     connect(callback) {
-        this.socket = new WebSocket(this.path)
+        this.socket = new WebSocket(`ws://127.0.0.1:3179/${this.path}`)
         this.socket.binaryType = 'arraybuffer'
-        this.socket.onopen = callback
+        this.socket.onopen = () => {
+            if (this.path !== '')
+                this.socket.send(msgpack.encode({ clientId: g.clientId }))
+            callback()
+        }
         this.socket.onclose = () => {
-            setTimeout(() => {
-                this.connect(callback)
-            }, 3000)
+            if (this.path === '' && g.app) {
+                g.app.destroy()
+                g.app = null
+            }
+            //            setTimeout(() => {
+            //                this.connect(callback)
+            //            }, 3000)
         }
         this.socket.onerror = event => {
             console.error(`Recieved error from ${this.path}: ${event}`)
@@ -54,6 +63,8 @@ class Socket {
             }
             handler(obj, e)
         }
+
+
         return this
     }
 

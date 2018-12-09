@@ -17,7 +17,9 @@
             {#each spellingErrors as message}
             <tr on:click="jumpTo(message.line, message.ch)">
                 <td class="line-number">{message.line}</td>
-                <td class="message">{@html message.highlight}</td>
+                <td class="message">{@html message.highlight}
+                <div class="add-to-dictionary tooltipped tooltipped-sw" aria-label="Add to project dictionary" on:click="addToDictionary(message.highlight)"><i class="fas fa-book"></i></div>
+                </td>
             </tr>
             {/each}
         </table>
@@ -177,6 +179,21 @@
         color: var(--yellow);
         font-style: normal;
     }
+    
+    .add-to-dictionary {
+        display: none;
+        width: 1rem;
+        float: right;
+        color: var(--blue);
+    }
+    
+    #spelling-errors tr:hover .add-to-dictionary {
+        display: inline-block;
+    }
+    
+    .add-to-dictionary:hover {
+        color: var(--brighter-blue);
+    }
 
 </style>
 
@@ -187,6 +204,7 @@
     import { initializeTabView, Pos } from '../lib/Utils'
 
     const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
+    const domParser = new DOMParser()
 
     export default {
         components: {},
@@ -318,6 +336,20 @@
                     [item]: set.has(item)
                 })
             },
+            addToDictionary(wordHighlight) {
+                const parsedDocument = domParser.parseFromString(wordHighlight, 'text/html')
+                const words = []
+                for (const i of parsedDocument.querySelectorAll('em'))
+                    words.push(i.innerText)
+                event.stopPropagation()
+                g.masterSocket.send('AddToProjectDictionary', words)
+                requestAnimationFrame(() => {
+                    const editor = g.activeEditor
+                    const { line } = editor.cm.getCursor()
+                    const lineContent = editor.cm.getLine(line)
+                    editor.syncChanges(line, lineContent)
+                })
+            }
         }
     }
 

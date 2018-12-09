@@ -54,7 +54,7 @@
             initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
             g.setFocus([g.panelLeft, g.fileTree])
 
-            this.socket = new Socket('ws://127.0.0.1:3179/fileTree')
+            this.socket = new Socket('fileTree')
                 .addHandler('DirOpened', ({ path, dirs, files }) => {
                     this.getNode(path).set({
                         dirs: sortAndAddUid(dirs),
@@ -212,7 +212,7 @@
         },
         data() {
             return {
-                root: '.',
+                root: g.projectRoot,
                 dirs: [],
                 files: [],
                 active: false,

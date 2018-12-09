@@ -145,7 +145,7 @@
         components: {},
         oncreate() {
             g.docs = this
-            initializeTabView(this, 'Documentation', 'fas fa-book l-red')
+            initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
             onIdle(() => {
                 this.refs.splitBar.onmousedown = e => {
                     e.preventDefault()
