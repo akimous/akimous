@@ -338,7 +338,6 @@
                         const { text, removed } = change
                         const from = change.from.line
                         const to = change.to.line
-                        const lines = []
 
                         let lint = text.length > 1 || removed.length > 1
                         if (c != changes.length - 1) lint = false // only lint on last change

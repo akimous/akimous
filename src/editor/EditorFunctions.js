@@ -1,4 +1,5 @@
 import { Pos, isStringOrComment } from '../lib/Utils'
+import g from '../lib/Globals'
 
 const matchingBackward = { ')': '(', ']': '[', '}': '{' }
 const matchingForward = { '(': ')', '[': ']', '{': '}' }
@@ -50,7 +51,7 @@ function isMultilineParameter(cm) {
         }
     })
     if (backwardScan) return true
-    return scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {        
+    return scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
         if (line !== pos.line) {
             return true
         } else if (/\)/.test(char)) {
@@ -87,8 +88,8 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
             ch = cursor.ch - dir
             if (!forward) ch -= 1
         }
-        
-        for(;;) {
+
+        for (;;) {
             ch += dir
             if (forward) {
                 if (ch >= end) break
@@ -115,7 +116,7 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
                     continue
                 }
                 stack.pop()
-                stackTop = stack[stack.length-1]
+                stackTop = stack[stack.length - 1]
                 continue
             }
             if (stack.length === 0) {
@@ -136,10 +137,10 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
 function moveCursorToParameterInsertionPoint(cm) {
     const cursor = cm.getCursor()
     const lineContent = cm.getLine(cursor.line).substring(0, cursor.ch)
-    
+
     if (/,\s*$/.test(lineContent))
         return // it is already on the current position
-    
+
     const newCursorPos = scanInSameLevelOfBraces(cm, cursor, (cm, char, pos) => {
         if (/,/.test(char)) {
             pos.ch += 1
@@ -195,7 +196,17 @@ function moveCursorToParameter(cm, target) {
     }, 1)
     cm.setSelection(startPos, endPos)
     return true
+}
 
+function setCursorAndScrollIntoView(line, ch) {
+    const editor = g.activeEditor
+    if (!editor) return
+    const { cm } = editor
+    const pos = Pos(line, ch)
+    cm.setCursor(pos)
+    cm.focus()
+    const margin = editor.refs.codeEditor.getBoundingClientRect().height * .48
+    cm.scrollIntoView(pos, margin)
 }
 
 export {
@@ -206,5 +217,6 @@ export {
     matchingBackward,
     matchingForward,
     moveCursorToParameterInsertionPoint,
-    moveCursorToParameter
+    moveCursorToParameter,
+    setCursorAndScrollIntoView,
 }

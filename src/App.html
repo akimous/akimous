@@ -139,6 +139,7 @@
                     window.addEventListener('beforeunload', e => {
                         const message = 'You have unsaved changes. Do you really want to leave?'
                         for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
+                            console.warn(`Leaving with ${filePath} unsaved.`)
                             if (!editor.get().clean) {
                                 e.returnValue = message
                                 return message

@@ -18,7 +18,7 @@
             <tr on:click="jumpTo(message.line, message.ch)">
                 <td class="line-number">{message.line}</td>
                 <td class="message">{@html message.highlight}
-                <div class="add-to-dictionary tooltipped tooltipped-sw" aria-label="Add to project dictionary" on:click="addToDictionary(message.highlight)"><i class="fas fa-book"></i></div>
+                    <div class="add-to-dictionary tooltipped tooltipped-sw" aria-label="Add to project dictionary" on:click="addToDictionary(message.highlight)"><i class="fas fa-book"></i></div>
                 </td>
             </tr>
             {/each}
@@ -170,27 +170,27 @@
     .warning {
         color: var(--yellow);
     }
-    
+
     .error {
         color: var(--brighter-red);
     }
-    
+
     :global(#spelling-errors em) {
         color: var(--yellow);
         font-style: normal;
     }
-    
+
     .add-to-dictionary {
         display: none;
         width: 1rem;
         float: right;
         color: var(--blue);
     }
-    
+
     #spelling-errors tr:hover .add-to-dictionary {
         display: inline-block;
     }
-    
+
     .add-to-dictionary:hover {
         color: var(--brighter-blue);
     }
@@ -202,6 +202,7 @@
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
     import { initializeTabView, Pos } from '../lib/Utils'
+    import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
     const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
     const domParser = new DOMParser()
@@ -286,14 +287,7 @@
                 this.set({ offlineLints, realTimeLints, spellingErrors })
             },
             jumpTo(line, ch) {
-                const editor = g.activeEditor
-                if (!editor) return
-                const { cm } = editor
-                const pos = Pos(line - 1, ch)
-                cm.setCursor(pos)
-                cm.focus()
-                const margin = editor.refs.codeEditor.getBoundingClientRect().height / 2
-                cm.scrollIntoView(pos, margin)
+                setCursorAndScrollIntoView(line - 1, ch)
             },
             showPopup(i, event) {
                 const { x, y, height } = event.currentTarget.getBoundingClientRect()

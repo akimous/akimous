@@ -41,7 +41,6 @@
             generateOutline(cm) {
                 const lineCount = cm.lineCount()
                 const indentUnit = cm.getOption('indentUnit')
-                const stack = []
                 const result = []
                 for (let line = 0; line < lineCount; line++) {
                     let indent = 0,
