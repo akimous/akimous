@@ -75,7 +75,6 @@
                     if (type === 'def' || type === 'class') {
                         try {
                             token = cm.getTokenAt(Pos(line, token.end + 2)) // skip over the space after the keyword
-                            console.log(token)
                         } catch (e) {
                             continue
                         }

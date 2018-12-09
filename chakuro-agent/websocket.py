@@ -62,7 +62,6 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
             connected_handler = path_handler.get('_connected', None)
             context.shared_context = SimpleNamespace()
             shared_contexts[client_id] = context.shared_context
-            print('???', shared_contexts)
             await connected_handler(client_id, send, context)
         else:
             msg = msgpack.unpackb(await ws.recv(), raw=False)
@@ -94,6 +93,8 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
     except websockets.exceptions.ConnectionClosed:
         log.info('Connection %s closed.', path)
         clients[client_id][path].remove(ws)
+        if path == '/':
+            del shared_contexts[client_id]
         if context.linter_task:
             context.linter_task.cancel()
         if context.observer:
