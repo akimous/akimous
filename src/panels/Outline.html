@@ -1,10 +1,14 @@
 <div class="container {active?'':'gone'}">
-    <div ref:outline id="outline">Under Contruction</div>
+    <div ref:outline id="outline">
+        {#each outlineItems as item}
+        <OutlineNode lineNumber={item.line} display={item.display} type={item.type} level={item.level}></OutlineNode>
+        {/each}
+    </div>
 </div>
 
 <style>
     .container {
-        padding: .4rem;
+        padding: .4rem 0;
         height: calc(100% - var(--indicator-height) - .1rem);
     }
 
@@ -17,20 +21,80 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView } from '../lib/Utils'
+    import { initializeTabView, Pos } from '../lib/Utils'
 
     export default {
-        components: {},
+        components: {
+            OutlineNode: './OutlineNode.html'
+        },
         oncreate() {
             g.outline = this
             initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')
         },
         data() {
             return {
-                active: false
+                active: false,
+                outlineItems: []
             }
         },
-        methods: {}
+        methods: {
+            generateOutline(cm) {
+                const lineCount = cm.lineCount()
+                const indentUnit = cm.getOption('indentUnit')
+                const stack = []
+                const result = []
+                for (let line = 0; line < lineCount; line++) {
+                    let indent = 0,
+                        token
+                    try {
+                        token = cm.getTokenAt(Pos(line, 1))
+                    } catch (e) {
+                        continue
+                    }
+                    if (!token.type) {
+                        if (!/\S/.test(token.string)) {
+                            indent = token.end
+                            try {
+                                token = cm.getTokenAt(Pos(line, indent + 1))
+                            } catch (e) {
+                                continue
+                            }
+                        }
+                    }
+                    if (token.type !== 'keyword') continue
+                    let type = token.string
+                    let asynchronous = false
+                    if (type === 'async') {
+                        try {
+                            token = cm.getTokenAt(Pos(line, token.end + 2))
+                            type = token.string
+                            asynchronous = true
+                        } catch (e) {
+                            continue
+                        }
+                    }
+                    if (type === 'def' || type === 'class') {
+                        try {
+                            token = cm.getTokenAt(Pos(line, token.end + 2)) // skip over the space after the keyword
+                            console.log(token)
+                        } catch (e) {
+                            continue
+                        }
+                        if (asynchronous === true) 
+                            type = 'async'
+                        result.push({
+                            level: indent / indentUnit,
+                            display: token.string,
+                            type,
+                            line
+                        })
+                    } else {
+                        continue
+                    }
+                }
+                return result
+            }
+        }
     }
 
 </script>

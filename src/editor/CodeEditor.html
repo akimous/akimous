@@ -270,6 +270,10 @@
                         e.preventDefault()
                     }
                 }
+
+                onIdle(() => {
+                    g.outline.set({ outlineItems: g.outline.generateOutline(this.cm) })
+                })
             }, 500))
         },
         ondestroy() {
