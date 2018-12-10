@@ -21,6 +21,7 @@
 <script>
     import g from './lib/Globals'
     import CodeEditor from './editor/CodeEditor.html'
+    import { onIdle } from './lib/Utils'
 
     const MAX_ACTIVATION_HISTORY = 32
 
@@ -105,10 +106,15 @@
                 const cm = editor.cm
                 if (!cm) return
                 cm.focus()
-                const cursor = cm.getCursor()
-                g.cursorPosition.set(cursor)
-                g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
-                g.linter.switchEditor(editor)
+
+                onIdle(() => {  // ~5 ms
+                    const cursor = cm.getCursor()
+                    g.cursorPosition.set(cursor)
+                    g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
+                    const { offlineLints, realTimeLints, spellingErrors, outline } = editor
+                    g.linter.set({ offlineLints, realTimeLints, spellingErrors })
+                    g.outline.set({ outlineItems: outline })
+                })
             },
             renameDir(newDirPath, oldDirPath) {
                 const oldDirPathString = oldDirPath.join('/')

@@ -79,7 +79,9 @@
             this.offlineLints = []
             this.realTimeLints = []
             this.spellingErrors = []
+            this.outline = []
             g.linter.clear()
+
             const { fileName } = this.get()
             this.tab = this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
             g.panelMiddle.pathToEditor[this.get().filePath.join('/')] = this
@@ -272,7 +274,9 @@
                 }
 
                 onIdle(() => {
-                    g.outline.set({ outlineItems: g.outline.generateOutline(this.cm) })
+                    this.outline = g.outline.generateOutline(this.cm)
+                    if (g.activeEditor === this)
+                        g.outline.set({ outlineItems: this.outline })
                 })
             }, 500))
         },
@@ -351,6 +355,11 @@
                 else {
                     this.socket.send('SyncRange', [changes, changes + 1, true, lineContent])
                 }
+                onIdle(() => {
+                    this.outline = g.outline.generateOutline(this.cm)
+                    if (g.activeEditor === this)
+                        g.outline.set({ outlineItems: this.outline })
+                })
             }
         }
     }

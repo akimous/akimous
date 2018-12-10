@@ -282,10 +282,6 @@
                     spellingErrors: []
                 })
             },
-            switchEditor(editor) {
-                const { offlineLints, realTimeLints, spellingErrors } = editor
-                this.set({ offlineLints, realTimeLints, spellingErrors })
-            },
             jumpTo(line, ch) {
                 setCursorAndScrollIntoView(line - 1, ch)
             },
