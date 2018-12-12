@@ -1,4 +1,4 @@
-<div ref:container id="docs" class="container {active?'':'gone'}">
+<div ref:container id="docs" class="container" class:gone="!active">
     <div id="function-doc-container" class="{completionDoc?'':'expand'}">
         <div ref:functionDoc on:click="onClickFunctionDoc(event)" id="function-doc" class="{functionDocType==='html'?'':'text-docstring'}">
             {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}

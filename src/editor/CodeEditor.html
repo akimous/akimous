@@ -1,4 +1,4 @@
-<div ref:codeEditor class="tab-view" style="display: {active ? 'block' : 'none'}" />
+<div ref:codeEditor class="tab-view" class:gone="!active" />
 <Completion ref:completion></Completion>
 
 
@@ -359,7 +359,7 @@
                 onIdle(() => {
                     this.outline = g.outline.generateOutline(this.cm)
                     if (g.activeEditor === this)
-                        g.outline.set({ 
+                        g.outline.set({
                             outlineItems: this.outline,
                             currentLine: this.cm.getCursor().line
                         })

@@ -1,4 +1,4 @@
-<div class="container {active?'':'gone'}">
+<div class="container" class:gone="!active">
     <div ref:linter id="linter">
         {#if pyflakes}
         <div class="title non-selectable">Real-time Lints</div>

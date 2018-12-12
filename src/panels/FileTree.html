@@ -1,4 +1,4 @@
-<div ref:fileTree class="file-tree non-selectable tab-view {active?'':'gone'}">
+<div ref:fileTree class="file-tree non-selectable tab-view" class:gone="!active">
     <div class="container" ref:children>
         {#each dirs as i (i.uid)}
         <FileTreeNode name={i.name} parent={self} isDir></FileTreeNode>

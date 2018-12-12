@@ -1,4 +1,4 @@
-<div class="container {active?'':'gone'}">
+<div class="container" class:gone="!active">
     <div ref:macro id="macro">
         <div class="title non-selectable">Clipboard</div>
         {#if clipboard.length === 0}
