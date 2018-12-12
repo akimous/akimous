@@ -1,4 +1,4 @@
-<div ref:container class="completion non-selectable" style="display:{open?'block':'none'}">
+<div ref:container class="completion non-selectable" class:gone="!open">
     {#if passive}
     <CompletionRow ref:passivePlaceholder parent={null} t="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
     {/if}

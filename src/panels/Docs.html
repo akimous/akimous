@@ -7,14 +7,14 @@
             {/if}
         </div>
     </div>
-    <div ref:splitBar id="doc-split-bar" class="{completionDoc?'':'gone'}"></div>
-    <div id="doc-mask" class="mask {completionDoc?'':'gone'}"></div>
-    <div id="completion-doc-container" class="{completionDoc?'':'gone'}">
-        {#if completionDoc}
+    <div ref:splitBar id="doc-split-bar" class:gone="!completionDoc"></div>
+    {#if completionDoc}
+    <div id="doc-mask" class="mask"></div>
+    <div id="completion-doc-container">
         <div ref:completionDoc id="completion-doc" class="{completionDocType==='html'?'':'text-docstring'}">
             {#if completionDocType==='html'} {@html completionDoc} {:else} {completionDoc} {/if} </div>
-        {/if}
     </div>
+    {/if}
 </div>
 
 <style>
@@ -146,7 +146,7 @@
         oncreate() {
             g.docs = this
             initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
-            onIdle(() => {
+            onIdle(() => { // TODO: remove this node if not active (move {#if} up)
                 this.refs.splitBar.onmousedown = e => {
                     e.preventDefault()
                     document.onmousemove = e => {
@@ -180,10 +180,10 @@
                 lastTokenStart.ch = token.start
 
                 const pos = inParentheses(cm, cursor)
-                
+
                 // don't request function doc if the cursor is not in braces
                 if (!pos) return
-                
+
                 const { filePath } = editor.get()
                 const { functionDocTriggeredFile, functionDocTriggeredPos } = this.get()
                 // don't request function doc if the cursor is moving within the same braces

@@ -1,4 +1,4 @@
-<div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node {selected?'selected':''}" style="padding-left: {0.3 + level}rem;">
+<div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node" class:selected style="padding-left: {0.3 + level}rem;">
     <span class="icon {icon}"></span> {#if !renaming}
     <span class="display-name">
         {name}

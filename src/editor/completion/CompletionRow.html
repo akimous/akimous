@@ -1,4 +1,4 @@
-<div on:click="click()" ref:completionRow class="row {selected?'selected':''}">
+<div on:click="click()" ref:completionRow class="row" class:selected>
     <div class="row-number"> {rowNumber} </div>
     <div class="row-content">{@html highlight}{tail}</div>
     <div class="type-indicator {t}"> {@html typeIcon} </div>
