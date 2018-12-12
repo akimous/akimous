@@ -59,6 +59,7 @@
     import closebrackets from 'codemirror/addon/edit/closebrackets'
     import comment from 'codemirror/addon/comment/comment'
     import activeline from 'codemirror/addon/selection/active-line'
+    // TODO: current code folding implementation may cause performance problems
     import foldcode from 'codemirror/addon/fold/foldcode'
     import foldgutter from 'codemirror/addon/fold/foldgutter'
     import indentFold from 'codemirror/addon/fold/indent-fold'
@@ -358,7 +359,10 @@
                 onIdle(() => {
                     this.outline = g.outline.generateOutline(this.cm)
                     if (g.activeEditor === this)
-                        g.outline.set({ outlineItems: this.outline })
+                        g.outline.set({ 
+                            outlineItems: this.outline,
+                            currentLine: this.cm.getCursor().line
+                        })
                 })
             }
         }

@@ -1,5 +1,5 @@
-<div ref:row on:click="jumpTo(lineNumber, display)" on:dblclick="onDoubleClick()" class="outline-node">
-    <div class="line-number">{lineNumber}</div>
+<div ref:row on:click="jumpTo(line, display)" on:dblclick="onDoubleClick()" class="outline-node">
+    <div class="line-number" class:highlight>{line + 1}</div>
     {#each indents as indent}
     <div class="indent" style="background: var(--gray{indent + 1});">x</div>
     {/each}
@@ -41,6 +41,10 @@
         text-align: right;
         padding-right: .3rem;
         font-family: var(--monospace-font-family);
+    }
+    
+    .highlight {
+        background: var(--ui-highlight-color);
     }
 
     .indent {
@@ -84,19 +88,20 @@
         data() {
             return {
                 path: '',
-                display: 'test',
-                lineNumber: 20,
+                display: '',
+                line: 0,
                 level: 0,
                 open: true,
+                highlight: false,
             }
+        },
+        onstate({ changed, current }) {
+            if (changed.highlight && current.highlight)
+                this.refs.row.scrollIntoView()
         },
         computed: {
             indents: ({ level }) => {
-                const result = []
-                for (let i = 0; i < level; i++) {
-                    result.push(i)
-                }
-                return result
+                return [...Array(level).keys()]
             }
         },
         methods: {

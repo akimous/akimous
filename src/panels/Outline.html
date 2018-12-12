@@ -1,7 +1,7 @@
 <div class="container {active?'':'gone'}">
     <div ref:outline id="outline">
-        {#each outlineItems as item}
-        <OutlineNode lineNumber={item.line} display={item.display} type={item.type} level={item.level}></OutlineNode>
+        {#each outlineItems as { line, display, type, level }, i }
+        <OutlineNode {line} {display} {type} {level} highlight="{line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)}"></OutlineNode>
         {/each}
     </div>
 </div>
@@ -9,11 +9,12 @@
 <style>
     .container {
         padding: .4rem 0;
-        height: calc(100% - var(--indicator-height) - .1rem);
+        height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
     }
 
     #outline {
-        background: gray;
+        height: 100%;
+        overflow-y: scroll;
     }
 
 </style>
@@ -29,12 +30,14 @@
         },
         oncreate() {
             g.outline = this
+            g.currentHighlight = null
             initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')
         },
         data() {
             return {
                 active: false,
-                outlineItems: []
+                outlineItems: [],
+                currentLine: 0,
             }
         },
         methods: {
@@ -78,7 +81,7 @@
                         } catch (e) {
                             continue
                         }
-                        if (asynchronous === true) 
+                        if (asynchronous === true)
                             type = 'async'
                         result.push({
                             level: indent / indentUnit,

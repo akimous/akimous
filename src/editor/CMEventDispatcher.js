@@ -11,6 +11,7 @@ import {
     AFTER_OPERATOR,
 } from './completion/CompletionProvider'
 import { OPERATOR } from './RegexDefinitions'
+import { onIdle } from '../lib/Utils'
 
 const NONE = -1
 
@@ -86,14 +87,17 @@ class CMEventDispatcher {
             }
             shouldDismissCompletionOnCursorActivity = true
             const cursor = cm.getCursor()
-            g.cursorPosition.set(cursor)
-
+            
             const movingToDifferentLine = cursor.line !== dirtyLine
             if (movingToDifferentLine)
                 syncIfNeeded(dirtyLine)
             
-            requestAnimationFrame(() => {
+            onIdle(() => {
+                g.cursorPosition.set(cursor)
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
+                g.outline.set({
+                    currentLine: cursor.line
+                })
             })
         })
 

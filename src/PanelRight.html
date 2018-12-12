@@ -26,6 +26,7 @@
 
 <script>
     import g from './lib/Globals'
+    import { onIdle } from './lib/Utils'
     import { setAttributeForMultipleComponent, activateView } from './lib/Utils'
 
     export default {
@@ -45,7 +46,7 @@
             }, this.refs.tabBar, this.refs.console, this.refs.macro, this.refs.docs, this.refs.find, this.refs.linter)
 
             // we must activate console upon initialization, or xterm will break
-            setTimeout(() => {
+            onIdle(() => {
                 this.activateView(this.refs.linter)
             })
         },
