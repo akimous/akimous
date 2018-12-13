@@ -98,7 +98,7 @@ class CMEventDispatcher {
                 g.outline.set({
                     currentLine: cursor.line
                 })
-            })
+            }, 300)
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
