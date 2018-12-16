@@ -90,7 +90,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView, onIdle, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
+    import { initializeTabView, nextFrame, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
     import {
         scanInSameLevelOfBraces,
         needInsertCommaAfterParameter,
@@ -140,7 +140,7 @@
         oncreate() {
             g.docs = this
             initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
-            onIdle(() => { // TODO: remove this node if not active (move {#if} up)
+            nextFrame(() => { // TODO: remove this node if not active (move {#if} up)
                 this.refs.splitBar.onmousedown = e => {
                     e.preventDefault()
                     document.onmousemove = e => {

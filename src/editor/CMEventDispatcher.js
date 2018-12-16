@@ -11,7 +11,7 @@ import {
     AFTER_OPERATOR,
 } from './completion/CompletionProvider'
 import { OPERATOR } from './RegexDefinitions'
-import { onIdle } from '../lib/Utils'
+import { schedule } from '../lib/Utils'
 
 const NONE = -1
 
@@ -92,7 +92,7 @@ class CMEventDispatcher {
             if (movingToDifferentLine)
                 syncIfNeeded(dirtyLine)
             
-            onIdle(() => {
+            schedule(() => {
                 g.cursorPosition.set(cursor)
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
                 g.outline.set({

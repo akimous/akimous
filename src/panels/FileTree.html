@@ -286,7 +286,7 @@
                 })
             },
             scroll(amount) {
-                window.cancelAnimationFrame(this.currentAnimationId)
+                cancelAnimationFrame(this.currentAnimationId)
                 const fileTree = this.refs.fileTree
                 const vh = fileTree.getBoundingClientRect().height * amount
                 let d = 1.
@@ -294,7 +294,7 @@
                     fileTree.scrollTop += vh * d
                     if (d > 0.1) {
                         d -= 0.1
-                        this.currentAnimationId = window.requestAnimationFrame(step)
+                        this.currentAnimationId = requestAnimationFrame(step)
                     }
                 }
                 step()

@@ -21,7 +21,7 @@
 <script>
     import g from './lib/Globals'
     import CodeEditor from './editor/CodeEditor.html'
-    import { onIdle } from './lib/Utils'
+    import { schedule } from './lib/Utils'
 
     const MAX_ACTIVATION_HISTORY = 32
 
@@ -107,7 +107,7 @@
                 if (!cm) return
                 cm.focus()
 
-                onIdle(() => {  // ~5 ms
+                schedule(() => {  // ~5 ms
                     const cursor = cm.getCursor()
                     g.cursorPosition.set(cursor)
                     g.docs.getFunctionDocIfNeeded(cm, editor, cursor)

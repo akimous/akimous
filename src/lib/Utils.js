@@ -10,17 +10,63 @@ function binarySearch(array, target) {
     return hi
 }
 
-function onIdle(callback, timeout = 1000, delay = 0) {
-    setTimeout(() => { // let other things run first
-        if (window.requestIdleCallback) {
-            window.requestIdleCallback(callback, { timeout })
-        } else {
-            requestAnimationFrame(() => {
-                console.warn('requestIdleCallback not available')
-                requestAnimationFrame(callback)
-            })
-        }
-    }, delay)
+//function onIdle(callback, timeout = 1000, delay = 0) {
+//    setTimeout(() => { // let other things run first
+//        if (window.requestIdleCallback) {
+//            window.requestIdleCallback(callback, { timeout })
+//        } else {
+//            requestAnimationFrame(() => {
+//                console.warn('requestIdleCallback not available')
+//                requestAnimationFrame(callback)
+//            })
+//        }
+//    }, delay)
+//}
+
+
+const queue = []
+let lastFrameTimestamp = 0 // in ms
+let framesPassed = 0
+let ticking = false
+
+function schedule(callback) {
+    queue.push(callback)
+    if (!ticking) {
+        ticking = true
+        requestAnimationFrame(tick)
+    }
+}
+
+function tick(time) {
+    const frameTime = time - lastFrameTimestamp
+    lastFrameTimestamp = time
+    framesPassed += 1
+    console.log({ frameTime, framesPassed })
+    if (frameTime > 20 && framesPassed < 10) {
+        requestAnimationFrame(tick)
+        return
+    }
+
+    framesPassed = 0
+    while (true) {
+        // consume a job
+        let job = queue.shift()
+        if (!job) break
+        job()
+        console.log('job took', performance.now() - time, job)
+        if (performance.now() - time > 4) break
+    }
+
+    // if the queue is not empty, schedule next run
+    if (queue.length === 0)
+        ticking = false
+    else requestAnimationFrame(tick)
+}
+
+function nextFrame(callback) {
+    requestAnimationFrame(() => {
+        requestAnimationFrame(callback)
+    })
 }
 
 function initializeTabView(view, title, icon) {
@@ -191,7 +237,7 @@ function highlightSequentially(target, input) {
     const tLength = target.length
     const iLength = input.length
     let iChar = input.charAt(i)
-    
+
     for (; t < tLength; t++) {
         const tChar = target.charAt(t)
         if (tChar === iChar) {
@@ -215,7 +261,9 @@ function highlightSequentially(target, input) {
 
 export {
     binarySearch,
-    onIdle,
+    //    onIdle,
+    schedule,
+    nextFrame,
     initializeTabView,
     setAttributeForMultipleComponent,
     activateView,

@@ -16,7 +16,7 @@
     import RealtimeFormatter from './RealtimeFormatter'
     import { CompletionProvider } from './completion/CompletionProvider'
     import { getIconByFileName } from '../lib/FileTypeToIcon'
-    import { onIdle } from '../lib/Utils'
+    import { schedule } from '../lib/Utils'
 
     /* eslint-disable */
     import CodeMirror from 'codemirror'
@@ -253,7 +253,7 @@
             })
 
             // Step 3: Do the rest of things (about 20 ms)
-            initializeCM.then(() => onIdle(() => {
+            initializeCM.then(() => schedule(() => {
                 this.cm.refresh() // prevent CM occasionally shifts to the right
                 this.completionProvider = new CompletionProvider(this)
                 // only enable completionProvider when the document is a Python file
@@ -274,7 +274,7 @@
                     }
                 }
 
-                onIdle(() => {
+                schedule(() => {
                     this.outline = g.outline.generateOutline(this.cm)
                     if (g.activeEditor === this)
                         g.outline.set({ outlineItems: this.outline })
@@ -356,7 +356,7 @@
                 else {
                     this.socket.send('SyncRange', [changes, changes + 1, true, lineContent])
                 }
-                onIdle(() => {
+                schedule(() => {
                     this.outline = g.outline.generateOutline(this.cm)
                     if (g.activeEditor === this)
                         g.outline.set({

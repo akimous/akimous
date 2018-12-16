@@ -110,7 +110,7 @@ function registerCMCommands(CodeMirror) {
     let currentAnimationId = undefined
 
     function scroll(cm, amount) {
-        window.cancelAnimationFrame(currentAnimationId)
+        cancelAnimationFrame(currentAnimationId)
         const scrollInfo = cm.getScrollInfo()
         const vh = scrollInfo.clientHeight * amount
         const x = scrollInfo.left
@@ -121,7 +121,7 @@ function registerCMCommands(CodeMirror) {
             if (d > 0.1) {
                 d -= 0.1
                 y -= vh * d
-                currentAnimationId = window.requestAnimationFrame(step)
+                currentAnimationId = requestAnimationFrame(step)
             }
         }
         step()

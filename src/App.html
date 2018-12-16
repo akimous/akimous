@@ -52,6 +52,7 @@
 
 <script>
     import g from './lib/Globals'
+    import { schedule } from './lib/Utils'
     import Hotkeys from './LayeredKeyboardControl/Hotkeys'
     import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
 
@@ -107,7 +108,7 @@
 
         oncreate() {
             g.app = this
-            setTimeout(() => {
+            schedule(() => {
                 this.refs.splitBarL.onmousedown = e => {
                     e.preventDefault()
                     document.onmousemove = e => {
@@ -149,7 +150,7 @@
 
                 Hotkeys.bindHotkeys()
                 g.layeredKeyboardControl = new LayeredKeyboardControl()
-            }, 300)
+            })
         },
         data() {
             return {
