@@ -1,9 +1,15 @@
 <div class="container" class:gone="!active">
-    <div ref:outline id="outline">
+    <table ref:outline id="outline">
         {#each outlineItems as { line, display, type, level }, i }
-        <OutlineNode {line} {display} {type} {level} highlight="{line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)}"></OutlineNode>
+        <tr ref:row on:click="jumpTo(line, display)" class="outline-node" class:highlight="line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)">
+            <td class="line-number" class:highlight>{line + 1}</td>
+            {#each [...Array(level).keys()] as indent}
+            <td class="indent" style="background: var(--gray{indent + 1});">x</td>
+            {/each}
+            <td class="display {type}" style="background: var(--gray{level + 1});">{display}</td>
+        </tr>
         {/each}
-    </div>
+    </table>
 </div>
 
 <style>
@@ -17,17 +23,81 @@
         overflow-y: scroll;
     }
 
+    .outline-node {
+        height: var(--ui-line-height-default);
+        line-height: var(--ui-line-height-default);
+        cursor: default;
+        white-space: nowrap;
+        min-width: 100%;
+        font-size: var(--ui-font-size-default);
+        border-bottom: 1px solid var(--panel-delimiter-color);
+        /* don't remove this or the font on non-retina display with Safari will become crappy. */
+        background: var(--gray2);
+        display: inline-flex;
+    }
+
+    .outline-node.selected {
+        background: var(--ui-highlight-color);
+        color: white;
+    }
+
+    .outline-node:hover {
+        color: white;
+        background: var(--gray3);
+        filter: brightness(1.3);
+    }
+
+    .line-number {
+        display: inline-block;
+        background: var(--primary2);
+        width: 3rem;
+        height: 100%;
+        text-align: right;
+        padding-right: .3rem;
+        font-family: var(--monospace-font-family);
+        box-sizing: border-box;
+    }
+
+    .highlight .line-number {
+        background: var(--ui-highlight-color);
+    }
+
+    .indent {
+        display: inline-block;
+        width: 1rem;
+        height: 100%;
+        color: transparent;
+        box-sizing: border-box;
+    }
+
+    .display {
+        display: inline-block;
+        padding-left: .3rem;
+        flex-grow: 1;
+    }
+
+    .display.def {
+        color: var(--c-function);
+    }
+
+    .display.class {
+        color: var(--c-def);
+    }
+
+    .display.async {
+        color: var(--c-attribute);
+    }
+
 </style>
 
 
 <script>
     import g from '../lib/Globals'
     import { initializeTabView, Pos } from '../lib/Utils'
+    import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
     export default {
-        components: {
-            OutlineNode: './OutlineNode.html'
-        },
+        components: {},
         oncreate() {
             g.outline = this
             g.currentHighlight = null
@@ -94,8 +164,14 @@
                     }
                 }
                 return result
-            }
-        }
+            },
+            jumpTo(line, name) {
+                let ch = 0
+                const lineContent = g.activeEditor.cm.getLine(line)
+                ch = lineContent.indexOf(name)
+                setCursorAndScrollIntoView(line, ch)
+            },
+        },
     }
 
 </script>
