@@ -7,6 +7,10 @@
                 <td class="line-number">{message.line}</td>
                 <td class="{message.type} message error">{message.message}</td>
             </tr>
+            {:else}
+            <tr>
+                <td class="placeholder">No lints found</td>
+            </tr>
             {/each}
         </table>
         {/if}
@@ -19,6 +23,10 @@
                 <td class="message">{@html message.highlight}
                     <div class="add-to-dictionary tooltipped tooltipped-sw" aria-label="Add to project dictionary" on:click="addToDictionary(message.highlight)"><i class="fas fa-book"></i></div>
                 </td>
+            </tr>
+            {:else}
+            <tr>
+                <td class="placeholder">No spelling errors found</td>
             </tr>
             {/each}
         </table>
@@ -38,6 +46,10 @@
             <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
                 <td class="line-number">{message.line}</td>
                 <td class="{message.type} message">{message.message0}</td>
+            </tr>
+            {:else}
+            <tr>
+                <td class="placeholder">No lints found</td>
             </tr>
             {/each}
         </table>

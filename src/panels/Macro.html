@@ -1,9 +1,6 @@
 <div class="panel" class:gone="!active">
     <div ref:macro id="macro">
         <div class="title">Clipboard</div>
-        {#if clipboard.length === 0}
-        <div class="placeholder non-selectable">Empty <br>(copy or cut something to fill in the clipboard)</div>
-        {/if}
         <table id="clipboard" class="non-selectable">
             {#each clipboard as text, i}
             <tr on:click="paste(text)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
@@ -12,18 +9,16 @@
                     <div class="clipboard-text">{text}</div>
                 </td>
             </tr>
+            {:else}
+            <tr>
+                <td class="placeholder">Empty <br>(copy or cut something to fill in the clipboard)</td>
+            </tr>
             {/each}
         </table>
     </div>
 </div>
 
 <style>
-    .placeholder {
-        padding: .3rem;
-        background: var(--main-bg-color);
-        color: var(--gray7);
-    }
-
     #clipboard {
         width: 100%;
         background: var(--main-bg-color);

@@ -8,6 +8,10 @@
             {/each}
             <td class="display {type}" style="background: var(--gray{level + 1});">{display}</td>
         </tr>
+        {:else}
+            <tr>
+                <td class="placeholder">Empty <br>(classes and functions defined in your code will be shown here)</td>
+            </tr>
         {/each}
     </table>
 </div>

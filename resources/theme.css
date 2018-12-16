@@ -194,6 +194,13 @@ span.tooltipped::after {
     background: var(--gray2);
 }
 
+.panel .placeholder {
+    padding: .3rem;
+    background: var(--main-bg-color);
+    color: var(--gray7);
+    font-family: var(--ui-font-family);
+}
+
 .panel table,
 .panel td {
     padding: 0;
