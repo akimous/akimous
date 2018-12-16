@@ -1,6 +1,6 @@
-<div class="container" class:gone="!active">
+<div class="panel" class:gone="!active">
     <div ref:macro id="macro">
-        <div class="panel-title">Clipboard</div>
+        <div class="title">Clipboard</div>
         {#if clipboard.length === 0}
         <div class="placeholder non-selectable">Empty <br>(copy or cut something to fill in the clipboard)</div>
         {/if}
@@ -18,10 +18,6 @@
 </div>
 
 <style>
-    .container {
-        height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
-    }
-
     .placeholder {
         padding: .3rem;
         background: var(--main-bg-color);

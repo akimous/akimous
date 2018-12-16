@@ -1,4 +1,4 @@
-<div ref:container id="docs" class="container" class:gone="!active">
+<div ref:container id="docs" class="panel" class:gone="!active">
     <div id="function-doc-container" class="{completionDoc?'':'expand'}">
         <div ref:functionDoc on:click="onClickFunctionDoc(event)" id="function-doc" class="{functionDocType==='html'?'':'text-docstring'}">
             {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
@@ -18,12 +18,6 @@
 </div>
 
 <style>
-    .container {
-        position: absolute;
-        height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
-        width: 100%;
-    }
-
     #doc-split-bar {
         position: absolute;
         top: calc(var(--function-doc-height) - .4rem);

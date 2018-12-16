@@ -1,7 +1,6 @@
-<div class="container panel" class:gone="!active">
-    <div ref:linter id="linter">
+<div id="linter" class="panel" class:gone="!active">
         {#if pyflakes}
-        <div class="panel-title">Real-time Lints</div>
+        <div class="title">Real-time Lints</div>
         <table id="pyflakes-result" class="">
             {#each realTimeLints as message}
             <tr on:click="jumpTo(message.line, message.ch)">
@@ -12,7 +11,7 @@
         </table>
         {/if}
         {#if spellChecker}
-        <div class="panel-title">Spelling Errors</div>
+        <div class="title">Spelling Errors</div>
         <table id="spelling-errors" class="">
             {#each spellingErrors as message}
             <tr on:click="jumpTo(message.line, message.ch)">
@@ -25,7 +24,7 @@
         </table>
         {/if}
         {#if pylint}
-        <div class="panel-title">Offline Lints</div>
+        <div class="title">Offline Lints</div>
         <div id="offline-linter-filter" class="">
             {#each OFFLINE_LINT_TYPES as type}
             <div class="type-filter" class:active="offlineLintType.has(type)" on:click="toggle('offlineLintType', type)">
@@ -43,14 +42,9 @@
             {/each}
         </table>
         {/if}
-    </div>
 </div>
 
 <style>
-    .container {
-        height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
-    }
-
     #linter-option-button {
         position: absolute;
         right: 0;
@@ -59,11 +53,6 @@
         display: inline-block;
         padding: .3rem;
         margin: .1rem;
-    }
-
-    #linter {
-        height: 100%;
-        overflow-y: scroll;
     }
 
     #offline-linter-filter {

@@ -1,4 +1,4 @@
-<div class="container panel" class:gone="!active">
+<div class="panel" class:gone="!active">
     <table ref:outline id="outline">
         {#each outlineItems as { line, display, type, level }, i }
         <tr ref:row on:click="jumpTo(line, display)" class="outline-node" class:highlight="line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)">
@@ -13,12 +13,6 @@
 </div>
 
 <style>
-    .container {
-        padding: .4rem 0;
-        height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
-        overflow-y: scroll;
-    }
-
     #outline {}
 
     .outline-node {

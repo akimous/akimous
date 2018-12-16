@@ -170,7 +170,14 @@ span.tooltipped::after {
     border-bottom: var(--indicator-height) solid var(--purple);
 }
 
-.panel-title {
+/* panel */
+.panel {
+    height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
+    overflow-y: scroll;
+    box-sizing: border-box;
+}
+
+.title {
     user-select: none;
     cursor: default;
     padding: .3rem;
@@ -178,7 +185,7 @@ span.tooltipped::after {
     font-size: var(--ui-font-size-large);
 }
 
-/* Panel tables */
+/* panel tables */
 .panel table {
     user-select: none;
     cursor: default;

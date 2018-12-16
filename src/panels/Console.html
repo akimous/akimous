@@ -1,13 +1,9 @@
-<div class="container" class:gone="!active">
+<div class="panel" class:gone="!active">
     <div ref:terminal class="tab-view"></div>
 </div>
 
 
 <style>
-    .container {
-        padding: .4rem;
-        height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
-    }
 
 </style>
 
@@ -45,7 +41,7 @@
             initializeTerminal() {
                 this.tab.set({ active: false })
                 this.tab.set({ active: true })
-                
+
                 requestAnimationFrame(() => {
                     Terminal.applyAddon(fit)
                     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
