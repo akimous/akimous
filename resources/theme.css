@@ -31,12 +31,12 @@
     --dark-color: var(--gray3);
     --darker-color: var(--gray1);
     --darkest-color: var(--gray0);
-    
+
     --panel-delimiter-color: var(--gray5);
-    
+
     --ui-highlight-color: var(--primary5);
     --ui-danger-color: var(--brighter-red);
-    
+
     --default-radius: .5rem;
     --small-radius: .3rem;
 
@@ -103,14 +103,14 @@
     --purple: #8e44ad;
     --brighter-purple: #9b59b6;
     --darker-purple: #6F3587;
-    
+
     --accent1: #0B2626;
     --accent2: #233D3D;
     --accent3: #325C58;
     --accent4: #498F87;
     --accent5: #5DACA3;
     --accent6: #87D5D2;
-    
+
     --primary2: #2B3F52;
     --primary3: #264A6E;
     --primary4: #34689D;
@@ -118,7 +118,7 @@
     --primary6: #6FA1D3;
     --primary7: #B1D3F2;
     --primary8: #F0F8FE;
-    
+
     /* Grays should be neutral */
     --gray0: #111;
     --gray1: #161616;
@@ -169,6 +169,60 @@ span.tooltipped::after {
 .indicator-on.auto-hide {
     border-bottom: var(--indicator-height) solid var(--purple);
 }
+
+.panel-title {
+    user-select: none;
+    cursor: default;
+    padding: .3rem;
+    color: var(--accent6);
+    font-size: var(--ui-font-size-large);
+}
+
+/* Panel tables */
+.panel table {
+    user-select: none;
+    cursor: default;
+    table-layout: fixed;
+    width: 100%;
+    background: var(--gray2);
+}
+
+.panel table,
+.panel td {
+    padding: 0;
+    margin: 0;
+    border-spacing: 0;
+}
+
+.panel td {
+    vertical-align: top;
+    cursor: default;
+    border-bottom: 1px solid var(--panel-delimiter-color);
+}
+
+.panel tr:hover {
+    filter: brightness(1.2);
+}
+
+.panel .line-number {
+    width: 3rem;
+    padding: .3rem .3rem .3rem 0;
+    text-align: right;
+    color: var(--ui-font-color);
+    background: var(--primary2);
+    font-family: var(--monospace-font-family);
+}
+
+.panel tr.selected .line-number {
+    color: white;
+    background: var(--gray3);
+}
+
+.panel .highlight .line-number {
+    background: var(--ui-highlight-color);
+}
+
+/* Icons */
 
 .l-python-icon {
     background: url(icons/python.svg) !important;

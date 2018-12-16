@@ -1,8 +1,8 @@
-<div class="container" class:gone="!active">
+<div class="container panel" class:gone="!active">
     <div ref:linter id="linter">
         {#if pyflakes}
-        <div class="title non-selectable">Real-time Lints</div>
-        <table id="pyflakes-result" class="non-selectable">
+        <div class="panel-title">Real-time Lints</div>
+        <table id="pyflakes-result" class="">
             {#each realTimeLints as message}
             <tr on:click="jumpTo(message.line, message.ch)">
                 <td class="line-number">{message.line}</td>
@@ -12,8 +12,8 @@
         </table>
         {/if}
         {#if spellChecker}
-        <div class="title non-selectable">Spelling Errors</div>
-        <table id="spelling-errors" class="non-selectable">
+        <div class="panel-title">Spelling Errors</div>
+        <table id="spelling-errors" class="">
             {#each spellingErrors as message}
             <tr on:click="jumpTo(message.line, message.ch)">
                 <td class="line-number">{message.line}</td>
@@ -25,8 +25,8 @@
         </table>
         {/if}
         {#if pylint}
-        <div class="title non-selectable">Offline Lints</div>
-        <div id="offline-linter-filter" class="non-selectable">
+        <div class="panel-title">Offline Lints</div>
+        <div id="offline-linter-filter" class="">
             {#each OFFLINE_LINT_TYPES as type}
             <div class="type-filter" class:active="offlineLintType.has(type)" on:click="toggle('offlineLintType', type)">
                 <div class="type {type}">{typeStrings[type]}</div>
@@ -34,7 +34,7 @@
             </div>
             {/each}
         </div>
-        <table id="pylint-result" class="non-selectable">
+        <table id="pylint-result" class="">
             {#each filteredOfflineLints as message, i}
             <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
                 <td class="line-number">{message.line}</td>
@@ -100,55 +100,6 @@
 
     .type-filter .type {
         font-weight: 400;
-    }
-
-    .title {
-        padding: .3rem;
-        color: var(--accent6);
-        font-size: var(--ui-font-size-large);
-    }
-
-    #pylint-result,
-    #pyflakes-result,
-    #spelling-errors {
-        width: 100%;
-        background: var(--gray2);
-    }
-
-    table {
-        table-layout: fixed;
-    }
-
-    table,
-    td {
-        padding: 0;
-        margin: 0;
-        border-spacing: 0;
-    }
-
-    td {
-        vertical-align: top;
-        cursor: default;
-        border-bottom: 1px solid var(--panel-delimiter-color);
-    }
-
-    tr:hover {
-        color: white;
-        background: var(--gray3);
-    }
-
-    .line-number {
-        width: 2rem;
-        padding: .3rem;
-        text-align: right;
-        color: var(--ui-font-color);
-        background: var(--primary2);
-        font-family: var(--monospace-font-family);
-    }
-
-    tr:hover>.line-number {
-        color: white;
-        background: var(--ui-highlight-color);
     }
 
     .message {
