@@ -19,6 +19,7 @@
         "eslint-plugin-html": "^5.0.0",
         "keyboardjs": "^2.5.1",
         "lodash.snakecase": "^4.1.1",
+        "lodash.throttle": "^4.1.1",
         "msgpack-lite": "^0.1.26",
         "normalize.css": "^8.0.1",
         "pluralize": "^7.0.0",
@@ -45,7 +46,6 @@
         "last 2 Safari versions",
         "last 2 Chrome versions",
         "last 2 Firefox versions",
-        "last 1 Edge versions",
         "last 1 ChromeAndroid versions"
     ]
 }

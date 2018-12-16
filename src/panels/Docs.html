@@ -89,6 +89,7 @@
 
 
 <script>
+    import throttle from 'lodash.throttle'
     import g from '../lib/Globals'
     import { initializeTabView, nextFrame, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
     import {
@@ -141,15 +142,13 @@
             g.docs = this
             initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
             nextFrame(() => { // TODO: remove this node if not active (move {#if} up)
-                this.refs.splitBar.onmousedown = e => {
+                this.refs.splitBar.onmousedown = throttle(e => {
                     e.preventDefault()
                     document.onmousemove = e => {
                         const height = (e.pageY - this.refs.container.getBoundingClientRect().y) + 'px'
-                        requestAnimationFrame(() => {
-                            document.documentElement.style.setProperty('--function-doc-height', height)
-                        })
+                        document.documentElement.style.setProperty('--function-doc-height', height)
                     }
-                }
+                }, 16)
             })
         },
         data() {

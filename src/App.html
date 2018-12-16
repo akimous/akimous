@@ -51,6 +51,7 @@
 </style>
 
 <script>
+    import throttle from 'lodash.throttle'
     import g from './lib/Globals'
     import { schedule } from './lib/Utils'
     import Hotkeys from './LayeredKeyboardControl/Hotkeys'
@@ -111,23 +112,18 @@
             schedule(() => {
                 this.refs.splitBarL.onmousedown = e => {
                     e.preventDefault()
-                    document.onmousemove = e => {
-                        const width = e.pageX + 'px'
-                        requestAnimationFrame(() => {
-                            document.documentElement.style.setProperty('--panel-left-width', width)
-                        })
-                    }
+                    document.onmousemove = throttle(e => {
+                        document.documentElement.style.setProperty('--panel-left-width', `${e.pageX}px`)
+                    }, 16)
                 }
                 this.refs.splitBarR.onmousedown = e => {
                     e.preventDefault()
-                    document.onmousemove = e => {
+                    document.onmousemove = throttle(e => {
                         const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
                         const width = viewportWidth - e.pageX
-                        requestAnimationFrame(() => {
-                            document.documentElement.style.setProperty('--panel-right-width', `${width}px`)
-                            this.refs.panelRight.set({ width })
-                        })
-                    }
+                        document.documentElement.style.setProperty('--panel-right-width', `${width}px`)
+                        this.refs.panelRight.set({ width })
+                    }, 16)
                 }
                 this.refs.splitBarR.onmouseup = () => {
                     g.console.terminal && g.console.terminal.fit()

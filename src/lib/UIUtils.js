@@ -1,3 +1,5 @@
+import throttle from 'lodash.throttle'
+
 function dragElement(element) {
     let xDiff = 0,
         yDiff = 0,
@@ -16,18 +18,16 @@ function dragElement(element) {
         e.stopPropagation()
     }
 
-    function onDragging(e) {
-        requestAnimationFrame(() => {
-            xDiff = xStart - e.clientX
-            yDiff = yStart - e.clientY
-            xStart = e.clientX
-            yStart = e.clientY
-            element.style.top = `${(element.offsetTop - yDiff)}px`
-            element.style.left = `${(element.offsetLeft - xDiff)}px`
-            e.preventDefault()
-            e.stopPropagation()
-        })
-    }
+    const onDragging = throttle(e => {
+        xDiff = xStart - e.clientX
+        yDiff = yStart - e.clientY
+        xStart = e.clientX
+        yStart = e.clientY
+        element.style.top = `${(element.offsetTop - yDiff)}px`
+        element.style.left = `${(element.offsetLeft - xDiff)}px`
+        e.preventDefault()
+        e.stopPropagation()
+    }, 16)
 
     function endDragging(e) {
         document.onmouseup = null
