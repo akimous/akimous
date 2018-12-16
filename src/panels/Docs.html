@@ -1,6 +1,6 @@
 <div ref:container id="docs" class="panel" class:gone="!active">
     <div id="function-doc-container" class="{completionDoc?'':'expand'}">
-        <div ref:functionDoc on:click="onClickFunctionDoc(event)" id="function-doc" class="{functionDocType==='html'?'':'text-docstring'}">
+        <div ref:functionDoc on:click="onClickFunctionDoc(event)" id="function-doc" class:text-docstring="functionDocType!=='html'">
             {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
             <h2>Function Documentation</h2>
             <p>Move the cursor inside function parentheses to show its docstring.</p>
@@ -11,7 +11,7 @@
     {#if completionDoc}
     <div id="doc-mask" class="mask"></div>
     <div id="completion-doc-container">
-        <div ref:completionDoc id="completion-doc" class="{completionDocType==='html'?'':'text-docstring'}">
+        <div ref:completionDoc id="completion-doc" class:text-docstring="functionDocType!=='html'">
             {#if completionDocType==='html'} {@html completionDoc} {:else} {completionDoc} {/if} </div>
     </div>
     {/if}

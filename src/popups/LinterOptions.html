@@ -5,11 +5,7 @@
         <div class="message">Format code as you type.</div>
         <div class="option" on:click="toggle('realtime')">
             <span class="checkbox">
-                {#if realtime}
-                <i class="fas fa-check-circle checked"></i>
-                {:else}
-                <i class="far fa-circle"></i>
-                {/if}
+                <i class="fas" class:checked="realtime" class:fa-circle="!realtime" class:fa-check-circle="realtime"></i>
             </span>
             <span class="description">Built-in</span>
         </div>
@@ -18,21 +14,13 @@
         <div class="message">Check for errors as you type.</div>
         <div class="option" on:click="toggle('pyflakes')">
             <span class="checkbox">
-                {#if pyflakes}
-                <i class="fas fa-check-circle checked"></i>
-                {:else}
-                <i class="far fa-circle"></i>
-                {/if}
+                <i class="fas" class:checked="pyflakes" class:fa-circle="!pyflakes" class:fa-check-circle="pyflakes"></i>
             </span>
             <span class="description">Pyflakes</span>
         </div>
         <div class="option" on:click="toggle('spellChecker')">
             <span class="checkbox">
-                {#if spellChecker}
-                <i class="fas fa-check-circle checked"></i>
-                {:else}
-                <i class="far fa-circle"></i>
-                {/if}
+                <i class="fas" class:checked="spellChecker" class:fa-circle="!spellChecker" class:fa-check-circle="spellChecker"></i>
             </span>
             <span class="description">Spell checker</span>
         </div>
@@ -41,21 +29,13 @@
         <div class="message">Reformat code before saving.</div>
         <div class="option" on:click="toggle('isort')">
             <span class="checkbox">
-                {#if isort}
-                <i class="fas fa-check-circle checked"></i>
-                {:else}
-                <i class="far fa-circle"></i>
-                {/if}
+                <i class="fas" class:checked="isort" class:fa-circle="!isort" class:fa-check-circle="isort"></i>
             </span>
             <span class="description">isort</span>
         </div>
         <div class="option" on:click="toggle('yapf')">
             <span class="checkbox">
-                {#if yapf}
-                <i class="fas fa-check-circle checked"></i>
-                {:else}
-                <i class="far fa-circle"></i>
-                {/if}
+                <i class="fas fa-check-circle checked" class:checked="yapf" class:fa-circle="!yapf" class:fa-check-circle="yapf"></i>
             </span>
             <span class="description">YAPF</span>
         </div>
@@ -64,11 +44,7 @@
         <div class="message">Check for subtle problems after saving.</div>
         <div class="option" on:click="toggle('pylint')">
             <span class="checkbox">
-                {#if pylint}
-                <i class="fas fa-check-circle checked"></i>
-                {:else}
-                <i class="far fa-circle"></i>
-                {/if}
+                <i class="fas fa-check-circle checked"class:checked="pylint" class:fa-circle="!pylint" class:fa-check-circle="pylint"></i>
             </span>
             <span class="description">Pylint</span>
         </div>

@@ -1,6 +1,6 @@
 <span ref:tab class="tab non-selectable {active ? 'active' : ''} {clean ? '' : 'dirty'} {(padding && labeled) ? '' : 'tooltipped tooltipped-s'}" style="padding:0 {padding}px" on:click="activate()" on:dblclick="close()" aria-label="{name}">
     <!-- if the two spans sitting on different lines means there is a space in between-->
-    <span ref:icon class="icon {icon} {name?'icon-height-adjustment':''}"></span>{#if labeled}<span ref:text class="text">{name}</span>{/if}
+    <span ref:icon class="icon {icon}" class:icon-height-adjustment="name"></span>{#if labeled}<span ref:text class="text">{name}</span>{/if}
 </span>
 
 

@@ -1,4 +1,4 @@
-<div id="panel-popup" class="popup" ref:popup style="display:{open?'block':'none'}" on:mouseleave="set({open: false})">{@html content} <div id="popup-arrow"></div></div>
+<div id="panel-popup" class="popup" ref:popup class:gone="!open" on:mouseleave="set({open: false})">{@html content} <div id="popup-arrow"></div></div>
 
 
 <style>
@@ -7,7 +7,6 @@
         min-height: 3rem;
         padding: .5rem .5rem;
         max-height: 80%;
-/*        overflow-x: scroll;*/
     }
 
     :global(#panel-popup table) {
