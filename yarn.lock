@@ -360,13 +360,13 @@ autoprefixer@^9.0.0:
     postcss "^7.0.5"
     postcss-value-parser "^3.3.1"
 
-autoprefixer@^9.4.2:
-  version "9.4.2"
-  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-9.4.2.tgz#0234d20900684fc4bfb67926493deb68384067f5"
-  integrity sha512-tYQYJvZvqlJCzF+BLC//uAcdT/Yy4ik9bwZRXr/EehUJ/bjjpTthsWTy8dpowdoIE1sLCDf1ch4Eb2cOSzZC9w==
+autoprefixer@^9.4.3:
+  version "9.4.3"
+  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-9.4.3.tgz#c97384a8fd80477b78049163a91bbc725d9c41d9"
+  integrity sha512-/XSnzDepRkAU//xLcXA/lUWxpsBuw0WiriAHOqnxkuCtzLhaz+fL4it4gp20BQ8n5SyLzK/FOc7A0+u/rti2FQ==
   dependencies:
-    browserslist "^4.3.5"
-    caniuse-lite "^1.0.30000914"
+    browserslist "^4.3.6"
+    caniuse-lite "^1.0.30000921"
     normalize-range "^0.1.2"
     num2fraction "^1.2.2"
     postcss "^7.0.6"
@@ -491,15 +491,6 @@ browserslist@^4.3.3:
     electron-to-chromium "^1.3.81"
     node-releases "^1.0.0-alpha.15"
 
-browserslist@^4.3.5:
-  version "4.3.5"
-  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.3.5.tgz#1a917678acc07b55606748ea1adf9846ea8920f7"
-  integrity sha512-z9ZhGc3d9e/sJ9dIx5NFXkKoaiQTnrvrMsN3R1fGb1tkWWNSz12UewJn9TNxGo1l7J23h0MRaPmk7jfeTZYs1w==
-  dependencies:
-    caniuse-lite "^1.0.30000912"
-    electron-to-chromium "^1.3.86"
-    node-releases "^1.0.5"
-
 browserslist@^4.3.6:
   version "4.3.6"
   resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.3.6.tgz#0f9d9081afc66b36f477c6bdf3813f784f42396a"
@@ -608,16 +599,6 @@ caniuse-lite@^1.0.30000898:
   version "1.0.30000898"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000898.tgz#651306e690ca83caca5814da5afa3eb4de0f86c2"
   integrity sha512-ytlTZqO4hYe4rNAJhMynUAIUI33jsP2Bb1two/9OVC39wZjPZ8exIO0eCLw5mqAtegOGiGF0kkTWTn3B02L+mw==
-
-caniuse-lite@^1.0.30000912:
-  version "1.0.30000912"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000912.tgz#08e650d4090a9c0ab06bfd2b46b7d3ad6dcaea28"
-  integrity sha512-M3zAtV36U+xw5mMROlTXpAHClmPAor6GPKAMD5Yi7glCB5sbMPFtnQ3rGpk4XqPdUrrTIaVYSJZxREZWNy8QJg==
-
-caniuse-lite@^1.0.30000914:
-  version "1.0.30000916"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000916.tgz#3428d3f529f0a7b2bfaaec65e796037bdd433aab"
-  integrity sha512-D6J9jloPm2MPkg0PXcODLMQAJKkeixKO9xhqTUMvtd44MtTYMyyDXPQ2Lk9IgBq5FH0frwiPa/N/w8ncQf7kIQ==
 
 caniuse-lite@^1.0.30000921:
   version "1.0.30000921"
@@ -1210,11 +1191,6 @@ electron-to-chromium@^1.3.81:
   version "1.3.81"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.81.tgz#32af69206ef78973b6a6771b0c8450c2ce253913"
   integrity sha512-+rym2xtzwPWmoi8AYRrCdW65QOT0vfUHjZb5mjgh0VLyj31pGM3CpP3znKhQNBzQaWujR/KEl/mfC2lnKYgADA==
-
-electron-to-chromium@^1.3.86:
-  version "1.3.86"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.86.tgz#a45ea01da5b26500d12bca5e0f194ebb3e1fd14e"
-  integrity sha512-BcmXOu37FCPxrrh0wyKgKi5dAjIu2ohxN5ptapkLPKRC3IBK2NeIwh9n1x/8HzSRQiEKamJkDce1ZgOGgEX9iw==
 
 electron-to-chromium@^1.3.92:
   version "1.3.92"
@@ -2898,13 +2874,6 @@ node-releases@^1.0.0-alpha.15:
   dependencies:
     semver "^5.3.0"
 
-node-releases@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.0.5.tgz#a641adcc968b039a27345d92ef10b093e5cbd41d"
-  integrity sha512-Ky7q0BO1BBkG/rQz6PkEZ59rwo+aSfhczHP1wwq8IowoVdN/FpiP7qp0XW0P2+BVCWe5fQUBozdbVd54q1RbCQ==
-  dependencies:
-    semver "^5.3.0"
-
 node-releases@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.1.tgz#8fff8aea1cfcad1fb4205f805149054fbf73cafd"
@@ -4149,14 +4118,14 @@ rollup-plugin-progress@^0.4.0:
     chalk "^1.1.3"
     rollup-pluginutils "^1.5.1"
 
-rollup-plugin-svelte@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-svelte/-/rollup-plugin-svelte-4.5.0.tgz#b075ee252a2d2d06844e78b479091314dccd33a7"
-  integrity sha512-mueHEp59mmyYIJQDF9LWfUetFJN18qDwcqcnik7NrPJwHHepptIEzuWoqaWjl954t9Oj0QRkyU9nmxyAX5ZPLA==
+rollup-plugin-svelte@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-svelte/-/rollup-plugin-svelte-5.0.0.tgz#42d93d8a20565e37b959adea0166e8d7817d6de4"
+  integrity sha512-wt8RvegLSZ0fgwYit6LOmJVMgM66aWyNo7/MZkwCxJQD56GeSMtrpxpRyTv9W/GDUYQsbl2RkCoFRw0kazWi0w==
   dependencies:
     require-relative "^0.8.7"
-    rollup-pluginutils "^2.3.0"
-    sourcemap-codec "^1.4.1"
+    rollup-pluginutils "^2.3.3"
+    sourcemap-codec "^1.4.4"
 
 rollup-plugin-terser@^3.0.0:
   version "3.0.0"
@@ -4184,14 +4153,6 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup-pluginutils@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/rollup-pluginutils/-/rollup-pluginutils-2.3.0.tgz#478ace04bd7f6da2e724356ca798214884738fc4"
-  integrity sha512-xB6hsRsjdJdIYWEyYUJy/3ki5g69wrf0luHPGNK3ZSocV6HLNfio59l3dZ3TL4xUwEKgROhFi9jOCt6c5gfUWw==
-  dependencies:
-    estree-walker "^0.5.2"
-    micromatch "^2.3.11"
-
 rollup-pluginutils@^2.3.3:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/rollup-pluginutils/-/rollup-pluginutils-2.3.3.tgz#3aad9b1eb3e7fe8262820818840bf091e5ae6794"
@@ -4200,10 +4161,10 @@ rollup-pluginutils@^2.3.3:
     estree-walker "^0.5.2"
     micromatch "^2.3.11"
 
-rollup@^0.67.4:
-  version "0.67.4"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.67.4.tgz#8ed6b0993337f84ec8a0387f824fa6c197e833ec"
-  integrity sha512-AVuP73mkb4BBMUmksQ3Jw0jTrBTU1i7rLiUYjFxLZGb3xiFmtVEg40oByphkZAsiL0bJC3hRAJUQos/e5EBd+w==
+rollup@^0.68.1:
+  version "0.68.1"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.68.1.tgz#40d03872d3b05848fb023b12ebf7c6d69cab84c5"
+  integrity sha512-8DNKos2p/B7gDoxI42kyIHHX8d+Zt+bwhjUgXnTqnSP+CSPkRNNIQyHIcTqeGdYWR70qG6c1DaRcrjWAiG6Akg==
   dependencies:
     "@types/estree" "0.0.39"
     "@types/node" "*"
@@ -4415,6 +4376,11 @@ sourcemap-codec@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/sourcemap-codec/-/sourcemap-codec-1.4.1.tgz#c8fd92d91889e902a07aee392bdd2c5863958ba2"
   integrity sha512-hX1eNBNuilj8yfFnECh0DzLgwKpBLMIvmhgEhixXNui8lMLBInTI8Kyxt++RwJnMNu7cAUo635L2+N1TxMJCzA==
+
+sourcemap-codec@^1.4.4:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/sourcemap-codec/-/sourcemap-codec-1.4.4.tgz#c63ea927c029dd6bd9a2b7fa03b3fec02ad56e9f"
+  integrity sha512-CYAPYdBu34781kLHkaW3m6b/uUSyMOC2R61gcYMWooeuaGtjof86ZA/8T+qVPPt7np1085CR9hmMGrySwEc8Xg==
 
 spdx-correct@^3.0.0:
   version "3.0.2"
@@ -4681,10 +4647,10 @@ supports-color@^5.5.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte@^2.15.3:
-  version "2.15.3"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.15.3.tgz#d9ba5b48eae30f5501b3266c563add2399c67b40"
-  integrity sha512-0bKpXppM/YlPZ8F0mREaUYpE8Te11RvG62ttFr+n1U3G2qdr3cZzuXCnQMcVZukwAUJAjRM55OSH7FLmXnPGRA==
+svelte@^2.16.0:
+  version "2.16.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.16.0.tgz#a9a10fc4103ecb19d01090fd447ca07e3022af7c"
+  integrity sha512-1x1zCZpNnuwQdH+9tTeM0QYv33TVEFIxrrd88Mv80EcaomIlA9IvFLIThc8OFsCMHwrjllbIRNmsVfwlOxI7MA==
 
 svg-tags@^1.0.0:
   version "1.0.0"
@@ -4737,10 +4703,10 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-terser@^3.11.0:
-  version "3.11.0"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.11.0.tgz#60782893e1f4d6788acc696351f40636d0e37af0"
-  integrity sha512-5iLMdhEPIq3zFWskpmbzmKwMQixKmTYwY3Ox9pjtSklBLnHiuQ0GKJLhL1HSYtyffHM3/lDIFBnb82m9D7ewwQ==
+terser@^3.13.1:
+  version "3.13.1"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-3.13.1.tgz#a02e8827fb9705fe7b609c31093d010b28cea8eb"
+  integrity sha512-ogyZye4DFqOtMzT92Y3Nxxw8OvXmL39HOALro4fc+EUYFFF9G/kk0znkvwMz6PPYgBtdKAodh3FPR70eugdaQA==
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"
