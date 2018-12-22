@@ -1,35 +1,39 @@
-all: test lint | clean static
-	yarn install
-	yarn check
-	yarn run cloc src resources chakuro-agent
-	yarn run rollup -c
-	brotli -o dist/bundle.js.br dist/bundle.js
+all: lint | clean static
+	cd ui && yarn install
+	cd ui && yarn check
+	cd ui && yarn run cloc src resources chakuro-agent
+	cd ui && yarn run rollup -c
 
 clean:
 	mkdir -p dist
+	mkdir -p ui_dist
 	rm -rf dist/*
-
+	rm -rf ui_dist/*
+    
 static:
-	cp -r src/index.html dist/
-	cp -r resources/* dist/
-	cp -r node_modules/@fortawesome/fontawesome-free/webfonts dist/
-	cp -r node_modules/@fortawesome/fontawesome-free/css/all.min.css dist/webfonts
-	cp -r node_modules/devicon/fonts dist
+	cp -r ui/src/index.html ui_dist/
+	cp -r ui/resources/* ui_dist/
+	cp -r ui/node_modules/@fortawesome/fontawesome-free/webfonts ui_dist/
+	cp -r ui/node_modules/@fortawesome/fontawesome-free/css/all.min.css ui_dist/webfonts
+	cp -r ui/node_modules/devicon/fonts ui_dist/
+	touch ui_dist/__init__.py
+	for D in ui_dist/*/; do touch $${D}__init__.py; done
 
 lint:
-	yarn run eslint --ext .html,.js .
-	yarn run stylelint "resources/*.css src/**/*.html src/**/*.css"
-	cd chakuro-agent && poetry check
+	cd ui && yarn run eslint --ext .html,.js .
+	cd ui && yarn run stylelint "resources/*.css src/**/*.html src/**/*.css"
+	poetry check
 
 test:
-	cd chakuro-agent && poetry run python -m pytest -sx
+	poetry run python -m pytest -sx
 
 jsdev: | clean static
-	yarn run rollup -c -w
+	cd ui && yarn run rollup -c -w
 	
 pydev:
-	cd chakuro-agent && poetry run python main.py --no-browser
+	poetry run python akimous --no-browser
 
 upgrade:
-	cd chakuro-agent && poetry update
-	yarn upgrade-interactive --latest
+	poetry update
+	poetry show --outdated
+	cd ui && yarn upgrade-interactive --latest

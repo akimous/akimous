@@ -1,0 +1,61 @@
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "akimous"
+version = "0.1.0"
+description = "An intelligent Python IDE"
+authors = ["Yu-Ann Chen <red8012@gmail.com>"]
+license = "BSD-3-Clause"
+readme = "README.md"
+homepage = "https://TBD"
+repository = "https://TBD"
+documentation = "https://TBD"
+keywords = ["ide", "editor", "akimous"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development",
+    "Topic :: Text Editors :: Integrated Development Environments (IDE)"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.7"
+numpy = "^1.15"
+gitpython = "^2.1"
+jedi = "^0.13.2"
+sphinx = "^1.7"
+watchdog = "^0.9.0"
+logzero = "^1.5"
+websockets = "^7.0"
+xgboost = "^0.81"
+numpydoc = "^0.8.0"
+fuzzywuzzy = "^0.17.0"
+python-levenshtein = "^0.12.0"
+msgpack = "^0.6"
+wordsegment = "^1.3"
+boltons = "^18.0"
+pyroma = "^2.4"
+pylint = "^2.1"
+pyflakes = "^2.0"
+yapf = "^0.25.0"
+pathspec = "^0.5.9"
+
+[tool.poetry.dev-dependencies]
+pandas = "^0.23.4"
+memory_profiler = "^0.55.0"
+pybloomfiltermmap = "^0.3.15"
+scikit-learn = "^0.20"
+scipy = "^1.1"
+pytest = "^4.0"
+colorama = "^0.4"
+tqdm = "^4.26"
+
+[tool.poetry.scripts]
+akimous = 'akimous:__main__'
