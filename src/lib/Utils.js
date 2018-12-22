@@ -41,20 +41,21 @@ function tick(time) {
     const frameTime = time - lastFrameTimestamp
     lastFrameTimestamp = time
     framesPassed += 1
-    console.log({ frameTime, framesPassed })
+    // console.log({ frameTime, framesPassed })
     if (frameTime > 20 && framesPassed < 10) {
         requestAnimationFrame(tick)
         return
     }
 
     framesPassed = 0
-    while (true) {
-        // consume a job
-        let job = queue.shift()
-        if (!job) break
+    
+    let job = queue.shift()
+    while (job) {
         job()
-        console.log('job took', performance.now() - time, job)
+        // console.log('job took', performance.now() - time, job)
         if (performance.now() - time > 4) break
+        // consume next job
+        job = queue.shift()
     }
 
     // if the queue is not empty, schedule next run

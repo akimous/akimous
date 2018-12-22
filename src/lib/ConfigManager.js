@@ -1,4 +1,3 @@
-import { Socket } from './Socket'
 import g from './Globals'
 
 const config = {}

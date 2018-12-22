@@ -1,30 +1,40 @@
-from multiprocessing import Process
+import mimetypes
+import os
+from http import HTTPStatus
+from http.server import SimpleHTTPRequestHandler
 
 from logzero import logger as log
+from websockets.http import Headers
 
 
-def get_http_server(host, port):
-    import http.server
-    from functools import partial
-    log.info('Starting HTTP server.')
-    handler = partial(http.server.SimpleHTTPRequestHandler, directory='../dist')
-    return http.server.HTTPServer((host, port), handler)
+class HTTPHandler:
+    def __init__(self):
+        self.directory = '../dist'
+        if not mimetypes.inited:
+            mimetypes.init()
+        self.extensions_map = mimetypes.types_map.copy()
+        self.extensions_map.update({'': 'application/octet-stream'})
 
+    def get_file_path(self, path):
+        path = SimpleHTTPRequestHandler.translate_path(self, path)
+        if os.path.isdir(path):
+            path = os.path.join(path, 'index.html')
+        if os.path.exists(path):
+            return path
+        return None
 
-def serve_http(host, port):
-    http_server = get_http_server(host, port)
-    try:
-        http_server.serve_forever()
-    except KeyboardInterrupt:
-        http_server.shutdown()
-        log.info('HTTP server terminated.')
+    def process_request(self, path, _):
+        if path.startswith('/ws/'):
+            return None
+        log.info('Serving %s', path)
 
+        file_path = self.get_file_path(path)
+        if not file_path:
+            log.warning('File not found: %s', path)
+            return HTTPStatus.NOT_FOUND, [], b''
 
-if __name__ == '__main__':
-    process = Process(target=serve_http, name='http_process')
-    process.start()
-    log.info('HTTP server started.')
-    try:
-        process.join()
-    except KeyboardInterrupt:
-        pass
+        content_type = SimpleHTTPRequestHandler.guess_type(self, file_path)
+        with open(file_path, 'rb') as f:
+            content = f.read()
+        header = Headers({'Content-type': content_type})
+        return HTTPStatus.OK, header, content

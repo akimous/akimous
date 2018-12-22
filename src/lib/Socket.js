@@ -29,7 +29,7 @@ class Socket {
     }
 
     connect(callback) {
-        this.socket = new WebSocket(`ws://127.0.0.1:3179/${this.path}`)
+        this.socket = new WebSocket(`ws://${location.host}/ws/${this.path}`)
         this.socket.binaryType = 'arraybuffer'
         this.socket.onopen = () => {
             if (this.path !== '')
