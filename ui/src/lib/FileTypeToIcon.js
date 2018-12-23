@@ -4,6 +4,11 @@ const fileTypeToIcon = {
     'folder': 'fas fa-folder l-ui-text',
     'folder-open': 'fas fa-folder-open l-ui-text',
 
+    'gitignore': 'devicon-git-plain colored',
+    'license': 'fas fa-file-contract l-orange',
+    'makefile': 'fas fa-space-shuttle l-blue',
+    'lock': 'fas fa-lock l-purple',
+
     'ipynb': 'l-jupyter-icon',
     'py': 'l-python-icon',
     'pyc': 'devicon-python-plain l-sandybrown',
@@ -41,8 +46,9 @@ const fileTypeToIcon = {
     'bat': 'fas fa-terminal l-red',
     'bin': 'fas fa-file l-red',
     'cmd': 'fas fa-terminal l-green',
+    'cfg': 'fas fa-cog l-ao',
     'config': 'fas fa-cog l-green',
-    'csv': 'fas fa-table l-green',
+    'csv': 'fas fa-table l-ao',
     'db': 'fas fa-database l-blue',
     'db2': 'fas fa-database l-red',
     'db3': 'fas fa-database l-green',
@@ -58,7 +64,8 @@ const fileTypeToIcon = {
     'jpeg': 'fas fa-camera l-slate',
     'json': 'fas fa-cog l-orange',
     'log': 'fas fa-file-alt l-white',
-    'md': 'fas fa-arrow-down l-white',
+    'map': 'fas fa-map l-white',
+    'md': 'fab fa-markdown l-ao',
     'mid': 'fas fa-music l-blue',
     'midi': 'fas fa-music l-blue',
     'mp3': 'fas fa-music l-red',
@@ -76,6 +83,7 @@ const fileTypeToIcon = {
     'sh': 'fas fa-terminal l-white',
     'so': 'fas fa-share-square l-gray',
     'tar': 'far fa-file-archive l-gray',
+    'toml': 'fas fa-marker l-green',
     'ttf': 'fas fa-font l-orange',
     'txt': 'far fa-file-alt l-gray',
     'wav': 'fas fa-volume-up l-blue',
@@ -96,9 +104,15 @@ const folderOpenIcon = fileTypeToIcon['folder-open']
 function getIconByFileName(fileName) {
     let icon
     try {
-        const fileType = fileName.substring(fileName.lastIndexOf('.') + 1)
+        const fileType = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
         icon = fileTypeToIcon[fileType]
-        if (!icon) icon = defaultIcon
+        if (!icon) {
+            if (fileType.endsWith('rc'))
+                return 'fas fa-sliders-h l-ao'
+            if (fileType.endsWith('ignore'))
+                return 'fas fa-eye-slash l-blue'
+            return defaultIcon
+        }
     } catch (e) {
         icon = defaultIcon
     }

@@ -1,4 +1,4 @@
-<div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node" class:selected style="padding-left: {0.3 + level}rem;">
+<div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node" class:selected class:hidden-file="name.startsWith('.')" style="padding-left: {0.3 + level}rem;">
     <span class="icon {icon}"></span> {#if !renaming}
     <span class="display-name">
         {name}
@@ -55,6 +55,11 @@
         border-radius: var(--small-radius);
         font-size: var(--ui-font-size-default);
         height: var(--ui-font-size-default);
+    }
+
+    .hidden-file .icon,
+    .hidden-file .display-name {
+        opacity: 0.6;
     }
 
 </style>

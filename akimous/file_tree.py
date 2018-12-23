@@ -92,7 +92,7 @@ async def open_dir(msg, send, context):
     result = {
         'path': path.relative_to(context.file_root).parts,
         'dirs': dirs,
-        'files': files
+        'files': [file for file in files if file != '.DS_Store']
     }
     start_monitor(path, context)
     await send('DirOpened', result)
