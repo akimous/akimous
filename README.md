@@ -1,14 +1,22 @@
 # Chakuro
 
-## Contribution Guide
+## Development
 
-- (3/9) Big bump in dependencies, please run  `yarn install --dev && yarn run build` before continue.
+Make sure you have recent version of the following dependencies installed.
 
-## Dependencies
-Only the dependencies required to run the build process are listed here. Python and Javascript dependencies are listed in `pyproject.toml` and `package.json` respectively.
-* Node.js
-* [Yarn](https://yarnpkg.com/)
-* Python
+* [Node](https://nodejs.org/en/) (11+)
+* [Python](https://www.python.org) (3.7+)
 * [Poetry](https://poetry.eustace.io)
-* GNU Make
-* [Brotli](https://github.com/google/brotli)
+* [Yarn](https://yarnpkg.com/)
+* [Make](https://www.gnu.org/software/make/)
+
+Run the following commands according to your need.
+
+```sh
+make # build everything
+make test # run tests
+make lint # run linters
+make install # (re)install the package
+```
+
+Running make will install all Python and Javascript dependencies listed in `pyproject.toml` and `ui/package.json` automatically.
