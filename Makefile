@@ -1,13 +1,16 @@
-all: | clean static
-	cd ui && yarn install
+all: | bootstrap clean static
 	cd ui && yarn check
-	cd ui && yarn run cloc src resources chakuro-agent
+	cd ui && yarn run cloc src resources
 	cd ui && yarn run rollup -c
 	poetry build
 
 install:
 	pip uninstall -y akimous
 	cd dist && pip install akimous*.whl
+
+bootstrap:
+	cd ui && yarn install
+	poetry install
 
 clean:
 	mkdir -p dist
@@ -25,6 +28,7 @@ static:
 	for D in akimous_ui/*/; do touch $${D}__init__.py; done
 
 lint:
+	cd ui && yarn run cloc src resources
 	cd ui && yarn run eslint --ext .html,.js .
 	cd ui && yarn run stylelint "resources/*.css src/**/*.html src/**/*.css"
 	poetry check
@@ -36,7 +40,7 @@ jsdev: | clean static
 	cd ui && yarn run rollup -c -w
 	
 pydev:
-	poetry run python akimous --no-browser --verbose
+	poetry run python -m akimous --no-browser --verbose
 
 upgrade:
 	poetry update
