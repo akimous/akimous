@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from modeling.feature import FeatureDefinition
+from .feature import FeatureDefinition
 
 INITIAL_SIZE = 1
 

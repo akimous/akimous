@@ -9,8 +9,8 @@ import msgpack
 import websockets
 from logzero import logger as log
 
-from static_server import HTTPHandler
-from word_completer import initialize as initialize_word_completer
+from .static_server import HTTPHandler
+from .word_completer import initialize as initialize_word_completer
 
 
 handlers = defaultdict(dict)  # [path][event] -> coroutine

@@ -2,7 +2,6 @@ from .feature_definition import FeatureDefinition, MAX, MAX_SCAN_LINES
 import re
 import token as token_
 from fuzzywuzzy import fuzz
-from utils import Timer
 
 COMPLETION_TYPES = [
     'class',

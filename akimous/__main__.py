@@ -1,6 +1,6 @@
 from boltons.gcutils import toggle_gc_postcollect
 
-from utils import Timer
+from .utils import Timer
 
 with Timer('initialization'):
     with toggle_gc_postcollect:
@@ -15,11 +15,10 @@ with Timer('initialization'):
                             help='Do not open the IDE in a browser after startup.')
         args = parser.parse_args()
 
-        from websocket import start_server
-        import file_tree  # 11ms, 4M memory
-        import editor  # 800ms, 80M memory
+        from .websocket import start_server
+        from .file_tree import * # 11ms, 4M memory
+        from .editor import *  # 800ms, 80M memory
 
 
 if __name__ == '__main__':
-    host = args.host
     start_server(**args.__dict__)

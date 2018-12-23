@@ -5,13 +5,12 @@ from tokenize import generate_tokens, TokenError
 from token import NAME
 from io import StringIO
 from importlib.resources import open_binary
-from utils import Timer
 
 import msgpack
 import numpy as np
 
-from modeling.token_map import TokenMap, DirtyMap, PrefixTokenMap
-from modeling.utility import p, to_key_value_columns
+from ..token_map import TokenMap, DirtyMap, PrefixTokenMap
+from ..utility import p, to_key_value_columns
 
 NOT_APPLICABLE = -99999
 MAX = 99999
@@ -22,7 +21,7 @@ _EMPTY = tuple()
 
 
 def _load_token_statistics(file_name):
-    with lzma.open(open_binary('resources', file_name), 'rb') as f:
+    with lzma.open(open_binary('akimous.resources', file_name), 'rb') as f:
         return msgpack.unpack(f, use_list=False, raw=False)
 
 

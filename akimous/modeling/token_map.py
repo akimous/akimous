@@ -1,5 +1,5 @@
 from collections import defaultdict
-from utils import Timer
+from ..utils import Timer
 import sqlite3
 
 

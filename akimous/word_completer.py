@@ -3,7 +3,7 @@ import sqlite3
 
 import wordsegment
 
-from utils import Timer
+from .utils import Timer
 
 conn = sqlite3.connect(':memory:')
 c = conn.cursor()

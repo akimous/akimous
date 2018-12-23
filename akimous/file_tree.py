@@ -6,7 +6,7 @@ from logzero import logger as log
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-from websocket import register_handler
+from .websocket import register_handler
 
 
 class ChangeHandler(FileSystemEventHandler):

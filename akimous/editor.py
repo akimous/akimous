@@ -13,24 +13,25 @@ from boltons.gcutils import toggle_gc_postcollect
 from logzero import logger as log
 from sklearn.externals import joblib
 
-from master import config
-from doc_generator import DocGenerator  # 165ms, 13M memory
-from online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
-from pyflakes_reporter import PyflakesReporter
-from utils import Timer, detect_doc_type
-from websocket import register_handler
-from word_completer import search_prefix
-from modeling.feature.feature_definition import tokenize
+from .master import config
+from .doc_generator import DocGenerator  # 165ms, 13M memory
+from .online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
+from .pyflakes_reporter import PyflakesReporter
+from .utils import Timer, detect_doc_type
+from .websocket import register_handler
+from .word_completer import search_prefix
+from .modeling.feature.feature_definition import tokenize
+
+DEBUG = False
+MODEL_NAME = 'v10.model'
+PredictionRow = namedtuple('PredictionRow', ('c', 't', 's'))
 
 handles = partial(register_handler, 'editor')
-DEBUG = False
 doc_generator = DocGenerator()
-MODEL_NAME = 'v10.model'
-model = joblib.load(open_binary('resources', MODEL_NAME))  # 300 ms
+
+model = joblib.load(open_binary('akimous.resources', MODEL_NAME))  # 300 ms
 model.n_jobs = 1
 log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
-
-PredictionRow = namedtuple('PredictionRow', ('c', 't', 's'))
 
 
 async def run_pylint(context, send):

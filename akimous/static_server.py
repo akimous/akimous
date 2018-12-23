@@ -32,7 +32,6 @@ class HTTPHandler:
         path = path.split('?', 1)[0]
         path = path.split('#', 1)[0]
         words = tuple(w for w in path.split('/') if w)
-        print(words)
         if len(words) > 2:
             return None, None
         if not words:

@@ -1,7 +1,7 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
 import pickle
-from utility import WORKING_DIR
+from .utility import WORKING_DIR
 
 
 OUTPUT_FILE = f'{WORKING_DIR}model.pkl'

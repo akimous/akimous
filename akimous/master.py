@@ -1,15 +1,15 @@
 from functools import partial
 import json
 
-from spell_checker import SpellChecker
-from websocket import register_handler
+from .spell_checker import SpellChecker
+from .websocket import register_handler
 from importlib import resources
 from pathlib import Path
 
 handles = partial(register_handler, '')
 
 # load defaults
-with resources.open_text('resources', 'default_config.json') as f:
+with resources.open_text('akimous.resources', 'default_config.json') as f:
     config = json.load(f)
 
 

@@ -12,7 +12,7 @@ from sphinx.io import read_doc
 from sphinx.util import relative_uri, rst
 from sphinx.util.docutils import sphinx_domains
 
-from utils import Timer
+from .utils import Timer
 
 
 class DocGenerator:
@@ -22,7 +22,7 @@ class DocGenerator:
         self.doc_dir = Path(self.temp_dir.name) / 'doc'
         self.doc_output_dir = Path(self.temp_dir.name) / 'doc_output'
         self.doc_file = self.doc_dir / 'index.rst'
-        with resources.path('resources', 'doc_template') as f:
+        with resources.path('akimous.resources', 'doc_template') as f:
             shutil.copytree(f, self.doc_dir)
         absolute_doc_path = str(self.doc_dir.absolute())
         absolute_doc_output_path = str(self.doc_output_dir.absolute())

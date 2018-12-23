@@ -6,7 +6,7 @@ from colorama import Fore as F
 from colorama import Back as B
 from sklearn.externals import joblib
 
-from modeling.utility import sha3, working_dir
+from .utility import sha3, working_dir
 
 import sys
 init()

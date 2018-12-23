@@ -8,7 +8,7 @@ from getpass import getpass
 from requests.auth import HTTPBasicAuth
 from git import Repo
 
-from utility import WORKING_DIR
+from .utility import WORKING_DIR
 
 db = sqlite3.connect('/Users/ray/Code/Working/repoDatabase.db')
 

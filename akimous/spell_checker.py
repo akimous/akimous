@@ -7,8 +7,8 @@ from token import NAME, STRING, COMMENT, NEWLINE
 
 from wordsegment import WORDS
 
-from websocket import register_handler
-from word_completer import is_prefix
+from .websocket import register_handler
+from .word_completer import is_prefix
 
 SpellingError = namedtuple('SpellingError', ('line', 'ch', 'token', 'highlighted_token'))
 Token = namedtuple('Token', ('start', 'string', 'type'))

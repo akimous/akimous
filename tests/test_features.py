@@ -1,5 +1,5 @@
-from modeling import extract_features
-from modeling.offline_feature_extractor import OfflineFeatureExtractor
+from akimous.modeling import extract_features
+from akimous.modeling.offline_feature_extractor import OfflineFeatureExtractor
 import logzero
 import logging
 
@@ -14,9 +14,6 @@ def test_extract_feature():
     feature_extractor.finalize()
     df = feature_extractor.dataframe()
     print(df.shape)
-    # for i in feature_extractor.tokens:
-    #     if i.start[0] == 23:
-    #         print(i)
 
 
 def get_index_range_at_token(line, ch, name):
