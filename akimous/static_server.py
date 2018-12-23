@@ -22,9 +22,9 @@ def guess_type(name):
 class HTTPHandler:
     def __init__(self):
         self.resource_mapping = {
-            'fonts': 'ui_dist.fonts',
-            'icons': 'ui_dist.icons',
-            'webfonts': 'ui_dist.webfonts'
+            'fonts': 'akimous_ui.fonts',
+            'icons': 'akimous_ui.icons',
+            'webfonts': 'akimous_ui.webfonts'
         }
 
     def translate_path(self, path):
@@ -35,9 +35,9 @@ class HTTPHandler:
         if len(words) > 2:
             return None, None
         if not words:
-            return 'ui_dist', 'index.html'
+            return 'akimous_ui', 'index.html'
         if len(words) == 1:
-            return 'ui_dist', words[0]
+            return 'akimous_ui', words[0]
         package, file = words
         package = self.resource_mapping.get(package, None)
         return package, file

@@ -15,7 +15,7 @@ export default {
         sourcemap: true,
         format: 'iife',
         name: 'app',
-        file: '../ui_dist/bundle.js'
+        file: '../akimous_ui/bundle.js'
     },
     perf: false,
     plugins: [
@@ -43,6 +43,6 @@ export default {
                 passes: 3
             }
         }),
-        !production && livereload('../ui_dist'),
+        !production && livereload('../akimous_ui'),
     ]
 }

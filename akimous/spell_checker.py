@@ -81,7 +81,7 @@ class SpellChecker:
         if dictionary_path.exists():
             with open(dictionary_path, 'r') as f:
                 project_dictionary = json.load(f)
-        self.project_dictionary.update(project_dictionary)
+            self.project_dictionary.update(project_dictionary)
 
     def check_spelling(self, tokens):
         checked = set('')  # both checked tokens and words

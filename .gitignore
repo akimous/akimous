@@ -1,5 +1,5 @@
 dist/**
-ui_dist/**
+akimous_ui/**
 **/.DS_Store
 akimous/scripts/cpython
 akimous/scripts/sphinx_input

@@ -103,21 +103,21 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
                 context.observer.stop()
 
 
-def start_server(host, port, no_browser):
+def start_server(host, port, no_browser, verbose):
     loop = asyncio.get_event_loop()
     loop.set_debug(True)
-    loop.slow_callback_duration = 0.1
+    loop.slow_callback_duration = .1 if verbose else 1.
 
     http_handler = HTTPHandler()
     websocket_server = websockets.serve(socket_handler, host=host, port=port,
                                         process_request=http_handler.process_request)
     loop.run_until_complete(websocket_server)
     initialize_word_completer(loop)
-    log.info('Starting websocket server, listening on %s:%d', host, port)
+    log.info('Starting server, listening on %s:%d.', host, port)
 
     if not no_browser and not webbrowser.open(f'http://{host}:{port}'):
         log.warn(f'No browsers available. Please open http://{host}:{port} manually.')
-
+    log.info('Press Control-C to stop.')
     try:
         loop.run_forever()
     except KeyboardInterrupt:

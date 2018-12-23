@@ -1,23 +1,28 @@
-all: lint | clean static
+all: | clean static
 	cd ui && yarn install
 	cd ui && yarn check
 	cd ui && yarn run cloc src resources chakuro-agent
 	cd ui && yarn run rollup -c
+	poetry build
+
+install:
+	pip uninstall -y akimous
+	cd dist && pip install akimous*.whl
 
 clean:
 	mkdir -p dist
-	mkdir -p ui_dist
+	mkdir -p akimous_ui
 	rm -rf dist/*
-	rm -rf ui_dist/*
+	rm -rf akimous_ui/*
     
 static:
-	cp -r ui/src/index.html ui_dist/
-	cp -r ui/resources/* ui_dist/
-	cp -r ui/node_modules/@fortawesome/fontawesome-free/webfonts ui_dist/
-	cp -r ui/node_modules/@fortawesome/fontawesome-free/css/all.min.css ui_dist/webfonts
-	cp -r ui/node_modules/devicon/fonts ui_dist/
-	touch ui_dist/__init__.py
-	for D in ui_dist/*/; do touch $${D}__init__.py; done
+	cp -r ui/src/index.html akimous_ui/
+	cp -r ui/resources/* akimous_ui/
+	cp -r ui/node_modules/@fortawesome/fontawesome-free/webfonts akimous_ui/
+	cp -r ui/node_modules/@fortawesome/fontawesome-free/css/all.min.css akimous_ui/webfonts
+	cp -r ui/node_modules/devicon/fonts akimous_ui/
+	touch akimous_ui/__init__.py
+	for D in akimous_ui/*/; do touch $${D}__init__.py; done
 
 lint:
 	cd ui && yarn run eslint --ext .html,.js .
@@ -31,7 +36,7 @@ jsdev: | clean static
 	cd ui && yarn run rollup -c -w
 	
 pydev:
-	poetry run python akimous --no-browser
+	poetry run python akimous --no-browser --verbose
 
 upgrade:
 	poetry update

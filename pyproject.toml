@@ -24,6 +24,12 @@ classifiers = [
     "Topic :: Software Development",
     "Topic :: Text Editors :: Integrated Development Environments (IDE)"
 ]
+packages = [
+    { include = "akimous" },
+    { include = "akimous_ui" },
+]
+include = ["akimous_ui/**/*"]
+exclude = ["akimous/demo/**/*", "akimous/scripts/**/*"]
 
 [tool.poetry.dependencies]
 python = ">=3.7"
@@ -58,4 +64,4 @@ colorama = "^0.4"
 tqdm = "^4.26"
 
 [tool.poetry.scripts]
-akimous = 'akimous:__main__'
+akimous = 'akimous.__main__:start'
