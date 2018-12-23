@@ -1,4 +1,8 @@
-# Chakuro
+# Akimous
+
+## Installation
+
+## Commands
 
 ## Development
 
@@ -19,4 +23,10 @@ make lint # run linters
 make install # (re)install the package
 ```
 
-Running make will install all Python and Javascript dependencies listed in `pyproject.toml` and `ui/package.json` automatically.
+Running `make` will install all Python and Javascript dependencies listed in `pyproject.toml` and `ui/package.json` automatically.
+
+## Contributing
+
+## License
+
+[BSD-3-Clause](LICENSE)
