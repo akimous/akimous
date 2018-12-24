@@ -1,4 +1,4 @@
-.cm-s-legato.CodeMirror {
+.cm-s-akimous.CodeMirror {
     background: var(--main-bg-color);
     color: var(--monospace-font-color);
     font-family: var(--monospace-font-family);
@@ -7,63 +7,63 @@
     height: 100%;
 }
 
-.cm-s-legato div.CodeMirror-selected {
+.cm-s-akimous div.CodeMirror-selected {
     background: rgb(26, 81, 155);
 }
 
-.cm-s-legato .CodeMirror-line::selection,
-.cm-s-legato .CodeMirror-line > span::selection,
-.cm-s-legato .CodeMirror-line > span > span::selection {
+.cm-s-akimous .CodeMirror-line::selection,
+.cm-s-akimous .CodeMirror-line > span::selection,
+.cm-s-akimous .CodeMirror-line > span > span::selection {
     background: rgba(48, 48, 48, .99);
 }
 
-.cm-s-legato .CodeMirror-line::-moz-selection,
-.cm-s-legato .CodeMirror-line > span::-moz-selection,
-.cm-s-legato .CodeMirror-line > span > span::-moz-selection {
+.cm-s-akimous .CodeMirror-line::-moz-selection,
+.cm-s-akimous .CodeMirror-line > span::-moz-selection,
+.cm-s-akimous .CodeMirror-line > span > span::-moz-selection {
     background: rgba(48, 48, 48, .99);
 }
 
-.cm-s-legato .CodeMirror-gutters {
+.cm-s-akimous .CodeMirror-gutters {
     background: var(--darker-color);
     border-right: 0px;
 }
 
-.cm-s-legato .padding-gutter {
+.cm-s-akimous .padding-gutter {
     width: .5rem;
 }
 
-.cm-s-legato .CodeMirror-guttermarker {
+.cm-s-akimous .CodeMirror-guttermarker {
     color: #ac4142;
 }
 
-.cm-s-legato .CodeMirror-guttermarker-subtle {
+.cm-s-akimous .CodeMirror-guttermarker-subtle {
     color: #505050;
 }
 
-.cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-folded {
+.cm-s-akimous .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-folded {
     color: var(--gray6);
 }
 
-.cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open {
+.cm-s-akimous .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open {
     color: var(--gray3);
 }
 
-.cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open:hover,
-.cm-s-legato .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-folded:hover {
+.cm-s-akimous .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-open:hover,
+.cm-s-akimous .CodeMirror-guttermarker-subtle.CodeMirror-foldgutter-folded:hover {
     color: var(--gray8);
     cursor: default;
 }
 
-.cm-s-legato .CodeMirror-foldmarker {
+.cm-s-akimous .CodeMirror-foldmarker {
     color: var(--blue);
 }
 
-.cm-s-legato .CodeMirror-linenumber {
+.cm-s-akimous .CodeMirror-linenumber {
     color: #505050;
     padding-left: .2rem;
 }
 
-.cm-s-legato .CodeMirror-cursor {
+.cm-s-akimous .CodeMirror-cursor {
     border-left: 1px solid #b0b0b0;
 }
 
@@ -84,79 +84,79 @@
     --c-self: #8dc891;
 }
 
-.cm-s-legato span.cm-comment {
+.cm-s-akimous span.cm-comment {
     color: var(--c-comment);
 }
 
-.cm-s-legato span.cm-operator,
-.cm-s-legato span.cm-punctuation {
+.cm-s-akimous span.cm-operator,
+.cm-s-akimous span.cm-punctuation {
     color: var(--c-punctuation);
 }
 
-.cm-s-legato span.cm-meta,
-.cm-s-legato span.cm-link,
-.cm-s-legato span.cm-number,
-.cm-s-legato span.cm-atom {
+.cm-s-akimous span.cm-meta,
+.cm-s-akimous span.cm-link,
+.cm-s-akimous span.cm-number,
+.cm-s-akimous span.cm-atom {
     color: var(--c-number);
 }
 
-.cm-s-legato span.cm-property,
-.cm-s-legato span.cm-attribute {
+.cm-s-akimous span.cm-property,
+.cm-s-akimous span.cm-attribute {
     color: var(--c-attribute);
 }
 
-.cm-s-legato span.cm-keyword {
+.cm-s-akimous span.cm-keyword {
     color: var(--c-keyword);
 }
 
-.cm-s-legato span.cm-string {
+.cm-s-akimous span.cm-string {
     color: var(--c-string);
 }
 
-.cm-s-legato span.cm-variable {
+.cm-s-akimous span.cm-variable {
     color: var(--c-variable);
 }
 
-.cm-s-legato span.cm-builtin {
+.cm-s-akimous span.cm-builtin {
     color: var(--c-builtin);
 }
 
-.cm-s-legato span.cm-variable-2 {
+.cm-s-akimous span.cm-variable-2 {
     color: var(--c-self);
 }
 
-.cm-s-legato span.cm-function {
+.cm-s-akimous span.cm-function {
     color: var(--c-function);
 }
 
-.cm-s-legato span.cm-def {
+.cm-s-akimous span.cm-def {
     color: var(--c-def);
 }
 
-.cm-s-legato span.cm-bracket {
+.cm-s-akimous span.cm-bracket {
     color: var(--c-bracket);
 }
 
-.cm-s-legato span.cm-tag {
+.cm-s-akimous span.cm-tag {
     color: var(--c-tag);
 }
 
-.cm-s-legato span.cm-error {
+.cm-s-akimous span.cm-error {
     background: #ac4142;
     color: #b0b0b0;
 }
 
-.cm-s-legato .CodeMirror-activeline-background {
+.cm-s-akimous .CodeMirror-activeline-background {
     background: var(--darkest-color);
 }
 
-.cm-s-legato .CodeMirror-matchingbracket {
+.cm-s-akimous .CodeMirror-matchingbracket {
     text-decoration: none;
     color: white !important;
     position: relative;
 }
 
-.cm-s-legato .CodeMirror-matchingbracket:after {
+.cm-s-akimous .CodeMirror-matchingbracket:after {
     content: '';
     width: 100%;
     position: absolute;
