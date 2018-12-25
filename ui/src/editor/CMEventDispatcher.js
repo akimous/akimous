@@ -201,7 +201,6 @@ class CMEventDispatcher {
                                 -(!isInputDot)
                             )
                             dirtyLine = NONE
-                            console.info('bingo')
                             if (t0.type === 'string') completionProvider.type = STRING
                             else if (t0.type === 'comment') completionProvider.type = COMMENT
                             else if (t1.string === 'for') completionProvider.type = FOR

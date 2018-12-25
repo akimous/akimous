@@ -84,6 +84,7 @@
             g.linter.clear()
 
             const { fileName } = this.get()
+            const isMakefile = fileName.toLowerCase() === 'makefile'
             this.tab = this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
             g.panelMiddle.pathToEditor[this.get().filePath.join('/')] = this
 
@@ -218,6 +219,7 @@
                     mode: mode ? mode.mime : undefined,
                     theme: 'akimous',
                     indentUnit: 4,
+                    indentWithTabs: isMakefile,
                     lineNumbers: true,
                     autofocus: true,
                     // addons
