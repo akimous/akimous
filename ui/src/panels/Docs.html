@@ -141,14 +141,18 @@
         oncreate() {
             g.docs = this
             initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
-            nextFrame(() => { // TODO: remove this node if not active (move {#if} up)
-                this.refs.splitBar.onmousedown = throttle(e => {                    
+            nextFrame(() => { 
+                this.refs.splitBar.onmousedown = e => {
                     e.preventDefault()
-                    document.onmousemove = e => {
-                        const height = `${e.pageY - this.refs.container.getBoundingClientRect().y}px`
-                        document.documentElement.style.setProperty('--function-doc-height', height)
-                    }
-                }, 16)
+                    const containerTop = this.refs.container.getBoundingClientRect().y
+                    const style = document.documentElement.style
+                    document.onmousemove = throttle(e => {
+                        style.setProperty('--function-doc-height', `${e.pageY - containerTop}px`)
+                    }, 16)
+                }
+                this.refs.splitBar.onmouseup = () => {
+                    document.onmousemove = null
+                }
             })
         },
         data() {
