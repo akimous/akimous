@@ -1,8 +1,8 @@
 {#if open}
 <div ref:notificationHistory id="notification-history" class="popup">
     <div class="container">
-        {#each items as item}
-        <div class="item {item.level}">{@html item.message}</div>
+        {#each items as {level, message}}
+        <div class="item {level}">{@html message}</div>
         {:else}
         <div id="no-notifications">
             No Notifications

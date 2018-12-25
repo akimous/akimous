@@ -2,10 +2,10 @@
     {#if pyflakes}
     <div class="title">Real-time Lints</div>
     <table id="pyflakes-result">
-        {#each realTimeLints as message}
-        <tr on:click="jumpTo(message.line, message.ch)">
-            <td class="line-number">{message.line}</td>
-            <td class="{message.type} message error">{message.message}</td>
+        {#each realTimeLints as {line, ch, type, message}}
+        <tr on:click="jumpTo(line, ch)">
+            <td class="line-number">{line}</td>
+            <td class="{type} message error">{message}</td>
         </tr>
         {:else}
         <tr>
@@ -17,11 +17,11 @@
     {#if spellChecker}
     <div class="title">Spelling Errors</div>
     <table id="spelling-errors">
-        {#each spellingErrors as message}
-        <tr on:click="jumpTo(message.line, message.ch)">
-            <td class="line-number">{message.line}</td>
-            <td class="message">{@html message.highlight}
-                <div class="add-to-dictionary tooltipped tooltipped-sw" aria-label="Add to project dictionary" on:click="addToDictionary(message.highlight)"><i class="fas fa-book"></i></div>
+        {#each spellingErrors as {line, ch, highlight}}
+        <tr on:click="jumpTo(line, ch)">
+            <td class="line-number">{line}</td>
+            <td class="message">{@html highlight}
+                <div class="add-to-dictionary tooltipped tooltipped-sw" aria-label="Add to project dictionary" on:click="addToDictionary(highlight)"><i class="fas fa-book"></i></div>
             </td>
         </tr>
         {:else}
