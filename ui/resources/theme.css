@@ -214,8 +214,13 @@ span.tooltipped::after {
     border-bottom: 1px solid var(--panel-delimiter-color);
 }
 
-.panel tr:hover {
+.panel tr:hover,
+.panel tr.highlight {
     filter: brightness(1.2);
+}
+
+.panel tr.highlight:hover {
+    filter: brightness(1.4);
 }
 
 .panel .line-number {
@@ -227,13 +232,8 @@ span.tooltipped::after {
     font-family: var(--monospace-font-family);
 }
 
-.panel tr.selected .line-number {
-    color: white;
-    background: var(--gray3);
-}
-
 .panel .highlight .line-number {
-    background: var(--ui-highlight-color);
+    background: var(--primary4);
 }
 
 /* Icons */

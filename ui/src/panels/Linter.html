@@ -2,10 +2,10 @@
     {#if pyflakes}
     <div class="title">Real-time Lints</div>
     <table id="pyflakes-result">
-        {#each realTimeLints as {line, ch, type, message}}
-        <tr on:click="jumpTo(line, ch)">
+        {#each realTimeLints as {line, ch, message}}
+        <tr on:click="jumpTo(line, ch)" class:highlight="currentLine + 1 === line">
             <td class="line-number">{line}</td>
-            <td class="{type} message error">{message}</td>
+            <td class="message error">{message}</td>
         </tr>
         {:else}
         <tr>
@@ -18,7 +18,7 @@
     <div class="title">Spelling Errors</div>
     <table id="spelling-errors">
         {#each spellingErrors as {line, ch, highlight}}
-        <tr on:click="jumpTo(line, ch)">
+        <tr on:click="jumpTo(line, ch)" class:highlight="currentLine + 1 === line">
             <td class="line-number">{line}</td>
             <td class="message">{@html highlight}
                 <div class="add-to-dictionary tooltipped tooltipped-sw" aria-label="Add to project dictionary" on:click="addToDictionary(highlight)"><i class="fas fa-book"></i></div>
@@ -43,7 +43,7 @@
     </div>
     <table id="pylint-result">
         {#each filteredOfflineLints as message, i}
-        <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
+        <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)" class:highlight="currentLine + 1 === message.line">
             <td class="line-number">{message.line}</td>
             <td class="{message.type} message">{message.message0}</td>
         </tr>
@@ -105,8 +105,9 @@
 
     .message {
         padding: .3rem .5rem;
+        background: var(--gray2);
     }
-
+   
     .informational {
         color: var(--brighter-purple);
     }
@@ -179,6 +180,7 @@
                 offlineLints: [],
                 realTimeLints: [],
                 spellingErrors: [],
+                currentLine: 0,
                 width: 100,
                 OFFLINE_LINT_TYPES,
                 offlineLintType: new Set(),

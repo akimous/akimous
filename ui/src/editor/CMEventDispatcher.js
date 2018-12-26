@@ -95,9 +95,8 @@ class CMEventDispatcher {
             schedule(() => {
                 g.cursorPosition.set(cursor)
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
-                g.outline.set({
-                    currentLine: cursor.line
-                })
+                g.outline.set({ currentLine: cursor.line })
+                g.linter.set({ currentLine: cursor.line })
             }, 300)
         })
 
