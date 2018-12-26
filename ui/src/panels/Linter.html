@@ -1,4 +1,11 @@
 <div id="linter" class="panel" class:gone="!active">
+    {#if !pyflakes && !spellChecker && !pylint}
+    <table>
+        <tr>
+            <td class="placeholder">Enable linters to show something here...</td>
+        </tr>
+    </table>
+    {/if}
     {#if pyflakes}
     <div class="title">Real-time Lints</div>
     <table id="pyflakes-result">
