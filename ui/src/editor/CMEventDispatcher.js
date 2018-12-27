@@ -97,7 +97,7 @@ class CMEventDispatcher {
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
                 g.outline.set({ currentLine: cursor.line })
                 g.linter.set({ currentLine: cursor.line })
-            }, 300)
+            })
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {

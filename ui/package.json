@@ -15,7 +15,7 @@
         "codemirror": "^5.42.2",
         "css-element-queries": "^1.1.1",
         "devicon": "^2.0.0",
-        "eslint": "^5.11.0",
+        "eslint": "^5.11.1",
         "eslint-plugin-html": "^5.0.0",
         "keyboardjs": "^2.5.1",
         "lodash.snakecase": "^4.1.1",
