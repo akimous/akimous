@@ -22,7 +22,7 @@
 
 <script>
     import g from './lib/Globals'
-    import { setAttributeForMultipleComponent, activateView } from './lib/Utils'
+    import { setAttributeForMultipleComponent, activateView, schedule } from './lib/Utils'
 
     export default {
         components: {
@@ -36,7 +36,7 @@
             setAttributeForMultipleComponent({
                 parent: this
             }, this.refs.tabBar, this.refs.fileTree, this.refs.outline)
-            setTimeout(() => {
+            schedule(() => {
                 this.activateView(this.refs.fileTree)
             })
         },

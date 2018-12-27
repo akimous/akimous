@@ -10,20 +10,6 @@ function binarySearch(array, target) {
     return hi
 }
 
-//function onIdle(callback, timeout = 1000, delay = 0) {
-//    setTimeout(() => { // let other things run first
-//        if (window.requestIdleCallback) {
-//            window.requestIdleCallback(callback, { timeout })
-//        } else {
-//            requestAnimationFrame(() => {
-//                console.warn('requestIdleCallback not available')
-//                requestAnimationFrame(callback)
-//            })
-//        }
-//    }, delay)
-//}
-
-
 const queue = []
 let lastFrameTimestamp = 0 // in ms
 let framesPassed = 0
@@ -73,7 +59,7 @@ function nextFrame(callback) {
 function initializeTabView(view, title, icon) {
     view.set({ self: view })
     view.children = {}
-    setTimeout(() => {
+    schedule(() => {
         view.parent = view.get().parent
         view.tab = view.parent.tabBar.openTab(view, title, icon)
         view.tab.set({

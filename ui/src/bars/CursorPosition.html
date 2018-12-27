@@ -1,12 +1,36 @@
+<div id="indent-indicator" class="non-selectable">
+    <span on:click="switchIndent()">{isMakefile ? 'Tab Size' : indentDisplay}</span>:
+    {#if editingIndentSize}
+    <input ref:indentSizeInput id="indent-size-input" type="number" max=12 min=1 step=1 on:blur="commitIndentSize()" value={indentSize}>
+    {:else}
+    <span on:click="editIndentSize()">{indentSize}</span>
+    {/if}
+</div>
 <div id="cursor-position" class="non-selectable" ref:cursorPosition> {line+1} : {ch} </div>
 
 <style>
-    #cursor-position {
+    #cursor-position,
+    #indent-indicator {
         position: relative;
         display: inline-block;
         text-align: center;
-        width: 5em;
         font-size: var(--ui-font-size-small);
+    }
+
+    #cursor-position {
+        width: 4rem;
+    }
+
+    #indent-indicator {
+        width: 6rem;
+    }
+
+    #indentation-type {
+        display: inline-block;
+    }
+
+    #indent-size-input {
+        width: 2rem;
     }
 
 </style>
@@ -22,11 +46,46 @@
         },
         data() {
             return {
+                indentWithTabs: false,
+                indentSize: 4,
+                editingIndentSize: false,
                 line: 0,
-                ch: 0
+                ch: 0,
+                isMakefile: false,
             }
         },
-        methods: {}
+        computed: {
+            indentDisplay: ({ indentWithTabs }) => indentWithTabs ? 'Tab Size' : 'Spaces'
+        },
+        methods: {
+            switchIndent() {
+                const { indentWithTabs, isMakefile } = this.get()
+                if (isMakefile) return
+                this.set({ indentWithTabs: !indentWithTabs })
+                for (const path in g.panelMiddle.pathToEditor) {
+                    const editor = g.panelMiddle.pathToEditor[path]
+                    if (!editor.get().isMakefile)
+                        editor.cm.setOption('indentWithTabs', indentWithTabs)
+                }
+            },
+            editIndentSize() {
+                this.set({ editingIndentSize: true })
+                requestAnimationFrame(() => {
+                    this.refs.indentSizeInput.focus()
+                })
+            },
+            commitIndentSize() {
+                const indentSize = this.refs.indentSizeInput.value
+                this.set({
+                    editingIndentSize: false,
+                    indentSize
+                })
+                for (const path in g.panelMiddle.pathToEditor) {
+                    const editor = g.panelMiddle.pathToEditor[path]
+                    editor.cm.setOption('indentUnit', indentSize)
+                }
+            }
+        }
     }
 
 </script>

@@ -6,7 +6,7 @@
     font-style: normal;
     font-weight: 300;
     src: local('Roboto Light'), local('Roboto-Light'), url(fonts/Roboto-Light.ttf);
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -14,7 +14,7 @@
     font-style: normal;
     font-weight: 400;
     src: local('Roboto'), local('Roboto-Regular'), url(fonts/Roboto-Regular.ttf);
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -22,7 +22,7 @@
     font-style: normal;
     font-weight: 400;
     src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(fonts/SourceCodePro-Regular.ttf);
-    font-display: swap;
+    font-display: block;
 }
 
 :root {

@@ -32,16 +32,14 @@
         oncreate() {
             g.panelMiddle = this
             this.tabBar = this.refs.tabBar
-            this.tabBar.set({
-                parent: this
-            })
+            this.tabBar.set({ parent: this })
             this.pathToEditor = {}
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
             this.activationHistoryIndex = 0
             if (g.dev)
-                setTimeout(() => {
+                schedule(() => {
                     this.openFile(['akimous', 'demo', 'demo.py'], 'demo.py')
-                }, 200)
+                })
         },
         onstate({ changed, current, previous }) {
             if (!previous) return
@@ -102,12 +100,14 @@
                     return
                 }
                 editor.set({ active: true })
+                const { isMakefile } = editor.get()
+                g.cursorPosition.set({ isMakefile })
 
                 const cm = editor.cm
                 if (!cm) return
                 cm.focus()
 
-                schedule(() => {  // ~5 ms
+                schedule(() => { // ~5 ms
                     const cursor = cm.getCursor()
                     g.cursorPosition.set(cursor)
                     g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
