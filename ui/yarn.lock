@@ -4118,10 +4118,10 @@ rollup-plugin-progress@^0.4.0:
     chalk "^1.1.3"
     rollup-pluginutils "^1.5.1"
 
-rollup-plugin-svelte@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-svelte/-/rollup-plugin-svelte-5.0.0.tgz#42d93d8a20565e37b959adea0166e8d7817d6de4"
-  integrity sha512-wt8RvegLSZ0fgwYit6LOmJVMgM66aWyNo7/MZkwCxJQD56GeSMtrpxpRyTv9W/GDUYQsbl2RkCoFRw0kazWi0w==
+rollup-plugin-svelte@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-svelte/-/rollup-plugin-svelte-5.0.1.tgz#d6f9345f3bb652f512407395dd178197ca28ac67"
+  integrity sha512-iwm4ANbdoEQqoCL8m70R3F2Oe/auSr0zIOBVVJWx7IMSkzFZjhd0PeqzKe3BWCllLAnBXIbqTSOHmU2mnvy0SA==
   dependencies:
     require-relative "^0.8.7"
     rollup-pluginutils "^2.3.3"
@@ -4703,10 +4703,10 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-terser@^3.13.1:
-  version "3.13.1"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.13.1.tgz#a02e8827fb9705fe7b609c31093d010b28cea8eb"
-  integrity sha512-ogyZye4DFqOtMzT92Y3Nxxw8OvXmL39HOALro4fc+EUYFFF9G/kk0znkvwMz6PPYgBtdKAodh3FPR70eugdaQA==
+terser@^3.14.0:
+  version "3.14.0"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-3.14.0.tgz#49a8ddf34a1308a901d787dab03a42c51b557447"
+  integrity sha512-KQC1QNKbC/K1ZUjLIWsezW7wkTJuB4v9ptQQUNOzAPVHuVf2LrwEcB0I9t2HTEYUwAFVGiiS6wc+P4ClLDc5FQ==
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"

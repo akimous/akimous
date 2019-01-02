@@ -31,7 +31,6 @@ export default {
             sourcemap: !production,
             // extract: 'dist/bundle.css'
         }),
-        production && progress(),
         production && terser({
             warnings: true,
             ecma: 8,
@@ -40,9 +39,10 @@ export default {
             compress: {
                 drop_console: true,
                 unsafe: true,
-                passes: 3
+                passes: 1
             }
         }),
+        production && progress(),
         !production && livereload('../akimous_ui'),
     ]
 }

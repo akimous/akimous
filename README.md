@@ -2,6 +2,10 @@
 
 ## Installation
 
+```sh
+pip install -U akimous
+```
+
 ## Commands
 
 ## Development
@@ -26,6 +30,8 @@ make install # (re)install the package
 Running `make` will install all Python and Javascript dependencies listed in `pyproject.toml` and `ui/package.json` automatically.
 
 ## Contributing
+
+Any kind of contribution is welcome.
 
 ## License
 
