@@ -51,9 +51,16 @@ class HTTPHandler:
         if not package:
             return HTTPStatus.NOT_FOUND, [], b''
         try:
-            content_type = guess_type(file)
-            content = resources.read_binary(package, file)
-            header = Headers({'Content-type': content_type})
-            return HTTPStatus.OK, header, content
-        except Exception:
+            header = {
+                'content-type': guess_type(file),
+                'cache-control': 'max-age=31536000'
+            }
+            try:
+                content = resources.read_binary(package, f'{file}.br')
+                header['content-encoding'] = 'br'
+            except FileNotFoundError:
+                content = resources.read_binary(package, file)
+
+            return HTTPStatus.OK, Headers(header), content
+        except FileNotFoundError:
             return HTTPStatus.NOT_FOUND, [], b''

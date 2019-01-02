@@ -2,6 +2,8 @@ all: | bootstrap clean static
 	cd ui && yarn check
 	cd ui && yarn run cloc src resources
 	cd ui && yarn run rollup -c
+	cd akimous_ui/ && brotli --rm -f *.js *.css *.map *.html
+	cd akimous_ui/webfonts && brotli --rm -f *.css
 	poetry build
 
 install:
