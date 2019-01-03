@@ -2,8 +2,9 @@ all: | bootstrap clean static
 	cd ui && yarn check
 	cd ui && yarn run cloc src resources
 	cd ui && yarn run rollup -c
-	cd akimous_ui/ && brotli --rm -f *.js *.css *.map *.html
-	cd akimous_ui/webfonts && brotli --rm -f *.css
+	# Firefox does not support brotli on localhost
+	cd akimous_ui/ && zopfli *.js *.css *.map *.html && rm *.js *.css *.map *.html
+	cd akimous_ui/webfonts && zopfli *.css && rm *.css
 	poetry build
 
 install:
@@ -23,9 +24,11 @@ clean:
 static:
 	cp -r ui/src/index.html akimous_ui/
 	cp -r ui/resources/* akimous_ui/
-	cp -r ui/node_modules/@fortawesome/fontawesome-free/webfonts akimous_ui/
+	mkdir akimous_ui/webfonts
+	cp -r ui/node_modules/@fortawesome/fontawesome-free/webfonts/*.woff2 akimous_ui/webfonts
 	cp -r ui/node_modules/@fortawesome/fontawesome-free/css/all.min.css akimous_ui/webfonts
-	cp -r ui/node_modules/devicon/fonts akimous_ui/
+	cp -r ui/node_modules/devicon/fonts/*.woff akimous_ui/fonts
+    
 	touch akimous_ui/__init__.py
 	for D in akimous_ui/*/; do touch $${D}__init__.py; done
 

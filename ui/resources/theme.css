@@ -1,11 +1,10 @@
-/*@import url('https://fonts.googleapis.com/css?family=Roboto:300,400|Source+Code+Pro');*/
 /*https://flatuicolors.com*/
 
 @font-face {
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 300;
-    src: local('Roboto Light'), local('Roboto-Light'), url(fonts/Roboto-Light.ttf);
+    src: local('Roboto Light'), local('Roboto-Light'), url(fonts/roboto-v18-300.woff2);
     font-display: block;
 }
 
@@ -13,7 +12,15 @@
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 400;
-    src: local('Roboto'), local('Roboto-Regular'), url(fonts/Roboto-Regular.ttf);
+    src: local('Roboto'), local('Roboto-Regular'), url(fonts/roboto-v18-regular.woff2);
+    font-display: block;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 500;
+    src: local('Roboto Medium'), local('Roboto-Medium'), url(fonts/roboto-v18-500.woff2);
     font-display: block;
 }
 
@@ -21,7 +28,7 @@
     font-family: 'Source Code Pro';
     font-style: normal;
     font-weight: 400;
-    src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(fonts/SourceCodePro-Regular.ttf);
+    src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(fonts/source-code-pro-v8-regular.woff2);
     font-display: block;
 }
 

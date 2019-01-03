@@ -56,8 +56,8 @@ class HTTPHandler:
                 'cache-control': 'max-age=31536000'
             }
             try:
-                content = resources.read_binary(package, f'{file}.br')
-                header['content-encoding'] = 'br'
+                content = resources.read_binary(package, f'{file}.gz')
+                header['content-encoding'] = 'gzip'
             except FileNotFoundError:
                 content = resources.read_binary(package, file)
 
