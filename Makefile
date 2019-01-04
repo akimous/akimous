@@ -1,5 +1,5 @@
 all: | bootstrap clean static
-	cd ui && yarn check
+	cd ui && yarn check --verify-tree
 	cd ui && yarn run cloc src resources
 	cd ui && yarn run rollup -c
 	# Firefox does not support brotli on localhost

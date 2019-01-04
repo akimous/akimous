@@ -17,7 +17,7 @@ Make sure you have recent version of the following dependencies installed.
 * [Poetry](https://poetry.eustace.io)
 * [Yarn](https://yarnpkg.com/)
 * [Make](https://www.gnu.org/software/make/)
-* [Brotli](https://github.com/google/brotli)
+* [Zopfli](https://github.com/google/zopfli)
 
 Run the following commands according to your need.
 
