@@ -1,0 +1,59 @@
+<div class="text-input">
+    <span class="label"><slot></slot></span> <input type="text" bind:value>
+</div>
+
+
+<style>
+    .text-input {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .text-input:hover {
+        filter: brightness(1.2);
+    }
+    
+    .label {
+        padding: 0 0 0 .3rem;
+        color: var(--gray7);
+        line-height: var(--ui-line-height-default);
+    }
+    
+    input {
+        width: 5rem;
+        flex-grow: 1;
+        background: var(--gray3);
+        color: var(--basic-ui-font-color);
+        font-size: var(--ui-font-size-small);
+        
+        box-sizing: border-box;
+        border: .05rem solid var(--gray2);
+        border-radius: var(--small-radius);
+        margin: 0 .3rem .3rem .3rem;
+        padding: .3rem;
+    }
+    
+    input:active,
+    input:focus {
+        border: .05rem solid var(--ui-highlight-color);
+        outline: none;
+    }
+
+</style>
+
+
+<script>
+    // import g from './lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {},
+        data() {
+            return {
+                value: '',
+            }
+        },
+        methods: {}
+    }
+
+</script>

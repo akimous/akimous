@@ -15,6 +15,19 @@
             </tr>
             {/each}
         </table>
+
+        <div class="title">Macros</div>
+        <TextInput bind:value=macroFormat>Print format with shift: </TextInput>
+        <table id="macros" class="non-selectable">
+            {#each macros as macro}
+            <tr on:click="executeMacro(macro, event)">
+                <td class="macro-hotkey">{macro.hotkey.toUpperCase()}</td>
+                <td class="macro-name">
+                    {macro.name}
+                </td>
+            </tr>
+            {/each}
+        </table>
     </div>
 </div>
 
@@ -25,24 +38,6 @@
         font-family: var(--monospace-font-family);
     }
 
-    table,
-    td {
-        padding: 0;
-        margin: 0;
-        border-spacing: 0;
-    }
-
-    td {
-        vertical-align: top;
-        cursor: default;
-        border-bottom: 1px solid var(--panel-delimiter-color);
-    }
-
-    tr:hover {
-        color: white;
-        background: var(--gray5);
-    }
-
     .clipboard-index {
         width: 1rem;
         padding: .3rem;
@@ -51,16 +46,39 @@
         background: var(--primary3);
     }
 
-    tr:hover>.clipboard-index {
-        color: white;
-        background: var(--ui-highlight-color);
-    }
-
     .clipboard-text {
         padding: .3rem;
         max-height: 3.8rem;
         white-space: pre;
         overflow: hidden;
+        background: var(--gray2);
+    }
+
+    .macro-hotkey {
+        width: 2rem;
+        padding: .3rem 0;
+        text-align: center;
+        color: var(--ui-font-color);
+        background: var(--primary2);
+        font-family: var(--monospace-font-family);
+    }
+
+    .macro {
+        padding: .3rem 0;
+    }
+
+    .macro-hotkey {
+        width: 2rem;
+        padding: .3rem 0;
+        text-align: center;
+        color: var(--ui-font-color);
+        background: var(--primary2);
+        font-family: var(--monospace-font-family);
+    }
+
+    .macro-name {
+        padding: .4rem 0 .2rem .3rem;
+        background: var(--gray2);
     }
 
 </style>
@@ -68,18 +86,36 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView } from '../lib/Utils'
+    import { initializeTabView, schedule } from '../lib/Utils'
 
     export default {
-        components: {},
+        components: {
+            TextInput: '../lib/TextInput.html'
+        },
         oncreate() {
             g.macro = this
             initializeTabView(this, 'Macro', 'fas fa-magic l-orange')
+
+            const macros = []
+            import('./macros.js').then(({ default: m }) => {
+                for (const macro of m) {
+                    macros.push(macro)
+                }
+                macros.sort((a, b) => {
+                    if (a.hotkey < b.hotkey) { return -1 }
+                    if (a.hotkey > b.hotkey) { return 1 }
+                    return 0
+                })
+                this.set({ macros })
+            })
+
         },
         data() {
             return {
                 active: false,
-                clipboard: []
+                clipboard: [],
+                macros: [],
+                macroFormat: '${NAME} ='
             }
         },
         methods: {
@@ -115,7 +151,11 @@
             },
             closePopup(event) {
                 g.popup.closeIfNotHovered(event)
-            }
+            },
+            executeMacro(macro) {
+                macro.callback(g.activeEditor.cm, event, this)
+            },
+
         }
     }
 

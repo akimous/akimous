@@ -8,8 +8,8 @@ self.addEventListener('install', event => {
     )
 })
 
-self.addEventListener('activate', event => {
-    console.log('service worker activated')
+self.addEventListener('activate', () => {
+    console.debug('service worker activated')
     return self.clients.claim()
 })
 
@@ -17,7 +17,7 @@ self.addEventListener('fetch', function (event) {
     const request = event.request
     if (request.method === 'GET') {
         event.respondWith(
-            fetch(request).catch(function (error) {
+            fetch(request).catch(function () {
                 return caches.open('offline').then(function (cache) {
                     return cache.match('offline.html')
                 })
