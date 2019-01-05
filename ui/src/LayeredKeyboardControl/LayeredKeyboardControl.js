@@ -111,17 +111,16 @@ class LayeredKeyboardControl {
                     this.commandSent = false
                     g.keyboardControlHint.highlightModifier('Space')
                     break
-                case 'Meta':
                 case 'Control':
-                    if (e.altKey)
+                    if (e.metaKey)
                         this.macroMode = true
                     else
                         g.tabNumber.set({
                             active: true
                         })
                     return true // let it propagate
-                case 'Alt':
-                    if (e.ctrlKey || e.metaKey) {
+                case 'Meta':
+                    if (e.ctrlKey) {
                         this.macroMode = true
                         g.tabNumber.set({
                             active: false
@@ -137,7 +136,8 @@ class LayeredKeyboardControl {
                     return true // let it propagate
                 default:
                     if (this.macroMode) {
-                        g.macro.dispatchMacro(e.key)
+                        console.info(e)
+                        g.macro.dispatchMacro(e)
                         return this.stopPropagation(e)
                     } else if (spacePressed && !textSent && this.commandSent &&
                         (e.key.length === 1 || keysRequireHandling.has(e.key))) {
@@ -191,15 +191,13 @@ class LayeredKeyboardControl {
                     }
                     g.keyboardControlHint.dimModifier('Space')
                     return this.stopPropagation(e)
-                case 'Meta':
                 case 'Control':
-                    if (!e.metaKey && !e.ctrlKey)
-                        g.tabNumber.set({
-                            active: false
-                        })
+                    g.tabNumber.set({
+                        active: false
+                    })
                     this.macroMode = false
                     return true // let it propagate
-                case 'Alt':
+                case 'Meta':
                     this.macroMode = false
                     return true // let it propagate
                 default:

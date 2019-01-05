@@ -19,9 +19,9 @@
         <div class="title">Macros</div>
         <TextInput bind:value=macroFormat>Print format with shift: </TextInput>
         <table id="macros" class="non-selectable">
-            {#each macros as macro}
+            {#each Object.entries(macros) as [hotkey, macro]}
             <tr on:click="executeMacro(macro, event)">
-                <td class="macro-hotkey">{macro.hotkey.toUpperCase()}</td>
+                <td class="macro-hotkey">{hotkey.toUpperCase()}</td>
                 <td class="macro-name">
                     {macro.name}
                 </td>
@@ -96,25 +96,20 @@
             g.macro = this
             initializeTabView(this, 'Macro', 'fas fa-magic l-orange')
 
-            const macros = []
+            const macros = {}
             import('./macros.js').then(({ default: m }) => {
                 for (const macro of m) {
-                    macros.push(macro)
+                    macros[macro.hotkey] = macro
                 }
-                macros.sort((a, b) => {
-                    if (a.hotkey < b.hotkey) { return -1 }
-                    if (a.hotkey > b.hotkey) { return 1 }
-                    return 0
-                })
                 this.set({ macros })
+                console.info(macros)
             })
-
         },
         data() {
             return {
                 active: false,
                 clipboard: [],
-                macros: [],
+                macros: {},
                 macroFormat: '${NAME} ='
             }
         },
@@ -133,11 +128,16 @@
                 editor.cm.replaceSelection(text)
                 editor.cm.focus()
             },
-            dispatchMacro(key) {
+            dispatchMacro(event) {
+                const key = event.key
                 let number = +key
                 if (Number.isInteger(number)) {
                     if (number === 0) number = 10
                     this.paste(this.get().clipboard[number - 1])
+                } else {
+                    const f = this.get().macros[key.toLowerCase()]
+                    if (f)
+                        f.callback(g.activeEditor.cm, event, this)
                 }
             },
             showPopup(i, event) {
@@ -155,7 +155,6 @@
             executeMacro(macro) {
                 macro.callback(g.activeEditor.cm, event, this)
             },
-
         }
     }
 
