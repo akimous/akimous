@@ -16,10 +16,10 @@
             {/each}
         </table>
 
-        <div class="title">Macros</div>
+        <div class="title">Macros<i class="edit-icon fas fa-edit"></i></div>
         <TextInput bind:value=macroFormat>Print format with shift: </TextInput>
         <table id="macros" class="non-selectable">
-            {#each Object.entries(macros) as [hotkey, macro]}
+            {#each Object.entries(macros).sort() as [hotkey, macro]}
             <tr on:click="executeMacro(macro, event)">
                 <td class="macro-hotkey">{hotkey.toUpperCase()}</td>
                 <td class="macro-name">
@@ -65,6 +65,18 @@
 
     .macro {
         padding: .3rem 0;
+    }
+
+    .edit-icon {
+        font-size: var(--ui-font-size-small);
+        text-align: right;
+        flex-grow: 1;
+        color: var(--basic-ui-font-color);
+        padding-top: .7rem;
+    }
+    
+    .edit-icon:hover {
+        filter: brightness(1.2);
     }
 
     .macro-hotkey {

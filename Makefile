@@ -24,7 +24,7 @@ clean:
 static:
 	cp -r ui/src/index.html akimous_ui/
 	cp -r ui/resources/* akimous_ui/
-	mkdir akimous_ui/webfonts
+	mkdir -p akimous_ui/webfonts
 	cp -r ui/node_modules/@fortawesome/fontawesome-free/webfonts/*.woff2 akimous_ui/webfonts
 	cp -r ui/node_modules/@fortawesome/fontawesome-free/css/all.min.css akimous_ui/webfonts
 	cp -r ui/node_modules/devicon/fonts/*.woff akimous_ui/fonts

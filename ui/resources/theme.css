@@ -185,6 +185,7 @@ span.tooltipped::after {
 }
 
 .title {
+    display: flex;
     user-select: none;
     cursor: default;
     padding: .3rem;
