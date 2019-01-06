@@ -166,7 +166,41 @@ export default [
                 if (!target.length)
                     cm.execCommand('goCharLeft')
             })
-
+        }
+    }, {
+        hotkey: 't',
+        name: 'try-except',
+        callback: (cm, event, macroPanel) => {
+            const fromLine = cm.getCursor('from').line
+            const toLine = cm.getCursor('to').line
+            cm.operation(() => {
+                cm.setCursor(fromLine, 0)
+                cm.execCommand('goLineEnd')
+                cm.execCommand('goLineStartSmart')
+                cm.execCommand('newlineAndIndent')
+                cm.execCommand('goLineUp')
+                let start = cm.getCursor()
+                cm.replaceRange('try:', start, start)
+                start = {
+                    line: fromLine + 1,
+                    ch: 0
+                }
+                const end = {
+                    line: toLine + 2,
+                    ch: 0
+                }
+                cm.setSelection(start, end)
+                cm.execCommand('indentMore')
+                end.line = toLine + 1
+                cm.setCursor(end)
+                cm.execCommand('goLineEnd')
+                cm.execCommand('newlineAndIndent')
+                cm.execCommand('indentLess')
+                const cursor = cm.getCursor()
+                cm.replaceRange('except :', cursor, cursor)
+                cm.execCommand('goCharLeft')
+            })
+            cm.focus()
         }
     }
 ]
