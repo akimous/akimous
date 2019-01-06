@@ -1,10 +1,12 @@
 import mimetypes
 from http import HTTPStatus
 from importlib import resources
+from pathlib import Path
 
 from logzero import logger as log
 from websockets.http import Headers
 
+config_directory = Path.home() / '.akimous'
 mimetypes.init()
 
 
@@ -24,7 +26,8 @@ class HTTPHandler:
         self.resource_mapping = {
             'fonts': 'akimous_ui.fonts',
             'icons': 'akimous_ui.icons',
-            'webfonts': 'akimous_ui.webfonts'
+            'webfonts': 'akimous_ui.webfonts',
+            'user': 'user'
         }
 
     def translate_path(self, path):
@@ -48,13 +51,29 @@ class HTTPHandler:
         log.info('Serving %s', path)
 
         package, file = self.translate_path(path)
+
         if not package:
             return HTTPStatus.NOT_FOUND, [], b''
+
+        header = {
+            'content-type': guess_type(file),
+            'cache-control': 'max-age=31536000'
+        }
+
+        # serve user configs
+        if package == 'user':
+            try:
+                path = config_directory / file
+                print(path, path.exists())
+                with open(path, 'rb') as f:
+                    content = f.read()
+                    return HTTPStatus.OK, Headers(header), content
+            except FileNotFoundError:
+                return HTTPStatus.NOT_FOUND, [], b''
+
+        # serve other resource files
         try:
-            header = {
-                'content-type': guess_type(file),
-                'cache-control': 'max-age=31536000'
-            }
+
             try:
                 content = resources.read_binary(package, f'{file}.gz')
                 header['content-encoding'] = 'gzip'

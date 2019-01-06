@@ -23,12 +23,24 @@ def merge_dict(primary, secondary):
                 section[key] = value
 
 
+config_directory = Path.home() / '.akimous'
+if not config_directory.exists():
+    config_directory.mkdir(parents=True, exist_ok=True)
+
 # load user config
-config_path = Path.home() / '.akimous.json'
-if config_path.exists():
-    with open(config_path) as f:
+config_file = config_directory / '.akimous.json'
+if config_file.exists():
+    with open(config_file) as f:
         user_config = json.loads(f.read())
         merge_dict(config, user_config)
+
+
+# create user macro template if not exists
+macro_file = config_directory / 'macro.js'
+if not macro_file.exists():
+    template = resources.read_text('akimous.resources', 'macro.js')
+    with open(macro_file, 'w') as f:
+        f.write(template)
 
 
 @handles('_connected')
@@ -43,7 +55,7 @@ async def connected(client_id, send, context):
 async def set_config(msg, send, context):
     global config
     merge_dict(config, msg)
-    with open(config_path, 'w') as f:
+    with open(config_file, 'w') as f:
         json.dump(config, f, indent=4, sort_keys=True)
 
 

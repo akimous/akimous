@@ -97,12 +97,17 @@
             initializeTabView(this, 'Macro', 'fas fa-magic l-orange')
 
             const macros = {}
-            import('./macros.js').then(({ default: m }) => {
-                for (const macro of m) {
+            import('./macro.js').then(({ default: defaultMacros }) => {
+                for (const macro of defaultMacros) {
                     macros[macro.hotkey] = macro
                 }
-                this.set({ macros })
-                console.info(macros)
+                import('./user/macro.js').then(({ default: userMacros }) => {
+                    for (const macro of userMacros) {
+                        macros[macro.hotkey] = macro
+                    }
+                }).finally(() => {
+                    this.set({ macros })
+                })
             })
         },
         data() {
