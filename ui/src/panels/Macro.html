@@ -79,15 +79,6 @@
         filter: brightness(1.2);
     }
 
-    .macro-hotkey {
-        width: 2rem;
-        padding: .3rem 0;
-        text-align: center;
-        color: var(--ui-font-color);
-        background: var(--primary2);
-        font-family: var(--monospace-font-family);
-    }
-
     .macro-name {
         padding: .4rem 0 .2rem .3rem;
         background: var(--gray2);
@@ -109,13 +100,16 @@
             g.macro = this
             initializeTabView(this, 'Macro', 'fas fa-magic l-orange')
 
+            // load config
             const { macroFormatWithShift } = config.macro
-            console.log(macroFormatWithShift)
             this.set({ macroFormatWithShift })
+            
+            // set listener
             this.refs.macroFormatWithShift.set({
                 onChange: this.onChangeMacroFormat
             })
             
+            // load macros
             const macros = {}
             import('./macro.js').then(({ default: defaultMacros }) => {
                 for (const macro of defaultMacros) {

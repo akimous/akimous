@@ -233,7 +233,7 @@ span.tooltipped::after {
 
 .panel .line-number {
     width: 3rem;
-    padding: .3rem .3rem .3rem 0;
+    padding: .2rem .2rem 0 0;
     text-align: right;
     color: var(--ui-font-color);
     background: var(--primary2);

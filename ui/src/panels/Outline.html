@@ -3,10 +3,10 @@
         {#each outlineItems as { line, display, type, level }, i }
         <tr ref:row on:click="jumpTo(line, display)" class="outline-node" class:highlight="line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)">
             <td class="line-number" class:highlight>{line + 1}</td>
-            {#each [...Array(level).keys()] as indent}
-            <td class="indent" style="background: var(--gray{indent + 1});">x</td>
+            {#each Array(level) as indent}
+            <td class="indent"></td>
             {/each}
-            <td class="display {type}" style="background: var(--gray{level + 1});">{display}</td>
+            <td class="display {type}">{display}</td>
         </tr>
         {:else}
             <tr>
@@ -17,8 +17,6 @@
 </div>
 
 <style>
-    #outline {}
-
     .outline-node {
         height: var(--ui-line-height-default);
         white-space: nowrap;
@@ -32,13 +30,14 @@
         height: 100%;
         color: transparent;
         box-sizing: border-box;
+        border-right: .05rem solid var(--panel-delimiter-color);
     }
 
     .display {
         display: inline-block;
-        padding-left: .3rem;
+        padding: .3rem .5rem;
         flex-grow: 1;
-        line-height: var(--ui-line-height-default);
+        background: var(--gray2);
     }
 
     .display.def {
