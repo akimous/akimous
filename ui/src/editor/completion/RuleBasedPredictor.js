@@ -234,7 +234,6 @@ class RuleBasedPredictor {
         const { input } = context
 
         context.lineContent = context.cm.getLine(context.line)
-        console.log(context)
 
         let result = []
         const startTime = performance.now()

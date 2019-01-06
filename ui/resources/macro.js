@@ -137,20 +137,20 @@ export default [
     }, {
         hotkey: 'b',
         name: 'breakpoint',
-        callback: printerFactory((event, macroFormat, target) => {
+        callback: printerFactory(() => {
             return 'breakpoint()'
         })
     }, {
         hotkey: 'r',
         name: 'return',
-        callback: (cm, event, macroPanel) => {
+        callback: (cm) => {
             let target = getTargetVariableOrStatement(cm)
             cm.operation(() => {
                 if (!cm.somethingSelected()) {
                     // check if it is an assignment statement
                     cm.execCommand('goLineEnd')
                     cm.execCommand('goLineStartSmart')
-                    const [t0, t1, t2] = getNTokens(cm, 3)
+                    const [t0, , t2] = getNTokens(cm, 3)
                     if (t2.string === '=' && t0.type === 'variable') {
                         target = t0.string
                     } else if (target.length === 0 && t0.type === 'variable') {
@@ -159,6 +159,8 @@ export default [
                 }
                 // insert return statement
                 cm.execCommand('goLineEnd')
+                const lineContent = cm.getLine(cursor.line)
+                const isEmptyLine = /^\s*$/.test(lineContent)
                 if (target.length || !isEmptyLine)
                     cm.execCommand('newlineAndIndent')
                 const cursor = cm.getCursor()
@@ -170,7 +172,7 @@ export default [
     }, {
         hotkey: 't',
         name: 'try-except',
-        callback: (cm, event, macroPanel) => {
+        callback: (cm) => {
             const fromLine = cm.getCursor('from').line
             const toLine = cm.getCursor('to').line
             cm.operation(() => {
@@ -197,7 +199,7 @@ export default [
                 cm.execCommand('newlineAndIndent')
                 cm.execCommand('indentLess')
                 const cursor = cm.getCursor()
-                cm.replaceRange('except :', cursor, cursor)
+                cm.replaceRange('except ', cursor, cursor)
                 cm.execCommand('goCharLeft')
             })
             cm.focus()

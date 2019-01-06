@@ -1,6 +1,5 @@
 all: | bootstrap clean static
 	cd ui && yarn check --verify-tree
-	cd ui && yarn run cloc src resources
 	cd ui && yarn run rollup -c
 	# Firefox does not support brotli on localhost
 	cd akimous_ui/ && zopfli *.js *.css *.map *.html && rm *.js *.css *.map *.html
@@ -33,7 +32,7 @@ static:
 	for D in akimous_ui/*/; do touch $${D}__init__.py; done
 
 lint:
-	cd ui && yarn run cloc src resources
+	cd ui && yarn run cloc src resources ../akimous
 	cd ui && yarn run eslint --ext .html,.js .
 	cd ui && yarn run stylelint "resources/*.css src/**/*.html src/**/*.css"
 	poetry check

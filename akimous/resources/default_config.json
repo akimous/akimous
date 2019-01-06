@@ -15,5 +15,8 @@
     "convention": true,
     "warning": true,
     "error": true
+  },
+  "macro": {
+    "macroFormatWithShift": "${NAME} = "
   }
 }

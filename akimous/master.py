@@ -28,7 +28,7 @@ if not config_directory.exists():
     config_directory.mkdir(parents=True, exist_ok=True)
 
 # load user config
-config_file = config_directory / '.akimous.json'
+config_file = config_directory / 'akimous.json'
 if config_file.exists():
     with open(config_file) as f:
         user_config = json.loads(f.read())

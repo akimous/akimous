@@ -1,5 +1,5 @@
 <div class="text-input">
-    <span class="label"><slot></slot></span> <input type="text" bind:value>
+    <span class="label"><slot></slot></span> <input type="text" bind:value on:change="onChange()">
 </div>
 
 
@@ -51,9 +51,17 @@
         data() {
             return {
                 value: '',
+                onChange: undefined,
+                allowWhiteSpace: true,
             }
         },
-        methods: {}
+        methods: {
+            onChange() {
+                const { onChange, value } = this.get()
+                if (onChange)
+                    onChange(value)
+            }
+        }
     }
 
 </script>
