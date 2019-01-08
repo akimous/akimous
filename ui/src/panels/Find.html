@@ -1,10 +1,35 @@
 <div class="panel" class:gone="!active">
-    <div ref:find id="find">Under Contruction</div>
+    <div ref:find id="find">
+        <TextInput ref:findText bind:value=findText placeholder="Find..."></TextInput>
+        <div class="button-group">
+            <Button label="Aa" left=true></Button>
+            <Button label=".*"></Button>
+            <Button label="=" right=true></Button>
+            <span class="gap"></span>
+            <Button label="<i class='fas fa-caret-left'></i>" left=true></Button>
+            <Button label="<i class='fas fa-caret-right'></i>" right=true></Button>
+        </div>
+        <TextInput ref:replaceText bind:value=replaceText placeholder="Replace with..."></TextInput>
+        <div class="button-group">
+            <Button label="Replace" left=true></Button>
+            <Button label="Batch"></Button>
+            <Button label="All" right=true></Button>
+        </div>
+    </div>
 </div>
 
 <style>
     #find {
-        background: gray;
+        padding-top: .5rem;
+    }
+    
+    .button-group {
+        margin: 0 .3rem .3rem .3rem;
+        display: flex;
+    }
+    
+    .gap {
+        flex-grow: 5;
     }
 
 </style>
@@ -15,14 +40,19 @@
     import { initializeTabView } from '../lib/Utils'
 
     export default {
-        components: {},
+        components: {
+            TextInput: '../lib/TextInput.html',
+            Button: '../lib/Button.html',
+        },
         oncreate() {
             g.find = this
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
         },
         data() {
             return {
-                active: false
+                active: false,
+                findText: '',
+                replaceText: '',
             }
         },
         methods: {}

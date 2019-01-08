@@ -3695,17 +3695,17 @@ pressure@^2.1.2:
   resolved "https://registry.yarnpkg.com/pressure/-/pressure-2.1.2.tgz#5a7a58b7aab90f48db283012e470c1a6f9567aef"
   integrity sha512-ZSargPrrtyDGsWKFQvk3e5i/JM24pRTlb7Wu6RNtQiSzSAwdNw7hmB4+tQ/V2AhC3u4YGx3q2kMYEgtr/6ctXQ==
 
-primer-support@4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/primer-support/-/primer-support-4.7.0.tgz#84521e06f9b17a7eb8cedf1e6c79a5f4933e18f6"
-  integrity sha512-vMUPjCGKVPgrRNGqZx2ULBHmg/r3TzsYqYG53qfVj34C5U0Vx+Mnq/upb0VOQNqeqvSOIgjjKyOzQfhyLyA/oQ==
+primer-support@4.7.1:
+  version "4.7.1"
+  resolved "https://registry.yarnpkg.com/primer-support/-/primer-support-4.7.1.tgz#d573decb980f44455a86ee64fcca8fbb516ac490"
+  integrity sha512-BruDzdeTQW7UVsyR2eKxTWMHRzumCTs+Sc6I5reOwTmBIJ2o9CWtj1DvAO8l97+rzQiyajJWi/fJ7i2Zr9Uupg==
 
-primer-tooltips@^1.5.9:
-  version "1.5.9"
-  resolved "https://registry.yarnpkg.com/primer-tooltips/-/primer-tooltips-1.5.9.tgz#a3ac66fee10068deef4e4bce6787025febe783fc"
-  integrity sha512-fy+s5VXW81nWiOQlJdKUoqOgH6a/cbpmr02jNo6hClos3/PJrThI2v2uWZzCea9OtBNID4efHasfMbrObOCZpg==
+primer-tooltips@^1.5.10:
+  version "1.5.10"
+  resolved "https://registry.yarnpkg.com/primer-tooltips/-/primer-tooltips-1.5.10.tgz#31d946fa681a5f72dbdb0ada0ba1ff852373f2b1"
+  integrity sha512-YB1XNFiB+ljs5k/jG2pyNv5unLCqIcq/m0F83R6qK0SRLgL+/j7w9haM6zuvDBO2o2BUBVSYEQ0yumReLV5/6w==
   dependencies:
-    primer-support "4.7.0"
+    primer-support "4.7.1"
 
 process-nextick-args@~1.0.6:
   version "1.0.7"

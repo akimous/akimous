@@ -17,7 +17,7 @@
         </table>
 
         <div class="title">Macros<i class="edit-icon fas fa-edit"></i></div>
-        <TextInput ref:macroFormatWithShift bind:value=macroFormatWithShift>Print format with shift: </TextInput>
+        <TextInput ref:macroFormatWithShift bind:value=macroFormatWithShift>Print format with shift:&nbsp;</TextInput>
         <table id="macros" class="non-selectable">
             {#each Object.entries(macros).sort() as [hotkey, macro]}
             <tr on:click="executeMacro(macro, event)">

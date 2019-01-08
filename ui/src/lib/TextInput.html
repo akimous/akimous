@@ -1,5 +1,5 @@
 <div class="text-input">
-    <span class="label"><slot></slot></span> <input type="text" bind:value on:change="onChange()">
+    <span class="label"><slot></slot></span><input type="text" bind:value on:change="onChange()" placeholder="{placeholder}">
 </div>
 
 
@@ -7,14 +7,10 @@
     .text-input {
         display: flex;
         flex-wrap: wrap;
-    }
-    
-    .text-input:hover {
-        filter: brightness(1.2);
+        margin: 0 .3rem .3rem .3rem;
     }
     
     .label {
-        padding: 0 0 0 .3rem;
         color: var(--gray7);
         line-height: var(--ui-line-height-default);
     }
@@ -27,15 +23,22 @@
         font-size: var(--ui-font-size-small);
         
         box-sizing: border-box;
-        border: .05rem solid var(--gray2);
+        border: .07rem solid var(--gray2);
         border-radius: var(--small-radius);
-        margin: 0 .3rem .3rem .3rem;
+/*        margin: 0 .3rem .3rem .3rem;*/
         padding: .3rem;
+    }
+    
+    input:hover {
+        filter: brightness(1.2);
+        background: var(--gray2);
+        border: .07rem solid var(--gray1);
     }
     
     input:active,
     input:focus {
-        border: .05rem solid var(--ui-highlight-color);
+        background: var(--gray2);
+        border: .07rem solid var(--ui-highlight-color);
         outline: none;
     }
 
@@ -51,6 +54,7 @@
         data() {
             return {
                 value: '',
+                placeholder: '',
                 onChange: undefined,
                 allowWhiteSpace: true,
             }

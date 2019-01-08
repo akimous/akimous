@@ -1,0 +1,43 @@
+<div class:left class:right class="non-selectable">{@html label}</div>
+
+
+<style>
+    div {
+        display: inline-block;
+        background: var(--gray2);
+        color: var(--basic-ui-font-color);
+        border: .07rem solid var(--gray1);
+        outline: none;
+        padding: .3rem 0 .2rem 0;
+        flex-grow: 10;
+        text-align: center;
+    }
+    
+    .left {
+        border-radius: var(--small-radius) 0 0 var(--small-radius);
+    }
+    
+    .right {
+        border-radius: 0 var(--small-radius) var(--small-radius) 0;
+    }
+
+</style>
+
+
+<script>
+    // import g from './lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {},
+        data() {
+            return {
+                label: '',
+                left: false,
+                right: false,
+            }
+        },
+        methods: {}
+    }
+
+</script>
