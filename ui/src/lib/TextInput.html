@@ -1,4 +1,4 @@
-<div class="text-input">
+<div class="text-input" class:coalesced>
     <span class="label"><slot></slot></span><input type="text" bind:value on:change="onChange()" placeholder="{placeholder}">
 </div>
 
@@ -10,34 +10,37 @@
         margin: 0 .3rem .3rem .3rem;
     }
     
+    .text-input.coalesced {
+        margin-bottom: 0;
+    }
+    
     .label {
         color: var(--gray7);
-        line-height: var(--ui-line-height-default);
+        padding-top: .4rem;
     }
     
     input {
         width: 5rem;
         flex-grow: 1;
         background: var(--gray3);
-        color: var(--basic-ui-font-color);
-        font-size: var(--ui-font-size-small);
-        
+        color: var(--basic-ui-font-color);        
         box-sizing: border-box;
         border: .07rem solid var(--gray2);
         border-radius: var(--small-radius);
-/*        margin: 0 .3rem .3rem .3rem;*/
         padding: .3rem;
     }
     
+    .coalesced input {
+        border-radius: var(--small-radius) var(--small-radius) 0 0;
+    }
+    
     input:hover {
-        filter: brightness(1.2);
-        background: var(--gray2);
+        color: var(--gray9);
         border: .07rem solid var(--gray1);
     }
     
     input:active,
     input:focus {
-        background: var(--gray2);
         border: .07rem solid var(--ui-highlight-color);
         outline: none;
     }
@@ -57,6 +60,7 @@
                 placeholder: '',
                 onChange: undefined,
                 allowWhiteSpace: true,
+                coalesced: false,
             }
         },
         methods: {

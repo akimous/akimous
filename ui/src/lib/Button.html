@@ -1,4 +1,4 @@
-<div class:left class:right class="non-selectable">{@html label}</div>
+<div class="non-selectable" class:active style="{roundCorners(corner)}" class:coalesced="corner.startsWith('00')">{@html label}</div>
 
 
 <style>
@@ -8,24 +8,30 @@
         color: var(--basic-ui-font-color);
         border: .07rem solid var(--gray1);
         outline: none;
-        padding: .3rem 0 .2rem 0;
+        padding: .4rem 0 .3rem 0;
         flex-grow: 10;
         text-align: center;
     }
     
-    .left {
-        border-radius: var(--small-radius) 0 0 var(--small-radius);
+    div.coalesced {
+        border-top: none;
     }
     
-    .right {
-        border-radius: 0 var(--small-radius) var(--small-radius) 0;
+    div:hover {
+        filter: brightness(1.2);
+    }
+    
+    div:active,
+    div.active {
+        background: var(--primary5);
+        border-color: var(--primary2);
     }
 
 </style>
 
 
 <script>
-    // import g from './lib/Globals'
+    import { roundCorners } from './UIUtils'
 
     export default {
         components: {},
@@ -33,9 +39,12 @@
         data() {
             return {
                 label: '',
-                left: false,
-                right: false,
+                active: false,
+                corner: '0000',
             }
+        },
+        helpers: {
+            roundCorners,
         },
         methods: {}
     }

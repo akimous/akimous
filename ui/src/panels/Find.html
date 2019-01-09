@@ -1,26 +1,29 @@
 <div class="panel" class:gone="!active">
     <div ref:find id="find">
-        <TextInput ref:findText bind:value=findText placeholder="Find..."></TextInput>
+        <div class="label">Find...</div>
+        <TextInput ref:findText bind:value=findText coalesced="true"></TextInput>
         <div class="button-group">
-            <Button label="Aa" left=true></Button>
+            <Button label="Aa" corner="0001"></Button>
             <Button label=".*"></Button>
-            <Button label="=" right=true></Button>
+            <Button label="=" corner="0010"></Button>
             <span class="gap"></span>
-            <Button label="<i class='fas fa-caret-left'></i>" left=true></Button>
-            <Button label="<i class='fas fa-caret-right'></i>" right=true></Button>
+            <Button label="<i class='fas fa-caret-left'></i>" corner="0001"></Button>
+            <Button label="<i class='fas fa-caret-right'></i>" corner="0010"></Button>
         </div>
-        <TextInput ref:replaceText bind:value=replaceText placeholder="Replace with..."></TextInput>
+        
+        <div class="label">Replace with...</div>
+        <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
         <div class="button-group">
-            <Button label="Replace" left=true></Button>
+            <Button label="Replace" corner="0001"></Button>
             <Button label="Batch"></Button>
-            <Button label="All" right=true></Button>
+            <Button label="All" corner="0010"></Button>
         </div>
     </div>
 </div>
 
 <style>
-    #find {
-        padding-top: .5rem;
+    .label {
+        margin: .7rem 0 .2rem .5rem;
     }
     
     .button-group {
