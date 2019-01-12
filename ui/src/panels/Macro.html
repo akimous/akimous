@@ -1,4 +1,4 @@
-<div class="panel" class:gone="!active">
+<div class="panel" class:gone="!active" on:click="onFocus()">
     <div ref:macro id="macro">
         <div class="title">Clipboard</div>
         <table id="clipboard" class="non-selectable">
@@ -133,6 +133,9 @@
             }
         },
         methods: {
+            onFocus() {
+                g.setFocus([g.panelRight, this])
+            },
             addClipboardItem(text) {
                 const { clipboard } = this.get()
                 if (clipboard.length >= 10) clipboard.pop()

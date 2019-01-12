@@ -1,4 +1,5 @@
-<div ref:container id="docs" class="panel" class:gone="!active">
+<!--Don't set it to panel class, CSS will break-->
+<div ref:container id="docs" class:gone="!active" on:click="onFocus()">
     <div id="function-doc-container" class:expand="!completionDoc">
         <div ref:functionDoc on:click="onClickFunctionDoc(event)" id="function-doc" class:text-docstring="functionDocType!=='html'">
             {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
@@ -141,7 +142,7 @@
         oncreate() {
             g.docs = this
             initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
-            nextFrame(() => { 
+            nextFrame(() => {
                 this.refs.splitBar.onmousedown = e => {
                     e.preventDefault()
                     const containerTop = this.refs.container.getBoundingClientRect().y
@@ -167,6 +168,9 @@
             }
         },
         methods: {
+            onFocus() {
+                g.setFocus([g.panelRight, this])
+            },
             getFunctionDocIfNeeded(cm, editor, cursor) {
                 if (cm.somethingSelected()) return
 
@@ -320,7 +324,6 @@
                 const { functionDoc } = this.get()
                 if (!editor || !functionDoc) return
                 const cm = editor.cm
-                //                const cursor = Pos(cm.getCursor())
                 if (event.ctrlKey || event.metaKey) {
                     // insert selected parameter with default values
                     const selectedText = getSelectedTextInDoc()

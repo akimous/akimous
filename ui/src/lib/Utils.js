@@ -1,3 +1,4 @@
+import g from './Globals'
 // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
 function binarySearch(array, target) {
     let lo = -1,
@@ -85,6 +86,8 @@ function activateView(parent, view) {
     if (view === oldView) return
     parent.set({ focus: view })
     if (!view) return
+    if (g.focusStack.includes(parent))
+        g.setFocus([parent, view])
     oldView && oldView.set({ active: false })
     view.set({ active: true })
 }

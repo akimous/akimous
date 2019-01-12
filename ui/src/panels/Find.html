@@ -1,4 +1,4 @@
-<div class="panel" class:gone="!active">
+<div class="panel" class:gone="!active" on:click="onFocus()">
     <div ref:find id="find">
         <div class="label">Find...</div>
         <TextInput ref:findText bind:value=findText coalesced="true"></TextInput>
@@ -58,7 +58,11 @@
                 replaceText: '',
             }
         },
-        methods: {}
+        methods: {
+            onFocus() {
+                g.setFocus([g.panelRight, this])
+            },
+        }
     }
 
 </script>

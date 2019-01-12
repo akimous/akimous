@@ -11,7 +11,7 @@ import {
     AFTER_OPERATOR,
 } from './completion/CompletionProvider'
 import { OPERATOR } from './RegexDefinitions'
-import { schedule } from '../lib/Utils'
+import { schedule, nextFrame } from '../lib/Utils'
 
 const NONE = -1
 
@@ -42,7 +42,7 @@ class CMEventDispatcher {
 
         function syncIfNeeded(changes) {
             // if has multiple changes exist (e.g. new line), must sync
-            if (!Number.isInteger(changes) && 
+            if (!Number.isInteger(changes) &&
                 (changes[0].text.length > 1 || changes[0].removed.length > 1))
                 editor.syncChanges(changes)
             else if (dirtyLine === NONE) return
@@ -66,8 +66,11 @@ class CMEventDispatcher {
         })
 
         cm.on('focus', () => {
-            editor.socket.send('Mtime', {})
-            g.setFocus([g.panelMiddle, editor])
+            // prevent panel clicks (e.g. in Docs) to interfere with focus
+            nextFrame(() => {
+                editor.socket.send('Mtime', {})
+                g.setFocus([g.panelMiddle, editor])
+            })
         })
 
         cm.on('blur', () => {
@@ -87,11 +90,11 @@ class CMEventDispatcher {
             }
             shouldDismissCompletionOnCursorActivity = true
             const cursor = cm.getCursor()
-            
+
             const movingToDifferentLine = cursor.line !== dirtyLine
             if (movingToDifferentLine)
                 syncIfNeeded(dirtyLine)
-            
+
             schedule(() => {
                 g.cursorPosition.set(cursor)
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
