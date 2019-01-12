@@ -28,6 +28,7 @@
 <script>
     import g from '../lib/Globals'
     import { binarySearch, initializeTabView } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
     import { Socket } from '../lib/Socket'
 
     function sortAndAddUid(arr) {
@@ -198,10 +199,10 @@
                             target.contextMenu()
                             break
                         case 'scrollUp':
-                            target.scroll(-0.1)
+                            target.scroll(-0.5)
                             break
                         case 'scrollDown':
-                            target.scroll(0.1)
+                            target.scroll(0.5)
                             break
                         default:
                             return true // if not handled
@@ -209,6 +210,7 @@
                     return false
                 }
             }
+            makeScrollable(this, this.refs.fileTree)
         },
         data() {
             return {
@@ -284,20 +286,6 @@
                     clientY: y + 10,
                     preventDefault() {}
                 })
-            },
-            scroll(amount) {
-                cancelAnimationFrame(this.currentAnimationId)
-                const fileTree = this.refs.fileTree
-                const vh = fileTree.getBoundingClientRect().height * amount
-                let d = 1.
-                const step = () => {
-                    fileTree.scrollTop += vh * d
-                    if (d > 0.1) {
-                        d -= 0.1
-                        this.currentAnimationId = requestAnimationFrame(step)
-                    }
-                }
-                step()
             },
             moveToTopIfNothingSelected() {
                 if (g.focus.constructor.name !== 'FileTreeNode' || !g.focus.get().parent) {

@@ -1,23 +1,21 @@
-<div class="panel" class:gone="!active" on:click="onFocus()">
-    <div ref:find id="find">
-        <div class="label">Find...</div>
-        <TextInput ref:findText bind:value=findText coalesced="true"></TextInput>
-        <div class="button-group">
-            <Button label="Aa" corner="0001"></Button>
-            <Button label=".*"></Button>
-            <Button label="=" corner="0010"></Button>
-            <span class="gap"></span>
-            <Button label="<i class='fas fa-caret-left'></i>" corner="0001"></Button>
-            <Button label="<i class='fas fa-caret-right'></i>" corner="0010"></Button>
-        </div>
-        
-        <div class="label">Replace with...</div>
-        <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
-        <div class="button-group">
-            <Button label="Replace" corner="0001"></Button>
-            <Button label="Batch"></Button>
-            <Button label="All" corner="0010"></Button>
-        </div>
+<div ref:panel id="find" class="panel" class:gone="!active" on:click="onFocus()">
+    <div class="label">Find...</div>
+    <TextInput ref:findText bind:value=findText coalesced="true"></TextInput>
+    <div class="button-group">
+        <Button label="Aa" corner="0001"></Button>
+        <Button label=".*"></Button>
+        <Button label="=" corner="0010"></Button>
+        <span class="gap"></span>
+        <Button label="<i class='fas fa-caret-left'></i>" corner="0001"></Button>
+        <Button label="<i class='fas fa-caret-right'></i>" corner="0010"></Button>
+    </div>
+
+    <div class="label">Replace with...</div>
+    <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
+    <div class="button-group">
+        <Button label="Replace" corner="0001"></Button>
+        <Button label="Batch"></Button>
+        <Button label="All" corner="0010"></Button>
     </div>
 </div>
 
@@ -25,12 +23,12 @@
     .label {
         margin: .7rem 0 .2rem .5rem;
     }
-    
+
     .button-group {
         margin: 0 .3rem .3rem .3rem;
         display: flex;
     }
-    
+
     .gap {
         flex-grow: 5;
     }
@@ -41,6 +39,7 @@
 <script>
     import g from '../lib/Globals'
     import { initializeTabView } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
 
     export default {
         components: {
@@ -50,6 +49,7 @@
         oncreate() {
             g.find = this
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
+            makeScrollable(this, this.refs.panel)
         },
         data() {
             return {

@@ -251,7 +251,6 @@ function highlightSequentially(target, input) {
 
 export {
     binarySearch,
-    //    onIdle,
     schedule,
     nextFrame,
     initializeTabView,

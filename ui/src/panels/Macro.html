@@ -1,34 +1,32 @@
-<div class="panel" class:gone="!active" on:click="onFocus()">
-    <div ref:macro id="macro">
-        <div class="title">Clipboard</div>
-        <table id="clipboard" class="non-selectable">
-            {#each clipboard as text, i}
-            <tr on:click="paste(text)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
-                <td class="clipboard-index">{(i+1)%10}</td>
-                <td>
-                    <div class="clipboard-text">{text}</div>
-                </td>
-            </tr>
-            {:else}
-            <tr>
-                <td class="placeholder">Empty <br>(copy or cut something to fill in the clipboard)</td>
-            </tr>
-            {/each}
-        </table>
+<div ref:panel id="macro" class="panel" class:gone="!active" on:click="onFocus()">
+    <div class="title">Clipboard</div>
+    <table id="clipboard" class="non-selectable">
+        {#each clipboard as text, i}
+        <tr on:click="paste(text)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
+            <td class="clipboard-index">{(i+1)%10}</td>
+            <td>
+                <div class="clipboard-text">{text}</div>
+            </td>
+        </tr>
+        {:else}
+        <tr>
+            <td class="placeholder">Empty <br>(copy or cut something to fill in the clipboard)</td>
+        </tr>
+        {/each}
+    </table>
 
-        <div class="title">Macros<i class="edit-icon fas fa-edit"></i></div>
-        <TextInput ref:macroFormatWithShift bind:value=macroFormatWithShift>Print format with shift:&nbsp;</TextInput>
-        <table id="macros" class="non-selectable">
-            {#each Object.entries(macros).sort() as [hotkey, macro]}
-            <tr on:click="executeMacro(macro, event)">
-                <td class="macro-hotkey">{hotkey.toUpperCase()}</td>
-                <td class="macro-name">
-                    {macro.name}
-                </td>
-            </tr>
-            {/each}
-        </table>
-    </div>
+    <div class="title">Macros<i class="edit-icon fas fa-edit"></i></div>
+    <TextInput ref:macroFormatWithShift bind:value=macroFormatWithShift>Print format with shift:&nbsp;</TextInput>
+    <table id="macros" class="non-selectable">
+        {#each Object.entries(macros).sort() as [hotkey, macro]}
+        <tr on:click="executeMacro(macro, event)">
+            <td class="macro-hotkey">{hotkey.toUpperCase()}</td>
+            <td class="macro-name">
+                {macro.name}
+            </td>
+        </tr>
+        {/each}
+    </table>
 </div>
 
 <style>
@@ -74,7 +72,7 @@
         color: var(--basic-ui-font-color);
         padding-top: .7rem;
     }
-    
+
     .edit-icon:hover {
         filter: brightness(1.2);
     }
@@ -90,6 +88,7 @@
 <script>
     import g from '../lib/Globals'
     import { initializeTabView, schedule } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
     import { config, setConfig } from '../lib/ConfigManager'
 
     export default {
@@ -103,12 +102,12 @@
             // load config
             const { macroFormatWithShift } = config.macro
             this.set({ macroFormatWithShift })
-            
+
             // set listener
             this.refs.macroFormatWithShift.set({
                 onChange: this.onChangeMacroFormat
             })
-            
+
             // load macros
             const macros = {}
             import('./macro.js').then(({ default: defaultMacros }) => {
@@ -123,6 +122,8 @@
                     this.set({ macros })
                 })
             })
+
+            makeScrollable(this, this.refs.panel)
         },
         data() {
             return {

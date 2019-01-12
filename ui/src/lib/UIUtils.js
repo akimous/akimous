@@ -47,7 +47,46 @@ function roundCorners(corners) {
     return `border-radius: ${c(0)} ${c(1)} ${c(2)} ${c(3)};`
 }
 
+function makeScrollable(component, target) {
+    if (!component.keyEventHandler)
+        component.keyEventHandler = {
+            handleKeyEvent() {
+                return true // not handled
+            },
+            handleCommand(command, target) {
+                switch (command) {
+                    case 'scrollUp':
+                        target.scroll(-0.5)
+                        break
+                    case 'scrollDown':
+                        target.scroll(0.5)
+                        break
+                    default:
+                        return true // if not handled
+                }
+                return false
+            }
+        }
+
+    let currentAnimationId, scrollUnit, t
+
+    function step() {
+        target.scrollTop += scrollUnit * t
+        if (--t < 1) return
+        currentAnimationId = requestAnimationFrame(step)
+    }
+    component.scroll = (amount) => {
+        cancelAnimationFrame(currentAnimationId)
+        const duration = 15 // frames
+        const numberOfSteps = (duration + 1) * duration / 2
+        scrollUnit = target.getBoundingClientRect().height * amount / numberOfSteps
+        t = duration
+        step()
+    }
+}
+
 export {
     dragElement,
     roundCorners,
+    makeScrollable,
 }

@@ -1,6 +1,6 @@
 <!--Don't set it to panel class, CSS will break-->
-<div ref:container id="docs" class:gone="!active" on:click="onFocus()">
-    <div id="function-doc-container" class:expand="!completionDoc">
+<div ref:panel id="docs" class:gone="!active" on:click="onFocus()">
+    <div ref:docContainer id="function-doc-container" class:expand="!completionDoc">
         <div ref:functionDoc on:click="onClickFunctionDoc(event)" id="function-doc" class:text-docstring="functionDocType!=='html'">
             {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
             <h2>Function Documentation</h2>
@@ -92,6 +92,7 @@
 <script>
     import throttle from 'lodash.throttle'
     import g from '../lib/Globals'
+    import { makeScrollable } from '../lib/UIUtils'
     import { initializeTabView, nextFrame, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
     import {
         scanInSameLevelOfBraces,
@@ -145,7 +146,7 @@
             nextFrame(() => {
                 this.refs.splitBar.onmousedown = e => {
                     e.preventDefault()
-                    const containerTop = this.refs.container.getBoundingClientRect().y
+                    const containerTop = this.refs.panel.getBoundingClientRect().y
                     const style = document.documentElement.style
                     document.onmousemove = throttle(e => {
                         style.setProperty('--function-doc-height', `${e.pageY - containerTop}px`)
@@ -154,6 +155,7 @@
                 this.refs.splitBar.onmouseup = () => {
                     document.onmousemove = null
                 }
+                makeScrollable(this, this.refs.docContainer)
             })
         },
         data() {

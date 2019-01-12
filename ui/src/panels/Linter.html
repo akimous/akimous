@@ -1,4 +1,4 @@
-<div id="linter" class="panel" class:gone="!active">
+<div ref:panel id="linter" class="panel" class:gone="!active" on:click="onFocus()">
     {#if !pyflakes && !spellChecker && !pylint}
     <table>
         <tr>
@@ -162,6 +162,7 @@
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
     import { initializeTabView } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
     const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
@@ -180,6 +181,8 @@
                 if (offlineLintType[k])
                     set.add(k)
             this.set({ offlineLintType: set })
+            
+            makeScrollable(this, this.refs.panel)
         },
         data() {
             return {
@@ -236,6 +239,9 @@
             }
         },
         methods: {
+            onFocus() {
+                g.setFocus([g.panelRight, this])
+            },
             clear() {
                 this.set({
                     offlineLints: [],
@@ -300,7 +306,7 @@
                     const lineContent = editor.cm.getLine(line)
                     editor.syncChanges(line, lineContent)
                 })
-            }
+            },
         }
     }
 
