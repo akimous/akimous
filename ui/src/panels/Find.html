@@ -9,7 +9,7 @@
         <Button label="<i class='fas fa-caret-left'></i>" corner="0001" on:click="find(-1)"></Button>
         <Button label="<i class='fas fa-caret-right'></i>" corner="0010" on:click="find(1)"></Button>
     </div>
-
+    {#if replaceMode}
     <div class="label">Replace with...</div>
     <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
     <div class="button-group">
@@ -17,6 +17,7 @@
         <Button label="Batch"></Button>
         <Button label="All" corner="0010"></Button>
     </div>
+    {/if}
 </div>
 
 <style>
@@ -63,6 +64,7 @@
                 findText: '',
                 replaceText: '',
                 highlightOverlay: null,
+                replaceMode: false,
             }
         },
         onstate({ changed, current, previous }) {

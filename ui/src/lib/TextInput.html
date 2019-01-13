@@ -1,5 +1,5 @@
 <div class="text-input" class:coalesced>
-    <span class="label"><slot></slot></span><input type="text" bind:value on:change="onChange()" placeholder="{placeholder}">
+    <span class="label"><slot></slot></span><input ref:input type="text" bind:value on:change="onChange()" placeholder="{placeholder}">
 </div>
 
 
@@ -68,7 +68,10 @@
                 const { onChange, value } = this.get()
                 if (onChange)
                     onChange(value)
-            }
+            },
+            focus() {
+                this.refs.input.focus()
+            },
         }
     }
 

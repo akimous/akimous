@@ -14,6 +14,20 @@ function bindHotkeys() {
     hotkey('mod + shift + s', () => {
         g.saveAll()
     })
+    
+    hotkey('mod + f', () => {
+        g.panelRight.activateView(g.find)
+        g.setFocus([g.panelRight, g.find])
+        g.find.set({ replaceMode: false })
+        g.find.refs.findText.focus()
+    })
+    
+    hotkey('mod + alt + f', () => {
+        g.panelRight.activateView(g.find)
+        g.setFocus([g.panelRight, g.find])
+        g.find.set({ replaceMode: true })
+        g.find.refs.findText.focus()
+    })
 
     hotkey('mod + `', () => {
         if (!g.activeEditor) return
