@@ -64,7 +64,6 @@ class HTTPHandler:
         if package == 'user':
             try:
                 path = config_directory / file
-                print(path, path.exists())
                 with open(path, 'rb') as f:
                     content = f.read()
                     return HTTPStatus.OK, Headers(header), content

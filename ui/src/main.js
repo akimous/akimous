@@ -14,7 +14,7 @@ import 'devicon/devicon-colors.css'
 
 let app
 const start = performance.now()
-g.projectRoot = '.'
+g.projectRoot = ['.']
 const socket = new Socket('')
     .addHandler('Connected', data => {
         g.clientId = data.clientId
@@ -23,6 +23,9 @@ const socket = new Socket('')
         app = new App({
             target: document.body,
         })
+    })
+    .addHandler('ProjectOpened', data => {
+        g.projectRoot = data.root
     })
     .connect(() => {
         console.info('Connected')

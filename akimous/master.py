@@ -63,6 +63,9 @@ async def set_config(msg, send, context):
 @handles('OpenProject')
 async def open_project(msg, send, context):
     shared_context = context.shared_context
-    shared_context.project_root = Path(msg['path']).resolve()
+    shared_context.project_root = Path(*msg['path']).resolve()
+    await send('ProjectOpened', {
+        'root': shared_context.project_root.parts
+    })
     SpellChecker(shared_context)
 

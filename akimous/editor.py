@@ -301,7 +301,7 @@ async def get_completion_docstring(msg, send, context):
         try:
             html = doc_generator.make_html(docstring)
         except Exception as e:
-            print(e)
+            log.error('Failed to get completion docstring', e)
     await send('CompletionDocstring', {'doc': html if html else docstring, 'type': 'html' if html else 'text'})
 
 
@@ -326,7 +326,7 @@ async def get_function_documentation(msg, send, context):
         try:
             html = doc_generator.make_html(docstring)
         except Exception as e:
-            print(e)
+            log.error('failed to generate function documentation', e)
 
     await send('FunctionDocumentation', {
         'doc': html if html else docstring,

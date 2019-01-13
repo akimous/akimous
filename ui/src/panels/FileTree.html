@@ -72,7 +72,6 @@
                 .connect(() => {
                     this.socket.send('OpenDir', {
                         path: this.get().root,
-                        isRoot: true
                     })
                 })
 
@@ -214,7 +213,7 @@
         },
         data() {
             return {
-                root: g.projectRoot,
+                root: [],
                 dirs: [],
                 files: [],
                 active: false,
