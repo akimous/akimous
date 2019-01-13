@@ -15,18 +15,6 @@ function bindHotkeys() {
         g.saveAll()
     })
 
-    // already triggered in realtime formatter
-    //    hotkey('mod + .', () => {
-    //        const editor = g.activeEditor
-    //        if (!editor) return
-    //        const cm = editor.cm
-    //        if (cm.somethingSelected()) return
-    //        let cursor = cm.getCursor('to')
-    //        cm.replaceRange('self', cursor, cursor, '+input')
-    //        cursor = cm.getCursor('to')
-    //        cm.replaceRange('.', cursor, cursor, '+input')
-    //    })
-
     hotkey('mod + `', () => {
         if (!g.activeEditor) return
         const { filePath } = g.activeEditor.get()
