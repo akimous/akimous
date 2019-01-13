@@ -6,8 +6,8 @@
         <Button label=".*"></Button>
         <Button label="=" corner="0010"></Button>
         <span class="gap"></span>
-        <Button label="<i class='fas fa-caret-left'></i>" corner="0001"></Button>
-        <Button label="<i class='fas fa-caret-right'></i>" corner="0010"></Button>
+        <Button label="<i class='fas fa-caret-left'></i>" corner="0001" on:click="find(-1)"></Button>
+        <Button label="<i class='fas fa-caret-right'></i>" corner="0010" on:click="find(1)"></Button>
     </div>
 
     <div class="label">Replace with...</div>
@@ -38,8 +38,13 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView } from '../lib/Utils'
+    import { initializeTabView, Pos } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
+
+    const overlayOption = {
+        opaque: true,
+        priority: 1,
+    }
 
     export default {
         components: {
@@ -50,18 +55,75 @@
             g.find = this
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)
+            this.searchState = {}
         },
         data() {
             return {
                 active: false,
                 findText: '',
                 replaceText: '',
+                highlightOverlay: null,
+            }
+        },
+        onstate({ changed, current, previous }) {
+            if (changed.highlightOverlay && g.activeEditor) {
+                const cm = g.activeEditor.cm
+                if (cm) {
+                    cm.removeOverlay(previous.highlightOverlay)
+                    cm.addOverlay(current.highlightOverlay, overlayOption)
+                }
+
             }
         },
         methods: {
             onFocus() {
                 g.setFocus([g.panelRight, this])
             },
+            find(direction) {
+                const cm = g.activeEditor.cm
+                const caseInsensitive = false
+                const action = direction > 0 ? 'findNext' : 'findPrevious'
+                const { findText } = this.get()
+                const { searchState } = this
+                const query = new RegExp(findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
+                    caseInsensitive ? 'gi' : 'g')
+                let searchCursor = cm.getSearchCursor(query,
+                    direction > 0 ? cm.getCursor('to') : cm.getCursor('from'))
+                let found = searchCursor[action]()
+
+                if (!found) { // wrap around
+                    searchCursor = cm.getSearchCursor(query,
+                        direction > 0 ? Pos(cm.firstLine(), 0) : Pos(cm.lastLine()))
+                    found = searchCursor[action]()
+                }
+                if (!found) return
+
+                let from = searchCursor.from()
+                let to = searchCursor.to()
+                const pos = { from, to }
+                cm.setSelection(from, to)
+                cm.scrollIntoView(pos, 20)
+                searchState.foundPos = pos
+
+                const highlightOverlay = {
+                    token(stream) {
+                        query.lastIndex = stream.pos
+                        const match = query.exec(stream.string)
+                        if (match && match.index == stream.pos) {
+                            stream.pos += match[0].length || 1
+                            if (stream.pos === to.ch && stream.lineOracle.line === to.line) {
+                                return 'searching-selected'
+                            }
+                            return 'searching'
+                        } else if (match) {
+                            stream.pos = match.index
+                        } else {
+                            stream.skipToEnd()
+                        }
+                    }
+                }
+                this.set({ highlightOverlay })
+            }
         }
     }
 

@@ -1,4 +1,6 @@
+import CodeMirror from 'codemirror'
 import g from './Globals'
+
 // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
 function binarySearch(array, target) {
     let lo = -1,
@@ -149,14 +151,7 @@ function getRem() {
     return parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
 
-function Pos(line, ch) {
-    if (ch !== undefined)
-        return { line, ch }
-    return {
-        line: line.line,
-        ch: line.ch
-    }
-}
+const Pos = CodeMirror.Pos
 
 function isStringOrComment(cm, pos) {
     const type = cm.getTokenTypeAt(pos)

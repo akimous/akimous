@@ -1,4 +1,4 @@
-<div class="non-selectable" class:active style="{roundCorners(corner)}" class:coalesced="corner.startsWith('00')">{@html label}</div>
+<div class="non-selectable" class:active style="{roundCorners(corner)}" class:coalesced="corner.startsWith('00')" on:click>{@html label}</div>
 
 
 <style>
@@ -41,12 +41,18 @@
                 label: '',
                 active: false,
                 corner: '0000',
+                callback: null
             }
         },
         helpers: {
             roundCorners,
         },
-        methods: {}
+        methods: {
+            onClick() {
+                console.log(this.get())
+                this.get().callback()
+            }
+        }
     }
 
 </script>
