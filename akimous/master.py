@@ -37,6 +37,7 @@ if config_file.exists():
 
 # create user macro template if not exists
 macro_file = config_directory / 'macro.js'
+config['macro']['userMacroFile'] = macro_file.parts
 if not macro_file.exists():
     template = resources.read_text('akimous.resources', 'macro.js')
     with open(macro_file, 'w') as f:

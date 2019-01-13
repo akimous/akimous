@@ -15,7 +15,7 @@
         {/each}
     </table>
 
-    <div class="title">Macros<i class="edit-icon fas fa-edit"></i></div>
+    <div class="title">Macros<i class="edit-icon fas fa-edit" on:click="editMacro()"></i></div>
     <TextInput ref:macroFormatWithShift bind:value=macroFormatWithShift>Print format with shift:&nbsp;</TextInput>
     <table id="macros" class="non-selectable">
         {#each Object.entries(macros).sort() as [hotkey, macro]}
@@ -182,6 +182,10 @@
                 setConfig('macro', {
                     macroFormatWithShift: newValue
                 })
+            },
+            editMacro() {
+                const path = config.macro.userMacroFile
+                g.panelMiddle.openFile(path, path[path.length - 1])
             }
         }
     }
