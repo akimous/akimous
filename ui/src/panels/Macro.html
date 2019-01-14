@@ -16,7 +16,7 @@
     </table>
 
     <div class="title">Macros<i class="edit-icon fas fa-edit" on:click="editMacro()"></i></div>
-    <TextInput ref:macroFormatWithShift bind:value=macroFormatWithShift>Print format with shift:&nbsp;</TextInput>
+    <TextInput ref:macroFormatWithShift bind:value=macroFormatWithShift on:change="onChangeMacroFormat()">Print format with shift:&nbsp;</TextInput>
     <table id="macros" class="non-selectable">
         {#each Object.entries(macros).sort() as [hotkey, macro]}
         <tr on:click="executeMacro(macro, event)">
@@ -103,11 +103,6 @@
             const { macroFormatWithShift } = config.macro
             this.set({ macroFormatWithShift })
 
-            // set listener
-            this.refs.macroFormatWithShift.set({
-                onChange: this.onChangeMacroFormat
-            })
-
             // load macros
             const macros = {}
             import('./macro.js').then(({ default: defaultMacros }) => {
@@ -131,6 +126,7 @@
                 clipboard: [],
                 macros: {},
                 macroFormatWithShift: '${NAME} =',
+                allowWhiteSpace: true,
             }
         },
         methods: {
@@ -178,9 +174,9 @@
             executeMacro(macro) {
                 macro.callback(g.activeEditor.cm, event, this)
             },
-            onChangeMacroFormat(newValue) {
+            onChangeMacroFormat() {
                 setConfig('macro', {
-                    macroFormatWithShift: newValue
+                    macroFormatWithShift: this.get().macroFormatWithShift
                 })
             },
             editMacro() {

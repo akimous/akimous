@@ -1,6 +1,6 @@
 <div ref:panel id="find" class="panel" class:gone="!active" on:click="onFocus()">
     <div class="label">Find...</div>
-    <TextInput ref:findText bind:value=findText coalesced="true"></TextInput>
+    <TextInput ref:findText bind:value=findText coalesced="true" on:keydown="onKeyDown()"></TextInput>
     <div class="button-group">
         <Button label="Aa" corner="0001"></Button>
         <Button label=".*"></Button>
@@ -80,6 +80,9 @@
         methods: {
             onFocus() {
                 g.setFocus([g.panelRight, this])
+            },
+            onKeyDown() {
+                console.info('key down')
             },
             find(direction) {
                 const cm = g.activeEditor.cm

@@ -283,7 +283,7 @@
                 return result
             },
             getActiveParameter(cm, cursor) {
-                const pos = Pos(cursor)
+                const pos = { line: cursor.line, ch: cursor.ch }
                 // backward search
                 let kwarg = scanInSameLevelOfBraces(cm, cursor, findParameterName)
                 if (!kwarg) {
