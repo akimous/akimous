@@ -28,6 +28,14 @@ function bindHotkeys() {
         g.find.set({ replaceMode: true })
         g.find.refs.findText.focus()
     })
+    
+    hotkey('mod + g', () => {
+        g.find.find(1)
+    })
+    
+    hotkey('mod + shift + g', () => {
+        g.find.find(-1)
+    })
 
     hotkey('mod + `', () => {
         if (!g.activeEditor) return

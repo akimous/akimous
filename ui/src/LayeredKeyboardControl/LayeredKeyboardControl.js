@@ -104,7 +104,8 @@ class LayeredKeyboardControl {
             if (e.isComposing) return true // do not interfere with IME
             switch (e.key) {
                 case 'Shift':
-                    break
+                    return true
+                    // break // this will interfere with hotkey
                 case ' ':
                     if (g.focus.get().allowWhiteSpace) return true
                     spacePressed = true
@@ -181,7 +182,8 @@ class LayeredKeyboardControl {
             switch (e.key) {
                 case 'Shift':
                     g.activeEditor.cm.display.shift = false
-                    break
+                    return true
+                    // break // this will interfere with hotkey
                 case ' ':
                     spacePressed = false
                     if (g.focus.get().allowWhiteSpace) return true
