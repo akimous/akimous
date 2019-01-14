@@ -2,12 +2,12 @@
     <div class="label">Find...</div>
     <TextInput ref:findText bind:value=findText coalesced="true" on:keydown="onKeyDown(event)"></TextInput>
     <div class="button-group">
-        <Button label="Aa" corner="0001"></Button>
-        <Button label=".*"></Button>
-        <Button label="=" corner="0010"></Button>
+        <Button label="Aa" corner="0001" active={caseSensitive} on:click="set({ caseSensitive: !caseSensitive })"></Button>
+        <Button label=".*" active={regex} on:click="set({ regex: !regex })"></Button>
+        <Button label="=" corner="0010" active={wholeWord} on:click="set({ wholeWord: !wholeWord })"></Button>
         <span class="gap"></span>
-        <Button label="<i class='fas fa-caret-left'></i>" corner="0001" on:click="find(-1)"></Button>
-        <Button label="<i class='fas fa-caret-right'></i>" corner="0010" on:click="find(1)"></Button>
+        <Button ref:findPrevious label="<i class='fas fa-caret-left'></i>" corner="0001" on:click="find(-1)"></Button>
+        <Button ref:findNext label="<i class='fas fa-caret-right'></i>" corner="0010" on:click="find(1)"></Button>
     </div>
     {#if replaceMode}
     <div class="label">Replace with...</div>
@@ -63,6 +63,9 @@
                 active: false,
                 findText: '',
                 replaceText: '',
+                caseSensitive: false,
+                regex: false,
+                wholeWord: false,
                 highlightOverlay: null,
                 replaceMode: false,
             }
@@ -84,8 +87,10 @@
             onKeyDown(event) {
                 if (event.key === 'Enter')
                     this.find(1)
+                return true
             },
             find(direction) {
+                (direction > 0 ? this.refs.findNext : this.refs.findPrevious).flash()
                 const cm = g.activeEditor.cm
                 const caseInsensitive = false
                 const action = direction > 0 ? 'findNext' : 'findPrevious'

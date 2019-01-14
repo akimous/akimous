@@ -1,4 +1,4 @@
-<div class="non-selectable" class:active style="{roundCorners(corner)}" class:coalesced="corner.startsWith('00')" on:click>{@html label}</div>
+<div class="non-selectable" class:active class:flashing style="{roundCorners(corner)}" class:coalesced="corner.startsWith('00')" on:click>{@html label}</div>
 
 
 <style>
@@ -17,10 +17,12 @@
         border-top: none;
     }
     
+    div.flashing,
     div:hover {
         filter: brightness(1.2);
     }
     
+    div.flashing,
     div:active,
     div.active {
         background: var(--primary5);
@@ -40,6 +42,7 @@
             return {
                 label: '',
                 active: false,
+                flashing: false,
                 corner: '0000',
                 callback: null
             }
@@ -51,6 +54,12 @@
             onClick() {
                 console.log(this.get())
                 this.get().callback()
+            },
+            flash() {
+                this.set({ flashing: true })
+                setTimeout(() => {
+                    this.set({ flashing: false })
+                }, 64)
             }
         }
     }
