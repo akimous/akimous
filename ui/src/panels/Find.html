@@ -44,7 +44,7 @@
 
     const overlayOption = {
         opaque: true,
-        priority: 1,
+        priority: 0,
     }
 
     export default {
@@ -57,32 +57,59 @@
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)
             this.searchState = {}
+            this.shouldRepaintOverlay = false
         },
         data() {
             return {
                 active: false,
+                replaceMode: false,
                 findText: '',
                 replaceText: '',
+
                 caseSensitive: false,
                 regex: false,
                 wholeWord: false,
+
                 highlightOverlay: null,
-                replaceMode: false,
+                textMark: null,
             }
         },
         onstate({ changed, current, previous }) {
+            if (!previous) return
             if (changed.highlightOverlay && g.activeEditor) {
-                const cm = g.activeEditor.cm
+                const editor = g.activeEditor
+                const cm = editor.cm
                 if (cm) {
                     cm.removeOverlay(previous.highlightOverlay)
-                    cm.addOverlay(current.highlightOverlay, overlayOption)
+                    if (current.highlightOverlay) {
+                        cm.setOption('highlightSelectionMatches', null) // pause highlightSelectionMatches
+                        editor.set({ hideTextSelection: true }) // disable text selection marking
+                        cm.addOverlay(current.highlightOverlay, overlayOption)
+                    } else { // resume highlightSelectionMatches
+                        const currentOption = cm.getOption('highlightSelectionMatches')
+                        if (editor.highlightSelectionMatches !== currentOption)
+                            cm.setOption('highlightSelectionMatches', editor.highlightSelectionMatches)
+                        editor.set({ hideTextSelection: false }) // resume text selection marking
+                    }
+                    this.shouldRepaintOverlay = false
                 }
-
+            }
+            if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord)
+                this.shouldRepaintOverlay = true
+            if (changed.textMark && previous.textMark) {
+                previous.textMark.clear()
             }
         },
         methods: {
             onFocus() {
                 g.setFocus([g.panelRight, this])
+            },
+            clearHighlight() {
+                this.set({
+                    highlightOverlay: null,
+                    textMark: null
+                })
+                this.shouldRepaintOverlay = true
             },
             onKeyDown(event) {
                 if (event.key === 'Enter') {
@@ -117,15 +144,19 @@
                 cm.scrollIntoView(pos, 20)
                 searchState.foundPos = pos
 
+                const textMark = cm.markText(from, to, {
+                    className: 'cm-searching-marked'
+                })
+                this.set({ textMark })
+
+                if (!this.shouldRepaintOverlay)
+                    return
                 const highlightOverlay = {
                     token(stream) {
                         query.lastIndex = stream.pos
                         const match = query.exec(stream.string)
                         if (match && match.index == stream.pos) {
                             stream.pos += match[0].length || 1
-                            if (stream.pos === to.ch && stream.lineOracle.line === to.line) {
-                                return 'searching-selected'
-                            }
                             return 'searching'
                         } else if (match) {
                             stream.pos = match.index

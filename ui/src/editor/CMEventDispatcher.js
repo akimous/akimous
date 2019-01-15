@@ -71,6 +71,7 @@ class CMEventDispatcher {
                 editor.socket.send('Mtime', {})
                 g.setFocus([g.panelMiddle, editor])
             })
+            g.find.clearHighlight()
         })
 
         cm.on('blur', () => {

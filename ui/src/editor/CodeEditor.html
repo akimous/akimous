@@ -1,9 +1,11 @@
-<div ref:codeEditor class="tab-view" class:gone="!active" />
+<div ref:codeEditor class="tab-view" class:hideTextSelection class:gone="!active" />
 <Completion ref:completion></Completion>
 
 
 <style>
-
+    :global(.hideTextSelection .CodeMirror-selected) {
+        display: none;
+    }
 
 </style>
 
@@ -213,6 +215,15 @@
             })
 
             // Step 2: Open editor
+            this.highlightSelectionMatches = { // search/match-highlighter
+                style: 'matchhighlight',
+                minChars: 1,
+                delay: 50,
+                wordsOnly: false,
+                annotateScrollbar: false,
+                showToken: false,
+                trim: false
+            }
             const initializeCM = readFile.then(data => {
                 const { indentWithTabs, indentSize } = g.cursorPosition.get()
                 this.cm = CodeMirror(this.refs.codeEditor, {
@@ -226,15 +237,7 @@
                     // addons
                     matchBrackets: true, // edit/matchbrackets
                     autoCloseBrackets: true, // edit/closebrackets
-                    highlightSelectionMatches: { // search/match-highlighter
-                        style: 'matchhighlight',
-                        minChars: 1,
-                        delay: 50,
-                        wordsOnly: false,
-                        annotateScrollbar: false,
-                        showToken: false,
-                        trim: false
-                    },
+                    highlightSelectionMatches: this.highlightSelectionMatches,
                     styleActiveLine: true, // selection/active-line
 
                     foldGutter: true, // fold/foldgutter
@@ -317,7 +320,8 @@
                 fileName: '',
                 filePath: null,
                 active: false,
-                clean: true
+                clean: true,
+                hideTextSelection: false,
             }
         },
         computed: {
