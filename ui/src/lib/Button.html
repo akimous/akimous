@@ -52,14 +52,13 @@
         },
         methods: {
             onClick() {
-                console.log(this.get())
                 this.get().callback()
             },
             flash() {
                 this.set({ flashing: true })
                 setTimeout(() => {
                     this.set({ flashing: false })
-                }, 64)
+                }, 128)
             }
         }
     }

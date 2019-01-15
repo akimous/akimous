@@ -85,12 +85,13 @@
                 g.setFocus([g.panelRight, this])
             },
             onKeyDown(event) {
-                if (event.key === 'Enter')
+                if (event.key === 'Enter') {
                     this.find(1)
+                    this.refs.findNext.flash()
+                }
                 return true
             },
             find(direction) {
-                (direction > 0 ? this.refs.findNext : this.refs.findPrevious).flash()
                 const cm = g.activeEditor.cm
                 const caseInsensitive = false
                 const action = direction > 0 ? 'findNext' : 'findPrevious'

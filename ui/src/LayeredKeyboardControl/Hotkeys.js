@@ -31,10 +31,12 @@ function bindHotkeys() {
     
     hotkey('mod + g', () => {
         g.find.find(1)
+        g.find.refs.findNext.flash()
     })
     
     hotkey('mod + shift + g', () => {
         g.find.find(-1)
+        g.find.refs.findPrevious.flash()
     })
 
     hotkey('mod + `', () => {
