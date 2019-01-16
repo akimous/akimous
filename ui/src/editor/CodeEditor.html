@@ -1,4 +1,4 @@
-<div ref:codeEditor class="tab-view" class:hideTextSelection class:gone="!active" />
+<div ref:codeEditor class="tab-view" class:hideTextSelection="highlightOverlay" class:gone="!active" />
 <Completion ref:completion></Completion>
 
 
@@ -72,6 +72,10 @@
     /* eslint-enable */
 
     registerCMCommands(CodeMirror)
+    const overlayOption = {
+        opaque: true,
+        priority: 0,
+    }
 
     export default {
         components: {
@@ -314,6 +318,21 @@
             if (changed.active) {
                 tab.set({ active: current.active })
             }
+            if (changed.highlightOverlay) {
+                const { cm } = this
+                cm.removeOverlay(previous.highlightOverlay)
+                if (current.highlightOverlay) {
+                    cm.setOption('highlightSelectionMatches', false) // pause highlightSelectionMatches
+                    cm.addOverlay(current.highlightOverlay, overlayOption)
+                } else { // resume highlightSelectionMatches
+                    const currentOption = cm.getOption('highlightSelectionMatches')
+                    if (this.highlightSelectionMatches !== currentOption)
+                        cm.setOption('highlightSelectionMatches', this.highlightSelectionMatches)
+                }
+            }
+            if (changed.textMark && previous.textMark) {
+                previous.textMark.clear()
+            }
         },
         data() {
             return {
@@ -321,7 +340,8 @@
                 filePath: null,
                 active: false,
                 clean: true,
-                hideTextSelection: false,
+                highlightOverlay: null,
+                textMark: null,
             }
         },
         computed: {

@@ -42,9 +42,8 @@
     import { initializeTabView, Pos } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
 
-    const overlayOption = {
-        opaque: true,
-        priority: 0,
+    const textMarkOption = {
+        className: 'cm-searching-marked'
     }
 
     export default {
@@ -56,7 +55,6 @@
             g.find = this
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)
-            this.searchState = {}
             this.shouldRepaintOverlay = false
         },
         data() {
@@ -69,47 +67,16 @@
                 caseSensitive: false,
                 regex: false,
                 wholeWord: false,
-
-                highlightOverlay: null,
-                textMark: null,
             }
         },
         onstate({ changed, current, previous }) {
             if (!previous) return
-            if (changed.highlightOverlay && g.activeEditor) {
-                const editor = g.activeEditor
-                const cm = editor.cm
-                if (cm) {
-                    cm.removeOverlay(previous.highlightOverlay)
-                    if (current.highlightOverlay) {
-                        cm.setOption('highlightSelectionMatches', null) // pause highlightSelectionMatches
-                        editor.set({ hideTextSelection: true }) // disable text selection marking
-                        cm.addOverlay(current.highlightOverlay, overlayOption)
-                    } else { // resume highlightSelectionMatches
-                        const currentOption = cm.getOption('highlightSelectionMatches')
-                        if (editor.highlightSelectionMatches !== currentOption)
-                            cm.setOption('highlightSelectionMatches', editor.highlightSelectionMatches)
-                        editor.set({ hideTextSelection: false }) // resume text selection marking
-                    }
-                    this.shouldRepaintOverlay = false
-                }
-            }
             if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord)
                 this.shouldRepaintOverlay = true
-            if (changed.textMark && previous.textMark) {
-                previous.textMark.clear()
-            }
         },
         methods: {
             onFocus() {
                 g.setFocus([g.panelRight, this])
-            },
-            clearHighlight() {
-                this.set({
-                    highlightOverlay: null,
-                    textMark: null
-                })
-                this.shouldRepaintOverlay = true
             },
             onKeyDown(event) {
                 if (event.key === 'Enter') {
@@ -119,15 +86,16 @@
                 return true
             },
             find(direction) {
-                const cm = g.activeEditor.cm
+                const editor = g.activeEditor
+                if (!editor) return
+                const cm = editor.cm
                 const caseInsensitive = false
-                const action = direction > 0 ? 'findNext' : 'findPrevious'
                 const { findText } = this.get()
-                const { searchState } = this
                 const query = new RegExp(findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
                     caseInsensitive ? 'gi' : 'g')
                 let searchCursor = cm.getSearchCursor(query,
                     direction > 0 ? cm.getCursor('to') : cm.getCursor('from'))
+                const action = direction > 0 ? 'findNext' : 'findPrevious'
                 let found = searchCursor[action]()
 
                 if (!found) { // wrap around
@@ -140,32 +108,34 @@
                 let from = searchCursor.from()
                 let to = searchCursor.to()
                 const pos = { from, to }
-                cm.setSelection(from, to)
-                cm.scrollIntoView(pos, 20)
-                searchState.foundPos = pos
 
-                const textMark = cm.markText(from, to, {
-                    className: 'cm-searching-marked'
-                })
-                this.set({ textMark })
-
-                if (!this.shouldRepaintOverlay)
-                    return
-                const highlightOverlay = {
-                    token(stream) {
-                        query.lastIndex = stream.pos
-                        const match = query.exec(stream.string)
-                        if (match && match.index == stream.pos) {
-                            stream.pos += match[0].length || 1
-                            return 'searching'
-                        } else if (match) {
-                            stream.pos = match.index
-                        } else {
-                            stream.skipToEnd()
-                        }
+                cm.operation(() => {
+                    cm.setOption('highlightSelectionMatches', false)
+                    const changesToEditor = {
+                        textMark: cm.markText(from, to, textMarkOption)
                     }
-                }
-                this.set({ highlightOverlay })
+                    if (this.shouldRepaintOverlay || !editor.get().highlightOverlay) {
+                        const highlightOverlay = {
+                            token(stream) {
+                                query.lastIndex = stream.pos
+                                const match = query.exec(stream.string)
+                                if (match && match.index == stream.pos) {
+                                    stream.pos += match[0].length || 1
+                                    return 'searching'
+                                } else if (match) {
+                                    stream.pos = match.index
+                                } else {
+                                    stream.skipToEnd()
+                                }
+                            }
+                        }
+                        changesToEditor.highlightOverlay = highlightOverlay
+                        this.shouldRepaintOverlay = false
+                    }
+                    editor.set(changesToEditor)
+                    cm.setSelection(from, to)
+                    cm.scrollIntoView(pos, 20)
+                })
             }
         }
     }
