@@ -19,6 +19,7 @@
     </div>
     {/if}
 
+    <div class="label">N of {matches.length} matches</div>
     <table id="found-matches">
         {#each matches as match}
         <tr on:click="jumpTo(match)" class:highlight="currentLine === match.from.line">
@@ -96,7 +97,8 @@
             g.find = this
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)
-            this.shouldRepaintOverlay = false
+            this.matchListingJobId = 0
+            
         },
         data() {
             return {
@@ -110,7 +112,7 @@
                 wholeWord: false,
 
                 matches: [],
-                
+
                 currentLine: 0,
                 currentCh: 0,
             }
@@ -121,26 +123,36 @@
             if (!editor) return
             if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord) {
                 let startTime = performance.now()
+                cancelAnimationFrame(this.matchListingJobId)
                 const query = this.getQuery()
                 if (query) {
                     const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
                     let found
                     const { matches } = current
                     matches.length = 0
-                    while (found = searchCursor.findNext()) {
-                        const match = found[0]
-                        const { length } = match
-                        const { input, index } = found
-                        const head = input.substring(0, index)
-                        const tail = input.substring(index + length)
-                        const from = searchCursor.from()
-                        const to = searchCursor.to()
-                        const display = `${head}<em>${match}</em>${tail}`
-                        matches.push({ display, from, to })
-                        if (matches.length == 30)
-                            break
+                    
+                    let limit = 30
+                    const job = () => {
+                        while (found = searchCursor.findNext()) {
+                            const match = found[0]
+                            const { length } = match
+                            const { input, index } = found
+                            const head = input.substring(0, index)
+                            const tail = input.substring(index + length)
+                            const from = searchCursor.from()
+                            const to = searchCursor.to()
+                            const display = `${head}<em>${match}</em>${tail}`
+                            matches.push({ display, from, to })
+                            if (matches.length === limit) {
+                                limit += 100
+                                this.matchListingJobId = requestAnimationFrame(job)
+                                break
+                            }
+                        }
+                        this.set({ matches })
                     }
-                    this.set({ matches })
+                    job()
+                    
                     console.warn('took', performance.now() - startTime)
                     this.highlightOverlay = searchOverlayGenerator(query)
                     nextFrame(() => {
