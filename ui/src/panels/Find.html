@@ -18,6 +18,19 @@
         <Button label="All" corner="0010"></Button>
     </div>
     {/if}
+
+    <table id="found-matches">
+        {#each matches as match}
+        <tr on:click="jumpTo(match)" class:highlight="currentLine === match.from.line">
+            <td class="line-number">{match.from.line + 1}</td>
+            <td class="match">{@html match.display}</td>
+        </tr>
+        {:else}
+        <tr>
+            <td class="placeholder">No matches found.</td>
+        </tr>
+        {/each}
+    </table>
 </div>
 
 <style>
@@ -34,16 +47,44 @@
         flex-grow: 5;
     }
 
+    .match {
+        padding: .3rem .5rem;
+        background: var(--gray2);
+    }
+
+    .match :global(em) {
+        color: var(--brighter-yellow);
+        font-style: normal;
+    }
+
 </style>
 
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView, Pos } from '../lib/Utils'
+    import { initializeTabView, nextFrame, Pos } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
+    import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
     const textMarkOption = {
         className: 'cm-searching-marked'
+    }
+
+    function searchOverlayGenerator(query) {
+        return {
+            token(stream) {
+                query.lastIndex = stream.pos
+                const match = query.exec(stream.string)
+                if (match && match.index == stream.pos) {
+                    stream.pos += match[0].length || 1
+                    return 'searching'
+                } else if (match) {
+                    stream.pos = match.index
+                } else {
+                    stream.skipToEnd()
+                }
+            }
+        }
     }
 
     export default {
@@ -67,12 +108,48 @@
                 caseSensitive: false,
                 regex: false,
                 wholeWord: false,
+
+                matches: [],
+                
+                currentLine: 0,
+                currentCh: 0,
             }
         },
-        onstate({ changed, previous }) {
+        onstate({ changed, previous, current }) {
             if (!previous) return
-            if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord)
-                this.shouldRepaintOverlay = true
+            const editor = g.activeEditor
+            if (!editor) return
+            if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord) {
+                let startTime = performance.now()
+                const query = this.getQuery()
+                if (query) {
+                    const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
+                    let found
+                    const { matches } = current
+                    matches.length = 0
+                    while (found = searchCursor.findNext()) {
+                        const match = found[0]
+                        const { length } = match
+                        const { input, index } = found
+                        const head = input.substring(0, index)
+                        const tail = input.substring(index + length)
+                        const from = searchCursor.from()
+                        const to = searchCursor.to()
+                        const display = `${head}<em>${match}</em>${tail}`
+                        matches.push({ display, from, to })
+                        if (matches.length == 30)
+                            break
+                    }
+                    this.set({ matches })
+                    console.warn('took', performance.now() - startTime)
+                    this.highlightOverlay = searchOverlayGenerator(query)
+                    nextFrame(() => {
+                        editor.set({ highlightOverlay: this.highlightOverlay })
+                    })
+                } else {
+                    editor.set({ highlightOverlay: null })
+                }
+            }
         },
         methods: {
             onFocus() {
@@ -85,14 +162,18 @@
                 }
                 return true
             },
+            getQuery() {
+                const caseInsensitive = false
+                const { findText } = this.get()
+                if (!findText.length) return
+                return new RegExp(findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
+                    caseInsensitive ? 'gi' : 'g')
+            },
             find(direction) {
                 const editor = g.activeEditor
                 if (!editor) return
                 const cm = editor.cm
-                const caseInsensitive = false
-                const { findText } = this.get()
-                const query = new RegExp(findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
-                    caseInsensitive ? 'gi' : 'g')
+                const query = this.getQuery()
                 let searchCursor = cm.getSearchCursor(query,
                     direction > 0 ? cm.getCursor('to') : cm.getCursor('from'))
                 const action = direction > 0 ? 'findNext' : 'findPrevious'
@@ -111,32 +192,19 @@
 
                 cm.operation(() => {
                     cm.setOption('highlightSelectionMatches', false)
-                    const changesToEditor = {
-                        textMark: cm.markText(from, to, textMarkOption)
+                    const changeObject = { textMark: cm.markText(from, to, textMarkOption) }
+                    if (editor.get().highlightOverlay !== this.highlightOverlay) {
+                        changeObject.highlightOverlay = this.highlightOverlay
                     }
-                    if (this.shouldRepaintOverlay || !editor.get().highlightOverlay) {
-                        const highlightOverlay = {
-                            token(stream) {
-                                query.lastIndex = stream.pos
-                                const match = query.exec(stream.string)
-                                if (match && match.index == stream.pos) {
-                                    stream.pos += match[0].length || 1
-                                    return 'searching'
-                                } else if (match) {
-                                    stream.pos = match.index
-                                } else {
-                                    stream.skipToEnd()
-                                }
-                            }
-                        }
-                        changesToEditor.highlightOverlay = highlightOverlay
-                        this.shouldRepaintOverlay = false
-                    }
-                    editor.set(changesToEditor)
+                    editor.set(changeObject)
                     cm.setSelection(from, to)
                     cm.scrollIntoView(pos, 20)
                 })
-            }
+            },
+            jumpTo(match) {
+                const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
+                cm.extendSelection(match.from, match.to)
+            },
         }
     }
 
