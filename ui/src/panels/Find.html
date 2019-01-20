@@ -69,7 +69,7 @@
                 wholeWord: false,
             }
         },
-        onstate({ changed, current, previous }) {
+        onstate({ changed, previous }) {
             if (!previous) return
             if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord)
                 this.shouldRepaintOverlay = true
