@@ -19,7 +19,7 @@
     </div>
     {/if}
 
-    <div class="label">N of {matches.length} matches</div>
+    <div class="label" class:hidden="selectedIndex < 0">{selectedIndex + 1} of {matches.length} matches</div>
     <table id="found-matches">
         {#each matches as match}
         <tr class:highlight="selectedMatches.size === 0 && currentLine === match.from.line">
@@ -116,6 +116,7 @@
                 wholeWord: false,
 
                 matches: [],
+                selectedIndex: -1,
                 selectedMatches: new Set(),
 
                 currentLine: 0,
@@ -127,7 +128,6 @@
             const editor = g.activeEditor
             if (!editor) return
             if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord) {
-                let startTime = performance.now()
                 cancelAnimationFrame(this.matchListingJobId)
                 const query = this.getQuery()
                 if (query) {
@@ -200,11 +200,21 @@
                         direction > 0 ? Pos(cm.firstLine(), 0) : Pos(cm.lastLine()))
                     found = searchCursor[action]()
                 }
-                if (!found) return
+                if (!found) {
+                    this.set({ selectedIndex: -1 })
+                    return
+                }
 
                 let from = searchCursor.from()
                 let to = searchCursor.to()
                 const pos = { from, to }
+
+                nextFrame(() => {
+                    const { matches } = this.get()
+                    const selectedIndex = matches.findIndex(x => x.from.line === from.line && x.from.ch === from.ch)
+                    this.set({ selectedIndex })
+                    this.clearSelections()
+                })
 
                 cm.operation(() => {
                     const changeObject = { textMark: cm.markText(from, to, textMarkOption) }
@@ -219,29 +229,33 @@
             jumpTo(match) {
                 const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
                 cm.extendSelection(match.from, match.to)
+                const { matches } = this.get()
+                this.set({ selectedIndex: matches.indexOf(match) })
             },
             toggleSelection(match) {
                 const editor = g.activeEditor
                 if (!editor) return
                 const cm = editor.cm
-                
+
                 const { selectedMatches } = this.get()
                 if (selectedMatches.has(match)) {
                     selectedMatches.delete(match)
-                    const selections = []
-                    for (const s of selectedMatches) {
-                        selections.push({
-                            anchor: s.from,
-                            head: s.to
-                        })
-                    }
-                    cm.setSelections(selections)
                 } else {
                     selectedMatches.add(match)
-                    cm.addSelection(match.from, match.to)
                 }
+
+                const selections = []
+                for (const s of selectedMatches) {
+                    selections.push({
+                        anchor: s.from,
+                        head: s.to
+                    })
+                }
+                cm.setSelections(selections)
+
                 if (selectedMatches.size) {
                     editor.set({ highlightOverlay: null })
+                    this.set({ selectedIndex: -1 })
                 } else {
                     editor.set({ highlightOverlay: this.highlightOverlay })
                 }

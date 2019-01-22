@@ -264,6 +264,10 @@ span.tooltipped::after {
     display: none !important;
 }
 
+.hidden {
+    visibility: hidden !important;
+}
+
 .popup {
     z-index: 320;
     position: absolute;
