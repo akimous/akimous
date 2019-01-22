@@ -22,9 +22,9 @@
     <div class="label">N of {matches.length} matches</div>
     <table id="found-matches">
         {#each matches as match}
-        <tr on:click="jumpTo(match)" class:highlight="currentLine === match.from.line">
-            <td class="line-number">{match.from.line + 1}</td>
-            <td class="match">{@html match.display}</td>
+        <tr class:highlight="selectedMatches.size === 0 && currentLine === match.from.line">
+            <td class="line-number" class:selected="selectedMatches.has(match)" on:click="toggleSelection(match)">{match.from.line + 1}</td>
+            <td class="match" on:click="jumpTo(match)">{@html match.display}</td>
         </tr>
         {:else}
         <tr>
@@ -46,6 +46,10 @@
 
     .gap {
         flex-grow: 5;
+    }
+
+    td.selected {
+        background: var(--accent4);
     }
 
     .match {
@@ -98,7 +102,7 @@
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)
             this.matchListingJobId = 0
-            
+
         },
         data() {
             return {
@@ -112,6 +116,7 @@
                 wholeWord: false,
 
                 matches: [],
+                selectedMatches: new Set(),
 
                 currentLine: 0,
                 currentCh: 0,
@@ -130,7 +135,7 @@
                     let found
                     const { matches } = current
                     matches.length = 0
-                    
+
                     let limit = 30
                     const job = () => {
                         while (found = searchCursor.findNext()) {
@@ -152,8 +157,7 @@
                         this.set({ matches })
                     }
                     job()
-                    
-                    console.warn('took', performance.now() - startTime)
+
                     this.highlightOverlay = searchOverlayGenerator(query)
                     nextFrame(() => {
                         editor.set({ highlightOverlay: this.highlightOverlay })
@@ -203,7 +207,6 @@
                 const pos = { from, to }
 
                 cm.operation(() => {
-                    cm.setOption('highlightSelectionMatches', false)
                     const changeObject = { textMark: cm.markText(from, to, textMarkOption) }
                     if (editor.get().highlightOverlay !== this.highlightOverlay) {
                         changeObject.highlightOverlay = this.highlightOverlay
@@ -217,6 +220,38 @@
                 const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
                 cm.extendSelection(match.from, match.to)
             },
+            toggleSelection(match) {
+                const editor = g.activeEditor
+                if (!editor) return
+                const cm = editor.cm
+                
+                const { selectedMatches } = this.get()
+                if (selectedMatches.has(match)) {
+                    selectedMatches.delete(match)
+                    const selections = []
+                    for (const s of selectedMatches) {
+                        selections.push({
+                            anchor: s.from,
+                            head: s.to
+                        })
+                    }
+                    cm.setSelections(selections)
+                } else {
+                    selectedMatches.add(match)
+                    cm.addSelection(match.from, match.to)
+                }
+                if (selectedMatches.size) {
+                    editor.set({ highlightOverlay: null })
+                } else {
+                    editor.set({ highlightOverlay: this.highlightOverlay })
+                }
+                this.set({ selectedMatches })
+            },
+            clearSelections() {
+                const { selectedMatches } = this.get()
+                selectedMatches.clear()
+                this.set({ selectedMatches })
+            }
         }
     }
 

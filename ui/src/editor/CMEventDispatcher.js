@@ -70,6 +70,7 @@ class CMEventDispatcher {
             nextFrame(() => {
                 editor.socket.send('Mtime', {})
                 g.setFocus([g.panelMiddle, editor])
+                g.find.clearSelections()
             })
             editor.set({
                 highlightOverlay: null,

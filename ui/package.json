@@ -9,7 +9,7 @@
     "private": true,
     "devDependencies": {
         "@fortawesome/fontawesome-free": "^5.6.3",
-        "autoprefixer": "^9.4.5",
+        "autoprefixer": "^9.4.6",
         "browserslist": "^4.4.1",
         "cloc": "^2.4.0",
         "codemirror": "^5.42.2",
@@ -25,7 +25,7 @@
         "pluralize": "^7.0.0",
         "pressure": "^2.1.2",
         "primer-tooltips": "^1.5.11",
-        "rollup": "^1.1.1",
+        "rollup": "^1.1.2",
         "rollup-plugin-commonjs": "^9.2.0",
         "rollup-plugin-livereload": "^0.6.0",
         "rollup-plugin-node-resolve": "^4.0.0",
