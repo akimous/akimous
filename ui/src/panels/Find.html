@@ -19,7 +19,11 @@
     </div>
     {/if}
 
-    <div class="label" class:hidden="selectedIndex < 0">{selectedIndex + 1} of {matches.length} matches</div>
+    <div id="search-counter-wrapper">
+        <div id="search-counter" class="label" class:hidden="selectedIndex < 0">{selectedIndex + 1} of {matches.length} matches</div>
+        <span class="gap"></span>
+        <Button label="Select All" corner="1111" on:click="selectAll()"></Button>
+    </div>
     <table id="found-matches">
         {#each matches as match}
         <tr class:highlight="selectedMatches.size === 0 && currentLine === match.from.line">
@@ -62,6 +66,17 @@
         font-style: normal;
     }
 
+    #search-counter-wrapper {
+        margin: 1rem .3rem .3rem .5rem;
+        display: flex;
+    }
+    
+    #search-counter {
+        padding-right: 1rem;
+        margin: 0;
+        line-height: 2rem;
+    }
+    
 </style>
 
 
@@ -166,6 +181,24 @@
                     editor.set({ highlightOverlay: null })
                 }
             }
+            if (changed.selectedMatches) {
+                const { cm } = editor
+                const selections = []
+                for (const s of current.selectedMatches) {
+                    selections.push({
+                        anchor: s.from,
+                        head: s.to
+                    })
+                }
+                cm.setSelections(selections)
+                
+                if (current.selectedMatches.size) {
+                    editor.set({ highlightOverlay: null })
+                    this.set({ selectedIndex: -1 })
+                } else {
+                    editor.set({ highlightOverlay: this.highlightOverlay })
+                }
+            }
         },
         methods: {
             onFocus() {
@@ -233,9 +266,7 @@
                 this.set({ selectedIndex: matches.indexOf(match) })
             },
             toggleSelection(match) {
-                const editor = g.activeEditor
-                if (!editor) return
-                const cm = editor.cm
+                if (!g.activeEditor) return
 
                 const { selectedMatches } = this.get()
                 if (selectedMatches.has(match)) {
@@ -243,27 +274,22 @@
                 } else {
                     selectedMatches.add(match)
                 }
-
-                const selections = []
-                for (const s of selectedMatches) {
-                    selections.push({
-                        anchor: s.from,
-                        head: s.to
-                    })
-                }
-                cm.setSelections(selections)
-
-                if (selectedMatches.size) {
-                    editor.set({ highlightOverlay: null })
-                    this.set({ selectedIndex: -1 })
-                } else {
-                    editor.set({ highlightOverlay: this.highlightOverlay })
-                }
                 this.set({ selectedMatches })
             },
             clearSelections() {
                 const { selectedMatches } = this.get()
                 selectedMatches.clear()
+                this.set({ selectedMatches })
+            },
+            selectAll() {
+                if (!g.activeEditor) return
+                
+                let { selectedMatches, matches } = this.get()
+                if (selectedMatches.size === matches.length) {
+                    selectedMatches.clear()
+                } else {
+                    selectedMatches = new Set(matches)
+                }
                 this.set({ selectedMatches })
             }
         }
