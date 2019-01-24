@@ -13,9 +13,12 @@
     <div class="label">Replace with...</div>
     <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
     <div class="button-group">
-        <Button label="Replace" corner="0001"></Button>
-        <Button label="Batch"></Button>
-        <Button label="All" corner="0010"></Button>
+        <Button label="All" corner="0001"></Button>
+        <Button label="Batch" corner="0010"></Button>
+        <span class="gap"></span>
+        <Button label="<i class='fas fa-caret-left'></i>" corner="0001" on:click="replace(-1)"></Button>
+        <Button label="Replace" on:click="replace(0)"></Button>
+        <Button label="<i class='fas fa-caret-right'></i>" corner="0010" on:click="replace(1)"></Button>
     </div>
     {/if}
 
@@ -234,6 +237,7 @@
                     found = searchCursor[action]()
                 }
                 if (!found) {
+                    g.notificationBar.show('warning', 'Not found.')
                     this.set({ selectedIndex: -1 })
                     return
                 }
@@ -258,7 +262,30 @@
                     cm.setSelection(from, to)
                     cm.scrollIntoView(pos, 20)
                 })
+                return searchCursor
             },
+            replace(direction) {
+                const editor = g.activeEditor
+                if (!editor) return
+                const cm = editor.cm
+                const { replaceText } = this.get()
+                if (cm.somethingSelected()) {
+                    cm.replaceSelection(replaceText)
+                } else if (direction === 0) {
+                    g.notificationBar.show('warning', 'Nothing selected to be replaced.')
+                    return
+                } else {
+                    const searchCursor = this.find(direction)
+                    if (!searchCursor) {
+                        g.notificationBar.show('warning', 'No result found to be replaced.')
+                        return
+                    }
+                    searchCursor.replace(replaceText)
+                }
+                const searchCursor = this.find(direction)
+                if (!searchCursor)
+                    g.notificationBar.show('warning', 'No result found.')
+            },            
             jumpTo(match) {
                 const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
                 cm.extendSelection(match.from, match.to)

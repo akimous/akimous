@@ -120,8 +120,8 @@
                 }
                 const notification = this.queue.shift()
                 let timeout = undefined
-                if (notification.level === 'success') timeout = 1500
-                else if (notification.level === 'warning') timeout = 5000
+                if (notification.level === 'success') timeout = 1200
+                else if (notification.level === 'warning') timeout = 1800
                 if (timeout) {
                     this.timer = setTimeout(() => this.showNext(), timeout)
                 }
