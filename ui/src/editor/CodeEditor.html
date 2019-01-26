@@ -321,7 +321,6 @@
             if (changed.highlightOverlay) {
                 const { cm } = this
                 cm.removeOverlay(previous.highlightOverlay)
-                console.warn(current.highlightOverlay)
                 if (current.highlightOverlay && !cm.hasFocus()) {
                     cm.setOption('highlightSelectionMatches', false) // pause highlightSelectionMatches
                     cm.addOverlay(current.highlightOverlay, overlayOption)

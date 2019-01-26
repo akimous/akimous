@@ -240,10 +240,12 @@
             },
             getQuery() {
                 const caseInsensitive = false
-                const { findText, caseSensitive } = this.get()
+                const { findText, caseSensitive, regex, wholeWord } = this.get()
                 if (!findText.length) return
-                return new RegExp(findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
-                    caseSensitive ? 'g' : 'gi')
+                let regexString = findText
+                if (!regex) regexString = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
+                if (wholeWord) regexString = `\\b${regexString}\\b`
+                return new RegExp(regexString, caseSensitive ? 'g' : 'gi')
             },
             find(direction) {
                 const editor = g.activeEditor
