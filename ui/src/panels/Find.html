@@ -240,10 +240,10 @@
             },
             getQuery() {
                 const caseInsensitive = false
-                const { findText } = this.get()
+                const { findText, caseSensitive } = this.get()
                 if (!findText.length) return
                 return new RegExp(findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
-                    caseInsensitive ? 'gi' : 'g')
+                    caseSensitive ? 'g' : 'gi')
             },
             find(direction) {
                 const editor = g.activeEditor
