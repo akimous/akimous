@@ -59,21 +59,23 @@
                 this.rows.length = 0
                 this.dividers.length = 0
                 if (!current.items) return
-                for (const i of current.items) {
-                    if (i.divider) {
-                        const child = new ContextMenuDivider({
-                            target: this.refs.contextMenu,
-                        })
-                        this.dividers.push(child)
-                    } else {
-                        const child = new ContextMenuRow({
-                            target: this.refs.contextMenu,
-                            data: i
-                        })
-                        child.parent = this
-                        this.rows.push(child)
+                requestAnimationFrame(() => { // this.refs.contextMenu might be null if referenced immediatly
+                    for (const i of current.items) {
+                        if (i.divider) {
+                            const child = new ContextMenuDivider({
+                                target: this.refs.contextMenu,
+                            })
+                            this.dividers.push(child)
+                        } else {
+                            const child = new ContextMenuRow({
+                                target: this.refs.contextMenu,
+                                data: i
+                            })
+                            child.parent = this
+                            this.rows.push(child)
+                        }
                     }
-                }
+                })
             }
             if (changed.selectedRow) {
                 if (previous.selectedRow) previous.selectedRow.set({

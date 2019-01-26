@@ -3,6 +3,7 @@ import json
 
 from .spell_checker import SpellChecker
 from .websocket import register_handler
+from .file_finder import find_in_directory
 from importlib import resources
 from pathlib import Path
 
@@ -69,3 +70,5 @@ async def open_project(msg, send, context):
     })
     SpellChecker(shared_context)
 
+
+handles('FindInDirectory')(find_in_directory)

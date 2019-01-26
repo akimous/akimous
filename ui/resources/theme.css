@@ -235,7 +235,7 @@ span.tooltipped::after {
     width: 3rem;
     padding: .2rem .2rem 0 0;
     text-align: right;
-    color: var(--ui-font-color);
+    color: var(--primary7);
     background: var(--primary2);
     font-family: var(--monospace-font-family);
 }

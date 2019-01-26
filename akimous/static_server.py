@@ -72,7 +72,6 @@ class HTTPHandler:
 
         # serve other resource files
         try:
-
             try:
                 content = resources.read_binary(package, f'{file}.gz')
                 header['content-encoding'] = 'gzip'

@@ -15,6 +15,9 @@ const rowPreprocessor = {
     SpellingErrors([line, ch, token, highlight]) {
         return { line, ch, token, highlight }
     },
+    FoundInDirectory([file, matches]) {
+        return { file, matches }
+    }
 }
 
 class Socket {

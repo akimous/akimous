@@ -91,10 +91,16 @@
     }, {
         divider: true
     }, {
+        text: 'Find in directory...',
+        icon: 'fas fa-search',
+        callback: (target) => {
+            target.findIn()
+        }
+    }, {
         text: 'Rename',
         icon: 'fas fa-pen-square',
-        callback: (caller) => {
-            caller.rename()
+        callback: (target) => {
+            target.rename()
         }
     }, {
         text: 'Delete',
@@ -383,6 +389,12 @@
                     }
                     return node
                 }
+            },
+            findIn() {
+                g.find.set({ findInDirectory: this.getPath() })
+                g.panelRight.activateView(g.panelRight.refs.find)
+                g.setFocus([g.panelRight, g.find])
+                g.find.refs.findText.focus()
             }
         }
     }

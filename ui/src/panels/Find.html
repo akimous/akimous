@@ -13,8 +13,7 @@
     <div class="label">Replace with...</div>
     <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
     <div class="button-group">
-        <Button label="All" corner="0001"></Button>
-        <Button label="Batch" corner="0010"></Button>
+        <Button label="All" corner="0011"></Button>
         <span class="gap"></span>
         <Button label="<i class='fas fa-caret-left'></i>" corner="0001" on:click="replace(-1)"></Button>
         <Button label="Replace" on:click="replace(0)"></Button>
@@ -29,10 +28,17 @@
     </div>
     <table id="found-matches">
         {#each matches as match}
+        {#if typeof match === 'string'}
+        <tr class="matched-file">
+            <td class="line-number"><i class="fas fa-file"></i></td>
+            <td class="match">{match}</td>
+        </tr>
+        {:else}
         <tr class:highlight="selectedMatches.size === 0 && currentLine === match.from.line">
             <td class="line-number" class:selected="selectedMatches.has(match)" on:click="toggleSelection(match)">{match.from.line + 1}</td>
             <td class="match" on:click="jumpTo(match)">{@html match.display}</td>
         </tr>
+        {/if}
         {:else}
         <tr>
             <td class="placeholder">No matches found.</td>
@@ -73,13 +79,19 @@
         margin: 1rem .3rem .3rem .5rem;
         display: flex;
     }
-    
+
     #search-counter {
         padding-right: 1rem;
         margin: 0;
         line-height: 2rem;
     }
     
+    .matched-file .line-number {
+        color: var(--gray7);
+        text-align: center;
+        padding-right: 0;
+    }
+
 </style>
 
 
@@ -119,13 +131,32 @@
             g.find = this
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)
-            this.matchListingJobId = 0
-
+            this.jobAnimationFrameId = 0
+            g.masterSocket.addHandler('FoundInDirectory', ({ result }) => {
+                const m = []
+                for (const { file, matches } of result) {
+                    m.push(file)
+                    for (const [line, from, to, text] of matches) {
+                        const head = text.substring(0, from)
+                        const body = text.substring(from, to)
+                        const tail = text.substring(to)
+                        const display = `${head}<em>${body}</em>${tail}`
+                        m.push({
+                            from: Pos(line, from),
+                            to: Pos(line, to),
+                            display
+                        })
+                    }
+                }
+                this.set({ matches: m })
+            })
         },
         data() {
             return {
                 active: false,
                 replaceMode: false,
+                findInDirectory: null,
+
                 findText: '',
                 replaceText: '',
 
@@ -146,43 +177,10 @@
             const editor = g.activeEditor
             if (!editor) return
             if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord) {
-                cancelAnimationFrame(this.matchListingJobId)
-                const query = this.getQuery()
-                if (query) {
-                    const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
-                    let found
-                    const { matches } = current
-                    matches.length = 0
-
-                    let limit = 30
-                    const job = () => {
-                        while (found = searchCursor.findNext()) {
-                            const match = found[0]
-                            const { length } = match
-                            const { input, index } = found
-                            const head = input.substring(0, index)
-                            const tail = input.substring(index + length)
-                            const from = searchCursor.from()
-                            const to = searchCursor.to()
-                            const display = `${head}<em>${match}</em>${tail}`
-                            matches.push({ display, from, to })
-                            if (matches.length === limit) {
-                                limit += 100
-                                this.matchListingJobId = requestAnimationFrame(job)
-                                break
-                            }
-                        }
-                        this.set({ matches })
-                    }
-                    job()
-
-                    this.highlightOverlay = searchOverlayGenerator(query)
-                    nextFrame(() => {
-                        editor.set({ highlightOverlay: this.highlightOverlay })
-                    })
-                } else {
-                    editor.set({ highlightOverlay: null })
-                }
+                if (current.findInDirectory)
+                    this.findInDirectory()
+                else
+                    this.findInFile(editor)
             }
             if (changed.selectedMatches) {
                 const { cm } = editor
@@ -194,7 +192,7 @@
                     })
                 }
                 cm.setSelections(selections)
-                
+
                 if (current.selectedMatches.size) {
                     editor.set({ highlightOverlay: null })
                     this.set({ selectedIndex: -1 })
@@ -285,7 +283,7 @@
                 const searchCursor = this.find(direction)
                 if (!searchCursor)
                     g.notificationBar.show('warning', 'No result found.')
-            },            
+            },
             jumpTo(match) {
                 const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
                 cm.extendSelection(match.from, match.to)
@@ -310,7 +308,7 @@
             },
             selectAll() {
                 if (!g.activeEditor) return
-                
+
                 let { selectedMatches, matches } = this.get()
                 if (selectedMatches.size === matches.length) {
                     selectedMatches.clear()
@@ -318,7 +316,53 @@
                     selectedMatches = new Set(matches)
                 }
                 this.set({ selectedMatches })
-            }
+            },
+            findInFile(editor) {
+                cancelAnimationFrame(this.jobAnimationFrameId)
+                const query = this.getQuery()
+                if (query) {
+                    const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
+                    let found
+                    const { matches } = this.get()
+                    matches.length = 0
+
+                    let limit = 30
+                    const job = () => {
+                        while (found = searchCursor.findNext()) {
+                            const match = found[0]
+                            const { length } = match
+                            const { input, index } = found
+                            const head = input.substring(0, index)
+                            const tail = input.substring(index + length)
+                            const from = searchCursor.from()
+                            const to = searchCursor.to()
+                            const display = `${head}<em>${match}</em>${tail}`
+                            matches.push({ display, from, to })
+                            if (matches.length === limit) {
+                                limit += 100
+                                this.jobAnimationFrameId = requestAnimationFrame(job)
+                                break
+                            }
+                        }
+                        this.set({ matches })
+                    }
+                    job()
+
+                    this.highlightOverlay = searchOverlayGenerator(query)
+                    nextFrame(() => {
+                        editor.set({ highlightOverlay: this.highlightOverlay })
+                    })
+                } else {
+                    editor.set({ highlightOverlay: null })
+                }
+            },
+            findInDirectory() {
+                const { findInDirectory, findText } = this.get()
+                g.masterSocket.send('FindInDirectory', {
+                    path: findInDirectory,
+                    query: findText,
+                })
+            },
         }
     }
 
