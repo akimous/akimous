@@ -21,8 +21,26 @@
     </div>
     {/if}
 
-    <div id="search-counter-wrapper">
-        <div id="search-counter" class="label" class:hidden="selectedIndex < 0">{selectedIndex + 1} of {matches.length} matches</div>
+    {#if findInDirectory}
+    <div class="group-wrapper">
+        {#if matches.length > 2999}
+        <div class="message l-red"><i class="fas fa-exclamation-triangle"></i> Cannot display all results (too many matches)</div>
+        {:elseif overflow}
+        <div class="message l-orange"><i class="fas fa-exclamation-circle"></i> Search paused (too many matches)</div>
+        <span class="gap"></span>
+        <Button label="Continue" corner="1111" on:click="findInDirectory(2999)"></Button>
+        {/if}
+    </div>
+    {/if}
+    
+    <div class="group-wrapper">
+        <div id="search-counter" class="message" class:hidden="selectedIndex < 0 && !findInDirectory">
+            {#if findInDirectory}
+            {matches.length} matches in {nFiles} files
+            {:else}
+            {selectedIndex + 1} of {matches.length} matches
+            {/if}
+        </div>
         <span class="gap"></span>
         <Button label="Select All" corner="1111" on:click="selectAll()"></Button>
     </div>
@@ -75,17 +93,17 @@
         font-style: normal;
     }
 
-    #search-counter-wrapper {
-        margin: 1rem .3rem .3rem .5rem;
+    .group-wrapper {
+        margin: .3rem .3rem .3rem .5rem;
         display: flex;
+        align-items: center;
     }
 
-    #search-counter {
-        padding-right: 1rem;
+    .message {
+        padding-right: .5rem;
         margin: 0;
-        line-height: 2rem;
     }
-    
+
     .matched-file .line-number {
         color: var(--gray7);
         text-align: center;
@@ -132,7 +150,7 @@
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)
             this.jobAnimationFrameId = 0
-            g.masterSocket.addHandler('FoundInDirectory', ({ result }) => {
+            g.masterSocket.addHandler('FoundInDirectory', ({ result, overflow, nFiles }) => {
                 const m = []
                 for (const { file, matches } of result) {
                     m.push(file)
@@ -148,7 +166,11 @@
                         })
                     }
                 }
-                this.set({ matches: m })
+                this.set({
+                    matches: m,
+                    nFiles,
+                    overflow
+                })
             })
         },
         data() {
@@ -167,6 +189,10 @@
                 matches: [],
                 selectedIndex: -1,
                 selectedMatches: new Set(),
+
+                nFiles: 0,
+                overflow: false,
+                cannotDisplay: false,
 
                 currentLine: 0,
                 currentCh: 0,
@@ -356,11 +382,14 @@
                     editor.set({ highlightOverlay: null })
                 }
             },
-            findInDirectory() {
+            findInDirectory(limit) {
                 const { findInDirectory, findText } = this.get()
+                if (!limit)
+                    limit = findText.length > 1 ? 299 : 99
                 g.masterSocket.send('FindInDirectory', {
                     path: findInDirectory,
                     query: findText,
+                    limit
                 })
             },
         }
