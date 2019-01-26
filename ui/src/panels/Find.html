@@ -2,22 +2,27 @@
     <div class="label">Find...</div>
     <TextInput ref:findText bind:value=findText coalesced="true" on:keydown="onKeyDown(event)"></TextInput>
     <div class="button-group">
-        <Button label="Aa" corner="0001" active={caseSensitive} on:click="set({ caseSensitive: !caseSensitive })"></Button>
-        <Button label=".*" active={regex} on:click="set({ regex: !regex })"></Button>
-        <Button label="=" corner="0010" active={wholeWord} on:click="set({ wholeWord: !wholeWord })"></Button>
+        <Button corner="0001" active={caseSensitive} on:click="set({ caseSensitive: !caseSensitive })">Aa</Button>
+        <Button active={regex} on:click="set({ regex: !regex })">.*</Button>
+        {#if findInDirectory}
+        <Button corner="0000" active={wholeWord} on:click="set({ wholeWord: !wholeWord })"><i class="far fa-square"></i></Button>
+        <Button corner="0010" active={subdirectory} on:click="set({ subdirectory: !subdirectory })"><i class="fas fa-sitemap"></i></Button>
+        {:else}
+        <Button corner="0010" active={wholeWord} on:click="set({ wholeWord: !wholeWord })"><i class="far fa-square"></i></Button>
+        {/if}
         <span class="gap"></span>
-        <Button ref:findPrevious label="<i class='fas fa-caret-left'></i>" corner="0001" on:click="find(-1)"></Button>
-        <Button ref:findNext label="<i class='fas fa-caret-right'></i>" corner="0010" on:click="find(1)"></Button>
+        <Button ref:findPrevious corner="0001" on:click="find(-1)"><i class="fas fa-caret-left"></i></Button>
+        <Button ref:findNext corner="0010" on:click="find(1)"><i class="fas fa-caret-right"></i></Button>
     </div>
     {#if replaceMode}
     <div class="label">Replace with...</div>
     <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
     <div class="button-group">
-        <Button label="All" corner="0011"></Button>
+        <Button corner="0011">All</Button>
         <span class="gap"></span>
-        <Button label="<i class='fas fa-caret-left'></i>" corner="0001" on:click="replace(-1)"></Button>
-        <Button label="Replace" on:click="replace(0)"></Button>
-        <Button label="<i class='fas fa-caret-right'></i>" corner="0010" on:click="replace(1)"></Button>
+        <Button corner="0001" on:click="replace(-1)"><i class="fas fa-caret-left"></i></Button>
+        <Button on:click="replace(0)">Replace</Button>
+        <Button corner="0010" on:click="replace(1)"><i class="fas fa-caret-right"></i></Button>
     </div>
     {/if}
 
@@ -28,11 +33,11 @@
         {:elseif overflow}
         <div class="message l-orange"><i class="fas fa-exclamation-circle"></i> Search paused (too many matches)</div>
         <span class="gap"></span>
-        <Button label="Continue" corner="1111" on:click="findInDirectory(2999)"></Button>
+        <Button corner="1111" on:click="findInDirectory(2999)">Continue</Button>
         {/if}
     </div>
     {/if}
-    
+
     <div class="group-wrapper">
         <div id="search-counter" class="message" class:hidden="selectedIndex < 0 && !findInDirectory">
             {#if findInDirectory}
@@ -42,7 +47,7 @@
             {/if}
         </div>
         <span class="gap"></span>
-        <Button label="Select All" corner="1111" on:click="selectAll()"></Button>
+        <Button corner="1111" on:click="selectAll()">Select All</Button>
     </div>
     <table id="found-matches">
         {#each matches as match}
@@ -177,7 +182,6 @@
             return {
                 active: false,
                 replaceMode: false,
-                findInDirectory: null,
 
                 findText: '',
                 replaceText: '',
@@ -190,19 +194,22 @@
                 selectedIndex: -1,
                 selectedMatches: new Set(),
 
+                currentLine: 0,
+                currentCh: 0,
+
+                findInDirectory: null,
+                subdirectory: true,
+                
                 nFiles: 0,
                 overflow: false,
                 cannotDisplay: false,
-
-                currentLine: 0,
-                currentCh: 0,
             }
         },
         onstate({ changed, previous, current }) {
             if (!previous) return
             const editor = g.activeEditor
             if (!editor) return
-            if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord) {
+            if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord || changed.subdirectory) {
                 if (current.findInDirectory)
                     this.findInDirectory()
                 else
@@ -239,7 +246,6 @@
                 return true
             },
             getQuery() {
-                const caseInsensitive = false
                 const { findText, caseSensitive, regex, wholeWord } = this.get()
                 if (!findText.length) return
                 let regexString = findText
@@ -385,13 +391,18 @@
                 }
             },
             findInDirectory(limit) {
-                const { findInDirectory, findText } = this.get()
+                const { findInDirectory, findText, caseSensitive, regex, wholeWord, subdirectory } = this.get()
                 if (!limit)
                     limit = findText.length > 1 ? 299 : 99
+                let query = findText
+                if (!regex) query = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
+                if (wholeWord) query = `\\b${query}\\b`
                 g.masterSocket.send('FindInDirectory', {
                     path: findInDirectory,
-                    query: findText,
-                    limit
+                    query,
+                    limit,
+                    caseSensitive,
+                    subdirectory
                 })
             },
         }

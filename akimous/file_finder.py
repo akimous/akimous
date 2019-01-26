@@ -45,7 +45,9 @@ def search(file, regex):
 
 
 async def find_in_directory(msg, send, context):
-    regex = re.compile(msg['query'])
+    case_sensitive = msg['caseSensitive']
+    regex = re.compile(msg['query'], 0 if case_sensitive else re.IGNORECASE)
+    subdirectory = msg['subdirectory']
     limit = msg['limit']
     project_root = context.shared_context.project_root
     directory = Path(project_root, *msg['path'])
@@ -68,7 +70,7 @@ async def find_in_directory(msg, send, context):
             match_count += len(matches)
             if match_count > limit:
                 break
-        if match_count > limit:
+        if not subdirectory or match_count > limit:
             break
 
     await send('FoundInDirectory',
