@@ -391,7 +391,9 @@
                 }
             },
             findIn() {
-                g.find.set({ findInDirectory: this.getPath() })
+                const path = this.getPath()
+                if (!this.get().isDir) path.pop()
+                g.find.set({ findInDirectory: path })
                 g.panelRight.activateView(g.panelRight.refs.find)
                 g.setFocus([g.panelRight, g.find])
                 g.find.refs.findText.focus()
