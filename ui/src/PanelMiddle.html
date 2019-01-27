@@ -38,7 +38,7 @@
             this.activationHistoryIndex = 0
             if (g.dev)
                 schedule(() => {
-                    this.openFile(['akimous', 'demo', 'demo.py'], 'demo.py')
+                    this.openFile(['akimous', 'demo', 'demo.py'])
                 })
         },
         onstate({ changed, current, previous }) {
@@ -68,24 +68,37 @@
             getEditor(filePath) {
                 return this.pathToEditor[joinPath(filePath)]
             },
-            openFile(filePath, fileName) {
+            /**
+             * Open editor with specified file path. Switch to it if it is already opened.
+             * @param   {Array}      filePath path to the text file in parts. E.g. ['dir', 'dir', 'file.txt']
+             * @returns {CodeEditor} CodeEditor instance if it is already opened, undifined otherwise.
+             */
+            openFile(filePath, cmReadyCallback) {
                 let editor = this.getEditor(filePath)
                 if (!editor) {
-                    new CodeEditor({
+                    const openingEditor = new CodeEditor({
                         target: this.refs.panelMiddle,
                         data: {
                             filePath,
-                            fileName,
+                            fileName: filePath[filePath.length - 1],
                             parent: this
                         }
                     })
+                    openingEditor.cmReadyCallback = cmReadyCallback
                 }
                 this.activateFile(filePath)
+                if (cmReadyCallback && editor) cmReadyCallback(editor)
+                return editor
             },
             activateView(editor) {
                 this.activateFile(editor.get().filePath)
             },
             activateFile(filePath) {
+                const editor = this.getEditor(filePath)
+                if (g.activeEditor === editor) {
+                    return // already activated
+                }
+                
                 // write to activation history
                 if (this.activationHistory[this.activationHistoryIndex] != filePath) {
                     this.activationHistoryIndex = (this.activationHistoryIndex + 1) % MAX_ACTIVATION_HISTORY
@@ -93,7 +106,6 @@
                 }
                 // activate editor
                 g.activeEditor && (g.activeEditor.set({ active: false }))
-                const editor = this.getEditor(filePath)
                 this.set({ focus: editor })
                 if (!editor) {
                     g.linter.clear()
@@ -103,7 +115,7 @@
                 const { isMakefile } = editor.get()
                 g.cursorPosition.set({ isMakefile })
                 schedule(() => {
-                    g.find.set({ currentFilePath: joinPath(filePath) })
+                    g.find.set({ currentFilePath: filePath })
                 })
                 
                 const cm = editor.cm

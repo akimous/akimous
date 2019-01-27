@@ -283,13 +283,17 @@
                         e.preventDefault()
                     }
                 }
-
+                if (this.cmReadyCallback) {
+                    this.cmReadyCallback(this)
+                    this.cmReadyCallback = null
+                }
+                
                 schedule(() => {
                     this.outline = g.outline.generateOutline(this.cm)
                     if (g.activeEditor === this)
                         g.outline.set({ outlineItems: this.outline })
                 })
-            }, 500))
+            }))
         },
         ondestroy() {
             this.tab.destroy()

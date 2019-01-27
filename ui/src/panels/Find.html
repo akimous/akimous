@@ -57,7 +57,7 @@
             <td class="match">{joinPath(match)}</td>
         </tr>
         {:else}
-        <tr class:highlight="selectedMatches.size === 0 && currentLine === match.from.line && currentFilePath === match.filePath">
+        <tr class:highlight="selectedMatches.size === 0 && currentLine === match.from.line && isEqual(currentFilePath, match.filePath)">
             <td class="line-number" class:selected="selectedMatches.has(match)" on:click="toggleSelection(match)">{match.from.line + 1}</td>
             <td class="match" on:click="jumpTo(match)">{@html match.display}</td>
         </tr>
@@ -115,7 +115,7 @@
         text-align: center;
         padding-right: 0;
     }
-    
+
     .matched-file .match {
         color: var(--accent7);
         background: var(--accent2);
@@ -129,6 +129,7 @@
     import { initializeTabView, nextFrame, Pos, joinPath } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
+    import isEqual from 'lodash.isequal'
 
     const textMarkOption = {
         className: 'cm-searching-marked'
@@ -157,7 +158,8 @@
             Button: '../lib/Button.html',
         },
         helpers: {
-            joinPath
+            joinPath,
+            isEqual,
         },
         oncreate() {
             g.find = this
@@ -168,7 +170,6 @@
                 const m = []
                 for (const { file, matches } of result) {
                     m.push(file)
-                    const filePath = joinPath(file)
                     for (const [line, from, to, text] of matches) {
                         const head = text.substring(0, from)
                         const body = text.substring(from, to)
@@ -177,7 +178,7 @@
                         m.push({
                             from: Pos(line, from),
                             to: Pos(line, to),
-                            filePath,
+                            filePath: file,
                             display,
                         })
                     }
@@ -211,7 +212,7 @@
 
                 findInDirectory: null,
                 subdirectory: true,
-                
+
                 nFiles: 0,
                 overflow: false,
                 cannotDisplay: false,
@@ -229,20 +230,21 @@
             }
             if (changed.selectedMatches) {
                 const { cm } = editor
-                const selections = []
-                for (const s of current.selectedMatches) {
-                    selections.push({
-                        anchor: s.from,
-                        head: s.to
-                    })
-                }
-                cm.setSelections(selections)
-
+                const { filePath } = editor.get()
                 if (current.selectedMatches.size) {
+                    const selections = []
+                    for (const s of current.selectedMatches) {
+                        if (isEqual(s.filePath, filePath))
+                            selections.push({
+                                anchor: s.from,
+                                head: s.to
+                            })
+                    }
+                    cm.setSelections(selections)
                     editor.set({ highlightOverlay: null })
                     this.set({ selectedIndex: -1 })
-                } else {
-                    editor.set({ highlightOverlay: this.highlightOverlay })
+                } else if (current.selectedIndex === -1) {
+                    cm.setCursor(cm.getCursor()) // clear selections if nothing selected
                 }
             }
         },
@@ -331,8 +333,12 @@
                     g.notificationBar.show('warning', 'No result found.')
             },
             jumpTo(match) {
-                const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
-                cm.extendSelection(match.from, match.to)
+                g.panelMiddle.openFile(match.filePath, editor => {
+                    console.log('hello', editor, editor.cm, g.activeEditor, g.activeEditor.cm)
+                    const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
+                    cm.extendSelection(match.from, match.to)
+                    editor.set({ highlightOverlay: null })
+                })
                 const { matches } = this.get()
                 this.set({ selectedIndex: matches.indexOf(match) })
             },
@@ -368,7 +374,7 @@
                 const query = this.getQuery()
                 if (query) {
                     const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
-                    const filePath = joinPath(editor.get().filePath)
+                    const filePath = editor.get().filePath
                     let found
                     const { matches } = this.get()
                     matches.length = 0
