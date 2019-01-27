@@ -1,12 +1,12 @@
 <div id="indent-indicator" class="non-selectable">
-    <span on:click="switchIndent()">{isMakefile ? 'Tab Size' : indentDisplay}</span>:
+    <span on:click="switchIndent()" class="tool-bar-button tooltipped tooltipped-sw" aria-label="Click to switch between tabs/spaces.">{isMakefile ? 'Tab Size' : indentDisplay}</span>:
     {#if editingIndentSize}
     <input ref:indentSizeInput id="indent-size-input" type="number" max=12 min=1 step=1 on:blur="commitIndentSize()" value={indentSize}>
     {:else}
-    <span on:click="editIndentSize()">{indentSize}</span>
+    <span on:click="editIndentSize()" class="tool-bar-button tooltipped tooltipped-sw" aria-label="Click to edit indent size.">{indentSize}</span>
     {/if}
 </div>
-<div id="cursor-position" class="non-selectable" ref:cursorPosition> {line+1} : {ch} </div>
+<div id="cursor-position" class="non-selectable tool-bar-button tooltipped tooltipped-sw" aria-label="Cursor Position (line : column)" ref:cursorPosition> {line+1} : {ch} </div>
 
 <style>
     #cursor-position,
@@ -23,10 +23,6 @@
 
     #indent-indicator {
         width: 6rem;
-    }
-
-    #indentation-type {
-        display: inline-block;
     }
 
     #indent-size-input {

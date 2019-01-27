@@ -1,9 +1,10 @@
-<div ref:tabNumberHint id="tab-number-hint" class:gone="!active">
+{#if active}
+<div ref:tabNumberHint id="tab-number-hint">
     {#each numberOffsets as offset, i} {#if i < 9} 
        <span class="number l-orange" style="left:{offset}px">{i + 1}</span>
     {/if} {/each}
 </div>
-
+{/if}
 
 <style>
     #tab-number-hint {

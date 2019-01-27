@@ -126,7 +126,10 @@ class LayeredKeyboardControl {
                         g.tabNumber.set({
                             active: false
                         })
-                    }
+                    } else
+                        g.tabNumber.set({
+                            active: true
+                        })
                     return true // let it propagate
                 case 'Tab':
                     // When completion window is open, commit selection instead of increasing indent
@@ -200,6 +203,9 @@ class LayeredKeyboardControl {
                     this.macroMode = false
                     return true // let it propagate
                 case 'Meta':
+                    g.tabNumber.set({
+                        active: false
+                    })
                     this.macroMode = false
                     return true // let it propagate
                 default:
