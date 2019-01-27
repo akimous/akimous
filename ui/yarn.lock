@@ -2594,13 +2594,13 @@ isstream@~0.1.2:
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
   integrity sha1-R+Y/evVa+m+S4VAOaQ64uFKcCZo=
 
-jest-worker@^24.0.0-alpha.9:
-  version "24.0.0-alpha.9"
-  resolved "https://registry.yarnpkg.com/jest-worker/-/jest-worker-24.0.0-alpha.9.tgz#2d8a35687744461b5aa8ed553dc4d5a5da2ceab8"
-  integrity sha512-6lveyea6qbLdlQy+H+hn4IcEVgdqlI++KZU0tOdLeCliJ7myj7sDAO3fCVAcuMW9yxekIwrYclj472mP3wQdcQ==
+jest-worker@^24.0.0:
+  version "24.0.0"
+  resolved "https://registry.yarnpkg.com/jest-worker/-/jest-worker-24.0.0.tgz#3d3483b077bf04f412f47654a27bba7e947f8b6d"
+  integrity sha512-s64/OThpfQvoCeHG963MiEZOAAxu8kHsaL/rCMF7lpdzo7vgF0CtPml9hfguOMgykgH/eOm4jFP4ibfHLruytg==
   dependencies:
     merge-stream "^1.0.1"
-    supports-color "^5.5.0"
+    supports-color "^6.1.0"
 
 js-tokens@^4.0.0:
   version "4.0.0"
@@ -3901,17 +3901,17 @@ pressure@^2.1.2:
   resolved "https://registry.yarnpkg.com/pressure/-/pressure-2.1.2.tgz#5a7a58b7aab90f48db283012e470c1a6f9567aef"
   integrity sha512-ZSargPrrtyDGsWKFQvk3e5i/JM24pRTlb7Wu6RNtQiSzSAwdNw7hmB4+tQ/V2AhC3u4YGx3q2kMYEgtr/6ctXQ==
 
-primer-support@4.7.2:
-  version "4.7.2"
-  resolved "https://registry.yarnpkg.com/primer-support/-/primer-support-4.7.2.tgz#7c0e19361144ace2ecf2640793c8746855390185"
-  integrity sha512-WbfjjITtGV6iXQeaVPL+AzHj1Jv9RHJRp7kIu5ebFXwolWmCqTBpA/8VmWmssyeTfv8zR7iuCoT0UoBF+uGHww==
+primer-support@5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/primer-support/-/primer-support-5.0.0.tgz#d19c7cea59e8783400b9391943c8a2bb2ebddc5e"
+  integrity sha512-inUxVSsGirn5IkPxBhFsMBgm8ZHyfOUmOWyDCN8cBXtbaLiCIAjHsPI46yS1zrWxnn0J2kvq8haomkrlHGF08g==
 
-primer-tooltips@^1.5.11:
-  version "1.5.11"
-  resolved "https://registry.yarnpkg.com/primer-tooltips/-/primer-tooltips-1.5.11.tgz#35b583de25008433b443b7b9063825e145fa4cbb"
-  integrity sha512-r0C4gnzg8hChoKVU5hC+e7BlKM3gkO+W8L1o91RCDiguN9S0u/yo3DQwlVL68igvAP34NEYzchsZ82BkQkd1Dg==
+primer-tooltips@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/primer-tooltips/-/primer-tooltips-2.0.0.tgz#953f271f411db2e7665282500bb75650ac82e9d8"
+  integrity sha512-cNF3r3hG6sXLr71GbYyJw3BXCBhspW4FjzJ0Hx/BO+lP3XCrNAX/wqd57+vvnWSuaLif2O8s3/Prs3VBF50hVQ==
   dependencies:
-    primer-support "4.7.2"
+    primer-support "5.0.0"
 
 process-nextick-args@~1.0.6:
   version "1.0.7"
@@ -4297,10 +4297,10 @@ rollup-plugin-node-resolve@^4.0.0:
     is-module "^1.0.0"
     resolve "^1.8.1"
 
-rollup-plugin-postcss@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-postcss/-/rollup-plugin-postcss-2.0.0.tgz#3d42223d69763b6b5c685225a5b74eb45b3053cf"
-  integrity sha512-hN/1d/RAnCgvJlbjyTzp/0PNHA1AXVkOeIpvjpqzuwYoq9WUOm33HW703YfFhf0PCdvVtq8Y9HhF1Q3uZqJ84Q==
+rollup-plugin-postcss@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-postcss/-/rollup-plugin-postcss-2.0.1.tgz#d3867b973a6810164730553eb6d9d06375ea4454"
+  integrity sha512-23SufVXOceUu0xiVB5CF1CIRkBbRVYVmTWViBsTNpBi/F5KhXY0Fc8W5GZViNzUI2e14Fhdlb3UmIQtCs3iUKg==
   dependencies:
     chalk "^2.4.2"
     concat-with-sourcemaps "^1.0.5"
@@ -4333,14 +4333,14 @@ rollup-plugin-svelte@^5.0.1:
     rollup-pluginutils "^2.3.3"
     sourcemap-codec "^1.4.4"
 
-rollup-plugin-terser@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-terser/-/rollup-plugin-terser-4.0.2.tgz#78936d182ae7c4ecb313403ff5d5faad1b69e2aa"
-  integrity sha512-M2vY7NPMa3N77/avJSJyBva4nyBTiUM0kgMoWwEAeo2Edl3MW/GoM0069FzVrfMYP3xDqcVrDbaIOqVaBD8lHQ==
+rollup-plugin-terser@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-terser/-/rollup-plugin-terser-4.0.3.tgz#1525698d1b1cba724ed2c805e84b5ef7efc840e3"
+  integrity sha512-XJ9l7/SaNxiK5EfqYaMnMzCbnlXhxRUTm/U0O+4Nl03wTvidrotHokl+3Po/F5jnChtHseszehFpV4m0WpsrqA==
   dependencies:
     "@babel/code-frame" "^7.0.0"
     escodegen "^1.11.0"
-    jest-worker "^24.0.0-alpha.9"
+    jest-worker "^24.0.0"
     lave "^1.1.10"
     terser "^3.14.1"
 
