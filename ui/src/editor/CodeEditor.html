@@ -18,7 +18,7 @@
     import RealtimeFormatter from './RealtimeFormatter'
     import { CompletionProvider } from './completion/CompletionProvider'
     import { getIconByFileName } from '../lib/FileTypeToIcon'
-    import { schedule } from '../lib/Utils'
+    import { schedule, joinPath } from '../lib/Utils'
 
     /* eslint-disable */
     import CodeMirror from 'codemirror'
@@ -92,7 +92,7 @@
 
             const { fileName } = this.get()
             this.tab = this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
-            g.panelMiddle.pathToEditor[this.get().filePath.join('/')] = this
+            g.panelMiddle.pathToEditor[joinPath(this.get().filePath)] = this
 
             const mode = CodeMirror.findModeByFileName(fileName)
 
@@ -294,15 +294,15 @@
         ondestroy() {
             this.tab.destroy()
             g.linter.clear()
-            delete g.panelMiddle.pathToEditor[this.get().filePath.join('/')]
+            delete g.panelMiddle.pathToEditor[joinPath(this.get().filePath.join)]
         },
         onstate({ changed, current, previous }) {
             if (!previous) return
             if (changed.filePath) {
                 const newPath = current.filePath
-                g.panelMiddle.pathToEditor[newPath.join('/')] = this
+                g.panelMiddle.pathToEditor[joinPath(newPath)] = this
                 if (previous.filePath) {
-                    delete g.panelMiddle.pathToEditor[previous.filePath.join('/')]
+                    delete g.panelMiddle.pathToEditor[joinPath(previous.filePath)]
                     this.socket.send('Mtime', { newPath })
                 }
             }

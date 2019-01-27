@@ -1,5 +1,6 @@
 from functools import partial
 import json
+import os
 
 from .spell_checker import SpellChecker
 from .websocket import register_handler
@@ -49,7 +50,8 @@ if not macro_file.exists():
 async def connected(client_id, send, context):
     await send('Connected', {
         'clientId': client_id,
-        'config': config
+        'config': config,
+        'sep': os.sep
     })
 
 

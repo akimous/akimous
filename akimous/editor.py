@@ -135,7 +135,6 @@ async def post_content_change(context, send):
 @handles('OpenFile')
 async def open_file(msg, send, context):
     context.path = Path(*msg['filePath'])
-    log.warning(context.path)
     context.is_python = context.path.suffix in ('.py', '.pyx')
     context.pyflakes_reporter = PyflakesReporter()
     with open(context.path) as f:

@@ -51,13 +51,13 @@
     </div>
     <table id="found-matches">
         {#each matches as match}
-        {#if typeof match === 'string'}
+        {#if Array.isArray(match)}
         <tr class="matched-file">
             <td class="line-number"><i class="fas fa-file"></i></td>
-            <td class="match">{match}</td>
+            <td class="match">{joinPath(match)}</td>
         </tr>
         {:else}
-        <tr class:highlight="selectedMatches.size === 0 && currentLine === match.from.line">
+        <tr class:highlight="selectedMatches.size === 0 && currentLine === match.from.line && currentFilePath === match.filePath">
             <td class="line-number" class:selected="selectedMatches.has(match)" on:click="toggleSelection(match)">{match.from.line + 1}</td>
             <td class="match" on:click="jumpTo(match)">{@html match.display}</td>
         </tr>
@@ -110,9 +110,15 @@
     }
 
     .matched-file .line-number {
-        color: var(--gray7);
+        color: var(--accent7);
+        background: var(--accent3);
         text-align: center;
         padding-right: 0;
+    }
+    
+    .matched-file .match {
+        color: var(--accent7);
+        background: var(--accent2);
     }
 
 </style>
@@ -120,7 +126,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView, nextFrame, Pos } from '../lib/Utils'
+    import { initializeTabView, nextFrame, Pos, joinPath } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
@@ -150,6 +156,9 @@
             TextInput: '../lib/TextInput.html',
             Button: '../lib/Button.html',
         },
+        helpers: {
+            joinPath
+        },
         oncreate() {
             g.find = this
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
@@ -159,6 +168,7 @@
                 const m = []
                 for (const { file, matches } of result) {
                     m.push(file)
+                    const filePath = joinPath(file)
                     for (const [line, from, to, text] of matches) {
                         const head = text.substring(0, from)
                         const body = text.substring(from, to)
@@ -167,7 +177,8 @@
                         m.push({
                             from: Pos(line, from),
                             to: Pos(line, to),
-                            display
+                            filePath,
+                            display,
                         })
                     }
                 }
@@ -194,6 +205,7 @@
                 selectedIndex: -1,
                 selectedMatches: new Set(),
 
+                currentFilePath: [],
                 currentLine: 0,
                 currentCh: 0,
 
@@ -356,6 +368,7 @@
                 const query = this.getQuery()
                 if (query) {
                     const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
+                    const filePath = joinPath(editor.get().filePath)
                     let found
                     const { matches } = this.get()
                     matches.length = 0
@@ -371,7 +384,7 @@
                             const from = searchCursor.from()
                             const to = searchCursor.to()
                             const display = `${head}<em>${match}</em>${tail}`
-                            matches.push({ display, from, to })
+                            matches.push({ display, from, to, filePath })
                             if (matches.length === limit) {
                                 limit += 100
                                 this.jobAnimationFrameId = requestAnimationFrame(job)

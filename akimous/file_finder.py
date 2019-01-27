@@ -59,13 +59,13 @@ async def find_in_directory(msg, send, context):
     for root, dirs, files in os.walk(directory):
         for file in files:
             path = Path(root) / file
-            relative_path = str(path.relative_to(project_root))
-            if pathspec.match_file(relative_path):
+            relative_path = path.relative_to(project_root)
+            if pathspec.match_file(str(relative_path)):
                 continue
             matches = search(path, regex)
             if not matches:
                 continue
-            results.append((relative_path, matches))
+            results.append((relative_path.parts, matches))
             file_count += 1
             match_count += len(matches)
             if match_count > limit:

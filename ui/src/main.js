@@ -18,6 +18,7 @@ g.projectRoot = ['.']
 const socket = new Socket('')
     .addHandler('Connected', data => {
         g.clientId = data.clientId
+        g.sep = data.sep
         Object.assign(config, data.config)
         console.debug('first round-trip', performance.now() - start)
         app = new App({

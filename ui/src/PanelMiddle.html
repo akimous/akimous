@@ -21,7 +21,7 @@
 <script>
     import g from './lib/Globals'
     import CodeEditor from './editor/CodeEditor.html'
-    import { schedule } from './lib/Utils'
+    import { schedule, joinPath } from './lib/Utils'
 
     const MAX_ACTIVATION_HISTORY = 32
 
@@ -66,7 +66,7 @@
         },
         methods: {
             getEditor(filePath) {
-                return this.pathToEditor[filePath.join('/')]
+                return this.pathToEditor[joinPath(filePath)]
             },
             openFile(filePath, fileName) {
                 let editor = this.getEditor(filePath)
@@ -102,7 +102,10 @@
                 editor.set({ active: true })
                 const { isMakefile } = editor.get()
                 g.cursorPosition.set({ isMakefile })
-
+                schedule(() => {
+                    g.find.set({ currentFilePath: joinPath(filePath) })
+                })
+                
                 const cm = editor.cm
                 if (!cm) return
                 cm.focus()
@@ -117,7 +120,7 @@
                 })
             },
             renameDir(newDirPath, oldDirPath) {
-                const oldDirPathString = oldDirPath.join('/')
+                const oldDirPathString = joinPath(oldDirPath)
                 for (const oldPathString in this.pathToEditor) {
                     if (oldPathString.indexOf(oldDirPathString) !== 0) continue
                     const editor = this.pathToEditor[oldPathString]

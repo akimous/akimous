@@ -240,6 +240,10 @@ function highlightSequentially(target, input) {
     return result.join('').replace(/<\/em><em>/g, '')
 }
 
+function joinPath(array) {
+    return array.join(g.sep)
+}
+
 //function capitalize(s) {
 //    return s && s.charAt(0).toUpperCase() + s.slice(1)
 //}
@@ -260,5 +264,6 @@ export {
     inBrackets,
     inBraces,
     highlightSequentially,
+    joinPath,
     //capitalize,
 }
