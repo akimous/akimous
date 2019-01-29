@@ -11,8 +11,8 @@
         <Button corner="0010" active={wholeWord} on:click="set({ wholeWord: !wholeWord })"><i class="far fa-square"></i></Button>
         {/if}
         <span class="gap"></span>
-        <Button ref:findPrevious corner="0001" on:click="find(-1)"><i class="fas fa-caret-left"></i></Button>
-        <Button ref:findNext corner="0010" on:click="find(1)"><i class="fas fa-caret-right"></i></Button>
+        <Button ref:findPrevious corner="0001" on:click="findNext(-1)"><i class="fas fa-caret-left"></i></Button>
+        <Button ref:findNext corner="0010" on:click="findNext(1)"><i class="fas fa-caret-right"></i></Button>
     </div>
     {#if replaceMode}
     <div class="label">Replace with...</div>
@@ -227,6 +227,7 @@
                     this.findInDirectory()
                 else
                     this.findInFile(editor)
+                this.set({ selectedIndex: -1 })
             }
             if (changed.selectedMatches) {
                 const { cm } = editor
@@ -254,7 +255,7 @@
             },
             onKeyDown(event) {
                 if (event.key === 'Enter') {
-                    this.find(1)
+                    this.findNext(1)
                     this.refs.findNext.flash()
                 }
                 return true
@@ -267,7 +268,26 @@
                 if (wholeWord) regexString = `\\b${regexString}\\b`
                 return new RegExp(regexString, caseSensitive ? 'g' : 'gi')
             },
-            find(direction) {
+            findNext(direction) {
+                let { findInDirectory, selectedIndex, matches } = this.get()
+                if (findInDirectory) {
+                    const { length } = matches
+                    if (selectedIndex === -1) {
+                        selectedIndex = length - 1
+                    } else {
+                        selectedIndex = (selectedIndex + length + direction) % length
+                        selectedIndex += selectedIndex ? 0 : direction
+                        if (selectedIndex < 0) selectedIndex = length - 1
+                    }
+                    let match = matches[selectedIndex]
+                    if (Array.isArray(match)) {
+                        selectedIndex = (selectedIndex + length + direction) % length
+                        selectedIndex += selectedIndex ? 0 : direction
+                        match = matches[selectedIndex]
+                    }
+                    this.jumpTo(match)
+                    return
+                }
                 const editor = g.activeEditor
                 if (!editor) return
                 const cm = editor.cm
@@ -321,20 +341,19 @@
                     g.notificationBar.show('warning', 'Nothing selected to be replaced.')
                     return
                 } else {
-                    const searchCursor = this.find(direction)
+                    const searchCursor = this.findNext(direction)
                     if (!searchCursor) {
                         g.notificationBar.show('warning', 'No result found to be replaced.')
                         return
                     }
                     searchCursor.replace(replaceText)
                 }
-                const searchCursor = this.find(direction)
+                const searchCursor = this.findNext(direction)
                 if (!searchCursor)
                     g.notificationBar.show('warning', 'No result found.')
             },
             jumpTo(match) {
                 g.panelMiddle.openFile(match.filePath, editor => {
-                    console.log('hello', editor, editor.cm, g.activeEditor, g.activeEditor.cm)
                     const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
                     cm.extendSelection(match.from, match.to)
                     editor.set({ highlightOverlay: null })
@@ -411,6 +430,14 @@
             },
             findInDirectory(limit) {
                 const { findInDirectory, findText, caseSensitive, regex, wholeWord, subdirectory } = this.get()
+                if (!findText.length) {
+                    this.set({
+                        matches: [],
+                        nFiles: 0,
+                        overflow: false
+                    })
+                    return
+                }
                 if (!limit)
                     limit = findText.length > 1 ? 299 : 99
                 let query = findText
