@@ -298,7 +298,7 @@
         ondestroy() {
             this.tab.destroy()
             g.linter.clear()
-            delete g.panelMiddle.pathToEditor[joinPath(this.get().filePath.join)]
+            delete g.panelMiddle.pathToEditor[joinPath(this.get().filePath)]
         },
         onstate({ changed, current, previous }) {
             if (!previous) return

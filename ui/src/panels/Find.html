@@ -221,11 +221,10 @@
         onstate({ changed, previous, current }) {
             if (!previous) return
             const editor = g.activeEditor
-            if (!editor) return
             if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord || changed.subdirectory) {
                 if (current.findInDirectory)
                     this.findInDirectory()
-                else
+                else if (editor)
                     this.findInFile(editor)
                 this.set({ selectedIndex: -1 })
             }
@@ -285,7 +284,8 @@
                         selectedIndex += selectedIndex ? 0 : direction
                         match = matches[selectedIndex]
                     }
-                    this.jumpTo(match)
+                    if (match)
+                        this.jumpTo(match)
                     return
                 }
                 const editor = g.activeEditor
