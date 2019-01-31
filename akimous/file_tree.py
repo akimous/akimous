@@ -19,12 +19,14 @@ class ChangeHandler(FileSystemEventHandler):
         log.info('on create %s', repr(event))
         # do not rely on event.is_directory, it might be wrong on Windows
         is_directory = Path(event.src_path).is_dir()
-        self.send = self.context.main_thread_send('DirCreated' if is_directory else 'FileCreated', {
-            'path': Path(event.src_path).relative_to(self.root).parts, })
+        self.send = self.context.main_thread_send(
+            'DirCreated' if is_directory else 'FileCreated', {
+                'path': Path(event.src_path).relative_to(self.root).parts,
+            })
 
     def on_deleted(self, event):
         log.info('on delete %s', repr(event))
-        self.context.main_thread_send('DirDeleted' if event.is_directory else 'FileDeleted',{
+        self.context.main_thread_send('DirDeleted' if event.is_directory else 'FileDeleted', {
             'path': Path(event.src_path).relative_to(self.root).parts,
         })
         for k in tuple(self.context.observed_watches.keys()):
@@ -39,10 +41,11 @@ class ChangeHandler(FileSystemEventHandler):
         print(event.event_type, event.src_path, event.dest_path)
         # do not rely on event.is_directory, it might be wrong on Windows
         is_directory = Path(event.dest_path).is_dir()
-        self.context.main_thread_send('DirRenamed' if is_directory else 'FileRenamed', {
-            'path': Path(event.src_path).relative_to(self.root).parts,
-            'newName': Path(event.dest_path).name
-        })
+        self.context.main_thread_send(
+            'DirRenamed' if is_directory else 'FileRenamed', {
+                'path': Path(event.src_path).relative_to(self.root).parts,
+                'newName': Path(event.dest_path).name
+            })
         for k in tuple(self.context.observed_watches.keys()):
             if k.startswith(event.src_path + '/'):
                 stop_monitor(k, self.context)
@@ -107,9 +110,9 @@ async def rename(msg, send, context):
     log.info('renaming %s to %s', old_path, new_path)
 
     if new_path.exists():
-        await send('Failed',
-                   f'Failed to rename "<b>{old_path.name}</b>" to "<b>{new_name}</b>". '
-                   f'Already exists.')
+        await send(
+            'Failed', f'Failed to rename "<b>{old_path.name}</b>" to "<b>{new_name}</b>". '
+            f'Already exists.')
     else:
         try:
             old_path.rename(new_path)

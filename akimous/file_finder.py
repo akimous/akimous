@@ -1,10 +1,10 @@
-import re
 import os
-from pathlib import Path
+import re
 from collections import namedtuple
-from pathspec import PathSpec
-from cachetools import cached, TTLCache
+from pathlib import Path
 
+from cachetools import TTLCache, cached
+from pathspec import PathSpec
 
 Match = namedtuple('Match', ('line', 'start', 'end', 'text'))
 
@@ -39,8 +39,8 @@ def search(file, regex):
     matches = []
     with open(file, errors='ignore') as f:
         for line, line_content in enumerate(f):
-            matches.extend(Match(line, m.start(), m.end(), line_content)
-                           for m in regex.finditer(line_content))
+            matches.extend(
+                Match(line, m.start(), m.end(), line_content) for m in regex.finditer(line_content))
     return matches
 
 
@@ -56,7 +56,7 @@ async def find_in_directory(msg, send, context):
     file_count = 0
     match_count = 0
 
-    for root, dirs, files in os.walk(directory):
+    for root, _, files in os.walk(directory):
         for file in files:
             path = Path(root) / file
             relative_path = path.relative_to(project_root)

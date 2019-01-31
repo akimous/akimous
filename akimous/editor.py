@@ -1,6 +1,6 @@
 import json
 import shlex
-from asyncio import create_subprocess_shell, subprocess, create_task
+from asyncio import create_subprocess_shell, create_task, subprocess
 from collections import namedtuple
 from functools import partial
 from importlib.resources import open_binary
@@ -13,14 +13,15 @@ from boltons.gcutils import toggle_gc_postcollect
 from logzero import logger as log
 from sklearn.externals import joblib
 
-from .master import config
 from .doc_generator import DocGenerator  # 165ms, 13M memory
-from .online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
+from .master import config
+from .modeling.feature.feature_definition import tokenize
+from .online_feature_extractor import \
+    OnlineFeatureExtractor  # 90ms, 10M memory
 from .pyflakes_reporter import PyflakesReporter
 from .utils import Timer, detect_doc_type
 from .websocket import register_handler
 from .word_completer import search_prefix
-from .modeling.feature.feature_definition import tokenize
 
 DEBUG = False
 MODEL_NAME = 'v10.model'
@@ -56,7 +57,7 @@ async def run_pylint(context, send):
         log.error(e)
 
 
-async def run_yapf(context, send):
+async def run_yapf(context):
     if not config['formatter']['yapf']:
         return
     try:
@@ -101,7 +102,8 @@ async def run_spell_checker(context, send):
         return
     with Timer('Spelling check'):
         tokens = tokenize(context.content)
-        await send('SpellingErrors', {'result': context.shared_context.spell_checker.check_spelling(tokens)})
+        await send('SpellingErrors',
+                   {'result': context.shared_context.spell_checker.check_spelling(tokens)})
 
 
 async def run_pyflakes(context, send):
@@ -150,7 +152,7 @@ async def open_file(msg, send, context):
 
 
 @handles('Reload')
-async def reload(msg, send, context):
+async def reload(_, send, context):
     with open(context.path) as f:
         content = f.read()
         context.content = content
@@ -183,7 +185,7 @@ async def save_file(msg, send, context):
         return
 
     await run_isort(context)
-    await run_yapf(context, send)
+    await run_yapf(context)
 
     mtime_after_formatting = context.path.stat().st_mtime
     if mtime_after_formatting != mtime_before_formatting:
@@ -225,10 +227,13 @@ async def predict(msg, send, context):
         if completions:
             context.currentCompletions = {completion.name: completion for completion in completions}
             feature_extractor = context.feature_extractor
-            feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc,
-                                             j.call_signatures())
+            feature_extractor.extract_online(completions, line_content, line_number, ch,
+                                             context.doc, j.call_signatures())
             scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
-            result = [PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s)) for c, s in zip(completions, scores)]
+            result = [
+                PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s))
+                for c, s in zip(completions, scores)
+            ]
         else:
             result = []
 
@@ -301,7 +306,10 @@ async def get_completion_docstring(msg, send, context):
             html = doc_generator.make_html(docstring)
         except Exception as e:
             log.error('Failed to get completion docstring', e)
-    await send('CompletionDocstring', {'doc': html if html else docstring, 'type': 'html' if html else 'text'})
+    await send('CompletionDocstring', {
+        'doc': html if html else docstring,
+        'type': 'html' if html else 'text'
+    })
 
 
 @handles('GetFunctionDocumentation')
@@ -327,11 +335,12 @@ async def get_function_documentation(msg, send, context):
         except Exception as e:
             log.error('failed to generate function documentation', e)
 
-    await send('FunctionDocumentation', {
-        'doc': html if html else docstring,
-        'fullName': signature.full_name,
-        'type': 'html' if html else 'text'
-    })
+    await send(
+        'FunctionDocumentation', {
+            'doc': html if html else docstring,
+            'fullName': signature.full_name,
+            'type': 'html' if html else 'text'
+        })
 
 
 @handles('FindUsages')
@@ -339,4 +348,7 @@ async def find_usage(msg, send, context):
     content = context.content
     j = jedi.Script(content, msg['line'] + 1, msg['ch'], context.path)
     usages = j.usages()
-    await send('UsageFound', {'pos': [(i.line - 1, i.column + 1) for i in usages], 'token': msg['token']})
+    await send('UsageFound', {
+        'pos': [(i.line - 1, i.column + 1) for i in usages],
+        'token': msg['token']
+    })
