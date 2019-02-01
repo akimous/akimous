@@ -4,7 +4,7 @@ import os
 
 from .spell_checker import SpellChecker
 from .websocket import register_handler
-from .file_finder import find_in_directory
+from .file_finder import find_in_directory, replace_all_in_directory
 from importlib import resources
 from pathlib import Path
 
@@ -74,3 +74,4 @@ async def open_project(msg, send, context):
 
 
 handles('FindInDirectory')(find_in_directory)
+handles('ReplaceAllInDirectory')(replace_all_in_directory)

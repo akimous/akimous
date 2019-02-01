@@ -75,3 +75,32 @@ async def find_in_directory(msg, send, context):
 
     await send('FoundInDirectory',
                dict(result=results, overflow=match_count > limit, nFiles=file_count))
+
+
+async def replace_all_in_directory(msg, send, context):
+    case_sensitive = msg['caseSensitive']
+    regex = re.compile(msg['query'], 0 if case_sensitive else re.IGNORECASE)
+    subdirectory = msg['subdirectory']
+    limit = msg['limit']
+    project_root = context.shared_context.project_root
+    directory = Path(project_root, *msg['path'])
+    pathspec = get_pathspec(project_root)
+    file_count = 0
+    match_count = 0
+
+    for root, _, files in os.walk(directory):
+        for file in files:
+            path = Path(root) / file
+            relative_path = path.relative_to(project_root)
+            if pathspec.match_file(str(relative_path)):
+                continue
+            # matches = search(path, regex)
+            # if not matches:
+            #     continue
+            # results.append((relative_path.parts, matches))
+            file_count += 1
+            # match_count += len(matches)
+            if match_count > limit:
+                break
+        if not subdirectory or match_count > limit:
+            break
