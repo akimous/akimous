@@ -16,7 +16,7 @@
         "css-element-queries": "^1.1.1",
         "devicon": "^2.0.0",
         "eslint": "^5.13.0",
-        "eslint-plugin-html": "^5.0.0",
+        "eslint-plugin-html": "^5.0.3",
         "keyboardjs": "^2.5.1",
         "lodash.isequal": "^4.5.0",
         "lodash.snakecase": "^4.1.1",
@@ -38,7 +38,7 @@
         "stylelint": "^9.10.1",
         "stylelint-config-recommended": "^2.1.0",
         "svelte": "^2.16.0",
-        "terser": "^3.14.1",
+        "terser": "^3.16.0",
         "xterm": "^3.11.0"
     },
     "dependencies": {},
