@@ -37,7 +37,7 @@
         "sortablejs": "^1.8.1",
         "stylelint": "^9.10.1",
         "stylelint-config-recommended": "^2.1.0",
-        "svelte": "^2.16.0",
+        "svelte": "^2.16.1",
         "terser": "^3.16.1",
         "xterm": "^3.11.0"
     },
