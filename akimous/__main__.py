@@ -23,6 +23,7 @@ with Timer('initialization'):
         from .websocket import start_server
         from .file_tree import * # 11ms, 4M memory
         from .editor import *  # 800ms, 80M memory
+        from .terminal import *
 
 
 def start():

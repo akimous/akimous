@@ -47,7 +47,7 @@
 
             // we must activate console upon initialization, or xterm will break
             schedule(() => {
-                this.activateView(this.refs.find)
+                this.activateView(this.refs.linter)
             })
         },
         onstate({ changed, current }) {

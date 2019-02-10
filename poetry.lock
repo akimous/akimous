@@ -337,6 +337,14 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "5.5.0"
 
 [[package]]
+category = "main"
+description = "Run a subprocess in a pseudo terminal"
+name = "ptyprocess"
+optional = false
+python-versions = "*"
+version = "0.6.0"
+
+[[package]]
 category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
@@ -624,7 +632,7 @@ python-versions = "*"
 version = "0.25.0"
 
 [metadata]
-content-hash = "2d88849cd27af4281d5ecf5dbfbf6b99b8e789d5d1608aeabb415b454456d44a"
+content-hash = "cccf225ca9b3cb12b6de21180dda5bff5d9d55df31c63865e993ebbd4e3a6571"
 python-versions = ">=3.7"
 
 [metadata.hashes]
@@ -665,6 +673,7 @@ pathspec = ["54a5eab895d89f342b52ba2bffe70930ef9f8d96e398cccf530d21fa0516a873"]
 pathtools = ["7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0"]
 pluggy = ["8ddc32f03971bfdf900a81961a48ccf2fb677cf7715108f85295c67405798616", "980710797ff6a041e9a73a5787804f848996ecaa6f8a1b1e08224a5894f2074a"]
 psutil = ["04d2071100aaad59f9bcbb801be2125d53b2e03b1517d9fed90b45eea51d297e", "1aba93430050270750d046a179c5f3d6e1f5f8b96c20399ba38c596b28fc4d37", "3ac48568f5b85fee44cd8002a15a7733deca056a191d313dbf24c11519c0c4a8", "96f3fdb4ef7467854d46ad5a7e28eb4c6dc6d455d751ddf9640cd6d52bdb03d7", "b755be689d6fc8ebc401e1d5ce5bac867e35788f10229e166338484eead51b12", "c8ee08ad1b716911c86f12dc753eb1879006224fd51509f077987bb6493be615", "d0c4230d60376aee0757d934020b14899f6020cd70ef8d2cb4f228b6ffc43e8f", "d23f7025bac9b3e38adc6bd032cdaac648ac0074d18e36950a04af35458342e8", "f0fcb7d3006dd4d9ccf3ccd0595d44c6abbfd433ec31b6ca177300ee3f19e54e"]
+ptyprocess = ["923f299cc5ad920c68f2bc0bc98b75b9f838b93b599941a6b63ddbc2476394c0", "d7cc528d76e76342423ca640335bd3633420dc1366f258cb31d05e865ef5ca1f"]
 py = ["bf92637198836372b520efcba9e020c330123be8ce527e535d185ed4b6f45694", "e76826342cefe3c3d5f7e8ee4316b80d1dd8a300781612ddbc765c17ba25a6c6"]
 pybloomfiltermmap = ["ad2305ea2e10830590ea50421bd87cb1355caf57268ecfd835f213f2622b44d9", "efcec29a2cc511dd4e631e4415f68fc450f1e10864db215db21bd8bea7d7bc62"]
 pyflakes = ["5e8c00e30c464c99e0b501dc160b13a14af7f27d4dffb529c556e30a159e231d", "f277f9ca3e55de669fba45b7393a1449009cff5a37d1af10ebb76c52765269cd"]

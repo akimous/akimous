@@ -1,8 +1,9 @@
 <div id="toolbar">
     <div id="buttons">
         <ToolbarButton ref:run iconClass="fas fa-play" title="Run" />
-        <ToolbarButton ref:run iconClass="fas fa-square" title="Stop" />
-        <ToolbarButton ref:run iconClass="fas fa-bug" title="Run" />
+        <ToolbarButton ref:runConfiguration iconClass="fas fa-caret-square-right" title="Run Configuration" />
+        <ToolbarButton ref:stop iconClass="fas fa-square" title="Stop" />
+        <ToolbarButton ref:debug iconClass="fas fa-bug" title="Debug" />
         <ToolbarButton ref:linterOptions iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
         <ToolbarButton ref:keyboardControlHint iconClass="fas fa-fw fa-keyboard" title="Keyboard Hint" />
         <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell" title="Notification History" />
@@ -66,6 +67,15 @@
                     g.linterOptions.set({
                         open: !g.linterOptions.get().open
                     })
+                }
+            })
+            this.refs.run.set({
+                callback: () => {
+                    if (!g.activeEditor) {
+                        return // TODO: should still run if the command is not relevant to the script opened
+                    }
+                    
+                    g.console.runScript()
                 }
             })
         },

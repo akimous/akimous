@@ -13,6 +13,7 @@
     import { initializeTabView, nextFrame } from '../lib/Utils'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
+    import { Socket } from '../lib/Socket'
     // import attach from 'xterm/lib/addons/attach/attach'
 
 
@@ -27,7 +28,6 @@
             if (changed.active) {
                 if (!this.initialized && current.active) {
                     this.initializeTerminal()
-                    this.initialized = true
                 }
 
             }
@@ -45,26 +45,64 @@
                 nextFrame(() => {
                     Terminal.applyAddon(fit)
                     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                    this.terminal = new Terminal({
+                    const terminal = new Terminal({
                         tabStopWidth: 4,
                         fontSize: 1.2 * rem,
                         fontFamily: 'Source Code Pro',
                         theme: {
                             foreground: '#CCC',
                             background: '#3F3F3F'
-                        }
+                        },
+                        convertEol: true,
                     })
-                    this.terminal.open(this.refs.terminal, false)
-                    this.terminal.on('focus', () => {
+                    this.terminal = terminal
+                    terminal.open(this.refs.terminal, false)
+                    terminal.on('focus', () => {
                         g.setFocus([g.panelRight, this])
                     })
 
+                    this.socket = new Socket('terminal')
+                        .addHandler('Stdout', message => {
+                            terminal.write(message)
+                        })
+                        .addHandler('Stderr', message => {
+                            terminal.write(message)
+                        })
+                        .addHandler('Started', () => {
+                            terminal.clear()
+                            terminal.reset()
+                        })
+                        .connect(() => {})
+
                     nextFrame(() => {
                         this.terminal.fit()
-                        for (let i = 0; i < 3; i++)
-                            this.terminal.write('blabla')
+                        terminal.write('Click "Run" on toolbar to run current script.\n')
+                        this.initialized = true
                     })
                 })
+            },
+            runScript() {
+                g.panelRight.activateView(g.panelRight.refs.console)
+
+                const run = () => {
+                    const { initialized } = this
+                    if (!initialized) {
+                        nextFrame(run)
+                        return
+                    }
+
+                    const { cols, rows } = this.terminal
+                    const { filePath } = g.activeEditor.get()
+                    this.terminal.clear()
+                    this.terminal.clear()
+                    this.socket.send('RunScript', {
+                        filePath,
+                        cols,
+                        rows
+                    })
+                }
+
+                run()
             }
         }
     }

@@ -54,6 +54,7 @@ yapf = "^0.25.0"
 pathspec = "^0.5.9"
 cachetools = "^3.0"
 appdirs = "^1.4"
+ptyprocess = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 pandas = "^0.24.0"

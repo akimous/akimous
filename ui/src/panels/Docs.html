@@ -235,8 +235,7 @@
             getParameterNameFromFunctionSignature(signature, index) {
                 const parameterList = this.getParameterListFromFunctionSignature(signature)
                 if (parameterList.length <= index) {
-                    console.warn('index out of bound')
-                    return
+                    return // index out of bound
                 }
                 let parameter = parameterList[index]
                 const end = parameter.search(/[\s,=:]/)

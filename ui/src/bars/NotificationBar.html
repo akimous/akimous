@@ -1,4 +1,4 @@
-<div ref:notificationBar id="notification-bar" class="{level}" class:gone="!active">
+<div ref:notificationBar id="notification-bar" class="{level} non-selectable" class:gone="!active">
     {@html message} {#each actions as action}
     <span class="action" on:click="doAction(action)">
         {action.name}

@@ -60,10 +60,8 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
         if path == '/':
             max_client_id += 1
             client_id = max_client_id
-            connected_handler = path_handler.get('_connected', None)
             context.shared_context = SimpleNamespace()
             shared_contexts[client_id] = context.shared_context
-            await connected_handler(client_id, send, context)
         else:
             msg = msgpack.unpackb(await ws.recv(), raw=False)
             client_id = msg.get('clientId', None)
@@ -72,6 +70,10 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
                 log.error('Do not receive client id. Closing connection')
                 ws.close()
                 return
+
+        connected_handler = path_handler.get('_connected', None)
+        if connected_handler:
+            await connected_handler(client_id, send, context)
 
         clients[client_id][path].add(ws)
         context.client_id = client_id
