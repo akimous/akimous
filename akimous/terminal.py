@@ -18,7 +18,9 @@ def reader(pty, send, context):
             send('Stdout', message)
         except EOFError:
             pty.wait()
-            send('Stdout', f'Process finished with exit code {pty.exitstatus}')
+            exit_code = pty.exitstatus
+            if exit_code is not None:
+                send('Stdout', f'(Process finished with exit code {exit_code})')
             return
 
 

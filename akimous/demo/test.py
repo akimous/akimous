@@ -1,10 +1,16 @@
+import sys
 import time
 
 import tqdm
+from logzero import logger
 
-print('中文')
+logger.info('中文 █▉▊▋▌▍▎▏')
+logger.warning('warn')
+logger.error('error')
 
-l = list(range(10))
+print('stderr', file=sys.stderr)
+
+l = list(range(200))
 
 for _ in tqdm.tqdm(l):
-    time.sleep(.2)
+    time.sleep(.05)

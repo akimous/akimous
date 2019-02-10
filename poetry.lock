@@ -629,10 +629,10 @@ description = "A formatter for Python code."
 name = "yapf"
 optional = false
 python-versions = "*"
-version = "0.25.0"
+version = "0.26.0"
 
 [metadata]
-content-hash = "cccf225ca9b3cb12b6de21180dda5bff5d9d55df31c63865e993ebbd4e3a6571"
+content-hash = "20743a85f56c556d56bcdedd27cbeb36bae19d9a12087e49e89ae81ef2b5d1d9"
 python-versions = ">=3.7"
 
 [metadata.hashes]
@@ -701,4 +701,4 @@ websockets = ["04b42a1b57096ffa5627d6a78ea1ff7fad3bc2c0331ffc17bc32a4024da7fea0"
 wordsegment = ["3dcc7cd1e9bba3f3ffe6a0e54d98377bc502fc34e9e9d8c8199ac5636924f023", "dd10e32fdb890079532ddffc1d179f839627af8345ecf52b84627a536449648d"]
 wrapt = ["4aea003270831cceb8a90ff27c4031da6ead7ec1886023b80ce0dfe0adf61533"]
 xgboost = ["012d79d731f866b42600c127ba3cade2a1046396ba6f425976ecc8deb03bc67b", "e75863efa986f24819a5adf4a9f81a611d70d90164cc0a31a7178ba9f517a6d7", "f7c8057610350b0b2f91e1ac7c034f2f03d233919d111759346559e628061e0c"]
-yapf = ["8aa7f9abdb97b4da4d3227306b88477982daafef0a96cc41639754ca31f46d55", "f2df5891481f94ddadfbf8ae8ae499080752cfb06005a31bbb102f3012f8b944"]
+yapf = ["edb47be90a56ca6f3075fe24f119a22225fbd62c66777b5d3916a7e9e793891b", "f58069d5e0df60c078f3f986b8a63acfda73aa6ebb7cd423f6eabd1cb06420ba"]

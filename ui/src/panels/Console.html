@@ -29,7 +29,6 @@
                 if (!this.initialized && current.active) {
                     this.initializeTerminal()
                 }
-
             }
         },
         data() {
@@ -49,6 +48,7 @@
                         tabStopWidth: 4,
                         fontSize: 1.2 * rem,
                         fontFamily: 'Source Code Pro',
+                        fontWeight: 400, // workaround for broken block (e.g. tqdm) rendering
                         theme: {
                             foreground: '#CCC',
                             background: '#3F3F3F'
