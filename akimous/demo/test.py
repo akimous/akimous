@@ -4,11 +4,14 @@ import time
 import tqdm
 from logzero import logger
 
-logger.info('中文 █▉▊▋▌▍▎▏')
+logger.debug('中文 █▉▊▋▌▍▎▏')
 logger.warning('warn')
 logger.error('error')
 
 print('stderr', file=sys.stderr)
+
+echo = input('write something')
+logger.info(echo)
 
 l = list(range(200))
 

@@ -60,12 +60,13 @@
                     terminal.on('focus', () => {
                         g.setFocus([g.panelRight, this])
                     })
+                    terminal.addDisposableListener('data', data => {
+                        console.log({data})
+                        this.socket.send('Stdin', data)
+                    })
 
                     this.socket = new Socket('terminal')
                         .addHandler('Stdout', message => {
-                            terminal.write(message)
-                        })
-                        .addHandler('Stderr', message => {
                             terminal.write(message)
                         })
                         .addHandler('Started', () => {

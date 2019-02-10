@@ -52,3 +52,7 @@ async def run_script(msg, send, context):
             None, partial(reader, pty, context.main_thread_send, context)))
 
 
+@handles('Stdin')
+async def stdin(msg, send, context):
+    if context.pty:
+        context.pty.write(msg)
