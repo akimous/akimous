@@ -1,8 +1,13 @@
 import os
+from pathlib import Path
 from time import perf_counter
 
 import psutil
 from logzero import logger as log
+from appdirs import user_config_dir
+
+
+config_directory = Path(user_config_dir('akimous'))
 
 
 def get_memory_usage():

@@ -4514,10 +4514,10 @@ sntp@1.x.x:
   dependencies:
     hoek "2.x.x"
 
-sortablejs@^1.8.1:
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/sortablejs/-/sortablejs-1.8.1.tgz#d19b66cf10aab9521a565b79766f2f3291c18278"
-  integrity sha512-r0bKxZYGUFgv/6DQSWW8TVJBBtupUn6TPnDABd4rlqNq+u94ct5+barZmYauPAQNCKwy56C1kg9Y9msAN7UPag==
+sortablejs@^1.8.2:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/sortablejs/-/sortablejs-1.8.2.tgz#5ffcfdaf7307b21c0770586186d1938c6c1a028a"
+  integrity sha512-Opa3q1nVMBM/XVrh9pCDh/BJFYCNuoFLLzT4FOVzgXocGrb4QpC/u0E4WVpUoIfhUfMSvP6c5SA5nK22vPqbFA==
 
 source-map-resolve@^0.5.0:
   version "0.5.2"

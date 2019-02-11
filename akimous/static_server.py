@@ -1,12 +1,11 @@
 import mimetypes
 from http import HTTPStatus
 from importlib import resources
-from pathlib import Path
 
 from logzero import logger as log
 from websockets.http import Headers
+from .utils import config_directory
 
-config_directory = Path.home() / '.akimous'
 mimetypes.init()
 
 

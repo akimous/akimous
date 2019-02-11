@@ -54,7 +54,7 @@ async def run_pylint(context, send):
             'result': context.linter_output,
         })
     except Exception as e:
-        log.error(e)
+        log.error('Error running pylint', e)
 
 
 async def run_yapf(context):

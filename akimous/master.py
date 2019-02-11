@@ -5,8 +5,10 @@ import os
 from .spell_checker import SpellChecker
 from .websocket import register_handler
 from .file_finder import find_in_directory, replace_all_in_directory
+from .utils import config_directory
 from importlib import resources
 from pathlib import Path
+from appdirs import user_config_dir
 
 handles = partial(register_handler, '')
 
@@ -25,7 +27,6 @@ def merge_dict(primary, secondary):
                 section[key] = value
 
 
-config_directory = Path.home() / '.akimous'
 if not config_directory.exists():
     config_directory.mkdir(parents=True, exist_ok=True)
 
