@@ -399,7 +399,7 @@ python-versions = "*"
 version = "2.3.1"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Test your project's packaging friendliness"
 name = "pyroma"
 optional = false
@@ -632,7 +632,7 @@ python-versions = "*"
 version = "0.26.0"
 
 [metadata]
-content-hash = "339b8941b3ebef024e4b3676e251f04858a7b2d94a6cddcbb353fa07fac3ddf1"
+content-hash = "ffcb616b3398ca4e672a0da7f598ee38083942ea0763baf51919cc58f36ef4c8"
 python-versions = ">=3.7"
 
 [metadata.hashes]
