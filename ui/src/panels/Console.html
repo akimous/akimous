@@ -61,7 +61,6 @@
                         g.setFocus([g.panelRight, this])
                     })
                     terminal.addDisposableListener('data', data => {
-                        console.log({data})
                         this.socket.send('Stdin', data)
                     })
 
@@ -91,12 +90,13 @@
                         nextFrame(run)
                         return
                     }
-
+                    const { mode } = g.runConfiguration.get()
                     const { cols, rows } = this.terminal
                     const { filePath } = g.activeEditor.get()
                     this.terminal.clear()
                     this.terminal.clear()
                     this.socket.send('RunScript', {
+                        mode,
                         filePath,
                         cols,
                         rows

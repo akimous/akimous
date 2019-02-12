@@ -34,15 +34,24 @@ async def connected(client_id, send, context):
 async def run_script(msg, send, context):
     root = context.shared_context.project_root
     path = Path(root, *msg['filePath']).resolve()
+    mode = msg['mode']
 
     if context.pty:
-        if not context.reader:
+        if context.reader:
             context.reader.cancel()
         context.pty.terminate(force=True)
         logger.info('terminated')
 
-    pty = PtyProcessUnicode.spawn(['python', shlex.quote(str(path.name))],
-                                  cwd=shlex.quote(str(path.parent)),
+    if mode == 'script':
+        command = ['python', shlex.quote(str(path))]
+    elif mode == 'module':
+        module = '.'.join(path.relative_to(root).parts[:-1] + (path.stem, ))
+        command = ['python', '-m', module]
+    else:
+        raise ValueError('unsupported mode')
+
+    pty = PtyProcessUnicode.spawn(command,
+                                  cwd=shlex.quote(str(root)),
                                   dimensions=(msg['rows'], msg['cols']))
     await send('Started', None)
 

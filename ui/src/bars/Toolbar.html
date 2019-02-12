@@ -15,6 +15,7 @@
 <TabNumber></TabNumber>
 <NotificationHistory></NotificationHistory>
 <LinterOptions></LinterOptions>
+<RunConfiguration></RunConfiguration>
 
 <style>
     #toolbar {
@@ -41,6 +42,7 @@
             NotificationBar: './NotificationBar.html',
             NotificationHistory: '../popups/NotificationHistory.html',
             LinterOptions: '../popups/LinterOptions.html',
+            RunConfiguration: '../popups/RunConfiguration.html',
             TabNumber: './TabNumber.html',
             ToolbarButton: './ToolbarButton.html',
             MenuBar: './MenuBar.html',
@@ -76,6 +78,13 @@
                     }
                     
                     g.console.runScript()
+                }
+            })
+            this.refs.runConfiguration.set({
+                callback: () => {
+                    g.runConfiguration.set({
+                        open: !g.runConfiguration.get().open
+                    })
                 }
             })
         },

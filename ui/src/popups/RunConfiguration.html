@@ -1,0 +1,152 @@
+{#if open}
+<div ref:runConfiguration id="run-configuration" class="popup">
+    <div class="container non-selectable">
+       <div class="title">Run Configuration</div>
+        <div class="message">Choose a way to run your program.</div>
+        <div class="title">Terminal</div>
+        <div class="option" on:click="set({ mode: 'script' })">
+            <span class="checkbox">
+                <i class="fa-circle { mode==='script'?'checked fas': 'far' }"></i>
+            </span>
+            <span class="description">Run current script</span>
+        </div>
+        <div class="option" on:click="set({ mode: 'module' })">
+            <span class="checkbox">
+                <i class="fa-circle { mode==='module'?'checked fas': 'far' }"></i>
+            </span>
+            <span class="description">Run current script as module</span>
+        </div>
+        <div class="option" on:click="set({ mode: 'shell' })">
+            <span class="checkbox">
+                <i class="fa-circle { mode==='shell'?'checked fas': 'far' }"></i>
+            </span>
+            <span class="description">Run custom shell commands</span>
+        </div>
+        
+        <div class="title">IPython</div>
+        <div class="option" on:click="set({ mode: 'all' })">
+            <span class="checkbox">
+                <i class="fa-circle { mode==='all'?'checked fas': 'far' }"></i>
+            </span>
+            <span class="description">Run all</span>
+        </div>
+        <div class="option" on:click="set({ mode: 'selected' })">
+            <span class="checkbox">
+                <i class="fa-circle { mode==='selected'?'checked fas': 'far' }"></i>
+            </span>
+            <span class="description">Run selected lines</span>
+        </div>
+        <div class="option" on:click="set({ mode: 'playground' })">
+            <span class="checkbox">
+                <i class="fa-circle { mode==='playground'?'checked fas': 'far' }"></i>
+            </span>
+            <span class="description">Real-time evaluation</span>
+        </div>
+    </div>
+</div>
+{/if}
+
+
+<style>
+    #run-configuration {
+        right: 8rem;
+        top: calc(var(--toolbar-height) + 0.5rem);
+        width: 24rem;
+        min-height: 10rem;
+        max-height: 40rem;
+    }
+
+    /* https://leaverou.github.io/bubbly/ */
+    #run-configuration:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 12rem;
+        width: 0;
+        height: 0;
+        border: 0.5rem solid transparent;
+        border-bottom-color: var(--popup-bg-color);
+        border-top: 0;
+        margin-top: -0.5rem;
+    }
+
+    .container {
+        min-height: 10rem;
+        max-height: 39rem;
+        overflow-y: scroll;
+        margin: 0 0 1rem 0;
+    }
+
+    .title {
+        color: var(--primary5);
+        font-weight: 400;
+        margin-top: 1.5rem;
+        padding-left: 1.5rem;
+    }
+
+    .message {
+        color: var(--gray7);
+        padding-left: 1.5rem;
+    }
+
+    .option {
+        color: var(--gray5);
+        padding: .4rem;
+        margin: .5rem 1.5rem;
+        font-size: var(--monospace-font-size);
+        border-radius: var(--default-radius);
+    }
+
+    .option:hover {
+        background: var(--primary8);
+
+    }
+
+    .checkbox {
+        padding-left: .4rem;
+        vertical-align: middle;
+        color: var(--primary7);
+    }
+
+    .checked {
+        color: var(--green);
+    }
+
+    .description {
+        padding-left: .4rem;
+        vertical-align: middle;
+    }
+
+    .option:hover .description {
+        color: var(--primary3);
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.runConfiguration = this
+        },
+        onstate({ changed, current }) {
+            if (changed.open && g.toolbar) {
+                g.app.set({
+                    popup: current.open ? this : null
+                })
+            }
+        },
+        data() {
+            return {
+                open: false,
+                mode: 'script',
+            }
+        },
+        methods: {
+        }
+    }
+
+</script>
