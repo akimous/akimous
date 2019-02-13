@@ -30,10 +30,9 @@ async def connected(client_id, send, context):
     context.reader = None
 
 
-@handles('RunScript')
-async def run_script(msg, send, context):
+@handles('RunInTerminal')
+async def run_in_terminal(msg, send, context):
     root = context.shared_context.project_root
-    path = Path(root, *msg['filePath']).resolve()
     mode = msg['mode']
 
     if context.pty:
@@ -42,10 +41,14 @@ async def run_script(msg, send, context):
         context.pty.terminate(force=True)
 
     if mode == 'script':
+        path = Path(root, *msg['filePath']).resolve()
         command = ['python', shlex.quote(str(path))]
     elif mode == 'module':
+        path = Path(root, *msg['filePath']).resolve()
         module = '.'.join(path.relative_to(root).parts[:-1] + (path.stem, ))
         command = ['python', '-m', module]
+    elif mode == 'shell':
+        command = shlex.split(msg['command'])
     else:
         raise ValueError('unsupported mode')
 

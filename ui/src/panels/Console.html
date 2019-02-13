@@ -14,8 +14,6 @@
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
     import { Socket } from '../lib/Socket'
-    // import attach from 'xterm/lib/addons/attach/attach'
-
 
     export default {
         components: {},
@@ -81,7 +79,7 @@
                     })
                 })
             },
-            runScript() {
+            runInTerminal() {
                 g.panelRight.activateView(g.panelRight.refs.console)
 
                 const run = () => {
@@ -90,17 +88,18 @@
                         nextFrame(run)
                         return
                     }
-                    const { mode } = g.runConfiguration.get()
+                    const { mode, shellCommands, shellCommandIndex } = g.runConfiguration.get()
                     const { cols, rows } = this.terminal
                     const { filePath } = g.activeEditor.get()
                     this.terminal.clear()
-                    this.terminal.clear()
-                    this.socket.send('RunScript', {
-                        mode,
-                        filePath,
-                        cols,
-                        rows
-                    })
+                    
+                    const configuration = { mode, cols, rows }
+                    if (mode === 'shell') {
+                        configuration.command = shellCommands[shellCommandIndex]
+                    } else {
+                        configuration.filePath = filePath
+                    }
+                    this.socket.send('RunInTerminal', configuration)
                 }
 
                 run()

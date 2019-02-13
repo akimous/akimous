@@ -1,7 +1,7 @@
 {#if open}
 <div ref:runConfiguration id="run-configuration" class="popup">
     <div class="container non-selectable">
-       <div class="title">Run Configuration</div>
+        <div class="title">Run Configuration</div>
         <div class="message">Choose a way to run your program.</div>
         <div class="title">Terminal</div>
         <div class="option" on:click="set({ mode: 'script' })">
@@ -22,7 +22,19 @@
             </span>
             <span class="description">Run custom shell commands</span>
         </div>
-        
+        {#if mode==='shell'}
+        <div class="shell-commands">
+            {#each shellCommands as command, i}
+            <div class="option">
+                <span class="checkbox">
+                    <i class="fa-circle { shellCommandIndex === i ? 'checked fas' : 'far' }"></i>
+                </span>
+                <EditableTextInput value={command}></EditableTextInput>
+            </div>
+            {/each}
+        </div>
+        {/if}
+
         <div class="title">IPython</div>
         <div class="option" on:click="set({ mode: 'all' })">
             <span class="checkbox">
@@ -121,6 +133,10 @@
         color: var(--primary3);
     }
 
+    .shell-commands {
+        padding: 0 1rem 0 2rem;
+    }
+
 </style>
 
 
@@ -128,7 +144,9 @@
     import g from '../lib/Globals'
 
     export default {
-        components: {},
+        components: {
+            EditableTextInput: '../lib/EditableTextInput.html'
+        },
         oncreate() {
             g.runConfiguration = this
         },
@@ -143,10 +161,13 @@
             return {
                 open: false,
                 mode: 'script',
+                shellCommandIndex: 0,
+                shellCommands: [
+                    'echo Hello World'
+                ]
             }
         },
-        methods: {
-        }
+        methods: {}
     }
 
 </script>
