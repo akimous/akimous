@@ -40,7 +40,6 @@ async def run_script(msg, send, context):
         if context.reader:
             context.reader.cancel()
         context.pty.terminate(force=True)
-        logger.info('terminated')
 
     if mode == 'script':
         command = ['python', shlex.quote(str(path))]
