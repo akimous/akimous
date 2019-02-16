@@ -82,6 +82,7 @@
             })
             this.refs.runConfiguration.set({
                 callback: () => {
+                    g.setFocus([g.runConfiguration])
                     g.runConfiguration.set({
                         open: !g.runConfiguration.get().open
                     })

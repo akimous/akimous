@@ -3,7 +3,7 @@
     <div class="container non-selectable">
         <div class="title">Run Configuration</div>
         <div class="message">Choose a way to run your program.</div>
-        <div class="title">Terminal</div>
+        <div class="title">Python Script</div>
         <div class="option" on:click="set({ mode: 'script' })">
             <span class="checkbox">
                 <i class="fa-circle { mode==='script'?'checked fas': 'far' }"></i>
@@ -16,24 +16,19 @@
             </span>
             <span class="description">Run current script as module</span>
         </div>
-        <div class="option" on:click="set({ mode: 'shell' })">
-            <span class="checkbox">
-                <i class="fa-circle { mode==='shell'?'checked fas': 'far' }"></i>
-            </span>
-            <span class="description">Run custom shell commands</span>
+        <div class="title with-button">
+            Shell
+            <ToggleButton ref:edit on:click="onClickEdit()">{ editing ? 'Done' : 'Edit' }</ToggleButton>
         </div>
-        {#if mode==='shell'}
-        <div class="shell-commands">
-            {#each shellCommands as command, i}
-            <div class="option">
+
+        {#each shellCommands as command, i}
+            <div class="option" class:gone="i === shellCommands.length - 1 && !editing" on:click="set({ mode: 'shell', shellCommandIndex: i })">
                 <span class="checkbox">
-                    <i class="fa-circle { shellCommandIndex === i ? 'checked fas' : 'far' }"></i>
+                    <i class="fa-circle { (shellCommandIndex===i && mode==='shell') ? 'checked fas' : 'far' }"></i>
                 </span>
-                <EditableTextInput value={command}></EditableTextInput>
+                <RunConfigShellCommand value={command} index={i} {shellCommands} {editing}></RunConfigShellCommand>
             </div>
-            {/each}
-        </div>
-        {/if}
+        {/each}
 
         <div class="title">IPython</div>
         <div class="option" on:click="set({ mode: 'all' })">
@@ -93,7 +88,12 @@
         color: var(--primary5);
         font-weight: 400;
         margin-top: 1.5rem;
-        padding-left: 1.5rem;
+        padding: 0 1.5rem .6rem 1.5rem;
+    }
+    
+    .with-button {
+        justify-content: space-between;
+        display: flex;
     }
 
     .message {
@@ -103,8 +103,8 @@
 
     .option {
         color: var(--gray5);
-        padding: .4rem;
-        margin: .5rem 1.5rem;
+        padding: .6rem .4rem;
+        margin: 0rem 1.5rem;
         font-size: var(--monospace-font-size);
         border-radius: var(--default-radius);
     }
@@ -145,7 +145,8 @@
 
     export default {
         components: {
-            EditableTextInput: '../lib/EditableTextInput.html'
+            RunConfigShellCommand: './RunConfigShellCommand.html',
+            ToggleButton: '../lib/ToggleButton.html',
         },
         oncreate() {
             g.runConfiguration = this
@@ -156,18 +157,38 @@
                     popup: current.open ? this : null
                 })
             }
+            if (changed.editing && this.refs.edit) {
+                this.refs.edit.set({
+                    active: current.editing
+                })
+            }
+            if (changed.open && !current.open) {
+                this.set({
+                    editing: false
+                })
+            }
         },
         data() {
             return {
                 open: false,
                 mode: 'script',
+                editing: false,
+                allowWhiteSpace: true,
                 shellCommandIndex: 0,
                 shellCommands: [
-                    'echo Hello World'
+                    'python',
+                    ''
                 ]
             }
         },
-        methods: {}
+        methods: {
+            onClickEdit() {
+                const { editing } = this.get()
+                this.set({
+                    editing: !editing
+                })
+            }
+        }
     }
 
 </script>

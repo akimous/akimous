@@ -1,0 +1,46 @@
+<div class="non-selectable" class:active on:click><slot></slot></div>
+
+
+<style>
+    div {
+        display: inline-block;
+        color: var(--primary5);
+        border: .07rem solid var(--primary5);
+        border-radius: var(--small-radius);
+        outline: none;
+        padding: .4rem 1rem .3rem 1rem;
+        text-align: center;
+        font-size: var(--ui-font-size-default);
+    }
+    
+    div:hover {
+        filter: brightness(1.2);
+    }
+    div:active {
+        filter: brightness(1.4);
+    }
+    
+    div.active {
+        background: var(--primary5);
+        border-color: var(--primary4);
+        color: var(--primary8);
+    }
+
+</style>
+
+
+<script>
+    export default {
+        components: {},
+        oncreate() {},
+        data() {
+            return {
+                active: false,
+                callback: null
+            }
+        },
+        methods: {
+        }
+    }
+
+</script>

@@ -1,0 +1,86 @@
+<div class="text-input" class:editing>
+    {#if editing}
+    <input ref:input type="text" bind:value on:change on:keydown on:blur="removeIfEmpty()">
+    {:else}
+    <span>{value}</span>
+    {/if}
+</div>
+
+
+<style>
+    .text-input {
+        display: inline-block;
+        padding-left: .4rem;
+        vertical-align: middle;
+/*        margin: .1rem .3rem .1rem .3rem;*/
+    }
+    
+    .text-input.editing {
+        padding-left: .1rem;
+        margin: -.37rem -1rem -.37rem -.07rem;
+    }
+
+    input {
+        border: .07rem solid var(--gray7);
+        border-radius: var(--small-radius);
+        padding: .3rem;
+        font-weight: 300;
+        width: 18rem;
+    }
+
+    input:hover {
+        filter: brightness(1.2);
+    }
+
+    input:active,
+    input:focus {
+        border: .07rem solid var(--ui-highlight-color);
+        outline: none;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {},
+        onstate({ changed, current }) {
+            if (changed.value) {
+                const { shellCommands } = current
+                shellCommands[current.index] = current.value
+                
+                if (current.index === shellCommands.length - 1) {
+                    if (current.value.length) {
+                        shellCommands.push('')
+                        g.runConfiguration.set({
+                            shellCommands
+                        })
+                    }
+                }
+            }
+        },
+        data() {
+            return {
+                value: '',
+                placeholder: '',
+                allowWhiteSpace: true,
+                editing: false,
+                
+                index: 0,
+                shellCommands: [],
+            }
+        },
+        methods: {
+            removeIfEmpty() {
+                const { shellCommands, index, value } = this.get()
+                if (value.length) return
+                shellCommands.splice(index, 1)
+                g.runConfiguration.set({ shellCommands })
+            }
+        }
+    }
+
+</script>
