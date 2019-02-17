@@ -1,4 +1,4 @@
-import { config } from './lib/ConfigManager'
+import { config, projectConfig } from './lib/ConfigManager'
 import { Socket } from './lib/Socket'
 import g from './lib/Globals'
 import App from './App.html'
@@ -27,6 +27,8 @@ const socket = new Socket('')
     })
     .addHandler('ProjectOpened', data => {
         g.projectRoot = data.root
+        Object.assign(projectConfig, data.projectConfig)
+        g.runConfiguration.set(g.projectConfig.runConfiguration)
     })
     .connect(() => {
         console.info('Connected')

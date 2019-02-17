@@ -1,6 +1,6 @@
 <div class="text-input" class:editing>
     {#if editing}
-    <input ref:input type="text" bind:value on:change on:keydown on:blur="removeIfEmpty()">
+    <input ref:input type="text" bind:value on:change on:keydown on:blur="commitChange()">
     {:else}
     <span>{value}</span>
     {/if}
@@ -13,7 +13,7 @@
         padding-left: .4rem;
         vertical-align: middle;
     }
-    
+
     .text-input.editing {
         padding-left: .1rem;
         margin: -.37rem -1rem -.37rem -.07rem;
@@ -50,7 +50,7 @@
             if (changed.value) {
                 const { shellCommands } = current
                 shellCommands[current.index] = current.value
-                
+
                 if (current.index === shellCommands.length - 1) {
                     if (current.value.length) {
                         shellCommands.push('')
@@ -67,17 +67,19 @@
                 placeholder: '',
                 allowWhiteSpace: true,
                 editing: false,
-                
+
                 index: 0,
                 shellCommands: [],
             }
         },
         methods: {
-            removeIfEmpty() {
+            commitChange() {
                 const { shellCommands, index, value } = this.get()
-                if (value.length) return
-                shellCommands.splice(index, 1)
-                g.runConfiguration.set({ shellCommands })
+                if (!value.length) {
+                    shellCommands.splice(index, 1)
+                    g.runConfiguration.set({ shellCommands })
+                }
+                g.runConfiguration.saveChanges()
             }
         }
     }

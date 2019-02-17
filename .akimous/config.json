@@ -1,6 +1,6 @@
 {
     "runConfiguration": {
-        "mode": "script",
+        "mode": "shell",
         "shellCommands": [
             "python",
             ""

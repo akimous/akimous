@@ -148,6 +148,7 @@
 
 <script>
     import g from '../lib/Globals'
+    import { setProjectConfig } from '../lib/ConfigManager'
 
     export default {
         components: {
@@ -192,6 +193,12 @@
                 const { editing } = this.get()
                 this.set({
                     editing: !editing
+                })
+            },
+            saveChanges() {
+                const { mode, shellCommands } = this.get()
+                setProjectConfig('runConfiguration', {
+                    mode, shellCommands
                 })
             }
         }
