@@ -15,8 +15,10 @@ import 'devicon/devicon-colors.css'
 let app
 const start = performance.now()
 g.projectRoot = ['.']
+g.ready = false
 const socket = new Socket('')
     .addHandler('Connected', data => {
+        g.ready = false
         g.clientId = data.clientId
         g.sep = data.sep
         Object.assign(config, data.config)

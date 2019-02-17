@@ -149,6 +149,10 @@
 
                 Hotkeys.bindHotkeys()
                 g.layeredKeyboardControl = new LayeredKeyboardControl()
+                
+                schedule(() => {
+                    g.ready = true
+                })
             })
         },
         data() {

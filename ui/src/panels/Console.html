@@ -81,7 +81,7 @@
             },
             runInTerminal() {
                 g.panelRight.activateView(g.panelRight.refs.console)
-                const { mode, shellCommands, shellCommandIndex } = g.runConfiguration.get()
+                const { mode, shellCommands, shellCommandIndex, args, cwd } = g.runConfiguration.get()
                 
                 const run = () => {
                     const { initialized } = this
@@ -98,6 +98,10 @@
                     } else {
                         const { filePath } = g.activeEditor.get()
                         configuration.filePath = filePath
+                    }
+                    if (mode === 'script' || mode === 'module') {
+                        configuration.args = args
+                        configuration.cwd = cwd
                     }
                     this.socket.send('RunInTerminal', configuration)
                 }

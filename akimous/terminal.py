@@ -34,23 +34,26 @@ async def connected(client_id, send, context):
 async def run_in_terminal(msg, send, context):
     root = context.shared_context.project_root
     mode = msg['mode']
+    path = Path(root, *msg.get('filePath', [])).resolve()
+    args = shlex.split(msg.get('args', ''))
 
     await stop(msg, send, context)
-
     if mode == 'script':
-        path = Path(root, *msg['filePath']).resolve()
-        command = ['python', shlex.quote(str(path))]
+        command = ['python', shlex.quote(str(path))] + args
     elif mode == 'module':
-        path = Path(root, *msg['filePath']).resolve()
         module = '.'.join(path.relative_to(root).parts[:-1] + (path.stem, ))
-        command = ['python', '-m', module]
+        command = ['python', '-m', module] + args
     elif mode == 'shell':
         command = shlex.split(msg['command'])
     else:
         raise ValueError('unsupported mode')
 
+    cwd = msg.get('cwd', None)
+    if not cwd:
+        cwd = str(root)
+    cwd = shlex.quote(cwd)
     pty = PtyProcessUnicode.spawn(command,
-                                  cwd=shlex.quote(str(root)),
+                                  cwd=cwd,
                                   dimensions=(msg['rows'], msg['cols']))
     await send('Started', None)
 

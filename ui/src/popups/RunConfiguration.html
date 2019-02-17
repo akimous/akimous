@@ -4,19 +4,25 @@
         <div class="title">Run Configuration</div>
         <div class="message">Choose a way to run your program.</div>
         <div class="title">Python Script</div>
+        <TextInput bind:value=cwd on:change="saveChanges('cwd')" theme="bright" padded={false}>
+            <span style="width: 8rem; display: inline-block;">Working directory: </span>
+        </TextInput>
+        <TextInput bind:value=args on:change="saveChanges('args')" theme="bright" padded={false}>
+            <span style="width: 8rem; display: inline-block;">Arguments: </span>
+        </TextInput>
         <div class="option" on:click="set({ mode: 'script' })">
             <span class="checkbox">
                 <i class="fa-circle { mode==='script'?'checked fas': 'far' }"></i>
             </span>
             <span class="description">Run current script</span>
-            <span class="run-now" on:click="runNow('script')"><i class="fas fa-running"></i></span>
+            <span class="run-now"><i class="fas fa-running" on:click="runNow('script')"></i></span>
         </div>
         <div class="option" on:click="set({ mode: 'module' })">
             <span class="checkbox">
                 <i class="fa-circle { mode==='module'?'checked fas': 'far' }"></i>
             </span>
             <span class="description">Run current script as module</span>
-            <span class="run-now" on:click="runNow('module')"><i class="fas fa-running"></i></span>
+            <span class="run-now"><i class="fas fa-running" on:click="runNow('module')"></i></span>
         </div>
         <div class="title with-button">
             Shell
@@ -30,7 +36,7 @@
             </span>
             <RunConfigShellCommand value={command} index={i} {shellCommands} {editing}></RunConfigShellCommand>
             {#if !editing}
-            <span class="run-now" on:click="runNow('shell', i)"><i class="fas fa-running"></i></span>
+            <span class="run-now"><i class="fas fa-running" on:click="runNow('shell', i)"></i></span>
             {/if}
         </div>
         {/each}
@@ -41,28 +47,28 @@
                 <i class="fa-circle { mode==='all'?'checked fas': 'far' }"></i>
             </span>
             <span class="description">Run all</span>
-            <span class="run-now" on:click="runNow('all')"><i class="fas fa-running"></i></span>
+            <span class="run-now"><i class="fas fa-running" on:click="runNow('all')"></i></span>
         </div>
         <div class="option" on:click="set({ mode: 'selected' })">
             <span class="checkbox">
                 <i class="fa-circle { mode==='selected'?'checked fas': 'far' }"></i>
             </span>
             <span class="description">Run selected lines</span>
-            <span class="run-now" on:click="runNow('selected')"><i class="fas fa-running"></i></span>
+            <span class="run-now"><i class="fas fa-running" on:click="runNow('selected')"></i></span>
         </div>
         <div class="option" on:click="set({ mode: 'toLine' })">
             <span class="checkbox">
                 <i class="fa-circle { mode==='toLine'?'checked fas': 'far' }"></i>
             </span>
             <span class="description">Run to selected line</span>
-            <span class="run-now" on:click="runNow('toLine')"><i class="fas fa-running"></i></span>
+            <span class="run-now"><i class="fas fa-running" on:click="runNow('toLine')"></i></span>
         </div>
         <div class="option" on:click="set({ mode: 'playground' })">
             <span class="checkbox">
                 <i class="fa-circle { mode==='playground'?'checked fas': 'far' }"></i>
             </span>
             <span class="description">Real-time evaluation</span>
-            <span class="run-now" on:click="runNow('playground')"><i class="fas fa-running"></i></span>
+            <span class="run-now"><i class="fas fa-running" on:click="runNow('playground')"></i></span>
         </div>
     </div>
 </div>
@@ -74,8 +80,6 @@
         right: 8rem;
         top: calc(var(--toolbar-height) + 0.5rem);
         width: 24rem;
-        min-height: 10rem;
-        max-height: 40rem;
     }
 
     /* https://leaverou.github.io/bubbly/ */
@@ -93,10 +97,7 @@
     }
 
     .container {
-        min-height: 10rem;
-        max-height: 39rem;
-        overflow-y: scroll;
-        margin: 0 0 1rem 0;
+        margin: 0 1.5rem 1rem 1.5rem;
     }
 
     .title {
@@ -104,6 +105,7 @@
         font-weight: 400;
         margin-top: 1.5rem;
         padding: 0 1.5rem .6rem 1.5rem;
+        padding: 0 0 .6rem 0;
     }
 
     .with-button {
@@ -113,14 +115,12 @@
 
     .message {
         color: var(--gray7);
-        padding-left: 1.5rem;
     }
 
     .option {
         display: flex;
         color: var(--gray5);
         padding: .6rem .4rem;
-        margin: 0rem 1.5rem;
         font-size: var(--monospace-font-size);
         border-radius: var(--default-radius);
     }
@@ -148,7 +148,7 @@
     .option:hover .description {
         color: var(--primary3);
     }
-    
+
     .option:hover .run-now {
         display: inline;
     }
@@ -175,11 +175,13 @@
         components: {
             RunConfigShellCommand: './RunConfigShellCommand.html',
             ToggleButton: '../lib/ToggleButton.html',
+            TextInput: '../lib/TextInput.html',
         },
         oncreate() {
             g.runConfiguration = this
         },
         onstate({ changed, current }) {
+            if (!g.ready) return
             if (changed.open && g.toolbar) {
                 g.app.set({
                     popup: current.open ? this : null
@@ -195,6 +197,9 @@
                     editing: false
                 })
             }
+            if (changed.mode || changed.shellCommandIndex) {
+                this.saveChanges()
+            }
         },
         data() {
             return {
@@ -202,6 +207,8 @@
                 mode: 'script',
                 editing: false,
                 allowWhiteSpace: true,
+                args: 'args',
+                cwd: '',
                 shellCommandIndex: 0,
                 shellCommands: [
                     'python',
@@ -216,17 +223,24 @@
                     editing: !editing
                 })
             },
-            saveChanges() {
-                const { mode, shellCommands } = this.get()
-                setProjectConfig('runConfiguration', {
-                    mode,
-                    shellCommands
-                })
+            saveChanges(what) {
+                if (what) {
+                    setProjectConfig('runConfiguration', {
+                        [what]: this.get()[what]
+                    })
+                } else {
+                    const { mode, shellCommands, shellCommandIndex } = this.get()
+                    setProjectConfig('runConfiguration', {
+                        mode,
+                        shellCommands,
+                        shellCommandIndex
+                    })
+                }
             },
             runNow(mode, shellCommandIndex = 0) {
                 const originalSetting = this.get()
                 this.set({ mode, shellCommandIndex }) // set temporarily
-                
+
                 g.console.runInTerminal()
                 originalSetting.open = false
                 this.set(originalSetting) // restore original and close
