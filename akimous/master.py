@@ -5,37 +5,14 @@ import os
 from .spell_checker import SpellChecker
 from .websocket import register_handler
 from .file_finder import find_in_directory, replace_all_in_directory
-from .utils import config_directory
+from .utils import config_directory, get_project_config, get_merged_config, merge_dict
 from importlib import resources
 from pathlib import Path
-from appdirs import user_config_dir
 
 handles = partial(register_handler, '')
 
-# load defaults
-with resources.open_text('akimous.resources', 'default_config.json') as f:
-    config = json.load(f)
-
-
-def merge_dict(primary, secondary):
-    for k, v in secondary.items():
-        section = primary.get(k, None)
-        if section is None:
-            primary[k] = v
-        else:
-            for key, value in v.items():
-                section[key] = value
-
-
-if not config_directory.exists():
-    config_directory.mkdir(parents=True, exist_ok=True)
-
-# load user config
 config_file = config_directory / 'akimous.json'
-if config_file.exists():
-    with open(config_file) as f:
-        user_config = json.loads(f.read())
-        merge_dict(config, user_config)
+config = get_merged_config(config_file, 'default_config.json')
 
 
 # create user macro template if not exists
@@ -64,14 +41,22 @@ async def set_config(msg, send, context):
         json.dump(config, f, indent=4, sort_keys=True)
 
 
+def get_configuration_file(context):
+    return get_project_config(context, 'config.json')
+
+
 @handles('OpenProject')
 async def open_project(msg, send, context):
     shared_context = context.shared_context
     shared_context.project_root = Path(*msg['path']).resolve()
+    shared_context.project_config_file = shared_context.project_root / '.akimous' / 'config.json'
+    shared_context.project_dictionary_file = shared_context.project_root / '.akimous' / 'dictionary.json'
+    project_config = get_merged_config(shared_context.project_config_file, 'default_project_config.json')
     await send('ProjectOpened', {
-        'root': shared_context.project_root.parts
+        'root': shared_context.project_root.parts,
+        'projectConfig': project_config
     })
-    SpellChecker(shared_context)
+    SpellChecker(context)
 
 
 handles('FindInDirectory')(find_in_directory)

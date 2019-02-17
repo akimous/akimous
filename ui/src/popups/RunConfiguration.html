@@ -43,6 +43,12 @@
             </span>
             <span class="description">Run selected lines</span>
         </div>
+        <div class="option" on:click="set({ mode: 'toLine' })">
+            <span class="checkbox">
+                <i class="fa-circle { mode==='toLine'?'checked fas': 'far' }"></i>
+            </span>
+            <span class="description">Run to selected line</span>
+        </div>
         <div class="option" on:click="set({ mode: 'playground' })">
             <span class="checkbox">
                 <i class="fa-circle { mode==='playground'?'checked fas': 'far' }"></i>

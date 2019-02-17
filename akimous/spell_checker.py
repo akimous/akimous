@@ -30,7 +30,7 @@ handles = partial(register_handler, '')
 async def add_to_project_dictionary(msg, send, context):
     shared_context = context.shared_context
     shared_context.spell_checker.project_dictionary.update(msg)
-    with open(shared_context.project_root / '.akimous.json', 'w') as f:
+    with open(shared_context.project_dictionary_file, 'w') as f:
         json.dump(list(shared_context.spell_checker.project_dictionary), f, indent=4, sort_keys=True)
 
 
@@ -72,14 +72,14 @@ def highlight_spelling_errors(token, words, is_correct):
 
 
 class SpellChecker:
-    def __init__(self, shared_context):
+    def __init__(self, context):
+        shared_context = context.shared_context
         shared_context.spell_checker = self
         self.project_dictionary = set()
 
         # load project dictionary
-        dictionary_path = shared_context.project_root / '.akimous.json'
-        if dictionary_path.exists():
-            with open(dictionary_path, 'r') as f:
+        if shared_context.project_dictionary_file.exists():
+            with open(shared_context.project_dictionary_file, 'r') as f:
                 project_dictionary = json.load(f)
             self.project_dictionary.update(project_dictionary)
 

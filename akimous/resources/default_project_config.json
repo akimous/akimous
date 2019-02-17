@@ -1,0 +1,9 @@
+{
+  "runConfiguration": {
+    "mode": "script",
+    "shellCommands": [
+      "python",
+      ""
+    ]
+  }
+}
