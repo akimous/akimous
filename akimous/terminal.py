@@ -35,10 +35,7 @@ async def run_in_terminal(msg, send, context):
     root = context.shared_context.project_root
     mode = msg['mode']
 
-    if context.pty:
-        if context.reader:
-            context.reader.cancel()
-        context.pty.terminate(force=True)
+    await stop(msg, send, context)
 
     if mode == 'script':
         path = Path(root, *msg['filePath']).resolve()
@@ -67,3 +64,13 @@ async def run_in_terminal(msg, send, context):
 async def stdin(msg, send, context):
     if context.pty:
         context.pty.write(msg)
+
+
+@handles('Stop')
+async def stop(msg, send, context):
+    pty = context.pty
+    if pty:
+        if context.reader:
+            context.reader.cancel()
+        pty.terminate(force=True)
+    await send('Stdout', '\n(Process terminated.)')

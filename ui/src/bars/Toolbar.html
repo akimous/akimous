@@ -88,6 +88,11 @@
                     })
                 }
             })
+            this.refs.stop.set({
+                callback: () => {
+                    g.console.stop()
+                }
+            })
         },
         data() {
             return {}

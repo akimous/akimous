@@ -38,7 +38,7 @@
             if (changed.active) {
                 if (!current.active) return
                 const activePanel = g.focusStack[0]
-                if (!activePanel) return
+                if (!activePanel || !activePanel.tabBar) return
                 let children = activePanel.tabBar.refs.tabBar.childNodes
                 // remove resizeSensor
                 children = [...children].filter(child => child.classList.contains('tab'))

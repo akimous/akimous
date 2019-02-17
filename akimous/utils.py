@@ -8,7 +8,7 @@ import psutil
 from logzero import logger as log
 from appdirs import user_config_dir
 
-
+# ~/Library/Application Support/akimous
 config_directory = Path(user_config_dir('akimous'))
 
 

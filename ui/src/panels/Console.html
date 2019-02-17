@@ -103,6 +103,9 @@
                 }
 
                 run()
+            },
+            stop() {
+                this.socket.send('Stop', {})
             }
         }
     }

@@ -10,7 +10,7 @@ logger.error('error')
 
 print('stderr', file=sys.stderr)
 
-#echo = input('write something')
+echo = input('write something')
 #logger.info(echo)
 
 l = list(range(200))
