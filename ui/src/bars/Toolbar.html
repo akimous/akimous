@@ -73,10 +73,10 @@
             })
             this.refs.run.set({
                 callback: () => {
-                    if (!g.activeEditor) {
-                        return // TODO: should still run if the command is not relevant to the script opened
+                    if (!g.activeEditor && g.runConfiguration.get().mode !== 'shell') {
+                        g.notificationBar.show('warning', 'Please open a Python file to run.')
+                        return
                     }
-                    
                     g.console.runInTerminal()
                 }
             })

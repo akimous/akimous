@@ -81,22 +81,22 @@
             },
             runInTerminal() {
                 g.panelRight.activateView(g.panelRight.refs.console)
-
+                const { mode, shellCommands, shellCommandIndex } = g.runConfiguration.get()
+                
                 const run = () => {
                     const { initialized } = this
                     if (!initialized) {
                         nextFrame(run)
                         return
                     }
-                    const { mode, shellCommands, shellCommandIndex } = g.runConfiguration.get()
                     const { cols, rows } = this.terminal
-                    const { filePath } = g.activeEditor.get()
                     this.terminal.clear()
                     
                     const configuration = { mode, cols, rows }
                     if (mode === 'shell') {
                         configuration.command = shellCommands[shellCommandIndex]
                     } else {
+                        const { filePath } = g.activeEditor.get()
                         configuration.filePath = filePath
                     }
                     this.socket.send('RunInTerminal', configuration)
