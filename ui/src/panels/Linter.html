@@ -42,7 +42,7 @@
     <div class="title">Offline Lints</div>
     <div id="offline-linter-filter">
         {#each OFFLINE_LINT_TYPES as type}
-        <div class="type-filter" class:active="offlineLintType.has(type)" on:click="toggle('offlineLintType', type)">
+        <div class="type-filter non-selectable" class:active="offlineLintType.has(type)" on:click="toggle('offlineLintType', type)">
             <div class="type {type}">{typeStrings[type]}</div>
             <div class="count {type}">{offlineLintCounts[type]}</div>
         </div>

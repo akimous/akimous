@@ -2,7 +2,7 @@ import mimetypes
 from http import HTTPStatus
 from importlib import resources
 
-from logzero import logger as log
+from logzero import logger
 from websockets.http import Headers
 from .utils import config_directory
 
@@ -47,7 +47,7 @@ class HTTPHandler:
     def process_request(self, path, _):
         if path.startswith('/ws/'):
             return None
-        log.info('Serving %s', path)
+        logger.info('Serving %s', path)
 
         package, file = self.translate_path(path)
 

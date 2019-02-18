@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 from os import walk
-from logzero import logger as log
+from logzero import logger
 from compileall import compile_file
 import random
 from .utility import working_dir
@@ -36,7 +36,7 @@ if __name__ == "__main__":
         if '/.' in root or '__' in root:
             continue
         if files:
-            log.info(f'Scanning dir: {root}')
+            logger.info(f'Scanning dir: {root}')
         for file_name in files:
             if not file_name.endswith('.py'):
                 continue
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
             # skip Python 2 files
             if not compile_file(file_path, quiet=2):
-                log.warn(f'Skipping file: {file_path}')
+                logger.warning(f'Skipping file: {file_path}')
                 continue
 
             file_list.append(file_path)
@@ -70,5 +70,5 @@ if __name__ == "__main__":
         with open(testing_list_path, 'w') as f:
             f.writelines(f'{i}\n' for i in sample[-validation_file_count:])
 
-    log.info(f'Written to file {training_list_path}')
-    log.info(f'Written to file {testing_list_path}')
+    logger.info(f'Written to file {training_list_path}')
+    logger.info(f'Written to file {testing_list_path}')

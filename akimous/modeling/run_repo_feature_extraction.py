@@ -9,7 +9,6 @@ import random
 from tqdm import tqdm
 from os import walk, path
 from compileall import compile_file
-from logzero import logger as log
 
 from .offline_feature_extractor import OfflineFeatureExtractor
 from .utility import p, WORKING_DIR

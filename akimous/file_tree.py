@@ -2,7 +2,7 @@ import os
 from functools import partial
 from pathlib import Path
 
-from logzero import logger as log
+from logzero import logger
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -16,7 +16,7 @@ class ChangeHandler(FileSystemEventHandler):
         self.root = context.shared_context.project_root
 
     def on_created(self, event):
-        log.info('on create %s', repr(event))
+        logger.info('on create %s', repr(event))
         # do not rely on event.is_directory, it might be wrong on Windows
         is_directory = Path(event.src_path).is_dir()
         self.send = self.context.main_thread_send(
@@ -25,7 +25,7 @@ class ChangeHandler(FileSystemEventHandler):
             })
 
     def on_deleted(self, event):
-        log.info('on delete %s', repr(event))
+        logger.info('on delete %s', repr(event))
         self.context.main_thread_send('DirDeleted' if event.is_directory else 'FileDeleted', {
             'path': Path(event.src_path).relative_to(self.root).parts,
         })
@@ -34,10 +34,10 @@ class ChangeHandler(FileSystemEventHandler):
                 stop_monitor(k, self.context)
 
     def on_modified(self, event):
-        log.info('on modified %s', repr(event))
+        logger.info('on modified %s', repr(event))
 
     def on_moved(self, event):
-        log.info('on moved %s', repr(event))
+        logger.info('on moved %s', repr(event))
         print(event.event_type, event.src_path, event.dest_path)
         # do not rely on event.is_directory, it might be wrong on Windows
         is_directory = Path(event.dest_path).is_dir()
@@ -67,18 +67,18 @@ def get_observer(context):
 
 def start_monitor(path, context):
     path = str(path)
-    log.warn('starting monitor %s', path)
+    logger.debug('start monitoring %s', path)
     change_handler = ChangeHandler(context)
     context.observed_watches[path] = get_observer(context).schedule(change_handler, path)
 
 
 def stop_monitor(path, context):
     path = str(path)
-    log.warn('stopping monitor %s', path)
+    logger.debug('stop monitoring %s', path)
     watch = context.observed_watches.get(path, None)
     if watch is None:
-        log.error('stopping watch of path %s', path)
-        log.error('==> %s', context.observed_watches)
+        logger.error('stopping watch of path %s', path)
+        logger.error('==> %s', context.observed_watches)
         return
     get_observer(context).unschedule(watch)
     del context.observed_watches[path]
@@ -107,7 +107,7 @@ async def rename(msg, send, context):
     old_path = Path(context.shared_context.project_root, *msg['path'])
     new_name = msg['newName']
     new_path = old_path.with_name(new_name)
-    log.info('renaming %s to %s', old_path, new_path)
+    logger.info('renaming %s to %s', old_path, new_path)
 
     if new_path.exists():
         await send(

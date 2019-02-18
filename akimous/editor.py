@@ -10,7 +10,7 @@ import jedi
 import pyflakes.api
 import wordsegment
 from boltons.gcutils import toggle_gc_postcollect
-from logzero import logger as log
+from logzero import logger
 from sklearn.externals import joblib
 
 from .doc_generator import DocGenerator  # 165ms, 13M memory
@@ -32,7 +32,7 @@ doc_generator = DocGenerator()
 
 model = joblib.load(open_binary('akimous.resources', MODEL_NAME))  # 300 ms
 model.n_jobs = 1
-log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
+logger.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
 
 
 async def run_pylint(context, send):
@@ -48,13 +48,13 @@ async def run_pylint(context, send):
                 stderr=subprocess.PIPE)
             stdout, stderr = await context.linter_process.communicate()
             if stderr:
-                log.error(stderr)
+                logger.error(stderr)
             context.linter_output = json.loads(stdout)
         await send('OfflineLints', {
             'result': context.linter_output,
         })
     except Exception as e:
-        log.error('Error running pylint', e)
+        logger.exception('Error running pylint', e)
 
 
 async def run_yapf(context):
@@ -70,11 +70,11 @@ async def run_yapf(context):
                 stderr=subprocess.PIPE)
             stdout, stderr = await context.yapf_process.communicate()
             if stdout:
-                log.info(stdout)
+                logger.info(stdout)
             if stderr:
-                log.error(stderr)
+                logger.error(stderr)
     except Exception as e:
-        log.error(e)
+        logger.error(e)
 
 
 async def run_isort(context):
@@ -90,11 +90,11 @@ async def run_isort(context):
                 stderr=subprocess.PIPE)
             stdout, stderr = await context.isort_process.communicate()
             if stdout:
-                log.info(stdout)
+                logger.info(stdout)
             if stderr:
-                log.error(stderr)
+                logger.error(stderr)
     except Exception as e:
-        log.error(e)
+        logger.error(e)
 
 
 async def run_spell_checker(context, send):
@@ -164,7 +164,7 @@ async def reload(_, send, context):
 async def modification_time(msg, send, context):
     new_path = msg.get('newPath', None)
     if new_path is not None:
-        log.info('path modified from %s to %s', context.path, new_path)
+        logger.info('path modified from %s to %s', context.path, new_path)
         context.path = Path(*new_path)
     try:
         await send('Mtime', {'mtime': context.path.stat().st_mtime})
@@ -305,7 +305,7 @@ async def get_completion_docstring(msg, send, context):
         try:
             html = doc_generator.make_html(docstring)
         except Exception as e:
-            log.error('Failed to get completion docstring', e)
+            logger.error('Failed to get completion docstring', e)
     await send('CompletionDocstring', {
         'doc': html if html else docstring,
         'type': 'html' if html else 'text'
@@ -321,7 +321,7 @@ async def get_function_documentation(msg, send, context):
     j = jedi.Script(content, line_number + 1, ch, context.path)
     call_signatures = j.call_signatures()
     if not call_signatures:
-        log.debug('call signature is empty while obtaining docstring')
+        logger.debug('call signature is empty while obtaining docstring')
         return
     signature = call_signatures[0]
     docstring = signature.docstring()
@@ -333,7 +333,7 @@ async def get_function_documentation(msg, send, context):
         try:
             html = doc_generator.make_html(docstring)
         except Exception as e:
-            log.error('failed to generate function documentation', e)
+            logger.error('failed to generate function documentation', e)
 
     await send(
         'FunctionDocumentation', {

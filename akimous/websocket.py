@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 import msgpack
 import websockets
-from logzero import logger as log
+from logzero import logger
 
 from .static_server import HTTPHandler
 from .word_completer import initialize as initialize_word_completer
@@ -46,13 +46,12 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
         main_thread_send=main_thread_send)
 
     async def send(event, obj):
-        # log.warn('sending event %s: %s', event, repr(obj))
         await ws.send(msgpack.packb([event, obj]))
 
     try:
         path_handler = handlers.get(path, None)
         if path_handler is None:
-            log.error('No handlers associated with path %s', path)
+            logger.error('No handlers associated with path %s', path)
             ws.close()
             return
 
@@ -67,7 +66,7 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
             client_id = msg.get('clientId', None)
             context.shared_context = shared_contexts[client_id]
             if not client_id:
-                log.error('Do not receive client id. Closing connection')
+                logger.error('Do not receive client id. Closing connection')
                 ws.close()
                 return
 
@@ -77,7 +76,7 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
 
         clients[client_id][path].add(ws)
         context.client_id = client_id
-        log.info('Connection %s established.', path)
+        logger.info('Connection %s established.', path)
 
         while 1:
             msg = await ws.recv()
@@ -86,7 +85,7 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
             # log.debug('Received message from %s/%s: %s', path, event, obj)
             event_handler = path_handler.get(event, None)
             if not event_handler:
-                log.warn('Unhandled command %s/%s.', path, event)
+                logger.warning('Unhandled command %s/%s.', path, event)
                 continue
             try:
                 await event_handler(obj, send, context)
@@ -94,7 +93,7 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
                 traceback.print_exc()
 
     except websockets.exceptions.ConnectionClosed:
-        log.info('Connection %s closed.', path)
+        logger.info('Connection %s closed.', path)
         clients[client_id][path].remove(ws)
         if path == '/':
             del shared_contexts[client_id]
@@ -115,11 +114,11 @@ def start_server(host, port, no_browser, verbose):
                                         process_request=http_handler.process_request)
     loop.run_until_complete(websocket_server)
     initialize_word_completer(loop)
-    log.info('Starting server, listening on %s:%d.', host, port)
+    logger.info('Starting server, listening on %s:%d.', host, port)
 
     if not no_browser and not webbrowser.open(f'http://{host}:{port}'):
-        log.warn(f'No browsers available. Please open http://{host}:{port} manually.')
-    log.info('Press Control-C to stop.')
+        logger.warning(f'No browsers available. Please open http://{host}:{port} manually.')
+    logger.info('Press Control-C to stop.')
     try:
         loop.run_forever()
     except KeyboardInterrupt:
