@@ -54,6 +54,8 @@ pathspec = "^0.5.9"
 cachetools = "^3.0"
 appdirs = "^1.4"
 ptyprocess = "^0.6.0"
+jupyter_client = "^5.2"
+ipykernel = "^5.1"
 
 [tool.poetry.dev-dependencies]
 pandas = "^0.24.0"
