@@ -71,6 +71,8 @@
                             terminal.reset()
                         })
                         .connect(() => {})
+                    
+                    this.jupyterSocket = new Socket('jupyter').connect(() => {})
 
                     nextFrame(() => {
                         this.terminal.fit()
@@ -110,6 +112,9 @@
             },
             stop() {
                 this.socket.send('Stop', {})
+            },
+            startJupyterKernel() {
+                this.jupyterSocket.send('StartKernel')
             }
         }
     }

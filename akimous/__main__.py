@@ -24,6 +24,7 @@ with Timer('initialization'):
         from .file_tree import * # 11ms, 4M memory
         from .editor import *  # 800ms, 80M memory
         from .terminal import *
+        from .interactive_shell import *
 
 
 def start():

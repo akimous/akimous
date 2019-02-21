@@ -87,6 +87,13 @@ function bindHotkeys() {
         hotkey('f' + (i + 2), () => {
             g.panelRight.tabBar.switchToTab(i)
         })
+    
+    
+    hotkey('mod + r', () => {
+        g.console.jupyterSocket.send('Run', {
+            code: g.activeEditor.cm.getSelection()
+        })
+    })
 }
 export default {
     bindHotkeys

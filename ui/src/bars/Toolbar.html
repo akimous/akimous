@@ -73,11 +73,17 @@
             })
             this.refs.run.set({
                 callback: () => {
-                    if (!g.activeEditor && g.runConfiguration.get().mode !== 'shell') {
+                    const { mode } = g.runConfiguration.get()
+                    if (!g.activeEditor && mode !== 'shell') {
                         g.notificationBar.show('warning', 'Please open a Python file to run.')
                         return
                     }
-                    g.console.runInTerminal()
+                    
+                    if (mode === 'script' || mode === 'module' || mode === 'shell') {
+                        g.console.runInTerminal()
+                    } else if (mode === 'selected') {
+                        g.console.startJupyterKernel()
+                    }
                 }
             })
             this.refs.runConfiguration.set({
