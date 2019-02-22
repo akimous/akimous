@@ -21,10 +21,10 @@ with Timer('initialization'):
         logzero.loglevel(DEBUG if args.verbose else INFO)
 
         from .websocket import start_server
-        from .file_tree import * # 11ms, 4M memory
-        from .editor import *  # 800ms, 80M memory
-        from .terminal import *
-        from .interactive_shell import *
+        from . import file_tree # 11ms, 4M memory
+        from . import editor # 900ms, 80M memory
+        from . import terminal
+        from . import interactive_shell # 30ms, 3M memory
 
 
 def start():
