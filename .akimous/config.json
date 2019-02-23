@@ -2,7 +2,7 @@
     "runConfiguration": {
         "args": "hi",
         "cwd": "",
-        "mode": "shell",
+        "mode": "all",
         "shellCommandIndex": 0,
         "shellCommands": [
             "python",

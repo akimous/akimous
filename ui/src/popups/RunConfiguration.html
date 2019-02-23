@@ -194,17 +194,13 @@
                 this.saveChanges()
             }
             if (changed.mode) {
-                if (['script', 'module', 'shell'].includes(current.mode)) {
-                    g.console.set({ mode: 'terminal' })
-                } else if (['all', 'selected', 'toLine'].includes(current.mode)) {
-                    g.console.set({ mode: 'jupyter' })
-                }
+                this.setConsoleMode()
             }
         },
         data() {
             return {
                 open: false,
-                mode: 'script', // 'module', 'shell', 'all', 'selected', 'toLine'
+                mode: 'script', // 'script', 'module', 'shell', 'all', 'selected', 'toLine'
                 editing: false,
                 allowWhiteSpace: true,
                 args: 'args',
@@ -217,6 +213,14 @@
             }
         },
         methods: {
+            setConsoleMode() {
+                const { mode } = this.get()
+                if (['script', 'module', 'shell'].includes(mode)) {
+                    g.console.set({ mode: 'terminal' })
+                } else if (['all', 'selected', 'toLine'].includes(mode)) {
+                    g.console.set({ mode: 'jupyter' })
+                }
+            },
             onClickEdit() {
                 const { editing } = this.get()
                 this.set({

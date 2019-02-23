@@ -1,7 +1,7 @@
 <div class="panel" class:gone="!active">
     {#if mode === 'terminal'}
     <div ref:terminal class="tab-view"></div>
-    {:else}
+    {:elseif mode === 'jupyter'}
     <div ref:jupyter class="tab-view">jupyter</div>
     {/if}
 </div>
@@ -20,13 +20,13 @@
     import { Socket } from '../lib/Socket'
 
     Terminal.applyAddon(fit)
-    
+
     export default {
         components: {},
         oncreate() {
             g.console = this
             initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
-            
+
         },
         onupdate({ changed, previous, current }) {
             if (changed.mode) {
@@ -44,13 +44,14 @@
         data() {
             return {
                 active: false,
-                mode: 'terminal', // or 'jupyter'
+                mode: '', // 'terminal' or 'jupyter'
                 ready: false,
             }
         },
         methods: {
             initialize() {
                 const { mode } = this.get()
+                console.info('initializing', mode)
                 if (mode === 'terminal') {
                     this.tab.set({ active: false })
                     this.tab.set({ active: true })
@@ -68,6 +69,14 @@
                 if (this.terminal) {
                     this.terminal.dispose()
                     this.terminal = null
+                }
+            },
+            runDefault() {
+                const { mode } = this.get()
+                if (mode === 'terminal') {
+                    this.runInTerminal()
+                } else if (mode === 'jupyter') {
+                    this.runInJupyter()
                 }
             },
 
@@ -154,7 +163,22 @@
                         this.socket.send('StartKernel')
                     })
             },
+            runInJupyter() {
+                g.panelRight.activateView(g.panelRight.refs.console)
 
+                const run = () => {
+                    const { ready } = this.get()
+                    if (!ready) {
+                        nextFrame(run)
+                        return
+                    }
+                    this.socket.send('Run', {
+                        code: g.activeEditor.cm.getSelection()
+                    })
+                }
+
+                run()
+            },
         }
     }
 

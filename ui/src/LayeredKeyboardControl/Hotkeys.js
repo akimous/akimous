@@ -90,9 +90,7 @@ function bindHotkeys() {
     
     
     hotkey('mod + r', () => {
-        g.console.jupyterSocket.send('Run', {
-            code: g.activeEditor.cm.getSelection()
-        })
+        g.console.runDefault()
     })
 }
 export default {
