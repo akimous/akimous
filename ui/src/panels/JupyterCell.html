@@ -1,0 +1,53 @@
+<div ref:cell>
+    <div class="execution-count">{executionCount}</div>
+    {#if code}
+    {code}
+    {/if}
+
+    {#if stdout}
+    {stdout}
+    {/if}
+
+    {#if stderr}
+    {stderr}
+    {/if}
+
+    {#if output && output['text/latex']}
+    {output['text/latex']}
+    {:else}
+    {#each Object.entries(output) as [key, value]}
+    {#if key === 'text/plain'}
+    {value}
+    {:elseif key.startsWith('image/')}
+    <img src="data:{key};base64,{value}" />
+    {/if}
+    {/each}
+    {/if}
+</div>
+
+
+<style>
+
+
+</style>
+
+
+<script>
+    // import g from './lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {},
+        data() {
+            return {
+                executionCount: 0,
+                code: null,
+                output: {},
+                stdout: null,
+                stderr: null,
+            }
+        },
+        methods: {}
+    }
+
+</script>

@@ -2,7 +2,12 @@
     {#if mode === 'terminal'}
     <div ref:terminal class="tab-view"></div>
     {:elseif mode === 'jupyter'}
-    <div ref:jupyter class="tab-view">jupyter</div>
+    <div ref:jupyter class="tab-view">
+        {executionState}
+        {#each cells as cell}
+        <JupyterCell {...cell}></JupyterCell>
+        {/each}
+    </div>
     {/if}
 </div>
 
@@ -22,7 +27,9 @@
     Terminal.applyAddon(fit)
 
     export default {
-        components: {},
+        components: {
+            JupyterCell: './JupyterCell.html'
+        },
         oncreate() {
             g.console = this
             initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
@@ -46,6 +53,12 @@
                 active: false,
                 mode: '', // 'terminal' or 'jupyter'
                 ready: false,
+                cells: [{
+                    output: {
+                        'text/plain': 'text',
+                    }
+                }],
+                executionState: 'idle',
             }
         },
         methods: {
@@ -158,6 +171,32 @@
                 this.socket = new Socket('jupyter')
                     .addHandler('KernelStarted', () => {
                         this.set({ ready: true })
+                    })
+                    .addHandler('IOPub', e => {
+                        const { cells } = this.get()
+                        if (e.execution_state) {
+                            this.set({ executionState: e.execution_state })
+                        }
+                        if (e.code) {
+                            cells.push({
+                                code: e.code,
+                                executionCount: e.execution_count,
+                            })
+                            this.set({ cells })
+                        }
+                        if (e.name && e.text) {
+                            cells.push({
+                                [e.name]: e.text
+                            })
+                            this.set({ cells })
+                        }
+                        if (e.data) {
+                            cells.push({
+                                output: e.data,
+                                executionCount: e.execution_count,
+                            })
+                            this.set({ cells })
+                        }
                     })
                     .connect(() => {
                         this.socket.send('StartKernel')
