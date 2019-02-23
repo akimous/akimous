@@ -7,6 +7,7 @@ from logzero import logger
 from ptyprocess import PtyProcessUnicode
 
 from .websocket import register_handler
+from .utils import nop
 
 handles = partial(register_handler, 'terminal')
 
@@ -28,6 +29,11 @@ def reader(pty, send, context):
 async def connected(client_id, send, context):
     context.pty = None
     context.reader = None
+
+
+@handles('_disconnected')
+async def disconnected(context):
+    await stop({}, nop, context)
 
 
 @handles('RunInTerminal')

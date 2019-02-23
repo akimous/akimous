@@ -2,8 +2,8 @@
     "runConfiguration": {
         "args": "hi",
         "cwd": "",
-        "mode": "selected",
-        "shellCommandIndex": 1,
+        "mode": "shell",
+        "shellCommandIndex": 0,
         "shellCommands": [
             "python",
             "echo hello world",

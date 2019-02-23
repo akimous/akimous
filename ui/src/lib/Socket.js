@@ -66,9 +66,12 @@ class Socket {
             }
             handler(obj, e)
         }
-
-
         return this
+    }
+    
+    close() {
+        this.socket.onclose = () => {}
+        this.socket.close()
     }
 
     send(event, obj) {

@@ -62,6 +62,10 @@ def detect_doc_type(docstring):
     return 'text'
 
 
+async def nop(*args, **kwargs):
+    pass
+
+
 class Timer:
     def __init__(self, description):
         self.description = description

@@ -48,6 +48,8 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
     async def send(event, obj):
         await ws.send(msgpack.packb([event, obj]))
 
+    disconnected_callback = None
+
     try:
         path_handler = handlers.get(path, None)
         if path_handler is None:
@@ -70,9 +72,10 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
                 ws.close()
                 return
 
-        connected_handler = path_handler.get('_connected', None)
-        if connected_handler:
-            await connected_handler(client_id, send, context)
+        connected_callback = path_handler.get('_connected', None)
+        if connected_callback:
+            await connected_callback(client_id, send, context)
+        disconnected_callback = path_handler.get('_disconnected', None)
 
         clients[client_id][path].add(ws)
         context.client_id = client_id
@@ -94,7 +97,10 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
 
     except websockets.exceptions.ConnectionClosed:
         logger.info('Connection %s closed.', path)
-        clients[client_id][path].remove(ws)
+        if disconnected_callback:
+            await disconnected_callback(context)
+        with suppress(Exception):
+            clients[client_id][path].remove(ws)
         if path == '/':
             del shared_contexts[client_id]
         if context.linter_task:

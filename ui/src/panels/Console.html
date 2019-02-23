@@ -1,5 +1,9 @@
 <div class="panel" class:gone="!active">
+    {#if mode === 'terminal'}
     <div ref:terminal class="tab-view"></div>
+    {:else}
+    <div ref:jupyter class="tab-view">jupyter</div>
+    {/if}
 </div>
 
 
@@ -15,85 +19,111 @@
     import fit from 'xterm/lib/addons/fit/fit'
     import { Socket } from '../lib/Socket'
 
+    Terminal.applyAddon(fit)
+    
     export default {
         components: {},
         oncreate() {
             g.console = this
             initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
-            this.initialized = false
+            
         },
-        onupdate({ changed, current }) {
+        onupdate({ changed, previous, current }) {
+            if (changed.mode) {
+                this.close()
+                if (current.active) {
+                    this.initialize()
+                }
+            }
             if (changed.active) {
-                if (!this.initialized && current.active) {
-                    this.initializeTerminal()
+                if (!current.ready && current.active) {
+                    this.initialize()
                 }
             }
         },
         data() {
             return {
-                active: false
+                active: false,
+                mode: 'terminal', // or 'jupyter'
+                ready: false,
             }
         },
         methods: {
-            initializeTerminal() {
-                this.tab.set({ active: false })
-                this.tab.set({ active: true })
+            initialize() {
+                const { mode } = this.get()
+                if (mode === 'terminal') {
+                    this.tab.set({ active: false })
+                    this.tab.set({ active: true })
+                    nextFrame(() => this.openTerminal())
+                } else if (mode === 'jupyter') {
+                    this.openJupyter()
+                }
+            },
+            close() {
+                this.set({ ready: false })
+                if (this.socket) {
+                    this.socket.close()
+                    this.socket = null
+                }
+                if (this.terminal) {
+                    this.terminal.dispose()
+                    this.terminal = null
+                }
+            },
+
+            // Terminal
+            openTerminal() {
+                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+                const terminal = new Terminal({
+                    tabStopWidth: 4,
+                    fontSize: 1.2 * rem,
+                    fontFamily: 'Source Code Pro',
+                    fontWeight: 400, // workaround for broken block (e.g. tqdm) rendering
+                    theme: {
+                        foreground: '#CCC',
+                        background: '#3F3F3F'
+                    },
+                    convertEol: true,
+                })
+                this.terminal = terminal
+                terminal.open(this.refs.terminal, false)
+                terminal.on('focus', () => {
+                    g.setFocus([g.panelRight, this])
+                })
+                terminal.addDisposableListener('data', data => {
+                    this.socket.send('Stdin', data)
+                })
+
+                this.socket = new Socket('terminal')
+                    .addHandler('Stdout', message => {
+                        terminal.write(message)
+                    })
+                    .addHandler('Started', () => {
+                        terminal.clear()
+                        terminal.reset()
+                    })
+                    .connect(() => {})
 
                 nextFrame(() => {
-                    Terminal.applyAddon(fit)
-                    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                    const terminal = new Terminal({
-                        tabStopWidth: 4,
-                        fontSize: 1.2 * rem,
-                        fontFamily: 'Source Code Pro',
-                        fontWeight: 400, // workaround for broken block (e.g. tqdm) rendering
-                        theme: {
-                            foreground: '#CCC',
-                            background: '#3F3F3F'
-                        },
-                        convertEol: true,
-                    })
-                    this.terminal = terminal
-                    terminal.open(this.refs.terminal, false)
-                    terminal.on('focus', () => {
-                        g.setFocus([g.panelRight, this])
-                    })
-                    terminal.addDisposableListener('data', data => {
-                        this.socket.send('Stdin', data)
-                    })
-
-                    this.socket = new Socket('terminal')
-                        .addHandler('Stdout', message => {
-                            terminal.write(message)
-                        })
-                        .addHandler('Started', () => {
-                            terminal.clear()
-                            terminal.reset()
-                        })
-                        .connect(() => {})
-                    
-                    this.jupyterSocket = new Socket('jupyter').connect(() => {})
-
-                    nextFrame(() => {
-                        this.terminal.fit()
-                        terminal.write('Click "Run" on toolbar to run current script.\n')
-                        this.initialized = true
-                    })
+                    this.terminal.fit()
+                    terminal.write('Click "Run" on toolbar to run current script.\n')
+                    this.set({ ready: true })
                 })
             },
+
             runInTerminal() {
                 g.panelRight.activateView(g.panelRight.refs.console)
                 const { mode, shellCommands, shellCommandIndex, args, cwd } = g.runConfiguration.get()
-                
+
                 const run = () => {
-                    const { initialized } = this
-                    if (!initialized) {
+                    const { ready } = this.get()
+                    if (!ready) {
                         nextFrame(run)
                         return
                     }
                     const { cols, rows } = this.terminal
                     this.terminal.clear()
-                    
+
                     const configuration = { mode, cols, rows }
                     if (mode === 'shell') {
                         configuration.command = shellCommands[shellCommandIndex]
@@ -113,9 +143,18 @@
             stop() {
                 this.socket.send('Stop', {})
             },
-            startJupyterKernel() {
-                this.jupyterSocket.send('StartKernel')
-            }
+
+            // Jupyter
+            openJupyter() {
+                this.socket = new Socket('jupyter')
+                    .addHandler('KernelStarted', () => {
+                        this.set({ ready: true })
+                    })
+                    .connect(() => {
+                        this.socket.send('StartKernel')
+                    })
+            },
+
         }
     }
 

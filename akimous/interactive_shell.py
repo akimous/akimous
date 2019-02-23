@@ -3,7 +3,8 @@ from functools import partial
 
 from jupyter_client import KernelManager
 
-from akimous.websocket import register_handler
+from .websocket import register_handler
+from .utils import nop
 from logzero import logger
 
 handles = partial(register_handler, 'jupyter')
@@ -22,6 +23,11 @@ def iopub_listener(client):
 async def connected(client_id, send, context):
     context.kernel_manager = KernelManager()
     context.iopub_listener_thread = Thread()
+
+
+@handles('_disconnected')
+async def disconnected(context):
+    await stop_kernel({}, nop, context)
 
 
 @handles('StartKernel')
