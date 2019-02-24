@@ -13,15 +13,17 @@
     {/if}
 
     {#if output && output['text/latex']}
-    {output['text/latex']}
+    <div ref:tex></div>
     {:else}
+
     {#each Object.entries(output) as [key, value]}
     {#if key === 'text/plain'}
     {value}
     {:elseif key.startsWith('image/')}
-    <img src="data:{key};base64,{value}" />
+    <img src="data:{key};base64,{value}" alt="" />
     {/if}
     {/each}
+
     {/if}
 </div>
 
@@ -33,11 +35,35 @@
 
 
 <script>
-    // import g from './lib/Globals'
+    import { nextFrame } from '../lib/Utils'
+
+    let _katex = null
+
+    function katex(callback) {
+        if (_katex) return callback(_katex)
+        import('./katex.js').then(({ default: k }) => {
+            _katex = k
+            callback(k)
+        })
+    }
 
     export default {
         components: {},
-        oncreate() {},
+        oncreate() {
+
+        },
+        onstate({ changed, current, previous }) {
+            if (changed.output) {
+                const source = current.output['text/latex']
+                if (source && (!previous || previous.output['text/latex'] !== source)) {
+                    nextFrame(() => {
+                        katex(katex => {
+                            katex.render(source.replace(/(^\$\$)|(\$\$$)/g, ''), this.refs.tex)
+                        })
+                    })
+                }
+            }
+        },
         data() {
             return {
                 executionCount: 0,

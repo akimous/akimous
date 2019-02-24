@@ -41,7 +41,9 @@
         "terser": "^3.16.1",
         "xterm": "^3.11.0"
     },
-    "dependencies": {},
+    "dependencies": {
+        "katex": "^0.10.1"
+    },
     "scripts": {},
     "browserslist": [
         "last 2 Safari versions",

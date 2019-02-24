@@ -35,7 +35,7 @@
             initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
 
         },
-        onupdate({ changed, previous, current }) {
+        onupdate({ changed, current }) {
             if (changed.mode) {
                 this.close()
                 if (current.active) {
@@ -64,7 +64,6 @@
         methods: {
             initialize() {
                 const { mode } = this.get()
-                console.info('initializing', mode)
                 if (mode === 'terminal') {
                     this.tab.set({ active: false })
                     this.tab.set({ active: true })

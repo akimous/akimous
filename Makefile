@@ -27,7 +27,11 @@ static:
 	cp -r ui/node_modules/@fortawesome/fontawesome-free/webfonts/*.woff2 akimous_ui/webfonts
 	cp -r ui/node_modules/@fortawesome/fontawesome-free/css/all.min.css akimous_ui/webfonts
 	cp -r ui/node_modules/devicon/fonts/*.woff akimous_ui/fonts
-    
+
+	cp -r ui/node_modules/katex/dist/fonts/*.woff2 akimous_ui/fonts
+	cp -r ui/node_modules/katex/dist/katex.mjs akimous_ui/katex.js
+	cp -r ui/node_modules/katex/dist/katex.min.css akimous_ui/
+
 	touch akimous_ui/__init__.py
 	for D in akimous_ui/*/; do touch $${D}__init__.py; done
 
