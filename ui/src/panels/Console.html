@@ -3,6 +3,7 @@
     <div ref:terminal class="tab-view"></div>
     {:elseif mode === 'jupyter'}
     <div ref:jupyter class="tab-view">
+        <JupyterToolbar></JupyterToolbar>
         {executionState}
         {#each cells as cell}
         <JupyterCell {...cell}></JupyterCell>
@@ -28,7 +29,8 @@
 
     export default {
         components: {
-            JupyterCell: './JupyterCell.html'
+            JupyterToolbar: './JupyterToolbar.html',
+            JupyterCell: './JupyterCell.html',
         },
         oncreate() {
             g.console = this

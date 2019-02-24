@@ -1,0 +1,36 @@
+<div ref:toolbar>
+    meow
+    {#if busy}
+    <i class="fas fa-hourglass-half"></i>
+    {:elseif error}
+    <i class="fas fa-exclamation-triangle"></i>
+    {:else}
+    <i class="fas fa-check"></i>
+    {/if}
+</div>
+
+
+<style>
+
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.jupyterToolbar = this
+        },
+        data() {
+            return {
+                busy: false,
+                error: false,
+            }
+        },
+        methods: {}
+    }
+
+</script>

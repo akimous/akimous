@@ -15,7 +15,10 @@ export default {
         sourcemap: true,
         format: 'iife',
         name: 'app',
-        file: '../akimous_ui/bundle.js'
+        file: '../akimous_ui/bundle.js',
+        indent: false,
+        interop: false,
+        compact: true,
     },
     perf: false,
     plugins: [
@@ -24,10 +27,12 @@ export default {
         }),
 
         resolve(),
-        commonjs(),
+        commonjs({
+            sourceMap: production,
+        }),
         postcss({
             plugins: [autoprefixer()], // not effective for svelte component
-            minimize: true,
+            minimize: production,
             sourcemap: !production,
             // extract: 'dist/bundle.css'
         }),
