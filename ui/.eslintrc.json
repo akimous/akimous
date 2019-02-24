@@ -33,12 +33,69 @@
         "no-implied-eval": "warn",
         "no-invalid-this": "error",
         "no-loop-func": "warn",
-        "no-cond-assign": "off"
+        "no-cond-assign": "off",
+
+        "spellcheck/spell-checker": [1,
+            {
+                "comments": true,
+                "strings": true,
+                "identifiers": true,
+                "lang": "en_US",
+                "skipWords": [
+                    "akimous",
+                    "arg",
+                    "args",
+                    "async",
+                    "breakpoint",
+                    "codemirror",
+                    "devicon",
+                    "docstring",
+                    "dom",
+                    "eslint",
+                    "fas",
+                    "globals",
+                    "html",
+                    "https",
+                    "isort",
+                    "javascript",
+                    "jupyter",
+                    "linter",
+                    "lodash",
+                    "makefile",
+                    "mouseover",
+                    "msgpack",
+                    "oncreate",
+                    "ondestroy",
+                    "onstate",
+                    "popup",
+                    "pos",
+                    "preprocessor",
+                    "pyflakes",
+                    "pylint",
+                    "sortable",
+                    "sortablejs",
+                    "tqdm",
+                    "txt",
+                    "unshift",
+                    "utils",
+                    "viewport",
+                    "yapf"
+                ],
+                "skipIfMatch": [
+                    "http://[^s]*"
+                ],
+                "skipWordIfMatch": [
+                    "px"
+                ],
+                "minLength": 3
+            }
+        ]
     },
     "globals": {
         "process": false
     },
     "plugins": [
-        "html"
+        "html",
+        "spellcheck"
     ]
 }

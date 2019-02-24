@@ -42,6 +42,7 @@
         "xterm": "^3.11.0"
     },
     "dependencies": {
+        "eslint-plugin-spellcheck": "^0.0.11",
         "katex": "^0.10.1"
     },
     "scripts": {},

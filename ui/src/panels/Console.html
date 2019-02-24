@@ -3,7 +3,7 @@
     <div ref:terminal class="tab-view"></div>
     {:elseif mode === 'jupyter'}
     <div ref:jupyter class="tab-view">
-        <JupyterToolbar></JupyterToolbar>
+        <JupyterToolbar ref:jupyterToolbar></JupyterToolbar>
         {executionState}
         {#each cells as cell}
         <JupyterCell {...cell}></JupyterCell>
@@ -175,8 +175,11 @@
                     })
                     .addHandler('IOPub', e => {
                         const { cells } = this.get()
-                        if (e.execution_state) {
-                            this.set({ executionState: e.execution_state })
+                        const { execution_state } = e
+                        if (execution_state) {
+                            const { jupyterToolbar } = this.refs
+                            if (execution_state === 'busy') jupyterToolbar.set({ busy: true })
+                            else if (execution_state === 'idle') jupyterToolbar.set({ busy: false })
                         }
                         if (e.code) {
                             cells.push({

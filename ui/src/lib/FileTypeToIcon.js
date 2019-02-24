@@ -1,3 +1,4 @@
+/* eslint spellcheck/spell-checker: 0 */
 const fileTypeToIcon = {
     'default': 'far fa-file l-ui-text',
     'loading': 'fas fa-hourglass-half l-ui-text',
