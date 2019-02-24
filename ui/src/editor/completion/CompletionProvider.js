@@ -85,7 +85,7 @@ class CompletionProvider {
         this.input = ''
 
         editor.socket.addHandler('Prediction', (data) => {
-            if (debug) console.log('CompletionProvider.recieve', data)
+            if (debug) console.log('CompletionProvider.receive', data)
             let input = this.lineContent[this.firstTriggeredCharPos.ch]
             this.state = TRIGGERED
             this.currentCompletions = data.result

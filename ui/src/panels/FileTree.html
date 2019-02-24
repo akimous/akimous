@@ -165,16 +165,16 @@
                 handleCommand(command, target) {
                     switch (command) {
                         case 'down':
-                            target.moveToSiblin(1)
+                            target.moveToSibling(1)
                             break
                         case 'up':
-                            target.moveToSiblin(-1)
+                            target.moveToSibling(-1)
                             break
                         case 'down5X':
-                            target.moveToSiblin(5)
+                            target.moveToSibling(5)
                             break
                         case 'up5X':
-                            target.moveToSiblin(-5)
+                            target.moveToSibling(-5)
                             break
                         case 'left':
                             target.moveToParent()
@@ -183,10 +183,10 @@
                             target.moveToFirstChild()
                             break
                         case 'end':
-                            target.moveToSiblin(999999)
+                            target.moveToSibling(999999)
                             break
                         case 'home':
-                            target.moveToSiblin(-999999)
+                            target.moveToSibling(-999999)
                             break
                         case 'top':
                             target.top()
@@ -228,14 +228,14 @@
                 }
                 return node
             },
-            moveToSiblin(n) {
+            moveToSibling(n) {
                 const currentFocus = g.focus
                 if (this.moveToTopIfNothingSelected()) return
                 let node = currentFocus
                 for (let i = Math.abs(n); i > 0; i--) {
-                    const siblin = node.siblin(n)
-                    if (!siblin) break
-                    node = siblin
+                    const sibling = node.sibling(n)
+                    if (!sibling) break
+                    node = sibling
                 }
                 if (!node && node === currentFocus) return
                 if (!node.get().selected) node.onClick()

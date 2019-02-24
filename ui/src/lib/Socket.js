@@ -49,11 +49,11 @@ class Socket {
             //            }, 3000)
         }
         this.socket.onerror = event => {
-            console.error(`Recieved error from ${this.path}: ${event}`)
+            console.error(`Received error from ${this.path}: ${event}`)
         }
         this.socket.onmessage = event => {
             const [e, obj] = msgpack.decode(new Uint8Array(event.data)) // event.data is ArrayBuffer
-            // console.debug(`Recieved message from ${this.path}: ${e}`, obj)
+            // console.debug(`Received message from ${this.path}: ${e}`, obj)
             const preprocessor = rowPreprocessor[e]
             if (preprocessor && obj.result) {
                 obj.result = obj.result.map(preprocessor)

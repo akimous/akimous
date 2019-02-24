@@ -59,7 +59,7 @@
                 this.rows.length = 0
                 this.dividers.length = 0
                 if (!current.items) return
-                requestAnimationFrame(() => { // this.refs.contextMenu might be null if referenced immediatly
+                requestAnimationFrame(() => { // this.refs.contextMenu might be null if referenced immediately
                     for (const i of current.items) {
                         if (i.divider) {
                             const child = new ContextMenuDivider({

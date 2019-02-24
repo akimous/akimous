@@ -171,9 +171,9 @@
             this.removeChildren()
             if (this.get().selected) {
                 try {
-                    let node = this.siblin(-1)
+                    let node = this.sibling(-1)
                     if (node && node !== this) return node.onClick()
-                    node = this.siblin(1)
+                    node = this.sibling(1)
                     if (node && node !== this) return node.onClick()
                     node = this.get().parent
                     if (node) return node.onClick()
@@ -333,7 +333,7 @@
                 this.set({ newNode: 'dir' })
                 this.refs.placeholderNode.rename()
             },
-            siblin(direction) {
+            sibling(direction) {
                 const { parent, isDir } = this.get()
                 const { files, dirs } = parent.get()
                 const list = isDir ? dirs : files
@@ -374,14 +374,14 @@
                 if (direction > 0) {
                     const firstChild = this.firstChild()
                     if (firstChild) return firstChild
-                    const siblin = this.siblin(1)
-                    if (siblin && siblin !== this) return siblin
-                    if (!parent.siblin) return null
-                    return parent.siblin(1)
+                    const sibling = this.sibling(1)
+                    if (sibling && sibling !== this) return sibling
+                    if (!parent.sibling) return null
+                    return parent.sibling(1)
                 } else {
-                    const siblin = this.siblin(-1)
-                    if (!siblin || siblin === this) return parent
-                    let node = siblin
+                    const sibling = this.sibling(-1)
+                    if (!sibling || sibling === this) return parent
+                    let node = sibling
                     while (Object.keys(node.children).length) {
                         const lastChild = node.lastChild()
                         if (!lastChild) break
