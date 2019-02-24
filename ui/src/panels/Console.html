@@ -4,10 +4,13 @@
     {:elseif mode === 'jupyter'}
     <div ref:jupyter class="tab-view">
         <JupyterToolbar ref:jupyterToolbar></JupyterToolbar>
-        {executionState}
-        {#each cells as cell}
-        <JupyterCell {...cell}></JupyterCell>
-        {/each}
+        <table id="jupyter-cells">
+            {#each cells as cell}
+            {#if displayInput || !cell.code }
+            <JupyterCell {...cell}></JupyterCell>
+            {/if}
+            {/each}
+        </table>
     </div>
     {/if}
 </div>
@@ -55,12 +58,14 @@
                 active: false,
                 mode: '', // 'terminal' or 'jupyter'
                 ready: false,
-                cells: [{
-                    output: {
-                        'text/plain': 'text',
-                    }
-                }],
-                executionState: 'idle',
+                cells: [
+                    // {
+                    //     output: {
+                    //         'text/plain': 'text',
+                    //     }
+                    // }
+                ],
+                displayInput: false,
             }
         },
         methods: {

@@ -19,7 +19,7 @@ clean:
 	mkdir -p akimous_ui
 	rm -rf dist/*
 	rm -rf akimous_ui/*
-    
+
 static:
 	cp -r ui/src/index.html akimous_ui/
 	cp -r ui/resources/* akimous_ui/
@@ -46,7 +46,7 @@ test:
 
 jsdev: | clean static
 	cd ui && yarn run rollup -c -w
-	
+
 pydev:
 	poetry run python -m akimous --no-browser --verbose
 

@@ -11,6 +11,13 @@ import livereload from 'rollup-plugin-livereload'
 const production = !process.env.ROLLUP_WATCH
 
 export default {
+    watch: {
+        chokidar: {
+            ignoreInitial: true,
+            followSymlinks: false,
+        },
+        exclude: 'node_modules/**',
+    },
     input: 'src/main.js',
     output: {
         sourcemap: true,
@@ -21,6 +28,7 @@ export default {
         interop: false,
         compact: true,
     },
+    treeshake: production,
     perf: false,
     plugins: [
         svelte({
@@ -49,6 +57,6 @@ export default {
             }
         }),
         production && progress(),
-        !production && livereload('../akimous_ui'),
+        !production && livereload('../akimous_ui/bundle.js'),
     ]
 }

@@ -1,17 +1,38 @@
-<div ref:toolbar>
-    meow
-    {#if busy}
-    <i class="fas fa-hourglass-half"></i>
-    {:elseif error}
-    <i class="fas fa-exclamation-triangle"></i>
-    {:else}
-    <i class="fas fa-check"></i>
-    {/if}
+<div ref:toolbar id="jupyter-toolbar" class="non-selectable">
+    <div class="real-time-evaluation">
+        Real-time evaluation
+    </div>
+    <span class="gap"></span>
+    <div class="execution-state">
+        {#if busy}
+        <i class="fas fa-hourglass-half l-yellow"></i>
+        {:elseif error}
+        <i class="fas fa-exclamation-triangle l-red"></i>
+        {:else}
+        <i class="fas fa-check l-green"></i>
+        {/if}
+    </div>
 </div>
 
 
 <style>
-
+    #jupyter-toolbar {
+        line-height: var(--ui-line-height-large);
+        background: var(--primary1);
+        display: flex;
+    }
+    
+    .gap {
+        flex-grow: 1;
+    }
+    
+    .real-time-evaluation {
+        display: inline-block;
+    }
+    
+    .execution-state {
+        display: inline-block;
+    }
 
 </style>
 

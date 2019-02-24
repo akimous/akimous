@@ -1,35 +1,58 @@
-<div ref:cell>
-    <div class="execution-count">{executionCount}</div>
-    {#if code}
-    {code}
-    {/if}
+<tr ref:cell>
+    <td class="execution-count">{executionCount}</td>
+    <td class="content">
 
-    {#if stdout}
-    {stdout}
-    {/if}
+        {#if code}
+        <pre>{code}</pre>
+        {/if}
 
-    {#if stderr}
-    {stderr}
-    {/if}
+        {#if stdout}
+        <pre>{stdout}</pre>
+        {/if}
 
-    {#if output && output['text/latex']}
-    <div ref:tex></div>
-    {:else}
+        {#if stderr}
+        <pre>{stderr}</pre>
+        {/if}
 
-    {#each Object.entries(output) as [key, value]}
-    {#if key === 'text/plain'}
-    {value}
-    {:elseif key.startsWith('image/')}
-    <img src="data:{key};base64,{value}" alt="" />
-    {/if}
-    {/each}
+        {#if output && output['text/latex']}
+        <div ref:tex></div>
 
-    {/if}
-</div>
+        {:elseif output && output['text/html']}
+        {@html output['text/html']}
+        
+        {:else}
+        {#each Object.entries(output) as [key, value]}
+        {#if key === 'text/plain'}
+        {value}
+        {:elseif key.startsWith('image/')}
+        <img src="data:{key};base64,{value}" alt="" />
+        {/if}
+        {/each}
+
+        {/if}
+    </td>
+</tr>
 
 
 <style>
+    .execution-count {
+        width: 2rem;
+        padding: .2rem .2rem .2rem 0;
+        text-align: right;
+        color: var(--primary7);
+        background: var(--primary2);
+        font-family: var(--monospace-font-family);
+    }
 
+    .content {
+        padding: .2rem;
+    }
+    
+    pre {
+        font-family: var(--monospace-font-family);
+        font-size: var(--monospace-font-size);
+        line-height: var(--monospace-line-height);
+    }
 
 </style>
 
@@ -41,7 +64,14 @@
 
     function katex(callback) {
         if (_katex) return callback(_katex)
+
         import('./katex.js').then(({ default: k }) => {
+            // load CSS
+            const style = document.createElement('link')
+            style.href = 'katex.min.css'
+            style.rel = 'stylesheet'
+            document.head.appendChild(style)
+
             _katex = k
             callback(k)
         })
@@ -66,7 +96,7 @@
         },
         data() {
             return {
-                executionCount: 0,
+                executionCount: '',
                 code: null,
                 output: {},
                 stdout: null,
