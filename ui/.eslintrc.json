@@ -47,12 +47,14 @@
                     "args",
                     "async",
                     "breakpoint",
+                    "closable",
                     "codemirror",
                     "cwd",
                     "dev",
                     "devicon",
                     "docstring",
                     "dom",
+                    "eol",
                     "eslint",
                     "fas",
                     "globals",
@@ -62,6 +64,7 @@
                     "isort",
                     "javascript",
                     "jupyter",
+                    "keyboardjs",
                     "linter",
                     "lodash",
                     "makefile",
@@ -71,6 +74,7 @@
                     "oncreate",
                     "ondestroy",
                     "onstate",
+                    "onupdate",
                     "popup",
                     "pos",
                     "preprocessor",
@@ -78,6 +82,8 @@
                     "pylint",
                     "rect",
                     "reposition",
+                    "resize",
+                    "scrollable",
                     "sortable",
                     "sortablejs",
                     "stackoverflow",
@@ -92,7 +98,9 @@
                     "yapf"
                 ],
                 "skipIfMatch": [
-                    "http://[^s]*"
+                    "http://[^s]*",
+                    "fa-",
+                    "@param"
                 ],
                 "skipWordIfMatch": [
                     "px"

@@ -40,7 +40,7 @@ function dragElement(element) {
 /**
  * Generate border radius for the given corners.
  * For instance, 1000 means the top left corner is round.
- * @param {number} roundCorner a four digit number indicating which cornors are round.
+ * @param {number} roundCorner a four digit number indicating which corners are round.
  */
 function roundCorners(corners) {
     const c = i => corners.charAt(i) === '1' ? 'var(--small-radius)' : '0'
