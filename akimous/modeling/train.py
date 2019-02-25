@@ -1,13 +1,14 @@
 # from sklearn.ensemble import RandomForestClassifier
 import multiprocessing
-
-from sklearn.externals import joblib
-from xgboost import XGBClassifier
 import pickle
 import time
-from .utility import working_dir, sha3
-from logzero import logger
+
 import numpy as np
+from logzero import logger
+from sklearn.externals import joblib
+from xgboost import XGBClassifier
+
+from .utility import sha3, working_dir
 
 
 def load_extracted_features():

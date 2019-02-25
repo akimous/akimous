@@ -1,17 +1,18 @@
-import jedi
-import time
-import tokenize
-import token as TOKEN
-import numpy as np
-import pandas as pd
 import pickle
 import random
-from tqdm import tqdm
-from os import walk, path
+import time
+import token as TOKEN
+import tokenize
 from compileall import compile_file
+from os import path, walk
+
+import jedi
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
 
 from .offline_feature_extractor import OfflineFeatureExtractor
-from .utility import p, WORKING_DIR
+from .utility import WORKING_DIR, p
 
 feature_extractor = OfflineFeatureExtractor()
 

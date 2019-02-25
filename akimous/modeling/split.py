@@ -1,11 +1,12 @@
-import sys
-from pathlib import Path
-from os import walk
-from logzero import logger
-from compileall import compile_file
 import random
-from .utility import working_dir
+import sys
+from compileall import compile_file
+from os import walk
+from pathlib import Path
 
+from logzero import logger
+
+from .utility import working_dir
 
 source_dir = working_dir
 random.seed(26)

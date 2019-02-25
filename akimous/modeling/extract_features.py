@@ -1,15 +1,17 @@
-import jedi
-import time
-import tokenize
-import token as TOKEN
+import logging
 import pickle
 import sys
-from tqdm import tqdm
-from .offline_feature_extractor import OfflineFeatureExtractor
-from .utility import p, working_dir, sha3
+import time
+import token as TOKEN
+import tokenize
+
+import jedi
 import logzero
 from logzero import logger
-import logging
+from tqdm import tqdm
+
+from .offline_feature_extractor import OfflineFeatureExtractor
+from .utility import p, sha3, working_dir
 
 
 def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=False):

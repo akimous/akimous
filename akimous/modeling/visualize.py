@@ -1,14 +1,15 @@
 import pickle
-import tokenize
+import sys
 import token as TOKEN
-from colorama import init
-from colorama import Fore as F
+import tokenize
+
 from colorama import Back as B
+from colorama import Fore as F
+from colorama import init
 from sklearn.externals import joblib
 
 from .utility import sha3, working_dir
 
-import sys
 init()
 
 if __name__ == "__main__":

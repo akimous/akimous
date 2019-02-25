@@ -1,9 +1,10 @@
-from sklearn.ensemble import RandomForestClassifier
-from .train import load_extracted_features, test_model
-from .utility import working_dir
-from logzero import logger
 import logzero
 import numpy as np
+from logzero import logger
+from sklearn.ensemble import RandomForestClassifier
+
+from .train import load_extracted_features, test_model
+from .utility import working_dir
 
 logzero.logfile(working_dir / 'feature_selection.log')
 

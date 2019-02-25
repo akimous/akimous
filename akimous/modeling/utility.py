@@ -1,6 +1,6 @@
-from pathlib import Path
-from itertools import zip_longest
 import hashlib
+from itertools import zip_longest
+from pathlib import Path
 
 DEBUG = False
 WORKING_DIR = '/Users/ray/Code/Working/'
@@ -32,4 +32,3 @@ def to_key_value_columns(keys, values, output_width=140):
     result = (format_string.format(*i) for i in zip(keys, values))
 
     return to_columns(list(result), output_width)
-

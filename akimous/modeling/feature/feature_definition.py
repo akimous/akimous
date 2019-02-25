@@ -1,15 +1,15 @@
 import lzma
-from types import SimpleNamespace
 from collections import OrderedDict
-from tokenize import generate_tokens, TokenError
-from token import NAME
-from io import StringIO
 from importlib.resources import open_binary
+from io import StringIO
+from token import NAME
+from tokenize import TokenError, generate_tokens
+from types import SimpleNamespace
 
 import msgpack
 import numpy as np
 
-from ..token_map import TokenMap, DirtyMap, PrefixTokenMap
+from ..token_map import DirtyMap, PrefixTokenMap, TokenMap
 from ..utility import p, to_key_value_columns
 
 NOT_APPLICABLE = -99999

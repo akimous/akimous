@@ -56,6 +56,7 @@ appdirs = "^1.4"
 ptyprocess = "^0.6.0"
 jupyter_client = "^5.2"
 ipykernel = "^5.1"
+toml = "^0.10.0" # required by isort
 
 [tool.poetry.dev-dependencies]
 pandas = "^0.24.0"

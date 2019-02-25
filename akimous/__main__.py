@@ -1,7 +1,9 @@
-from boltons.gcutils import toggle_gc_postcollect
 from logging import DEBUG, INFO
-from .utils import Timer
+
 import logzero
+from boltons.gcutils import toggle_gc_postcollect
+
+from .utils import Timer
 
 with Timer('initialization'):
     with toggle_gc_postcollect:

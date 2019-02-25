@@ -1,7 +1,9 @@
-from .feature_definition import FeatureDefinition, MAX, MAX_SCAN_LINES
 import re
 import token as token_
+
 from fuzzywuzzy import fuzz
+
+from .feature_definition import MAX, MAX_SCAN_LINES, FeatureDefinition
 
 COMPLETION_TYPES = [
     'class',

@@ -1,10 +1,12 @@
-import tokenize
-import token as token_
-from collections import defaultdict
 import lzma
+import token as token_
+import tokenize
+from collections import defaultdict
+
 import msgpack
 from logzero import logger
 from tqdm import tqdm
+
 from .utility import working_dir
 
 token_counter = defaultdict(int)

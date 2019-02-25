@@ -1,7 +1,9 @@
-import sys
 import json
+import sys
 from pathlib import Path
+
 from git import Repo
+
 from .utility import working_dir
 
 REPOS = json.load(open(Path('resources/repo.json')))

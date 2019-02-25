@@ -1,8 +1,8 @@
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.externals import joblib
 import pickle
 import time
 
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.externals import joblib
 
 dg = pickle.load(open('/Users/ray/Code/Working/single.pkl', 'rb'))
 print('Dataset size:', dg.X.shape, len(dg.index))
@@ -55,4 +55,3 @@ print(f'fitting model took {time.time() - start_time}')
 joblib.dump(model, '/Users/ray/Code/Working/single.model')
 # model.n_jobs = 1
 print(evaluate(Xt, yt, idxt, model))
-
