@@ -46,10 +46,12 @@
                     "arg",
                     "args",
                     "async",
+                    "beforeunload",
                     "breakpoint",
                     "closable",
                     "codemirror",
                     "cwd",
+                    "del",
                     "dev",
                     "devicon",
                     "docstring",
@@ -63,6 +65,7 @@
                     "isequal",
                     "isort",
                     "javascript",
+                    "jitter",
                     "jupyter",
                     "keyboardjs",
                     "linter",
@@ -75,7 +78,9 @@
                     "ondestroy",
                     "onstate",
                     "onupdate",
+                    "polyfill",
                     "popup",
+                    "popups",
                     "pos",
                     "preprocessor",
                     "pyflakes",
@@ -83,6 +88,7 @@
                     "rect",
                     "reposition",
                     "resize",
+                    "sandybrown",
                     "scrollable",
                     "sortable",
                     "sortablejs",
@@ -99,8 +105,10 @@
                 ],
                 "skipIfMatch": [
                     "http://[^s]*",
+                    "https://[^s]*",
                     "fa-",
-                    "@param"
+                    "@param",
+                    "CodeMirror-"
                 ],
                 "skipWordIfMatch": [
                     "px"

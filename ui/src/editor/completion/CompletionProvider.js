@@ -120,11 +120,11 @@ class CompletionProvider {
         })
     }
 
-    trigger(lineContent, line, ch, triggerdCharOffset) {
+    trigger(lineContent, line, ch, triggeredCharOffset) {
         if (!this.enabled) return
         this.startTime = performance.now()
         this.firstTriggeredCharPos.line = line
-        this.firstTriggeredCharPos.ch = ch + triggerdCharOffset
+        this.firstTriggeredCharPos.ch = ch + triggeredCharOffset
         this.lineContent = lineContent
         this.editor.socket.send('Predict', [line, ch, lineContent])
         this.isClassDefinition = /^\s*class\s/.test(lineContent)

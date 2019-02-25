@@ -247,7 +247,7 @@
         }
     }
     
-    :global(#keyboard-control-hint .persistant-highlight) {
+    :global(#keyboard-control-hint .persistent-highlight) {
         background: var(--blue);
     }
 
@@ -398,14 +398,14 @@
                 const { open } = this.get()
                 if (!open) return
                 const element = document.getElementById(`key-${key}`)
-                if (element.classList.contains('persistant-highlight')) return
-                element.classList.add('persistant-highlight')
+                if (element.classList.contains('persistent-highlight')) return
+                element.classList.add('persistent-highlight')
             },
             dimModifier(key) {
                 const { open } = this.get()
                 if (!open) return
                 const element = document.getElementById(`key-${key}`)
-                element.classList.remove('persistant-highlight')
+                element.classList.remove('persistent-highlight')
             }
         }
     }

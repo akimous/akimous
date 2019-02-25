@@ -1,6 +1,6 @@
 function registerCMCommands(CodeMirror) {
-    if (CodeMirror.chakuroCommandsRegistered) return
-    CodeMirror.chakuroCommandsRegistered = true
+    if (CodeMirror.akimousCommandsRegistered) return
+    CodeMirror.akimousCommandsRegistered = true
     const Pos = CodeMirror.Pos
     const commands = CodeMirror.commands
 
@@ -229,7 +229,6 @@ function registerCMCommands(CodeMirror) {
             if (line === where.line)
                 ch = dir > 0 ? where.ch + 1 : where.ch
 
-            //            let safty = 0
             const stack = []
 
             while (ch != end) {
@@ -252,7 +251,6 @@ function registerCMCommands(CodeMirror) {
                 } else {
                     ch = (token.start === token.end) ? token.start - 1 : token.start
                 }
-                //                if (safty++ > 300) return where
             }
         }
         return false

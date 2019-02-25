@@ -163,7 +163,7 @@
                 if (EXTRA_PREDICTIONS.has(completion.t))
                     return // don't request docstring if it is not actually a completion
 
-                // remove redundent punctuations
+                // remove redundant punctuation
                 const match = name.match(/^[^\d\W]\w*/)
                 if (match)
                     name = match[0]

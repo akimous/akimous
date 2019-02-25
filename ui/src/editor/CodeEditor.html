@@ -127,7 +127,7 @@
                             if (this.cursorBeforeSaving) {
                                 // restore cursor and viewport position in case formatters changes the content
                                 this.cm.setCursor(this.cursorBeforeSaving)
-                                this.cm.scrollTo(this.scrollInfoBeforSaving.left, this.scrollInfoBeforSaving.top)
+                                this.cm.scrollTo(this.scrollInfoBeforeSaving.left, this.scrollInfoBeforeSaving.top)
                             }
                         }
                         if (!this.shouldClose)
@@ -357,7 +357,7 @@
                 this.socket.send('SaveFile', { content: this.cm.getValue() })
                 // preserve cursor and viewport position in case formatters changes the content
                 this.cursorBeforeSaving = this.cm.getCursor()
-                this.scrollInfoBeforSaving = this.cm.getScrollInfo()
+                this.scrollInfoBeforeSaving = this.cm.getScrollInfo()
             },
             insertText(text) {
                 g.activeEditor && g.activeEditor.cm.hasFocus()
