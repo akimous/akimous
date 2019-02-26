@@ -9,7 +9,7 @@
     {#if pyflakes}
     <div class="title">Real-time Lints</div>
     <table id="pyflakes-result">
-        {#each realTimeLints as {line, ch, message}}
+        {#each realtimeLints as {line, ch, message}}
         <tr on:click="jumpTo(line, ch)" class:highlight="currentLine + 1 === line">
             <td class="line-number">{line}</td>
             <td class="message error">{message}</td>
@@ -188,7 +188,7 @@
             return {
                 active: false,
                 offlineLints: [],
-                realTimeLints: [],
+                realtimeLints: [],
                 spellingErrors: [],
                 currentLine: 0,
                 width: 100,
@@ -245,7 +245,7 @@
             clear() {
                 this.set({
                     offlineLints: [],
-                    realTimeLints: [],
+                    realtimeLints: [],
                     spellingErrors: []
                 })
             },

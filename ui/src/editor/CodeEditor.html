@@ -85,7 +85,7 @@
             this.parent = this.get().parent
             this.saving = false
             this.offlineLints = []
-            this.realTimeLints = []
+            this.realtimeLints = []
             this.spellingErrors = []
             this.outline = []
             g.linter.clear()
@@ -107,9 +107,9 @@
                         resolve(data) // <-- exit here
                     })
                     .addHandler('RealTimeLints', ({ result }) => {
-                        this.realTimeLints = result
+                        this.realtimeLints = result
                         if (g.activeEditor === this)
-                            g.linter.set({ realTimeLints: this.realTimeLints })
+                            g.linter.set({ realtimeLints: this.realtimeLints })
                     })
                     .connect(() => {
                         this.socket.send('OpenFile', { filePath: this.get().filePath })

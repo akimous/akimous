@@ -126,8 +126,8 @@
                     const cursor = cm.getCursor()
                     g.cursorPosition.set(cursor)
                     g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
-                    const { offlineLints, realTimeLints, spellingErrors, outline } = editor
-                    g.linter.set({ offlineLints, realTimeLints, spellingErrors })
+                    const { offlineLints, realtimeLints, spellingErrors, outline } = editor
+                    g.linter.set({ offlineLints, realtimeLints, spellingErrors })
                     g.outline.set({ outlineItems: outline })
                 })
             },
