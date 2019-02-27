@@ -63,6 +63,12 @@
             <span class="description">Run to selected line</span>
             <span class="run-now"><i class="fas fa-running" on:click="runNow('toLine')"></i></span>
         </div>
+        <div class="option" on:click="set({ mode: 'realtime' })">
+            <span class="checkbox">
+                <i class="fa-circle { mode==='realtime'?'checked fas': 'far' }"></i>
+            </span>
+            <span class="description">Realtime evaluation</span>
+        </div>
     </div>
 </div>
 {/if}
@@ -173,7 +179,7 @@
         oncreate() {
             g.runConfiguration = this
         },
-        onstate({ changed, current }) {
+        onstate({ changed, previous, current }) {
             if (!g.ready) return
             if (changed.open && g.toolbar) {
                 g.app.set({
@@ -195,6 +201,12 @@
             }
             if (changed.mode) {
                 this.setConsoleMode()
+                if (previous.mode === 'realtime') {
+                    g.console.stopRealtimeEvaluation()
+                } 
+                if (current.mode === 'realtime') {
+                    g.console.startRealtimeEvaluation()
+                }
             }
         },
         data() {
@@ -217,7 +229,7 @@
                 const { mode } = this.get()
                 if (['script', 'module', 'shell'].includes(mode)) {
                     g.console.set({ mode: 'terminal' })
-                } else if (['all', 'selected', 'toLine'].includes(mode)) {
+                } else if (['all', 'selected', 'toLine', 'realtime'].includes(mode)) {
                     g.console.set({ mode: 'jupyter' })
                 }
             },
@@ -249,7 +261,7 @@
                 originalSetting.open = false
                 this.set(originalSetting) // restore original and close
                 event.stopPropagation()
-            }
+            },
         }
     }
 

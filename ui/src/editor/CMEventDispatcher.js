@@ -11,7 +11,7 @@ import {
     AFTER_OPERATOR,
 } from './completion/CompletionProvider'
 import { OPERATOR } from './RegexDefinitions'
-import { schedule, nextFrame } from '../lib/Utils'
+import { schedule, nextFrame, Pos } from '../lib/Utils'
 
 const NONE = -1
 
@@ -21,7 +21,8 @@ class CMEventDispatcher {
             doc = cm.doc,
             formatter = editor.realtimeFormatter,
             completionProvider = editor.completionProvider,
-            completion = editor.completion
+            completion = editor.completion,
+            realtimeEvaluation = false
 
         let dirtyLine = NONE
         let shouldDismissCompletionOnCursorActivity = false
@@ -108,6 +109,9 @@ class CMEventDispatcher {
                 g.linter.set(pos)
                 g.find.set(pos)
             })
+            
+            if (this.realtimeEvaluation)
+                g.console.evaluatePartA(cursor.line)
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
@@ -117,6 +121,7 @@ class CMEventDispatcher {
         })
 
         cm.on('changes', (cm, changes) => {
+            console.log('changes')
             if (changes[0].origin === 'setValue') return
             const cursor = doc.getCursor()
             const lineContent = cm.getLine(cursor.line)
@@ -141,6 +146,8 @@ class CMEventDispatcher {
             } else if (completionProvider.state === CLOSED) {
                 syncIfNeeded(changes)
             }
+            if (this.realtimeEvaluation)
+                g.console.evaluatePartB(cursor.line, lineContent)
         })
 
         cm.on('beforeChange', (cm, c) => {

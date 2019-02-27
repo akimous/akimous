@@ -83,6 +83,8 @@
                         g.console.runInTerminal()
                     } else if (mode === 'selected') {
                         g.console.startJupyterKernel()
+                    } else if (mode === 'realtime') {
+                        g.console.startRealtimeEvaluation()
                     }
                 }
             })

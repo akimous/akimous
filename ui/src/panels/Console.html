@@ -207,6 +207,9 @@
                             this.set({ cells })
                         }
                     })
+                    .addHandler('Clear', () => {
+                        this.set({ cells: [] })
+                    })
                     .connect(() => {
                         this.socket.send('StartKernel')
                     })
@@ -227,6 +230,40 @@
 
                 run()
             },
+            startRealtimeEvaluation() {
+                if (!g.activeEditor) return
+                this.realtimeEvaluationEditor = g.activeEditor
+                g.activeEditor.cmEventDispatcher.realtimeEvaluation = true
+                console.warn('starting')
+
+            },
+            stopRealtimeEvaluation() {
+                this.realtimeEvaluationEditor = null
+                if (!g.activeEditor) return
+                g.activeEditor.cmEventDispatcher.realtimeEvaluation = false
+                console.warn('stopping')
+            },
+            evaluate(cursor) {
+                delete cursor['sticky']
+                console.log('evaluate', cursor)
+                this.socket.send('Evaluate', cursor)
+            },
+            evaluatePartA(line) {
+                if (this.lastPartALine === line) {
+                    console.log('skipped evaluateA', line)
+                    return
+                }
+                console.log('evaluateA', line)
+                this.socket.send('EvaluatePartA', line)
+                this.lastPartALine = line
+            },
+            evaluatePartB(line, line_content) {
+                console.log('evaluateB', line)
+                this.socket.send('EvaluatePartB', {
+                    line,
+                    line_content
+                })
+            }
         }
     }
 

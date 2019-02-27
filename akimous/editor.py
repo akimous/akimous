@@ -123,6 +123,7 @@ async def post_content_change(context, send):
     with Timer('Post content change'):
         with toggle_gc_postcollect:
             context.doc = context.content.splitlines()
+            context.shared_context.doc = context.doc
             # initialize feature extractor
             context.feature_extractor = OnlineFeatureExtractor()
             for line, line_content in enumerate(context.doc):

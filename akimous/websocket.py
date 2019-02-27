@@ -128,6 +128,7 @@ def start_server(host, port, no_browser, verbose):
     try:
         loop.run_forever()
     except KeyboardInterrupt:
+        logger.info('Terminating')
         for paths in clients.values():
             for path in paths.values():
                 for socket in path:
