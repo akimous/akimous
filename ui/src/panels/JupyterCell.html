@@ -1,5 +1,5 @@
 <tr ref:cell>
-    <td class="execution-count">{executionCount}</td>
+    <td class="execution-count">{@html executionCount}</td>
     <td class="content">
 
         {#if code}
@@ -11,7 +11,7 @@
         {/if}
 
         {#if stderr}
-        <pre>{stderr}</pre>
+        <pre class="l-red">{stderr}</pre>
         {/if}
 
         {#if output && output['text/latex']}
@@ -52,7 +52,9 @@
         font-family: var(--monospace-font-family);
         font-size: var(--monospace-font-size);
         line-height: var(--monospace-line-height);
+        margin: 0;
     }
+    
 
 </style>
 

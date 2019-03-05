@@ -1,14 +1,11 @@
 <div ref:toolbar id="jupyter-toolbar" class="non-selectable">
-    <div class="real-time-evaluation">
-        Real-time evaluation
-    </div>
     <span class="gap"></span>
     <div class="execution-state">
-        {#if busy}
+        {#if executionState === 'busy'}
         <i class="fas fa-hourglass-half l-yellow"></i>
-        {:elseif error}
+        {:elseif executionState === 'error'}
         <i class="fas fa-exclamation-triangle l-red"></i>
-        {:else}
+        {:elseif executionState === 'idle'}
         <i class="fas fa-check l-green"></i>
         {/if}
     </div>
@@ -47,8 +44,7 @@
         },
         data() {
             return {
-                busy: false,
-                error: false,
+                executionState: 'off',
             }
         },
         methods: {}

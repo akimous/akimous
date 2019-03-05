@@ -141,8 +141,9 @@ async def evaluate_part_b(msg, send, context):
     doc[line] = line_content
     from_line = context.part_a_end_line
     await send('Clear', None)
-    for message in context.iopub_buffer:
-        await send('IOPub', message)
+    if context.iopub_buffer:
+        for message in context.iopub_buffer:
+            await send('IOPub', message)
     context.iopub_buffer = None
     logger.info('\n'.join(doc[from_line:]))
 
