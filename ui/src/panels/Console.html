@@ -19,7 +19,7 @@
     .upper-half {
         height: 50%;
     }
-    
+
     .lower-half {
         height: 50%;
     }
@@ -103,10 +103,10 @@
                     terminal.addDisposableListener('data', data => {
                         this.socket.send('Stdin', data)
                     })
-                    
-                    nextFrame(() => terminal.fit())
+
+                    terminal.fit()
                 })
-                
+
                 if (mode === 'terminal') {
                     this.connectTerminal()
                 }
@@ -209,17 +209,13 @@
                             })
                             this.set({ cells })
                         }
-                        if (e.name && e.text) {
-                            console.info('Receive data', e.data, performance.now())
-                            let executionCount = ''
-                            const { name } = e
-                            if (name === 'stdout') executionCount = '<i class="fas fa-terminal l-green"></i>'
-                            else if (name === 'stderr') executionCount = '<i class="fas fa-terminal l-red"></i>'
-                            cells.push({
-                                [name]: e.text,
-                                executionCount,
-                            })
-                            this.set({ cells })
+                        if (e.text) {
+                            this.terminal.write(e.text)
+                        }
+                        if (e.traceback) {
+                            for (const line of e.traceback)
+                                this.terminal.write(line)
+                            this.terminal.write('\n')
                         }
                         if (e.data) {
                             cells.push({
@@ -228,17 +224,11 @@
                             })
                             this.set({ cells })
                         }
-                        if (e.traceback) {
-                            cells.push({
-                                stderr: e.traceback,
-                            })
-                            this.set({ cells })
-                        }
                     })
                     .addHandler('Clear', () => {
                         const { cells } = this.get()
                         cells.length = 0
-                        //                        this.set({ cells: [] })
+                        this.terminal.clear()
                     })
                     .connect(() => {
                         this.socket.send('StartKernel')

@@ -11,6 +11,12 @@ from logzero import logger
 
 handles = partial(register_handler, 'jupyter')
 
+IDLE = 'IDLE'
+RESTARTING = 'RESTARTING'
+A_RUNNING = 'A_RUNNING'
+B_RUNNING = 'B_RUNNING'
+B_QUEUED = 'B_QUEUED'
+
 
 def iopub_listener(context):
     client = context.jupyter_client
@@ -41,7 +47,7 @@ def iopub_listener(context):
 
 def shell_listener(context):
     client = context.jupyter_client
-    send = context.main_thread_send
+    # send = context.main_thread_send
     kernel_stopped = context.kernel_stopped
     while True:
         message = client.get_shell_msg()
@@ -53,7 +59,7 @@ def shell_listener(context):
         if status == 'complete':
             context.busy = False
             logger.warn('busy = False')
-        logger.debug('Shell %s', repr(content))
+        # logger.debug('Shell %s', repr(content))
 
 
 @handles('_connected')

@@ -2,7 +2,7 @@
     "runConfiguration": {
         "args": "hi",
         "cwd": "",
-        "mode": "realtime",
+        "mode": "selected",
         "shellCommandIndex": 0,
         "shellCommands": [
             "python",
