@@ -1,4 +1,5 @@
-print('line1')
-print('line2')
-print('line3')
-print('line4')
+import time
+
+print('before')
+time.sleep(2)
+print('after')

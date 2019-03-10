@@ -56,7 +56,6 @@ def iopub_listener(context):
                     msg_type = parent_header['msg_type']
                     msg_id = parent_header['msg_id']
                     if msg_type == 'is_complete_request' and msg_id == context.kernel_restart_completion_id:
-                        logger.warn('bingo')
                         run_job_a(context)
             elif evaluation_state is A_RUNNING:
                 if context.b_queued:
@@ -64,27 +63,7 @@ def iopub_listener(context):
                 else:
                     set_state(context, IDLE)
             elif evaluation_state is B_RUNNING:
-                context.main_thread_create_task(restart_kernel(context))
-
-
-# def shell_listener(context):
-#     client = context.jupyter_client
-#     # send = context.main_thread_send
-#     kernel_stopped = context.kernel_stopped
-#     while True:
-#         message = client.get_shell_msg()
-#         if kernel_stopped.is_set():
-#             logger.info('Shell listener terminated')
-#             return
-#         content = message['content']
-#         logger.debug('Shell %s', repr(content))
-#         status = content.get('status', None)
-#         logger.debug('status %s; state: %s', status, context.evaluation_state)
-#         # if status == 'complete':
-#         #     if context.evaluation_state is RESTARTING:
-#         #         run_job_a(context)
-#         #     context.busy = False
-#             # logger.warn('busy = False')
+                context.main_thread_create_task(reset_kernel(context))
 
 
 @handles('_connected')
@@ -136,7 +115,7 @@ async def stop_kernel(msg, send, context):
 @handles('Run')
 async def run(msg, send, context):
     logger.debug('Running code %s', msg['code'])
-    context.jupyter_client.execute(msg['code'])
+    context.jupyter_client.execute(msg['code'], store_history=False)
 
 
 indented = re.compile('(^\\s+)|(^@)')
@@ -144,11 +123,21 @@ continued = re.compile('\\\\\\s*$')
 
 
 async def restart_kernel(context):
+    # TODO: Use this function instead of reset_kernel if configured so.
     with Timer('restarting kernel'):
         set_state(context, RESTARTING)
         context.kernel_manager.restart_kernel(now=True)
         context.iopub_buffer = []
         await wait_until_kernel_ready(context)
+
+
+async def reset_kernel(context):
+    with Timer('resetting kernel'):
+        set_state(context, RESTARTING)
+        context.kernel_manager.interrupt_kernel()  # interrupt the kernel if it is busy
+        context.jupyter_client.execute('%reset -f')
+        context.iopub_buffer = []
+        context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
 
 
 def run_job_a(context):
@@ -166,6 +155,7 @@ def run_job_b(context):
 async def job_a(context):
     doc = context.shared_context.doc
     line = context.part_a_end_line
+    context.iopub_buffer = []
     context.jupyter_client.execute('\n'.join(doc[:line]))
 
 
@@ -210,7 +200,7 @@ async def evaluate_part_a(msg, send, context):
 
     context.a_queued = True
     if context.evaluation_state in (IDLE, A_RUNNING):
-        await restart_kernel(context)
+        await reset_kernel(context)
     # NOP for RESTARTING, B_RUNNING
 
 
@@ -227,7 +217,7 @@ async def evaluate_part_b(msg, send, context):
         run_job_b(context)
     elif state is B_RUNNING:
         context.a_queued = True
-        await restart_kernel(context)
+        await reset_kernel(context)
     # NOP for RESTARTING, A_RUNNING
 
 

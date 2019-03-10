@@ -124,7 +124,7 @@ def start_server(host, port, no_browser, verbose):
     websocket_server = websockets.serve(socket_handler, host=host, port=port,
                                         process_request=http_handler.process_request)
     loop.run_until_complete(websocket_server)
-    # initialize_word_completer(loop)
+    initialize_word_completer(loop)
     logger.info('Starting server, listening on %s:%d.', host, port)
 
     if not no_browser and not webbrowser.open(f'http://{host}:{port}'):
