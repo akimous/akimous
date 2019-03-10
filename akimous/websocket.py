@@ -38,12 +38,17 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
     def main_thread_send(event, obj):
         context.event_loop.call_soon_threadsafe(asyncio.ensure_future, send(event, obj))
 
+    def main_thread_create_task(task):
+        context.event_loop.call_soon_threadsafe(asyncio.ensure_future, task)
+
     context = SimpleNamespace(
         linter_task=None,
         observer=None,
         observed_watches={},
         event_loop=asyncio.get_event_loop(),
-        main_thread_send=main_thread_send)
+        main_thread_send=main_thread_send,
+        main_thread_create_task=main_thread_create_task,
+    )
 
     async def send(event, obj):
         await ws.send(msgpack.packb([event, obj]))
@@ -119,7 +124,7 @@ def start_server(host, port, no_browser, verbose):
     websocket_server = websockets.serve(socket_handler, host=host, port=port,
                                         process_request=http_handler.process_request)
     loop.run_until_complete(websocket_server)
-    initialize_word_completer(loop)
+    # initialize_word_completer(loop)
     logger.info('Starting server, listening on %s:%d.', host, port)
 
     if not no_browser and not webbrowser.open(f'http://{host}:{port}'):
