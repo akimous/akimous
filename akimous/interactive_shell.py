@@ -1,8 +1,12 @@
 import asyncio
+import token
+from collections import defaultdict
 from threading import Thread, Event
 from functools import partial
 import re
 from contextlib import suppress
+from tokenize import generate_tokens
+
 from jupyter_client import KernelManager
 
 from .websocket import register_handler
@@ -150,6 +154,45 @@ def run_job_b(context):
     set_state(context, B_RUNNING)
     context.b_queued = False
     context.main_thread_create_task(job_b(context))
+
+
+def cell_boundary_generator(code_lines):
+    tokens = list(generate_tokens(StringIO('\n'.join(code_lines)).readline))
+    line_to_tokens = defaultdict(list)
+    for t in tokens:
+        max_line = t.start[0]
+        line_to_tokens[max_line].append(t)
+
+    last_token_type = token.NEWLINE
+    last_cell_end_line = 0
+    for i, t in enumerate(tokens):
+
+        if t.end[0] < last_cell_end_line:
+            continue
+
+        if last_token_type == token.NEWLINE and t.type == token.NL:
+            current_line = t.end[0]
+
+            last_non_nl_token = None
+            for line in range(current_line, max_line + 1):
+                tokens_ = line_to_tokens[line]
+                if not tokens:
+                    continue
+                t_ = tokens_[0]
+                if t_.type == token.NL:
+                    continue
+                last_non_nl_token = t_
+                break
+
+            if not last_non_nl_token or last_non_nl_token.start[1] != 0:
+                last_token_type = t.type
+                continue
+
+            yield slice(last_cell_end_line, current_line)
+            last_cell_end_line = current_line
+        last_token_type = t.type
+
+    yield slice(last_cell_end_line, None)
 
 
 async def job_a(context):
