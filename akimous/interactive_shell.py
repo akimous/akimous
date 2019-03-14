@@ -1,6 +1,7 @@
 import asyncio
 import token
 from collections import defaultdict
+from io import StringIO
 from threading import Thread, Event
 from functools import partial
 import re
@@ -53,21 +54,29 @@ def iopub_listener(context):
                 send('IOPub', content)
 
         if execution_state == 'idle':
-            evaluation_state = context.evaluation_state
-            if evaluation_state is RESTARTING:
-                with suppress(Exception):
-                    parent_header = message['parent_header']
-                    msg_type = parent_header['msg_type']
-                    msg_id = parent_header['msg_id']
-                    if msg_type == 'is_complete_request' and msg_id == context.kernel_restart_completion_id:
-                        run_job_a(context)
-            elif evaluation_state is A_RUNNING:
-                if context.b_queued:
-                    run_job_b(context)
-                else:
-                    set_state(context, IDLE)
-            elif evaluation_state is B_RUNNING:
-                context.main_thread_create_task(reset_kernel(context))
+            parent_header = message['parent_header']
+            msg_id = parent_header['msg_id']
+            context.pending_messages.discard(msg_id)
+            logger.info('removing message id %s; %s', msg_id, context.pending_messages)
+
+            if not context.pending_messages:
+                evaluation_state = context.evaluation_state
+                if evaluation_state is RESTARTING:
+                    run_job_a(context)
+                elif evaluation_state is A_RUNNING:
+                    if context.b_queued:
+                        run_job_b(context)
+                    else:
+                        set_state(context, IDLE)
+                elif evaluation_state is B_RUNNING:
+                    context.main_thread_create_task(reset_kernel(context))
+
+
+async def execute_lines(context, lines):
+    message_id = context.jupyter_client.execute('\n'.join(lines), store_history=False)
+    context.pending_messages.add(message_id)
+    logger.info('executing lines %s', '\n'.join(lines))
+    logger.info('adding message id %s; %s', message_id, context.pending_messages)
 
 
 @handles('_connected')
@@ -78,6 +87,7 @@ async def connected(client_id, send, context):
     context.iopub_buffer = None
     context.a_queued = False
     context.b_queued = False
+    context.pending_messages = set()
     set_state(context, RESTARTING)
 
 
@@ -91,6 +101,8 @@ async def disconnected(context):
 async def start_kernel(msg, send, context):
     set_state(context, RESTARTING)
     await stop_kernel(msg, send, context)
+    context.a_queued = True
+    context.b_queued = True
     context.kernel_manager.start_kernel()
     context.jupyter_client = context.kernel_manager.client()
     context.kernel_stopped = Event()
@@ -119,7 +131,7 @@ async def stop_kernel(msg, send, context):
 @handles('Run')
 async def run(msg, send, context):
     logger.debug('Running code %s', msg['code'])
-    context.jupyter_client.execute(msg['code'], store_history=False)
+    await execute_lines(context, msg['code'])
 
 
 indented = re.compile('(^\\s+)|(^@)')
@@ -135,11 +147,13 @@ async def restart_kernel(context):
         await wait_until_kernel_ready(context)
 
 
-async def reset_kernel(context):
+async def reset_kernel(context, interrupt=False):
     with Timer('resetting kernel'):
         set_state(context, RESTARTING)
-        context.kernel_manager.interrupt_kernel()  # interrupt the kernel if it is busy
-        context.jupyter_client.execute('%reset -f')
+        if interrupt:
+            context.kernel_manager.interrupt_kernel()  # interrupt the kernel if it is busy
+            context.pending_messages.clear()
+        await execute_lines(context, ('%reset -f', ))
         context.iopub_buffer = []
         context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
 
@@ -156,9 +170,10 @@ def run_job_b(context):
     context.main_thread_create_task(job_b(context))
 
 
-def cell_boundary_generator(code_lines):
+def cell_boundary_generator(code_lines, start_line=0, end_line=999999):
     tokens = list(generate_tokens(StringIO('\n'.join(code_lines)).readline))
     line_to_tokens = defaultdict(list)
+    max_line = 0
     for t in tokens:
         max_line = t.start[0]
         line_to_tokens[max_line].append(t)
@@ -166,9 +181,11 @@ def cell_boundary_generator(code_lines):
     last_token_type = token.NEWLINE
     last_cell_end_line = 0
     for i, t in enumerate(tokens):
-
-        if t.end[0] < last_cell_end_line:
+        line = t.end[0]
+        if line < last_cell_end_line or line < start_line:
             continue
+        if line > end_line:
+            return
 
         if last_token_type == token.NEWLINE and t.type == token.NL:
             current_line = t.end[0]
@@ -199,7 +216,10 @@ async def job_a(context):
     doc = context.shared_context.doc
     line = context.part_a_end_line
     context.iopub_buffer = []
-    context.jupyter_client.execute('\n'.join(doc[:line]))
+    for boundary in cell_boundary_generator(doc, end_line=line):
+        # logger.info('Running A: \n%s', '\n'.join(doc[boundary]))
+        logger.info('Running A')
+        await execute_lines(context, doc[boundary])
 
 
 async def send_buffer(send, buffer):
@@ -222,10 +242,10 @@ async def job_b(context):
     send('Clear', None)
     await send_buffer(send, context.iopub_buffer)
     context.iopub_buffer = None
-    logger.info('\n'.join(doc[from_line:]))
-
-    context.busy = True
-    context.jupyter_client.execute('\n'.join(doc[from_line:]))
+    for boundary in cell_boundary_generator(doc, start_line=from_line):
+        logger.info('Running B')
+        # logger.info('Running B: \n%s', '\n'.join(doc[boundary]))
+        await execute_lines(context, doc[boundary])
 
 
 @handles('EvaluatePartA')
@@ -260,7 +280,7 @@ async def evaluate_part_b(msg, send, context):
         run_job_b(context)
     elif state is B_RUNNING:
         context.a_queued = True
-        await reset_kernel(context)
+        await reset_kernel(context, interrupt=True)
     # NOP for RESTARTING, A_RUNNING
 
 
