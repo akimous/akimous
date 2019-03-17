@@ -4,6 +4,7 @@ from importlib import resources
 
 from logzero import logger
 from websockets.http import Headers
+
 from .utils import config_directory
 
 mimetypes.init()
@@ -54,10 +55,7 @@ class HTTPHandler:
         if not package:
             return HTTPStatus.NOT_FOUND, [], b''
 
-        header = {
-            'content-type': guess_type(file),
-            'cache-control': 'max-age=31536000'
-        }
+        header = {'content-type': guess_type(file), 'cache-control': 'max-age=31536000'}
 
         # serve user configs
         if package == 'user':

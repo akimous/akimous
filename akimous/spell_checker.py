@@ -3,7 +3,7 @@ import re
 from collections import namedtuple
 from functools import partial
 from itertools import chain
-from token import NAME, STRING, COMMENT, NEWLINE
+from token import COMMENT, NAME, NEWLINE, STRING
 
 from wordsegment import WORDS
 
@@ -31,7 +31,8 @@ async def add_to_project_dictionary(msg, send, context):
     shared_context = context.shared_context
     shared_context.spell_checker.project_dictionary.update(msg)
     with open(shared_context.project_dictionary_file, 'w') as f:
-        json.dump(list(shared_context.spell_checker.project_dictionary), f, indent=4, sort_keys=True)
+        json.dump(
+            list(shared_context.spell_checker.project_dictionary), f, indent=4, sort_keys=True)
 
 
 def decompose_token(token):
@@ -65,7 +66,8 @@ def highlight_spelling_errors(token, words, is_correct):
     for w, i in zip(words, is_correct):
         index = lowercase_result.find(w, index)
         if not i:
-            result = ''.join((result[:index], '<em>', result[index:index + len(w)], '</em>', result[index + len(w):]))
+            result = ''.join((result[:index], '<em>', result[index:index + len(w)], '</em>',
+                              result[index + len(w):]))
             lowercase_result = result.lower()
             index += 9  # length of <em></em>
     return result
@@ -108,7 +110,8 @@ class SpellChecker:
                 return
             if word in imported_names:
                 return
-            check_token(Token((token.start[0], token.start[1] + token.string.find(word)), word, NAME))
+            check_token(
+                Token((token.start[0], token.start[1] + token.string.find(word)), word, NAME))
 
         def check_token(token):
             if token.type in STRING_AND_COMMENT:

@@ -1,19 +1,18 @@
-from functools import partial
 import json
 import os
-
-from .spell_checker import SpellChecker
-from .websocket import register_handler
-from .file_finder import find_in_directory, replace_all_in_directory
-from .utils import config_directory, get_project_config, get_merged_config, merge_dict
+from functools import partial
 from importlib import resources
 from pathlib import Path
+
+from .file_finder import find_in_directory, replace_all_in_directory
+from .spell_checker import SpellChecker
+from .utils import (config_directory, get_merged_config, get_project_config, merge_dict)
+from .websocket import register_handler
 
 handles = partial(register_handler, '')
 
 config_file = config_directory / 'akimous.json'
 config = get_merged_config(config_file, 'default_config.json')
-
 
 # create user macro template if not exists
 macro_file = config_directory / 'macro.js'
@@ -26,11 +25,7 @@ if not macro_file.exists():
 
 @handles('_connected')
 async def connected(client_id, send, context):
-    await send('Connected', {
-        'clientId': client_id,
-        'config': config,
-        'sep': os.sep
-    })
+    await send('Connected', {'clientId': client_id, 'config': config, 'sep': os.sep})
 
 
 @handles('SetConfig')
@@ -59,7 +54,8 @@ async def open_project(msg, send, context):
     shared_context.project_root = Path(*msg['path']).resolve()
     shared_context.project_config_file = shared_context.project_root / '.akimous' / 'config.json'
     shared_context.project_dictionary_file = shared_context.project_root / '.akimous' / 'dictionary.json'
-    shared_context.project_config = get_merged_config(shared_context.project_config_file, 'default_project_config.json')
+    shared_context.project_config = get_merged_config(shared_context.project_config_file,
+                                                      'default_project_config.json')
     await send('ProjectOpened', {
         'root': shared_context.project_root.parts,
         'projectConfig': shared_context.project_config
