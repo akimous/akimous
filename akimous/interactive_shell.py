@@ -1,17 +1,17 @@
 import asyncio
+import re
 import token
 from collections import defaultdict
-from io import StringIO
-from threading import Thread, Event
 from functools import partial
-import re
+from io import StringIO
+from threading import Event, Thread
 from tokenize import generate_tokens
 
 from jupyter_client import KernelManager
-
-from .websocket import register_handler
-from .utils import nop, Timer
 from logzero import logger
+
+from .utils import Timer, nop
+from .websocket import register_handler
 
 handles = partial(register_handler, 'jupyter')
 
@@ -289,5 +289,3 @@ async def evaluate_part_b(msg, send, context):
         context.a_queued = True
         await reset_kernel(context, interrupt=True)
     # NOP for RESTARTING, A_RUNNING
-
-
