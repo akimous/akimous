@@ -10,7 +10,8 @@ from wordsegment import WORDS
 from .websocket import register_handler
 from .word_completer import is_prefix, wait_until_initialized
 
-SpellingError = namedtuple('SpellingError', ('line', 'ch', 'token', 'highlighted_token'))
+SpellingError = namedtuple('SpellingError',
+                           ('line', 'ch', 'token', 'highlighted_token'))
 Token = namedtuple('Token', ('start', 'string', 'type'))
 DummyToken = namedtuple('DummyToken', ('string', ))
 dummy = DummyToken('')
@@ -32,7 +33,10 @@ async def add_to_project_dictionary(msg, send, context):
     shared_context.spell_checker.project_dictionary.update(msg)
     with open(shared_context.project_dictionary_file, 'w') as f:
         json.dump(
-            list(shared_context.spell_checker.project_dictionary), f, indent=4, sort_keys=True)
+            list(shared_context.spell_checker.project_dictionary),
+            f,
+            indent=4,
+            sort_keys=True)
 
 
 def decompose_token(token):
@@ -66,8 +70,9 @@ def highlight_spelling_errors(token, words, is_correct):
     for w, i in zip(words, is_correct):
         index = lowercase_result.find(w, index)
         if not i:
-            result = ''.join((result[:index], '<em>', result[index:index + len(w)], '</em>',
-                              result[index + len(w):]))
+            result = ''.join(
+                (result[:index], '<em>', result[index:index + len(w)], '</em>',
+                 result[index + len(w):]))
             lowercase_result = result.lower()
             index += 9  # length of <em></em>
     return result
@@ -111,7 +116,9 @@ class SpellChecker:
             if word in imported_names:
                 return
             check_token(
-                Token((token.start[0], token.start[1] + token.string.find(word)), word, NAME))
+                Token(
+                    (token.start[0], token.start[1] + token.string.find(word)),
+                    word, NAME))
 
         def check_token(token):
             if token.type in STRING_AND_COMMENT:
@@ -142,8 +149,11 @@ class SpellChecker:
             checked.update(words)
 
             if not all(is_correct):
-                highlighted_token = highlight_spelling_errors(token.string, words, is_correct)
-                spelling_errors.append(SpellingError(*token.start, token.string, highlighted_token))
+                highlighted_token = highlight_spelling_errors(
+                    token.string, words, is_correct)
+                spelling_errors.append(
+                    SpellingError(*token.start, token.string,
+                                  highlighted_token))
 
         for_ = False
         def_ = False

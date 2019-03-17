@@ -46,7 +46,8 @@ def set_state(context, new_state):
         context.a_queued = False
     elif new_state is B_RUNNING:
         context.b_queued = False
-    logger.warn('state: %s; a_queued: %s; b_queued: %s', new_state, context.a_queued, context.b_queued)
+    logger.warn('state: %s; a_queued: %s; b_queued: %s', new_state,
+                context.a_queued, context.b_queued)
 
 
 def iopub_listener(context):
@@ -75,11 +76,13 @@ def iopub_listener(context):
             parent_header = message['parent_header']
             msg_id = parent_header['msg_id']
             context.pending_messages.discard(msg_id)
-            logger.info('removing message id %s; %s', msg_id, context.pending_messages)
+            logger.info('removing message id %s; %s', msg_id,
+                        context.pending_messages)
 
             if not context.pending_messages:  # only change state when there's no pending messages waiting response
                 evaluation_state = context.evaluation_state
-                if evaluation_state is RESTARTING and context.realtime_evaluation_mode:
+                if (evaluation_state is RESTARTING
+                        and context.realtime_evaluation_mode):
                     if context.realtime_evaluation_mode:
                         run_job_a(context)
                     else:
@@ -94,10 +97,12 @@ def iopub_listener(context):
 
 
 async def execute_lines(context, lines):
-    message_id = context.jupyter_client.execute('\n'.join(lines), store_history=False)
+    message_id = context.jupyter_client.execute(
+        '\n'.join(lines), store_history=False)
     context.pending_messages.add(message_id)
     logger.info('executing lines\n%s', '\n'.join(lines))
-    logger.info('adding message id %s; %s', message_id, context.pending_messages)
+    logger.info('adding message id %s; %s', message_id,
+                context.pending_messages)
 
 
 @handles('StartKernel')
@@ -110,7 +115,8 @@ async def start_kernel(msg, send, context):
     context.kernel_manager.start_kernel()
     context.jupyter_client = context.kernel_manager.client()
     context.kernel_stopped = Event()
-    context.iopub_listener_thread = Thread(target=iopub_listener, args=(context, ))
+    context.iopub_listener_thread = Thread(
+        target=iopub_listener, args=(context, ))
     context.iopub_listener_thread.start()
     await wait_until_kernel_ready(context)
     await send('KernelStarted', None)
@@ -118,7 +124,8 @@ async def start_kernel(msg, send, context):
 
 async def wait_until_kernel_ready(context):
     while context.evaluation_state is RESTARTING:
-        context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
+        context.kernel_restart_completion_id = context.jupyter_client.is_complete(
+            '')
         logger.debug('sleeping')
         await asyncio.sleep(.1)
 
@@ -155,11 +162,13 @@ async def reset_kernel(context, interrupt=False):
     with Timer('resetting kernel'):
         set_state(context, RESTARTING)
         if interrupt:
-            context.kernel_manager.interrupt_kernel()  # interrupt the kernel if it is busy
+            # interrupt the kernel if it is busy
+            context.kernel_manager.interrupt_kernel()
             context.pending_messages.clear()
         await execute_lines(context, ('%reset -f', ))
         context.iopub_buffer = []
-        context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
+        context.kernel_restart_completion_id = context.jupyter_client.is_complete(
+            '')
 
 
 def cell_boundary_generator(code_lines, start_line=0, end_line=999999):

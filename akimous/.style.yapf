@@ -1,3 +1,5 @@
-[yapf]
+[style]
 based_on_style = pep8
-COLUMN_LIMIT = 100
+column_limit = 79
+coalesce_brackets = True
+split_before_dot = True
