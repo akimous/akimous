@@ -20,7 +20,8 @@ def _initialize():
         wordsegment.load()
         # takes 900ms, 15M memory
         c.executemany('INSERT INTO d VALUES (?,?,?)',
-                      ((k[:3], k[3:], int(v)) for k, v in wordsegment.UNIGRAMS.items() if len(k) > 3))
+                      ((k[:3], k[3:], int(v))
+                       for k, v in wordsegment.UNIGRAMS.items() if len(k) > 3))
         # takes 200ms, 10M memory
         c.execute('CREATE INDEX idx on d(p, f)')
         conn.commit()
@@ -36,14 +37,16 @@ def initialize(event_loop):
 
 def search_prefix(s):
     return [
-        i[0] for i in c.execute('SELECT p||w FROM d where p=? and w glob ? order by f desc limit 6',
-                                (s[:3], f'{s[3:]}*')).fetchall()
+        i[0]
+        for i in c.execute('SELECT p||w FROM d where p=? and w glob ? order by f desc limit 6', (
+            s[:3], f'{s[3:]}*')).fetchall()
     ]
 
 
 def is_prefix(s):
-    return bool(c.execute('SELECT 1 FROM d where p=? and w glob ? order by f desc limit 1',
-                          (s[:3], f'{s[3:]}*')).fetchall())
+    return bool(
+        c.execute('SELECT 1 FROM d where p=? and w glob ? order by f desc limit 1',
+                  (s[:3], f'{s[3:]}*')).fetchall())
 
 
 def wait_until_initialized():

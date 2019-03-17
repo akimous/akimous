@@ -12,7 +12,6 @@ from logzero import logger
 from .static_server import HTTPHandler
 from .word_completer import initialize as initialize_word_completer
 
-
 handlers = defaultdict(dict)  # [path][event] -> coroutine
 clients = defaultdict(lambda: defaultdict(set))  # [client_id][path] -> set of websockets
 shared_contexts = {}  # [client_id] -> SimpleNamespace
@@ -121,8 +120,8 @@ def start_server(host, port, no_browser, verbose):
     loop.slow_callback_duration = .1 if verbose else 1.
 
     http_handler = HTTPHandler()
-    websocket_server = websockets.serve(socket_handler, host=host, port=port,
-                                        process_request=http_handler.process_request)
+    websocket_server = websockets.serve(
+        socket_handler, host=host, port=port, process_request=http_handler.process_request)
     loop.run_until_complete(websocket_server)
     initialize_word_completer(loop)
     logger.info('Starting server, listening on %s:%d.', host, port)

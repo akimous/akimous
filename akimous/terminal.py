@@ -6,8 +6,8 @@ from pathlib import Path
 from logzero import logger
 from ptyprocess import PtyProcessUnicode
 
-from .websocket import register_handler
 from .utils import nop
+from .websocket import register_handler
 
 handles = partial(register_handler, 'terminal')
 
@@ -58,15 +58,13 @@ async def run_in_terminal(msg, send, context):
     if not cwd:
         cwd = str(root)
     cwd = shlex.quote(cwd)
-    pty = PtyProcessUnicode.spawn(command,
-                                  cwd=cwd,
-                                  dimensions=(msg['rows'], msg['cols']))
+    pty = PtyProcessUnicode.spawn(command, cwd=cwd, dimensions=(msg['rows'], msg['cols']))
     await send('Started', None)
 
     context.pty = pty
     loop = asyncio.get_event_loop()
-    context.reader = asyncio.ensure_future(loop.run_in_executor(
-            None, partial(reader, pty, context.main_thread_send, context)))
+    context.reader = asyncio.ensure_future(
+        loop.run_in_executor(None, partial(reader, pty, context.main_thread_send, context)))
 
 
 @handles('Stdin')

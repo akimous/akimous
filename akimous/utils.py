@@ -5,8 +5,8 @@ from pathlib import Path
 from time import perf_counter
 
 import psutil
-from logzero import logger
 from appdirs import user_config_dir
+from logzero import logger
 
 # ~/Library/Application Support/akimous
 config_directory = Path(user_config_dir('akimous'))
@@ -78,4 +78,4 @@ class Timer:
     def __exit__(self, *args):
         self.end = perf_counter()
         logger.debug(f'{self.description} took {(self.end - self.start) * 1000: .3f} ms;'
-                  f' memory = {get_memory_usage()}')
+                     f' memory = {get_memory_usage()}')
