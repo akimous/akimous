@@ -29,7 +29,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView, nextFrame } from '../lib/Utils'
+    import { initializeTabView, nextFrame, schedule } from '../lib/Utils'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
     import { Socket } from '../lib/Socket'
@@ -46,7 +46,8 @@
             initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
 
         },
-        onupdate({ changed, current }) {
+        onupdate({ changed, current, previous }) {
+            console.warn({ changed, current, previous })
             if (changed.mode) {
                 this.close()
                 if (current.active) {
@@ -81,7 +82,7 @@
                 this.tab.set({ active: false })
                 this.tab.set({ active: true })
 
-                nextFrame(() => {
+                schedule(() => {
                     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
                     const terminal = new Terminal({
                         tabStopWidth: 4,
@@ -105,14 +106,14 @@
                     })
 
                     terminal.fit()
-                })
 
-                if (mode === 'terminal') {
-                    this.connectTerminal()
-                }
-                if (mode === 'jupyter') {
-                    this.connectJupyter()
-                }
+                    if (mode === 'terminal') {
+                        this.connectTerminal()
+                    }
+                    if (mode === 'jupyter') {
+                        this.connectJupyter()
+                    }
+                })
             },
             close() {
                 this.set({ ready: false })
@@ -230,9 +231,7 @@
                         cells.length = 0
                         this.terminal.clear()
                     })
-                    .connect(() => {
-                        this.socket.send('StartKernel')
-                    })
+                    .connect(() => {})
             },
             runInJupyter() {
                 g.panelRight.activateView(g.panelRight.refs.console)
@@ -252,6 +251,7 @@
             },
             startRealtimeEvaluation() {
                 if (!g.activeEditor) return
+                this.socket.send('StartKernel', { realtimeEvaluation: true })
                 this.realtimeEvaluationEditor = g.activeEditor
                 g.activeEditor.cmEventDispatcher.realtimeEvaluation = true
                 console.warn('starting')
@@ -279,6 +279,9 @@
             },
             evaluatePartB(line, line_content) {
                 console.log('evaluateB', line, performance.now())
+                g.jupyterToolbar.set({
+                    executionState: 'busy'
+                })
                 this.socket.send('EvaluatePartB', {
                     line,
                     line_content

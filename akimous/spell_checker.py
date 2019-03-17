@@ -8,7 +8,7 @@ from token import NAME, STRING, COMMENT, NEWLINE
 from wordsegment import WORDS
 
 from .websocket import register_handler
-from .word_completer import is_prefix
+from .word_completer import is_prefix, wait_until_initialized
 
 SpellingError = namedtuple('SpellingError', ('line', 'ch', 'token', 'highlighted_token'))
 Token = namedtuple('Token', ('start', 'string', 'type'))
@@ -84,6 +84,7 @@ class SpellChecker:
             self.project_dictionary.update(project_dictionary)
 
     def check_spelling(self, tokens):
+        wait_until_initialized()
         checked = set('')  # both checked tokens and words
         imported_names = set()
         spelling_errors = []

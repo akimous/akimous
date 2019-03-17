@@ -5,7 +5,6 @@ from io import StringIO
 from threading import Thread, Event
 from functools import partial
 import re
-from contextlib import suppress
 from tokenize import generate_tokens
 
 from jupyter_client import KernelManager
@@ -22,13 +21,32 @@ A_RUNNING = 'A_RUNNING'
 B_RUNNING = 'B_RUNNING'
 
 
+@handles('_connected')
+async def connected(client_id, send, context):
+    context.kernel_manager = KernelManager()
+    context.iopub_listener_thread = Thread()
+    context.part_a_end_line = 0
+    context.iopub_buffer = None
+    context.a_queued = False
+    context.b_queued = False
+    context.realtime_evaluation_mode = False
+    context.pending_messages = set()
+    set_state(context, RESTARTING)
+
+
+@handles('_disconnected')
+async def disconnected(context):
+    logger.info('stopping kernel')
+    await stop_kernel({}, nop, context)
+
+
 def set_state(context, new_state):
     context.evaluation_state = new_state
     if new_state is A_RUNNING:
         context.a_queued = False
     elif new_state is B_RUNNING:
         context.b_queued = False
-    logger.debug('state: %s; a_queued: %s; b_queued: %s', new_state, context.a_queued, context.b_queued)
+    logger.warn('state: %s; a_queued: %s; b_queued: %s', new_state, context.a_queued, context.b_queued)
 
 
 def iopub_listener(context):
@@ -59,10 +77,13 @@ def iopub_listener(context):
             context.pending_messages.discard(msg_id)
             logger.info('removing message id %s; %s', msg_id, context.pending_messages)
 
-            if not context.pending_messages:
+            if not context.pending_messages:  # only change state when there's no pending messages waiting response
                 evaluation_state = context.evaluation_state
-                if evaluation_state is RESTARTING:
-                    run_job_a(context)
+                if evaluation_state is RESTARTING and context.realtime_evaluation_mode:
+                    if context.realtime_evaluation_mode:
+                        run_job_a(context)
+                    else:
+                        set_state(context, IDLE)
                 elif evaluation_state is A_RUNNING:
                     if context.b_queued:
                         run_job_b(context)
@@ -75,34 +96,17 @@ def iopub_listener(context):
 async def execute_lines(context, lines):
     message_id = context.jupyter_client.execute('\n'.join(lines), store_history=False)
     context.pending_messages.add(message_id)
-    logger.info('executing lines %s', '\n'.join(lines))
+    logger.info('executing lines\n%s', '\n'.join(lines))
     logger.info('adding message id %s; %s', message_id, context.pending_messages)
-
-
-@handles('_connected')
-async def connected(client_id, send, context):
-    context.kernel_manager = KernelManager()
-    context.iopub_listener_thread = Thread()
-    context.part_a_end_line = 0
-    context.iopub_buffer = None
-    context.a_queued = False
-    context.b_queued = False
-    context.pending_messages = set()
-    set_state(context, RESTARTING)
-
-
-@handles('_disconnected')
-async def disconnected(context):
-    logger.info('stopping kernel')
-    await stop_kernel({}, nop, context)
 
 
 @handles('StartKernel')
 async def start_kernel(msg, send, context):
+    logger.warn(msg)
+    context.realtime_evaluation_mode = msg['realtimeEvaluation']
     set_state(context, RESTARTING)
     await stop_kernel(msg, send, context)
-    context.a_queued = True
-    context.b_queued = True
+    context.a_queued = context.b_queued = context.realtime_evaluation_mode
     context.kernel_manager.start_kernel()
     context.jupyter_client = context.kernel_manager.client()
     context.kernel_stopped = Event()
@@ -158,18 +162,6 @@ async def reset_kernel(context, interrupt=False):
         context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
 
 
-def run_job_a(context):
-    set_state(context, A_RUNNING)
-    context.a_queued = False
-    context.main_thread_create_task(job_a(context))
-
-
-def run_job_b(context):
-    set_state(context, B_RUNNING)
-    context.b_queued = False
-    context.main_thread_create_task(job_b(context))
-
-
 def cell_boundary_generator(code_lines, start_line=0, end_line=999999):
     tokens = list(generate_tokens(StringIO('\n'.join(code_lines)).readline))
     line_to_tokens = defaultdict(list)
@@ -179,10 +171,10 @@ def cell_boundary_generator(code_lines, start_line=0, end_line=999999):
         line_to_tokens[max_line].append(t)
 
     last_token_type = token.NEWLINE
-    last_cell_end_line = 0
+    last_cell_end_line = start_line
     for i, t in enumerate(tokens):
         line = t.end[0]
-        if line < last_cell_end_line or line < start_line:
+        if line < last_cell_end_line:
             continue
         if line > end_line:
             return
@@ -212,13 +204,41 @@ def cell_boundary_generator(code_lines, start_line=0, end_line=999999):
     yield slice(last_cell_end_line, None)
 
 
+def run_job_a(context):
+    set_state(context, A_RUNNING)
+    context.a_queued = False
+    context.main_thread_create_task(job_a(context))
+
+
 async def job_a(context):
     doc = context.shared_context.doc
     line = context.part_a_end_line
     context.iopub_buffer = []
+    part_a_is_empty = True
     for boundary in cell_boundary_generator(doc, end_line=line):
         # logger.info('Running A: \n%s', '\n'.join(doc[boundary]))
-        logger.info('Running A')
+        logger.info('Running A %s', boundary)
+        part_a_is_empty = False
+        await execute_lines(context, doc[boundary])
+    # make sure iopub_listener will go to next state if nothing to run
+    if part_a_is_empty:
+        context.jupyter_client.is_complete('')
+
+
+def run_job_b(context):
+    set_state(context, B_RUNNING)
+    context.b_queued = False
+    context.main_thread_create_task(job_b(context))
+
+
+async def job_b(context):
+    doc = context.shared_context.doc
+    from_line = context.part_a_end_line
+    send = context.main_thread_send
+    send('Clear', None)
+    await send_buffer(send, context.iopub_buffer)
+    context.iopub_buffer = None
+    for boundary in cell_boundary_generator(doc, start_line=from_line):
         await execute_lines(context, doc[boundary])
 
 
@@ -233,19 +253,6 @@ async def send_buffer(send, buffer):
             send('IOPub', message)
     if last_execution_state:
         send('IOPub', last_execution_state)
-
-
-async def job_b(context):
-    doc = context.shared_context.doc
-    from_line = context.part_a_end_line
-    send = context.main_thread_send
-    send('Clear', None)
-    await send_buffer(send, context.iopub_buffer)
-    context.iopub_buffer = None
-    for boundary in cell_boundary_generator(doc, start_line=from_line):
-        logger.info('Running B')
-        # logger.info('Running B: \n%s', '\n'.join(doc[boundary]))
-        await execute_lines(context, doc[boundary])
 
 
 @handles('EvaluatePartA')
