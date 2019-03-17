@@ -320,7 +320,13 @@
                 tab.set({ clean: current.clean })
             }
             if (changed.active) {
-                tab.set({ active: current.active })
+                const { active } = current
+                tab.set({ active: active })
+                if (active) {
+                    try {
+                        this.socket.send('ActivateEditor')
+                    } catch (e) {}
+                }
             }
             if (changed.highlightOverlay) {
                 const { cm } = this

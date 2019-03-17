@@ -148,7 +148,6 @@ async def open_file(msg, send, context):
     # skip all completion, linting etc. if it is not a Python file
     if not context.is_python:
         return
-
     await post_content_change(context, send)
 
 
@@ -159,6 +158,11 @@ async def reload(_, send, context):
         context.content = content
     await send('Reloaded', {'content': content})
     await post_content_change(context, send)
+
+
+@handles('ActivateEditor')
+async def reload(msg, send, context):
+    context.shared_context.doc = context.doc
 
 
 @handles('Mtime')

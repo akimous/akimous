@@ -26,9 +26,10 @@ class ChangeHandler(FileSystemEventHandler):
 
     def on_deleted(self, event):
         logger.info('on delete %s', repr(event))
-        self.context.main_thread_send('DirDeleted' if event.is_directory else 'FileDeleted', {
-            'path': Path(event.src_path).relative_to(self.root).parts,
-        })
+        self.context.main_thread_send(
+            'DirDeleted' if event.is_directory else 'FileDeleted', {
+                'path': Path(event.src_path).relative_to(self.root).parts,
+            })
         for k in tuple(self.context.observed_watches.keys()):
             if k.startswith(event.src_path):
                 stop_monitor(k, self.context)
@@ -49,7 +50,9 @@ class ChangeHandler(FileSystemEventHandler):
         for k in tuple(self.context.observed_watches.keys()):
             if k.startswith(event.src_path + '/'):
                 stop_monitor(k, self.context)
-                start_monitor(k.replace(event.src_path + '/', event.dest_path + '/'), self.context)
+                start_monitor(
+                    k.replace(event.src_path + '/', event.dest_path + '/'),
+                    self.context)
 
 
 handles = partial(register_handler, 'fileTree')
@@ -69,7 +72,8 @@ def start_monitor(path, context):
     path = str(path)
     logger.debug('start monitoring %s', path)
     change_handler = ChangeHandler(context)
-    context.observed_watches[path] = get_observer(context).schedule(change_handler, path)
+    context.observed_watches[path] = get_observer(context).schedule(
+        change_handler, path)
 
 
 def stop_monitor(path, context):
@@ -99,7 +103,8 @@ async def open_dir(msg, send, context):
 
 @handles('CloseDir')
 async def close_dir(msg, send, context):
-    stop_monitor(Path(context.shared_context.project_root, *msg['path']), context)
+    stop_monitor(
+        Path(context.shared_context.project_root, *msg['path']), context)
 
 
 @handles('Rename')
@@ -111,17 +116,22 @@ async def rename(msg, send, context):
 
     if new_path.exists():
         await send(
-            'Failed', f'Failed to rename "<b>{old_path.name}</b>" to "<b>{new_name}</b>". '
+            'Failed',
+            f'Failed to rename "<b>{old_path.name}</b>" to "<b>{new_name}</b>". '
             f'Already exists.')
     else:
         try:
             old_path.rename(new_path)
-            await send('Done', f'"<b>{old_path.name}</b>" renamed to "<b>{new_name}</b>"')
+            await send(
+                'Done',
+                f'"<b>{old_path.name}</b>" renamed to "<b>{new_name}</b>"')
             if str(old_path) in context.observed_watches:
                 stop_monitor(old_path, context)
                 start_monitor(new_path, context)
         except OSError as e:
-            await send('Failed', f'Failed to rename "<b>{old_path.name}</b>". {e.strerror}')
+            await send(
+                'Failed',
+                f'Failed to rename "<b>{old_path.name}</b>". {e.strerror}')
 
 
 @handles('CreateFile')
@@ -129,14 +139,19 @@ async def create_file(msg, send, context):
     path = Path(context.shared_context.project_root, *msg['path'])
     file_name = msg['path'][-1]
     if path.exists():
-        await send('Failed', f'Failed to create file "<b>{file_name}</b>". File already exists.')
+        await send(
+            'Failed',
+            f'Failed to create file "<b>{file_name}</b>". File already exists.'
+        )
     else:
         try:
             with path.open('w'):
                 pass
             await send('Done', f'New file "<b>{file_name}</b>" created.')
         except OSError as e:
-            await send('Failed', f'Failed to create file "<b>{file_name}</b>". {e.strerror}')
+            await send(
+                'Failed',
+                f'Failed to create file "<b>{file_name}</b>". {e.strerror}')
 
 
 @handles('CreateDir')
@@ -144,10 +159,15 @@ async def create_dir(msg, send, context):
     path = Path(context.shared_context.project_root, *msg['path'])
     dir_name = msg['path'][-1]
     if path.exists():
-        await send('Failed', f'Failed to create folder "<b>{dir_name}</b>". Folder already exists.')
+        await send(
+            'Failed',
+            f'Failed to create folder "<b>{dir_name}</b>". Folder already exists.'
+        )
     else:
         try:
             path.mkdir(parents=True, exist_ok=False)
             await send('Done', f'New folder "<b>{dir_name}</b>" created.')
         except OSError as e:
-            await send('Failed', f'Failed to create folder "<b>{dir_name}</b>". {e.strerror}')
+            await send(
+                'Failed',
+                f'Failed to create folder "<b>{dir_name}</b>". {e.strerror}')

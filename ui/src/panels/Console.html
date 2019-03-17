@@ -47,7 +47,6 @@
 
         },
         onupdate({ changed, current, previous }) {
-            console.warn({ changed, current, previous })
             if (changed.mode) {
                 this.close()
                 if (current.active) {
