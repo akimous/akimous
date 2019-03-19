@@ -48,6 +48,7 @@
         },
         onupdate({ changed, current, previous }) {
             if (changed.mode) {
+                this.stop()
                 this.close()
                 if (current.active) {
                     this.initialize()
@@ -184,7 +185,13 @@
                 run()
             },
             stop() {
-                this.socket.send('Stop', {})
+                if (!this.socket) return
+                const { mode } = this.get()
+                if (mode === 'jupyter') {
+                    this.socket.send('StopKernel', {})
+                } else {
+                    this.socket.send('Stop', {})
+                }
             },
 
             // Jupyter
@@ -230,6 +237,11 @@
                         cells.length = 0
                         this.terminal.clear()
                     })
+                    .addHandler('KernelStopped', () => {
+                        g.jupyterToolbar.set({
+                            executionState: 'stopped'
+                        })
+                    })
                     .connect(() => {})
             },
             runInJupyter() {
@@ -250,11 +262,13 @@
             },
             startRealtimeEvaluation() {
                 if (!g.activeEditor) return
+                g.jupyterToolbar.set({
+                    executionState: 'starting',
+                })
                 this.socket.send('StartKernel', { realtimeEvaluation: true })
                 this.realtimeEvaluationEditor = g.activeEditor
                 g.activeEditor.cmEventDispatcher.realtimeEvaluation = true
                 console.warn('starting')
-                this.evaluatePartB(0, g.activeEditor.cm.getLine(0))
             },
             stopRealtimeEvaluation() {
                 this.realtimeEvaluationEditor = null
@@ -272,7 +286,7 @@
                     console.log('skipped evaluateA', line)
                     return
                 }
-                console.log('evaluateA', line)
+                console.warn('evaluateA', line)
                 this.socket.send('EvaluatePartA', line)
                 this.lastPartALine = line
             },

@@ -1,5 +1,24 @@
-<div ref:toolbar id="jupyter-toolbar" class="non-selectable">
+<div ref:toolbar id="jupyter-toolbar" class="non-selectable" class:realtime="mode==='realtime'">
+    {#if mode === 'interactive'}
+    <div class="button" on:click="runSelected()">
+        <i class="fas fa-play"></i>
+    </div>
+    <div class="button" on:click="runToActiveLine()">
+        <i class="fas fa-step-forward"></i>
+    </div>
+    <div class="button" on:click="runToEnd()">
+        <i class="fas fa-fast-forward"></i>
+    </div>
+    <div class="button" on:click="interrupt()">
+        <i class="fas fa-minus-circle"></i>
+    </div>
+    <div class="button" on:click="restartKernel()">
+        <i class="fas fa-sync-alt"></i>
+    </div>
     <span class="gap"></span>
+    {:else}
+    <span class="gap">Realtime evaluation mode</span>
+    {/if}
     <div class="execution-state">
         {#if executionState === 'busy'}
         <i class="fas fa-hourglass-half l-yellow"></i>
@@ -7,6 +26,10 @@
         <i class="fas fa-exclamation-triangle l-red"></i>
         {:elseif executionState === 'idle'}
         <i class="fas fa-check l-green"></i>
+        {:elseif executionState === 'stopped'}
+        <i class="fas fa-stop-circle" style="color:gray"></i>
+        {:elseif executionState === 'starting'}
+        <i class="fas fa-spinner l-blue"></i>
         {/if}
     </div>
 </div>
@@ -15,20 +38,40 @@
 <style>
     #jupyter-toolbar {
         line-height: var(--ui-line-height-large);
-        background: var(--primary1);
+        background: var(--primary2);
         display: flex;
+        margin-bottom: .1rem;
     }
     
+    #jupyter-toolbar.realtime {
+        background: var(--accent2);
+    }
+    
+    .button {
+        width: 1.7rem;
+        line-height: var(--ui-line-height-large);
+        text-align: center;
+        color: var(--primary7);
+    }
+    
+    .button:hover {
+        filter: brightness(1.2);
+    }
+
     .gap {
         flex-grow: 1;
+        text-align: center;
     }
-    
+
     .real-time-evaluation {
         display: inline-block;
     }
-    
+
     .execution-state {
         display: inline-block;
+        width: 1.7rem;
+        line-height: var(--ui-line-height-large);
+        text-align: center;
     }
 
 </style>
@@ -44,10 +87,29 @@
         },
         data() {
             return {
-                executionState: 'off',
+                mode: 'interactive', // or 'realtime'
+                executionState: 'stopped',
             }
         },
-        methods: {}
+        methods: {
+            runSelected() {
+                g.console.runInJupyter()
+            },
+            runToActiveLine() {
+                
+            },
+            runToEnd() {
+                
+            },
+            interrupt() {
+                g.console.socket.send('InterruptKernel', )
+            },
+            restartKernel() {
+                g.console.socket.send('StartKernel', {
+                    realtimeEvaluation: false
+                })
+            },
+        }
     }
 
 </script>

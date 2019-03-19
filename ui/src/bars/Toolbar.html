@@ -78,13 +78,18 @@
                         g.notificationBar.show('warning', 'Please open a Python file to run.')
                         return
                     }
-                    
-                    if (mode === 'script' || mode === 'module' || mode === 'shell') {
-                        g.console.runInTerminal()
-                    } else if (mode === 'selected') {
-                        g.console.startJupyterKernel()
-                    } else if (mode === 'realtime') {
-                        g.console.startRealtimeEvaluation()
+                    switch (mode) {
+                        case 'script':
+                        case 'module':
+                        case 'shell':
+                            g.console.runInTerminal()
+                            break
+                        case 'interactive':
+                            g.console.startJupyterKernel()
+                            break
+                        case 'realtime':
+                            g.console.startRealtimeEvaluation()
+                            break
                     }
                 }
             })

@@ -3,7 +3,7 @@
         "args": "hi",
         "cwd": "",
         "mode": "realtime",
-        "shellCommandIndex": 0,
+        "shellCommandIndex": 1,
         "shellCommands": [
             "python",
             "echo hello world",
