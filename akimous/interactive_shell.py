@@ -9,7 +9,7 @@ from tokenize import generate_tokens
 
 from jupyter_client import KernelManager
 from logzero import logger
-import zmq.asyncio
+from zmq.asyncio import Context, Socket
 
 from .utils import Timer, nop
 from .websocket import register_handler
@@ -63,8 +63,8 @@ async def execute_lines(context, lines):
 
 async def iopub_listener(send, context):
     client = context.jupyter_client
-    socket = zmq.asyncio.Socket(context=zmq.asyncio.Context(),
-                                socket_type=client.iopub_channel.socket.socket_type)
+    socket = Socket(context=Context(),
+                    socket_type=client.iopub_channel.socket.socket_type)
     try:
         with open(client.connection_file) as f:
             connection_info = json.load(f)
@@ -97,12 +97,12 @@ async def iopub_listener(send, context):
                     evaluation_state = context.evaluation_state
                     if evaluation_state is RESTARTING:
                         if context.realtime_evaluation_mode:
-                            run_job_a(context)
+                            asyncio.create_task(job_a(context))
                         else:
                             set_state(context, IDLE)
                     elif evaluation_state is A_RUNNING:
                         if context.b_queued:
-                            run_job_b(context)
+                            asyncio.create_task(job_b(send, context))
                         else:
                             set_state(context, IDLE)
                     elif evaluation_state is B_RUNNING:
@@ -126,11 +126,11 @@ async def start_kernel(msg, send, context):
 
 
 async def wait_until_kernel_ready(send, context):
-    while context.evaluation_state is RESTARTING:
-        context.kernel_restart_completion_id = context.jupyter_client.is_complete(
-            '')
-        logger.debug('sleeping')
+    with Timer('waiting kernel'):
         await asyncio.sleep(.1)
+        while context.evaluation_state is RESTARTING:
+            context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
+            await asyncio.sleep(.1)
     await send('KernelStarted', None)
 
 
@@ -168,7 +168,7 @@ async def reset_kernel(context, interrupt=False):
         # interrupt the kernel if it is busy
         context.kernel_manager.interrupt_kernel()
         context.pending_messages.clear()
-    await execute_lines(context, ('%reset -f', ))
+    await execute_lines(context, ('%reset -f',))
     context.iopub_buffer = []
     context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
 
@@ -220,13 +220,9 @@ def cell_boundary_generator(code_lines, start_line=0, end_line=999999):
     yield slice(last_cell_end_line, None)
 
 
-def run_job_a(context):
+async def job_a(context):
     set_state(context, A_RUNNING)
     context.a_queued = False
-    context.main_thread_create_task(job_a(context))
-
-
-async def job_a(context):
     doc = context.shared_context.doc
     line = context.part_a_end_line
     context.iopub_buffer = []
@@ -240,17 +236,12 @@ async def job_a(context):
         context.jupyter_client.is_complete('')
 
 
-def run_job_b(context):
+async def job_b(send, context):
     set_state(context, B_RUNNING)
     context.b_queued = False
-    context.main_thread_create_task(job_b(context))
-
-
-async def job_b(context):
     doc = context.shared_context.doc
     from_line = context.part_a_end_line
-    send = context.main_thread_send
-    send('Clear', None)
+    await send('Clear', None)
     await send_buffer(send, context.iopub_buffer)
     context.iopub_buffer = None
     for boundary in cell_boundary_generator(doc, start_line=from_line):
@@ -265,9 +256,9 @@ async def send_buffer(send, buffer):
         if message.get('execution_state', None):
             last_execution_state = message['execution_state']
         else:
-            send('IOPub', message)
+            await send('IOPub', message)
     if last_execution_state:
-        send('IOPub', last_execution_state)
+        await send('IOPub', last_execution_state)
 
 
 @handles('EvaluatePartA')
@@ -302,9 +293,8 @@ async def evaluate_part_b(msg, send, context):
 
     state = context.evaluation_state
     if state is IDLE:
-        run_job_b(context)
+        await job_b(send, context)
     elif state is B_RUNNING:
         context.a_queued = True
-        logger.warn('meow')
         await reset_kernel(context, interrupt=True)
     # NOP for RESTARTING, A_RUNNING
