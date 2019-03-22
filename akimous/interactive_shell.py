@@ -6,6 +6,7 @@ from collections import defaultdict
 from functools import partial
 from io import StringIO
 from tokenize import generate_tokens
+from contextlib import suppress
 
 from jupyter_client import KernelManager
 from logzero import logger
@@ -16,10 +17,23 @@ from .websocket import register_handler
 
 handles = partial(register_handler, 'jupyter')
 
+indented = re.compile('(^\\s+)|(^@)')
+continued = re.compile('\\\\\\s*$')
+
 IDLE = 'IDLE'
 RESTARTING = 'RESTARTING'
 A_RUNNING = 'A_RUNNING'
 B_RUNNING = 'B_RUNNING'
+
+
+def set_state(context, new_state):
+    context.evaluation_state = new_state
+    if new_state is A_RUNNING:
+        context.a_queued = False
+    elif new_state is B_RUNNING:
+        context.b_queued = False
+    logger.info('state: %s; a_queued: %s; b_queued: %s', new_state,
+                context.a_queued, context.b_queued)
 
 
 @handles('_connected')
@@ -38,27 +52,6 @@ async def connected(client_id, send, context):
 async def disconnected(context):
     logger.info('stopping kernel')
     await stop_kernel({}, nop, context)
-    context.iopub_listener.cancel()
-
-
-def set_state(context, new_state):
-    context.evaluation_state = new_state
-    if new_state is A_RUNNING:
-        context.a_queued = False
-    elif new_state is B_RUNNING:
-        context.b_queued = False
-    logger.warn('state: %s; a_queued: %s; b_queued: %s', new_state,
-                context.a_queued, context.b_queued)
-
-
-async def execute_lines(context, lines):
-    message_id = context.jupyter_client.execute(
-        '\n'.join(lines), store_history=False)
-    context.pending_messages.add(message_id)
-    logger.info('executing lines\n%s', '\n'.join(lines))
-    logger.info('adding message id %s; %s', message_id,
-                context.pending_messages)
-    await asyncio.sleep(0)  # allow other tasks to run
 
 
 async def iopub_listener(send, context):
@@ -93,20 +86,22 @@ async def iopub_listener(send, context):
                 logger.info('removing message id %s; %s', msg_id,
                             context.pending_messages)
 
-                if not context.pending_messages:  # only change state when there's no pending messages waiting response
+                if context.kernel_restart_completion_id == msg_id:
+                    if context.realtime_evaluation_mode:
+                        context.job_a = asyncio.create_task(job_a(context))
+                    else:
+                        set_state(context, IDLE)
+
+                elif not context.pending_messages:  # only change state when there's no pending messages waiting response
                     evaluation_state = context.evaluation_state
-                    if evaluation_state is RESTARTING:
-                        if context.realtime_evaluation_mode:
-                            asyncio.create_task(job_a(context))
-                        else:
-                            set_state(context, IDLE)
-                    elif evaluation_state is A_RUNNING:
+                    if evaluation_state is A_RUNNING:
                         if context.b_queued:
-                            asyncio.create_task(job_b(send, context))
+                            context.job_b = asyncio.create_task(job_b(send, context))
                         else:
                             set_state(context, IDLE)
                     elif evaluation_state is B_RUNNING:
                         asyncio.create_task(reset_kernel(context))
+
     except asyncio.CancelledError:
         socket.close()
         logger.info('iopub socket closed')
@@ -130,35 +125,17 @@ async def wait_until_kernel_ready(send, context):
         await asyncio.sleep(.1)
         while context.evaluation_state is RESTARTING:
             context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
+            logger.debug('sleeping')
             await asyncio.sleep(.1)
     await send('KernelStarted', None)
 
 
-@handles('StopKernel')
-async def stop_kernel(msg, send, context):
-    if not context.kernel_manager.is_alive():
-        return
-    context.kernel_manager.shutdown_kernel()
-    await send('KernelStopped', None)
-    context.iopub_listener.cancel()
-
-
-@handles('Run')
-async def run(msg, send, context):
-    logger.debug('Running code %s', msg['code'])
-    await execute_lines(context, msg['code'])
-
-
-indented = re.compile('(^\\s+)|(^@)')
-continued = re.compile('\\\\\\s*$')
-
-
-async def restart_kernel(msg, send, context):
-    with Timer('restarting kernel'):
-        set_state(context, RESTARTING)
-        context.kernel_manager.restart_kernel(now=True)
-        context.iopub_buffer = []
-        asyncio.create_task(wait_until_kernel_ready(send, context))
+# async def restart_kernel(msg, send, context):
+#     with Timer('restarting kernel'):
+#         set_state(context, RESTARTING)
+#         context.kernel_manager.restart_kernel(now=True)
+#         context.iopub_buffer = []
+#         asyncio.create_task(wait_until_kernel_ready(send, context))
 
 
 async def reset_kernel(context, interrupt=False):
@@ -175,7 +152,38 @@ async def reset_kernel(context, interrupt=False):
 
 @handles('InterruptKernel')
 async def interrupt_kernel(msg, send, context):
+    with suppress(Exception):
+        context.job_a.cancel()
+        context.job_b.cancel()
     context.kernel_manager.interrupt_kernel()
+
+
+@handles('StopKernel')
+async def stop_kernel(msg, send, context):
+    with suppress(Exception):
+        context.job_a.cancel()
+        context.job_b.cancel()
+    if not context.kernel_manager.is_alive():
+        return
+    context.kernel_manager.shutdown_kernel()
+    await send('KernelStopped', None)
+    context.iopub_listener.cancel()
+
+
+async def execute_lines(context, lines):
+    message_id = context.jupyter_client.execute(
+        '\n'.join(lines), store_history=False)
+    context.pending_messages.add(message_id)
+    logger.info('executing lines\n%s', '\n'.join(lines))
+    logger.info('adding message id %s; %s', message_id,
+                context.pending_messages)
+    await asyncio.sleep(0)  # allow other tasks to run
+
+
+@handles('Run')
+async def run(msg, send, context):
+    logger.debug('Running code %s', msg['code'])
+    await execute_lines(context, msg['code'])
 
 
 def cell_boundary_generator(code_lines, start_line=0, end_line=999999):
@@ -252,6 +260,7 @@ async def send_buffer(send, buffer):
     if not buffer:
         return
     last_execution_state = None
+    # remove duplicated/bouncing execution states
     for message in buffer:
         if message.get('execution_state', None):
             last_execution_state = message['execution_state']
@@ -293,7 +302,7 @@ async def evaluate_part_b(msg, send, context):
 
     state = context.evaluation_state
     if state is IDLE:
-        await job_b(send, context)
+        context.job_b = asyncio.create_task(job_b(send, context))
     elif state is B_RUNNING:
         context.a_queued = True
         await reset_kernel(context, interrupt=True)
