@@ -30,7 +30,8 @@ PredictionRow = namedtuple('PredictionRow', ('c', 't', 's'))
 handles = partial(register_handler, 'editor')
 doc_generator = DocGenerator()
 
-model = joblib.load(open_binary('akimous.resources', MODEL_NAME))  # 300 ms
+with open_binary('akimous.resources', MODEL_NAME) as f:
+    model = joblib.load(f)  # 300 ms
 model.n_jobs = 1
 logger.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
 
