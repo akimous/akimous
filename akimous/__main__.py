@@ -5,6 +5,7 @@ from boltons.gcutils import toggle_gc
 
 from .utils import Timer
 
+
 log_format = '%(color)s[%(levelname)1.1s %(asctime)s.%(msecs)03d %(module)s:%(lineno)d]%(end_color)s %(message)s'
 formatter = logzero.LogFormatter(fmt=log_format)
 logzero.setup_default_logger(formatter=formatter)
@@ -27,8 +28,8 @@ with Timer('initialization'), toggle_gc:
     logzero.loglevel(DEBUG if args.verbose else INFO)
 
     from .websocket import start_server
-    from . import file_tree # 11ms, 4M memory
-    from . import editor # 900ms, 80M memory
+    from . import file_tree  # 11ms, 4M memory
+    from . import editor  # 900ms, 80M memory
     from . import terminal
     from . import interactive_shell # 30ms, 3M memory
 
@@ -39,3 +40,6 @@ def start():
 
 if __name__ == '__main__':
     start()
+
+    # clean up to avoid ResourceWarning
+    editor.doc_generator.temp_dir.cleanup()

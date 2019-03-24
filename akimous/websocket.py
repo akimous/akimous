@@ -139,4 +139,3 @@ def start_server(host, port, no_browser, verbose):
                     socket.close()
         loop.stop()
         logger.info('Terminated')
-        exit(0)
