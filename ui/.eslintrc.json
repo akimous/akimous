@@ -70,6 +70,7 @@
                     "jitter",
                     "jupyter",
                     "keyboardjs",
+                    "kwargs",
                     "linter",
                     "lodash",
                     "makefile",

@@ -25,6 +25,15 @@ RESTARTING = 'RESTARTING'
 A_RUNNING = 'A_RUNNING'
 B_RUNNING = 'B_RUNNING'
 
+"""State Transition
+| Current State \ Event Received | IDLE  | EvaluatePartA | EvaluatePartB |
+| ------------------------------ | ----- | ------------- | ------------- |
+| IDLE                           |       | reset         | job B         |
+| RESTARTING                     | job A |               |               |
+| RUNNING_A                      | job B | reset         |               |
+| RUNNING_B                      | reset |               | reset         |
+"""
+
 
 def set_state(context, new_state):
     context.evaluation_state = new_state
@@ -92,7 +101,8 @@ async def iopub_listener(send, context):
                     else:
                         set_state(context, IDLE)
 
-                elif not context.pending_messages:  # only change state when there's no pending messages waiting response
+                elif not context.pending_messages:
+                    # only change state when there's no pending messages waiting response
                     evaluation_state = context.evaluation_state
                     if evaluation_state is A_RUNNING:
                         if context.b_queued:

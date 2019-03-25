@@ -1,4 +1,4 @@
-const editorCommandKeymap = {
+const editorCommandKeyMap = {
     'KeyI': 'goLineUp',
     'KeyK': 'goLineDown',
     'KeyJ': 'goGroupLeft',
@@ -32,7 +32,7 @@ const editorCommandKeymap = {
     'Minus': 'fold',
 }
 
-const genericCommandKeymap = {
+const genericCommandKeyMap = {
     'KeyI': 'up',
     'KeyK': 'down',
     'KeyU': 'up5X',
@@ -66,6 +66,6 @@ const genericCommandKeymap = {
 }
 
 export default {
-    editorCommandKeymap,
-    genericCommandKeymap
+    editorCommandKeyMap,
+    genericCommandKeyMap
 }

@@ -8,7 +8,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const operators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->)|[+\-*/%&|^~<>!@=])$/
     const compoundOperators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->))$/
     const operatorChars = /[=+\-*/|&^~%@><!]$/
-    const idendifier = /^[^\d\W]\w*$/
+    const identifier = /^[^\d\W]\w*$/
     const _inParentheses = () => inParentheses(cm, c.from)
     const _inBrackets = () => inBrackets(cm, c.from)
     const _inBraces = () => inBraces(cm, c.from)
@@ -140,7 +140,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             ensureSpaceBefore(t0)
         } else if (t0.string === '>' && t1.string === '-') {
             ensureSpaceBefore(t0)
-        } else if (t0.string === '.' && t1.type === null && idendifier.test(currentText)) {
+        } else if (t0.string === '.' && t1.type === null && identifier.test(currentText)) {
             // .x => self.x
             c.cancel()
             const from = Pos(c.from.line, c.from.ch - 1)

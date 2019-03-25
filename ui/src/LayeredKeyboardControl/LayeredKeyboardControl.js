@@ -1,5 +1,5 @@
 import g from '../lib/Globals'
-import Keymap from './Keymap'
+import KeyMap from './KeyMap'
 import CodeEditor from '../editor/CodeEditor.html'
 
 function togglePanelAutoHide(panel) {
@@ -29,7 +29,7 @@ class LayeredKeyboardControl {
         if (code.startsWith('Key'))
             key = code.substring(3)
         this.commandSent = true
-        const command = Keymap.genericCommandKeymap[code]
+        const command = KeyMap.genericCommandKeyMap[code]
         switch (command) {
             case 'panelLeft':
                 g.setFocus([g.panelLeft])
@@ -51,7 +51,7 @@ class LayeredKeyboardControl {
                     const focus = g.focusStack[i]
                     if (focus instanceof CodeEditor) {
                         const extending = e.shiftKey
-                        const editorCommand = Keymap.editorCommandKeymap[code]
+                        const editorCommand = KeyMap.editorCommandKeyMap[code]
                         if (!editorCommand) continue
                         if (extending) this.sendEditorCommand('setExtending')
                         else this.sendEditorCommand('unsetExtending')
