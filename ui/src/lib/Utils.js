@@ -97,8 +97,8 @@ function activateView(parent, view) {
 function reformatDocstring(doc) {
     if (!doc) return doc
     const lines = doc.split(/\r?\n/).map(line => line.trim())
-    const maxLineLength = lines.reduce((accumlator, line) => {
-        return Math.max(accumlator, line.length)
+    const maxLineLength = lines.reduce((accumulator, line) => {
+        return Math.max(accumulator, line.length)
     }, 0) - 1
 
     const result = []

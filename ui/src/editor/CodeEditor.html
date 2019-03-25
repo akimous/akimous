@@ -325,7 +325,9 @@
                 if (active) {
                     try {
                         this.socket.send('ActivateEditor')
-                    } catch (e) {}
+                    } catch (e) {
+                        // do nothing if socket is unavailable
+                    }
                 }
             }
             if (changed.highlightOverlay) {

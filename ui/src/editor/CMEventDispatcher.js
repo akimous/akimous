@@ -11,7 +11,7 @@ import {
     AFTER_OPERATOR,
 } from './completion/CompletionProvider'
 import { OPERATOR } from './RegexDefinitions'
-import { schedule, nextFrame, Pos } from '../lib/Utils'
+import { schedule, nextFrame } from '../lib/Utils'
 
 const NONE = -1
 
@@ -21,8 +21,9 @@ class CMEventDispatcher {
             doc = cm.doc,
             formatter = editor.realtimeFormatter,
             completionProvider = editor.completionProvider,
-            completion = editor.completion,
-            realtimeEvaluation = false
+            completion = editor.completion
+            
+        this.realtimeEvaluation = false
 
         let dirtyLine = NONE
         let shouldDismissCompletionOnCursorActivity = false
@@ -54,7 +55,7 @@ class CMEventDispatcher {
             dirtyLine = NONE
         }
 
-        // cut event is handled in LayeredKeyboardControl via cmd-X hotkey,
+        // cut event is handled in LayeredKeyboardControl via command-X hotkey,
         // because we cannot get the content just cut on the cut event.
         cm.on('copy', cm => {
             let selection = cm.getSelection()

@@ -82,13 +82,15 @@
                         case 'script':
                         case 'module':
                         case 'shell':
+                            g.saveFile()
                             g.console.runInTerminal()
                             break
                         case 'interactive':
-                            g.console.startJupyterKernel()
+                            g.console.startKernel(false)
+                            console.warn('meow')
                             break
                         case 'realtime':
-                            g.console.startRealtimeEvaluation()
+                            g.console.startKernel(true)
                             break
                     }
                 }

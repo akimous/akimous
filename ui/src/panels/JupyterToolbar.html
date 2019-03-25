@@ -1,5 +1,8 @@
 <div ref:toolbar id="jupyter-toolbar" class="non-selectable" class:realtime="mode==='realtime'">
     {#if mode === 'interactive'}
+    {#if executionState === 'stopped'}
+    <span class="gap">Click "Run" to start Jupyter kernel</span>
+    {:else}
     <div class="button" on:click="runSelected()">
         <i class="fas fa-play"></i>
     </div>
@@ -16,6 +19,7 @@
         <i class="fas fa-sync-alt"></i>
     </div>
     <span class="gap"></span>
+    {/if}
     {:else}
     <span class="gap">Realtime evaluation mode</span>
     {/if}

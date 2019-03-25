@@ -61,6 +61,7 @@
                     "fas",
                     "formatter",
                     "globals",
+                    "href",
                     "html",
                     "https",
                     "isequal",
@@ -90,6 +91,7 @@
                     "rect",
                     "reposition",
                     "resize",
+                    "retrigger",
                     "sandybrown",
                     "scrollable",
                     "sortable",
@@ -100,6 +102,7 @@
                     "subdirectory",
                     "tqdm",
                     "txt",
+                    "uid",
                     "unshift",
                     "utils",
                     "viewport",
@@ -110,7 +113,8 @@
                     "https://[^s]*",
                     "fa-",
                     "@param",
-                    "CodeMirror-"
+                    "CodeMirror-",
+                    "cmpPos"
                 ],
                 "skipWordIfMatch": [
                     "px"

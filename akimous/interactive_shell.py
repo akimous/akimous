@@ -183,7 +183,7 @@ async def execute_lines(context, lines):
 @handles('Run')
 async def run(msg, send, context):
     logger.debug('Running code %s', msg['code'])
-    await execute_lines(context, msg['code'])
+    await execute_lines(context, msg['code'].splitlines())
 
 
 def cell_boundary_generator(code_lines, start_line=0, end_line=999999):
@@ -286,7 +286,6 @@ async def evaluate_part_a(msg, send, context):
 
     context.a_queued = True
     if context.evaluation_state in (IDLE, A_RUNNING):
-        logger.warn('meow')
         await reset_kernel(context)
     # NOP for RESTARTING, B_RUNNING
 

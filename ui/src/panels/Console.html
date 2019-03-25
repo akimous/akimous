@@ -1,6 +1,6 @@
-<div class="panel" class:gone="!active">
+<div id="console" class="panel" class:gone="!active">
     {#if mode === 'jupyter'}
-    <div ref:jupyter class="upper-half">
+    <div ref:jupyter class="half">
         <JupyterToolbar ref:jupyterToolbar></JupyterToolbar>
         <table id="jupyter-cells">
             {#each cells as cell}
@@ -11,18 +11,20 @@
         </table>
     </div>
     {/if}
-    <div ref:terminal class="lower-half"></div>
+    <div id="terminal" ref:terminal class="{mode === 'jupyter' ? 'half' : 'full-height'}"></div>
 </div>
 
 
 <style>
-    .upper-half {
+    .half {
         height: 50%;
     }
 
-    .lower-half {
-        height: 50%;
+    :global(#terminal.full-height) {
+        height: 100%;
     }
+    
+    
 
 </style>
 
@@ -46,7 +48,7 @@
             initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
 
         },
-        onupdate({ changed, current, previous }) {
+        onupdate({ changed, current }) {
             if (changed.mode) {
                 this.stop()
                 this.close()
@@ -196,16 +198,20 @@
 
             // Jupyter
             connectJupyter() {
+                if (this.socket)
+                    this.socket.close()
                 this.socket = new Socket('jupyter')
                     .addHandler('KernelStarted', () => {
+                        g.jupyterToolbar.set({
+                            executionState: 'idle'
+                        })
                         this.set({ ready: true })
                     })
                     .addHandler('IOPub', e => {
                         const { cells } = this.get()
                         const { execution_state } = e
                         if (execution_state) {
-                            const { jupyterToolbar } = this.refs
-                            jupyterToolbar.set({
+                            g.jupyterToolbar.set({
                                 executionState: execution_state
                             })
                         }
@@ -260,14 +266,14 @@
 
                 run()
             },
-            startRealtimeEvaluation() {
+            startKernel(realtimeEvaluation) {
                 if (!g.activeEditor) return
                 g.jupyterToolbar.set({
                     executionState: 'starting',
                 })
-                this.socket.send('StartKernel', { realtimeEvaluation: true })
+                this.socket.send('StartKernel', { realtimeEvaluation })
                 this.realtimeEvaluationEditor = g.activeEditor
-                g.activeEditor.cmEventDispatcher.realtimeEvaluation = true
+                g.activeEditor.cmEventDispatcher.realtimeEvaluation = realtimeEvaluation
                 console.warn('starting')
             },
             stopRealtimeEvaluation() {

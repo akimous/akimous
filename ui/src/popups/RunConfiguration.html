@@ -159,7 +159,7 @@
         oncreate() {
             g.runConfiguration = this
         },
-        onstate({ changed, previous, current }) {
+        onstate({ changed, current }) {
             if (!g.ready) return
             if (changed.open && g.toolbar) {
                 g.app.set({
@@ -207,6 +207,7 @@
                     g.console.set({ mode: 'jupyter' })
                     g.jupyterToolbar.set({ mode })
                 }
+                g.console.stop()
             },
             onClickEdit() {
                 const { editing } = this.get()
