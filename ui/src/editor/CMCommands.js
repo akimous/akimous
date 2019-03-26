@@ -55,7 +55,7 @@ function registerCMCommands(CodeMirror) {
     }
 
 
-    function moveLines(cm, dir) {
+    function moveLines(cm, direction) {
         cm.operation(() => {
             const selections = []
             for (const range of cm.listSelections()) {
@@ -64,21 +64,21 @@ function registerCMCommands(CodeMirror) {
                 const to = Pos(rangeTo.line + (rangeTo.ch > 0 ? 1 : 0), 0)
                 const needSelect = CodeMirror.cmpPos(range.anchor, range.head) !== 0
                 const selectedLines = cm.getRange(from, to)
-                const newString = dir > 0 ?
+                const newString = direction > 0 ?
                     cm.getLine(to.line) + '\n' + selectedLines :
                     selectedLines + cm.getLine(from.line - 1) + '\n'
-                if (dir > 0) to.line += 1
+                if (direction > 0) to.line += 1
                 else from.line -= 1
                 cm.replaceRange(newString, from, to)
                 if (needSelect) {
-                    if (dir > 0) from.line += 1
+                    if (direction > 0) from.line += 1
                     else to.line -= 1
                     selections.push({
                         anchor: from,
                         head: to
                     })
                 } else {
-                    range.anchor.line += dir
+                    range.anchor.line += direction
                     selections.push(range)
                 }
             }
@@ -206,12 +206,12 @@ function registerCMCommands(CodeMirror) {
         cm.setSelections(extended)
     }
 
-    CodeMirror.scanForRegex = (cm, where, dir, regex) => {
+    CodeMirror.scanForRegex = (cm, where, direction, regex) => {
         const maxScanLines = 5
-        const lineEnd = dir > 0 ?
+        const lineEnd = direction > 0 ?
             Math.min(where.line + maxScanLines, cm.lastLine() + 1) :
             Math.max(cm.firstLine() - 1, where.line - maxScanLines)
-        const bracketPairs = dir > 0 ? {
+        const bracketPairs = direction > 0 ? {
             '(': ')',
             '[': ']',
             '{': '}',
@@ -221,13 +221,13 @@ function registerCMCommands(CodeMirror) {
             '}': '{',
         }
         const pos = Pos(where.line, 0)
-        for (let line = where.line; line != lineEnd; pos.line = line += dir) {
+        for (let line = where.line; line != lineEnd; pos.line = line += direction) {
             const lineContent = cm.getLine(line)
             if (!line) continue
-            let ch = dir > 0 ? 0 : lineContent.length
-            let end = dir > 0 ? lineContent.length + 1 : -1
+            let ch = direction > 0 ? 0 : lineContent.length
+            let end = direction > 0 ? lineContent.length + 1 : -1
             if (line === where.line)
-                ch = dir > 0 ? where.ch + 1 : where.ch
+                ch = direction > 0 ? where.ch + 1 : where.ch
 
             const stack = []
 
@@ -243,10 +243,10 @@ function registerCMCommands(CodeMirror) {
                     return {
                         token,
                         line,
-                        ch: dir > 0 ? ch - 1 : ch
+                        ch: direction > 0 ? ch - 1 : ch
                     }
                 }
-                if (dir > 0) {
+                if (direction > 0) {
                     ch = token.end + 1
                 } else {
                     ch = (token.start === token.end) ? token.start - 1 : token.start

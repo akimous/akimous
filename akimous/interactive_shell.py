@@ -25,7 +25,7 @@ RESTARTING = 'RESTARTING'
 A_RUNNING = 'A_RUNNING'
 B_RUNNING = 'B_RUNNING'
 
-"""State Transition
+"""Realtime Evaluation State Transition
 | Current State \ Event Received | IDLE  | EvaluatePartA | EvaluatePartB |
 | ------------------------------ | ----- | ------------- | ------------- |
 | IDLE                           |       | reset         | job B         |
