@@ -45,6 +45,8 @@ test:
 	poetry run python -m pytest -sx
 
 jsdev: | clean static
+	cp ui/node_modules/codemirror/mode/python/python.js ui/src/editor/
+	cd ui/src/editor && patch < python.js.patch
 	cd ui && yarn run rollup -c -w
 
 pydev:

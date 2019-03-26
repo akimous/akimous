@@ -2,3 +2,6 @@
 # remove when support become official
 Macro.html
 JupyterCell.html
+
+# patched from external sources
+python.js
