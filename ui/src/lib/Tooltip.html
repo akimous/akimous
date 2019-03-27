@@ -1,4 +1,4 @@
-<div ref:tooltip id="tooltip" class="non-selectable">{text}</div>
+<div ref:tooltip id="tooltip" class="non-selectable"></div>
 
 
 <style>
@@ -39,7 +39,7 @@
         components: {},
         oncreate() {
             g.tooltip = this
-            document.Popper = Popper
+            g.Popper = Popper
         },
         data() {
             return {}

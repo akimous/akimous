@@ -12,12 +12,8 @@ const production = !process.env.ROLLUP_WATCH
 
 export default {
     watch: {
-        chokidar: {
-            ignoreInitial: true,
-            followSymlinks: false,
-        },
+        chokidar: false,
         exclude: 'node_modules/**',
-        include: 'src/lib/*'
     },
     input: 'src/main.js',
     output: {
