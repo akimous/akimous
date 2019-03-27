@@ -1,5 +1,5 @@
---- /Users/ray/Code/akimous/ui/node_modules/codemirror/mode/python/python.js
-+++ /Users/ray/Code/akimous/ui/src/editor/python.js
+--- ui/node_modules/codemirror/mode/python/python.js
++++ ui/src/editor/python.js
 @@ -3,9 +3,9 @@
  
  (function(mod) {
