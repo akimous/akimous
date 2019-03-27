@@ -17,6 +17,7 @@ export default {
             followSymlinks: false,
         },
         exclude: 'node_modules/**',
+        include: 'src/lib/*'
     },
     input: 'src/main.js',
     output: {

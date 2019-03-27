@@ -1,0 +1,62 @@
+<div ref:tooltip id="tooltip" class="non-selectable">{text}</div>
+
+
+<style>
+    #tooltip {
+        background: rgba(0, 0, 0, .7);
+        z-index: 999;
+        padding: .2rem .4rem;
+        margin-top: .5rem;
+        border-radius: var(--small-radius);
+        font-size: var(--ui-font-size-small);
+    }
+
+</style>
+
+
+<script>
+    import g from './Globals'
+    import Popper from 'popper.js'
+
+    let tooltip
+
+    function mouseEnterListener(event) {
+        const { target } = event
+        const tooltipElement = document.getElementById('tooltip')
+        const label = target.getAttribute('aria-label')
+        tooltipElement.textContent = label
+        tooltip = new Popper(target, tooltipElement, {
+            positionFixed: true,
+            eventsEnabled: false,
+        })
+    }
+
+    function mouseLeaveListener(event) {
+        tooltip.destroy()
+    }
+
+    export default {
+        components: {},
+        oncreate() {
+            g.tooltip = this
+            document.Popper = Popper
+        },
+        data() {
+            return {}
+        },
+        methods: {
+            register(element) {
+                if (!Array.isArray(element)) {
+                    element.addEventListener('mouseenter', mouseEnterListener)
+                    element.addEventListener('mouseleave', mouseLeaveListener)
+                    return
+                }
+                for (const i of element) {
+                    i.addEventListener('mouseenter', mouseEnterListener)
+                    i.addEventListener('mouseleave', mouseLeaveListener)
+                }
+            }
+        }
+    }
+
+</script>

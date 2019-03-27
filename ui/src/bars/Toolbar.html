@@ -36,6 +36,7 @@
 
 <script>
     import g from '../lib/Globals'
+    import { schedule } from '../lib/Utils'
 
     export default {
         components: {
@@ -107,6 +108,10 @@
                 callback: () => {
                     g.console.stop()
                 }
+            })
+
+            schedule(() => {
+                g.tooltip.register(this.refs.run.refs.button)
             })
         },
         data() {

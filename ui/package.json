@@ -44,7 +44,8 @@
     "dependencies": {
         "chokidar": "^2.1.2",
         "eslint-plugin-spellcheck": "^0.0.11",
-        "katex": "^0.10.1"
+        "katex": "^0.10.1",
+        "popper.js": "^1.14.7"
     },
     "scripts": {},
     "browserslist": [

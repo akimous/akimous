@@ -1,12 +1,12 @@
 <div id="indent-indicator" class="non-selectable">
-    <span on:click="switchIndent()" class="tool-bar-button tooltipped tooltipped-sw" aria-label="Click to switch between tabs/spaces.">{isMakefile ? 'Tab Size' : indentDisplay}</span>:
+    <span ref:switchIndent on:click="switchIndent()" class="tool-bar-button" aria-label="Click to switch between tabs/spaces.">{isMakefile ? 'Tab Size' : indentDisplay}</span>:
     {#if editingIndentSize}
     <input ref:indentSizeInput id="indent-size-input" type="number" max=12 min=1 step=1 on:blur="commitIndentSize()" value={indentSize}>
     {:else}
-    <span on:click="editIndentSize()" class="tool-bar-button tooltipped tooltipped-sw" aria-label="Click to edit indent size.">{indentSize}</span>
+    <span ref:indentSize on:click="editIndentSize()" class="tool-bar-button" aria-label="Click to edit indent size.">{indentSize}</span>
     {/if}
 </div>
-<div id="cursor-position" class="non-selectable tool-bar-button tooltipped tooltipped-sw" aria-label="Cursor Position (line : column)" ref:cursorPosition> {line+1} : {ch} </div>
+<div ref:cursorPosition id="cursor-position" class="non-selectable tool-bar-button" aria-label="Cursor Position (line : column)"> {line+1} : {ch} </div>
 
 <style>
     #cursor-position,
@@ -34,11 +34,18 @@
 
 <script>
     import g from '../lib/Globals'
+    import { schedule } from '../lib/Utils'
 
     export default {
         components: {},
         oncreate() {
             g.cursorPosition = this
+            schedule(() => {
+                g.tooltip.register([
+                    this.refs.switchIndent,
+                    this.refs.cursorPosition,
+                ])
+            })
         },
         data() {
             return {
@@ -52,6 +59,13 @@
         },
         computed: {
             indentDisplay: ({ indentWithTabs }) => indentWithTabs ? 'Tab Size' : 'Spaces'
+        },
+        onstate({ changed, current, previous }) {
+            if (changed.editingIndentSize && !current.editingIndentSize) {
+                schedule(() => {
+                    g.tooltip.register(this.refs.indentSize)
+                })
+            }
         },
         methods: {
             switchIndent() {
