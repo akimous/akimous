@@ -28,7 +28,7 @@
         <tr on:click="jumpTo(line, ch)" class:highlight="currentLine + 1 === line">
             <td class="line-number">{line}</td>
             <td class="message">{@html highlight}
-                <div class="add-to-dictionary tooltipped tooltipped-sw" aria-label="Add to project dictionary" on:click="addToDictionary(highlight)"><i class="fas fa-book"></i></div>
+                <div class="add-to-dictionary" aria-label="Add to project dictionary" on:click="addToDictionary(highlight)" on:mouseenter="mouseEnter()" on:mouseleave="mouseLeave()" ><i class="fas fa-book"></i></div>
             </td>
         </tr>
         {:else}
@@ -307,6 +307,12 @@
                     editor.syncChanges(line, lineContent)
                 })
             },
+			mouseEnter() {
+				g.tooltip.mouseEnterListener(event)
+			},
+			mouseLeave() {
+				g.tooltip.mouseLeaveListener(event)
+			},
         }
     }
 

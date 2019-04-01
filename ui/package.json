@@ -25,7 +25,6 @@
         "normalize.css": "^8.0.1",
         "pluralize": "^7.0.0",
         "pressure": "^2.1.2",
-        "primer-tooltips": "^2.0.0",
         "rollup": "^1.2.2",
         "rollup-plugin-commonjs": "^9.2.0",
         "rollup-plugin-livereload": "^1.0.0",
@@ -42,7 +41,6 @@
         "xterm": "^3.11.0"
     },
     "dependencies": {
-        "chokidar": "^2.1.2",
         "eslint-plugin-spellcheck": "^0.0.11",
         "katex": "^0.10.1",
         "popper.js": "^1.14.7"

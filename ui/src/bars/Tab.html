@@ -1,4 +1,4 @@
-<span ref:tab class="tab non-selectable {active ? 'active' : ''} {clean ? '' : 'dirty'} {(padding && labeled) ? '' : 'tooltipped tooltipped-s'}" style="padding:0 {padding}px" on:click="activate()" on:dblclick="close()" aria-label="{name}">
+<span ref:tab class="tab non-selectable {active ? 'active' : ''} {clean ? '' : 'dirty'}" style="padding:0 {padding}px" on:click="activate()" on:dblclick="close()" on:mouseenter="mouseEnter()" on:mouseleave="mouseLeave()" aria-label="{name}">
     <!-- if the two spans sitting on different lines means there is a space in between-->
     <span ref:icon class="icon {icon}" class:icon-height-adjustment="name"></span>{#if labeled}<span ref:text class="text">{name}</span>{/if}
 </span>
@@ -37,7 +37,7 @@
 
     .active {
         background: linear-gradient(to bottom, var(--panel-color) 0%, var(--panel-color) 90%,
-        var(--ui-highlight-color) 90%, var(--ui-highlight-color) 100%);
+            var(--ui-highlight-color) 90%, var(--ui-highlight-color) 100%);
     }
 
     .active .text {
@@ -56,7 +56,8 @@
 
 
 <script>
-    // import g from '../lib/Globals'
+    import g from '../lib/Globals'
+    import { schedule } from '../lib/Utils'
 
     export default {
         components: {},
@@ -94,6 +95,15 @@
             },
             close() {
                 this.get().panel.closeView(this.get().view)
+            },
+            mouseEnter() {
+                const { padding, labeled } = this.get()
+                if (padding && labeled)
+                    return
+                g.tooltip.mouseEnterListener(event)
+            },
+            mouseLeave() {
+                g.tooltip.mouseLeaveListener(event)
             },
             getIndex() {
                 let node = this.refs.tab

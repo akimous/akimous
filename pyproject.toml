@@ -32,7 +32,7 @@ include = ["akimous_ui/**/*"]
 exclude = ["akimous/demo/**/*", "akimous/scripts/**/*"]
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = "^3.7"
 numpy = "^1.15"
 gitpython = "^2.1"
 jedi = "^0.13.2"

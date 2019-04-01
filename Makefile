@@ -41,7 +41,9 @@ lint:
 	cd ui && yarn run stylelint "resources/*.css src/**/*.html src/**/*.css"
 	poetry check
 
-test:
+test: | pytest
+
+pytest:
 	poetry run python -m pytest -sx
 
 jsdev: | clean static
