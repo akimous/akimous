@@ -45,6 +45,9 @@ test: | pytest
 
 pytest:
 	poetry run python -m pytest -sx
+    
+jstest:
+	cd ui && HEADLESS=false yarn run jest --runInBand
 
 jsdev: | clean static
 	cp ui/node_modules/codemirror/mode/python/python.js ui/src/editor/
