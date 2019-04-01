@@ -60,7 +60,7 @@
         computed: {
             indentDisplay: ({ indentWithTabs }) => indentWithTabs ? 'Tab Size' : 'Spaces'
         },
-        onstate({ changed, current, previous }) {
+        onstate({ changed, current }) {
             if (changed.editingIndentSize && !current.editingIndentSize) {
                 schedule(() => {
                     g.tooltip.register(this.refs.indentSize)

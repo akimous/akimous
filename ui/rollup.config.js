@@ -50,7 +50,7 @@ export default {
             compress: {
                 drop_console: true,
                 unsafe: true,
-                passes: 3
+                passes: 1
             }
         }),
         production && progress(),

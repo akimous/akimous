@@ -8,6 +8,11 @@
     "license": "GPL-3.0",
     "private": true,
     "devDependencies": {
+        "jest": "^24.5.0",
+        "jest-puppeteer": "^4.1.0",
+        "puppeteer": "^1.14.0"
+    },
+    "dependencies": {
         "@fortawesome/fontawesome-free": "^5.7.2",
         "autoprefixer": "^9.4.8",
         "browserslist": "^4.4.1",
@@ -17,6 +22,8 @@
         "devicon": "^2.0.0",
         "eslint": "^5.14.1",
         "eslint-plugin-html": "^5.0.3",
+        "eslint-plugin-spellcheck": "^0.0.11",
+        "katex": "^0.10.1",
         "keyboardjs": "^2.5.1",
         "lodash.isequal": "^4.5.0",
         "lodash.snakecase": "^4.1.1",
@@ -24,6 +31,7 @@
         "msgpack-lite": "^0.1.26",
         "normalize.css": "^8.0.1",
         "pluralize": "^7.0.0",
+        "popper.js": "^1.14.7",
         "pressure": "^2.1.2",
         "rollup": "^1.2.2",
         "rollup-plugin-commonjs": "^9.2.0",
@@ -39,11 +47,6 @@
         "svelte": "^2.16.1",
         "terser": "^3.16.1",
         "xterm": "^3.11.0"
-    },
-    "dependencies": {
-        "eslint-plugin-spellcheck": "^0.0.11",
-        "katex": "^0.10.1",
-        "popper.js": "^1.14.7"
     },
     "scripts": {},
     "browserslist": [
