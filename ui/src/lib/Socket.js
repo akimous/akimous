@@ -3,11 +3,11 @@ import g from './Globals'
 
 // For performance's sake, expand it as function. About 6.5X faster than array mapping
 const rowPreprocessor = {
-    Prediction([c, t, s]) {
-        return { c, t, s }
+    Prediction([text, type, score]) {
+        return { text, type, score }
     },
-    ExtraPrediction([c, t, s]) {
-        return { c, t, s }
+    ExtraPrediction([text, type, score]) {
+        return { text, type, score }
     },
     RealTimeLints([message, line, ch]) {
         return { message, line, ch }

@@ -16,7 +16,7 @@ const FULL_STATEMENT_COMPLETION_CONSISTENCY_CHECKS = [
 function fullStatementCompletion({ topHit, cm, line, lineContent }) {
     if (!topHit) return
 
-    const topHitCompletion = topHit.c
+    const topHitCompletion = topHit.text
     const lineCount = cm.lineCount()
     let lineUp = line - 1
     let lineDown = line + 1
@@ -51,7 +51,7 @@ function fullStatementCompletion({ topHit, cm, line, lineContent }) {
     }
 
     let scannedCount = 0
-    // find the nearest line including topHit.c
+    // find the nearest line including topHit.text
     while (lineUp >= 0 || lineDown < lineCount) {
         if (lineUp >= 0 && containsTopHit(lineUp--))
             break
@@ -94,24 +94,24 @@ function fixedPredictionForImport({ t2, t1, topHit, lineContent }) {
         leftToken = t2.string
     let result = fixedPredictionRules[leftToken]
     if (!result) return
-    result = result[topHit.c]
+    result = result[topHit.text]
     if (!result) return
-    return topHit.c + result
+    return topHit.text + result
 }
 
 function fromImport({ lineContent, topHit }) {
     if (!topHit) return
-    if (topHit.t !== 'module') return
+    if (topHit.type !== 'module') return
     if (!/^\s*from/.test(lineContent)) return
     if (/\simport\s/.test(lineContent)) return
-    return topHit.c + ' import '
+    return topHit.text + ' import '
 }
 
 function importAs({ lineContent, topHit }) {
     if (!topHit) return
     if (!/import/.test(lineContent)) return
     if (/\sas\s/.test(lineContent)) return
-    return topHit.c + ' as '
+    return topHit.text + ' as '
 }
 
 function isNone({ input }) {
@@ -140,7 +140,7 @@ function args({ cm, input, line, ch, lineContent }) {
 
 function withAs({ lineContent, topHit }) {
     if (!topHit) return
-    if (topHit.c !== 'as') return
+    if (topHit.text !== 'as') return
     if (!/\s*with\s\w/.test(lineContent)) return
     if (/\s*with open\(/.test(lineContent)) return 'as f: '
     
@@ -190,25 +190,25 @@ function nextPossibleVariableName(name) {
 function sequentialVariableNaming({ topHit, line, cm, completions }) {
     if (line < 1) return
     if (!topHit) return
-    if (topHit.t !== 'statement') return
+    if (topHit.type !== 'statement') return
     const lastLine = cm.getLine(line - 1)
-    const index = lastLine.indexOf(topHit.c)
+    const index = lastLine.indexOf(topHit.text)
     if (index === -1) return
-    if (index + topHit.c.length + 3 >= lastLine.length) return
-    const charsAfterTopHitInLastLine = lastLine.substr(index + topHit.c.length, 3)
+    if (index + topHit.text.length + 3 >= lastLine.length) return
+    const charsAfterTopHitInLastLine = lastLine.substr(index + topHit.text.length, 3)
     if (charsAfterTopHitInLastLine !== ' = ') return
-    const result = nextPossibleVariableName(topHit.c)
+    const result = nextPossibleVariableName(topHit.text)
     if (!result) return
-    if (completions.some(i => i.c === result)) return
+    if (completions.some(i => i.text === result)) return
     return result + ' = '
 }
 
 function forElementInCollection({ topHit, lineContent }) {
     if (!topHit) return
     if (!/^\s*for\s/.test(lineContent)) return
-    if (pluralize.isPlural(topHit.c)) {
-        const singular = pluralize.singular(topHit.c)
-        if (singular !== topHit.c) return `${singular} in ${topHit.c}`
+    if (pluralize.isPlural(topHit.text)) {
+        const singular = pluralize.singular(topHit.text)
+        if (singular !== topHit.text) return `${singular} in ${topHit.text}`
     }
 }
 
@@ -253,13 +253,13 @@ class RuleBasedPredictor {
         result = [...new Set(result)].sort((a, b) => a.length - b.length)
         
         console.log(`Rule-based prediction took ${performance.now() - startTime}`)
-        return result.map(c => {
+        return result.map(text => {
             return {
-                c,
-                t: 'full-statement',
-                s: 0,
+                text,
+                type: 'full-statement',
+                score: 0,
                 sortScore: 0,
-                highlight: highlightSequentially(c, input)
+                highlight: highlightSequentially(text, input)
             }
         })
     }

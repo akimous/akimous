@@ -32,7 +32,8 @@
     }
 
     function mouseLeaveListener() {
-        tooltip.destroy()
+        if (tooltip)
+            tooltip.destroy()
     }
 
     export default {

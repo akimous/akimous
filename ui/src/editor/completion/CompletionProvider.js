@@ -73,7 +73,7 @@ class CompletionProvider {
         this.ruleBasedPredictor = new RuleBasedPredictor(this.context)
         this.enabled = true
         this.state = CLOSED
-        this.type = NORMAL
+        this.mode = NORMAL
 
         this.firstTriggeredCharPos = {
             line: 0,
@@ -92,11 +92,11 @@ class CompletionProvider {
             if (data.result.length < 1)
                 return this.completion.set({ open: false })
 
-            if (this.type === AFTER_OPERATOR)
+            if (this.mode === AFTER_OPERATOR)
                 input = null
             const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
 
-            if (this.type === NORMAL) {
+            if (this.mode === NORMAL) {
                 const ruleBasedPrediction = this.ruleBasedPredictor.predict({
                     topHit: sortedCompletions[0],
                     completions: sortedCompletions,
@@ -107,7 +107,7 @@ class CompletionProvider {
             this.completion.setCompletions(
                 sortedCompletions,
                 this.firstTriggeredCharPos,
-                this.type
+                this.mode
             )
         })
         editor.socket.addHandler('ExtraPrediction', ({ result }) => {
@@ -115,7 +115,7 @@ class CompletionProvider {
             this.completion.setCompletions(
                 sortedCompletions,
                 this.firstTriggeredCharPos,
-                this.type
+                this.mode
             )
         })
     }
@@ -159,31 +159,31 @@ class CompletionProvider {
             console.warn({ input })
             this.editor.socket.send('PredictExtra', [line, ch, input])
         } else
-            this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.type)
+            this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.mode)
     }
 
     sortAndFilter(input, completions) {
         if (!input) { // for prediction immediately after dot or operator
             completions.forEach(i => {
                 i.sortScore = 1
-                i.highlight = i.c
+                i.highlight = i.text
             })
         } else {
             this.sorter.setInput(input)
             for (let i of completions) {
-                i.sortScore = this.sorter.score(i.c) * 10
-                if (shouldUseSequentialHighlighter.has(i.t))
-                    i.highlight = highlightSequentially(i.c, input)
+                i.sortScore = this.sorter.score(i.text) * 10
+                if (shouldUseSequentialHighlighter.has(i.type))
+                    i.highlight = highlightSequentially(i.completion, input)
                 else
                     i.highlight = this.sorter.highlight()
             }
         }
-        completions.sort((a, b) => b.sortScore - a.sortScore + b.s - a.s)
+        completions.sort((a, b) => b.sortScore - a.sortScore + b.score - a.score)
         if (debug) console.log('CompletionProvider.sort', completions)
 
         const { type } = this.completion.get()
         const filteredCompletions = completions.filter(row => {
-            if (type !== NORMAL && row.c.length < 2) return false
+            if (type !== NORMAL && row.text.length < 2) return false
             return row.sortScore > 0
         })
         filteredCompletions.forEach(this.addTail, this)
@@ -191,14 +191,14 @@ class CompletionProvider {
     }
 
     addTail(completion) {
-        const { t } = completion
-        const type = this.type
-        let tail = tails[t]
+        const { type } = completion
+        const { mode } = this
+        let tail = tails[type]
         const { lineContent, firstTriggeredCharPos } = this.context
-        if (type === STRING || type === COMMENT)
+        if (mode === STRING || mode === COMMENT)
             tail = null
-        else if (passiveTokenCompletionSet.has(t)) {
-            if (type === PARAMETER_DEFINITION) tail = '='
+        else if (passiveTokenCompletionSet.has(type)) {
+            if (mode === PARAMETER_DEFINITION) tail = '='
             else {
                 const head = lineContent.substring(0, firstTriggeredCharPos.ch)
                 if (/^\s*def\s$/.test(head)) tail = '()'

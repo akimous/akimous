@@ -1,6 +1,6 @@
 <div ref:container class="completion non-selectable" class:gone="!open">
     {#if passive}
-    <CompletionRow ref:passivePlaceholder parent={null} t="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
+    <CompletionRow ref:passivePlaceholder parent={null} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
     {/if}
     <div ref:completion></div>
 </div>
@@ -158,9 +158,9 @@
                 this.completionProvider = editor.completionProvider
             },
             requestCompletionDocstringIfNeeded(completion) {
-                let name = completion.c
+                let name = completion.completion
                 if (name === this.lastRequestedCompletionForDocstring) return
-                if (EXTRA_PREDICTIONS.has(completion.t))
+                if (EXTRA_PREDICTIONS.has(completion.type))
                     return // don't request docstring if it is not actually a completion
 
                 // remove redundant punctuation
@@ -205,15 +205,13 @@
             enter(rowNumber, key) {
                 const { open, passive } = this.get()
                 if (!open) return console.error('closed')
-                const completion = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get().selectedCompletionRow
-                if (!completion) return console.error('no selected completion')
+                const row = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get().selectedCompletionRow
+                if (!row) return console.error('no selected completion')
 
                 this.completionProvider.state = CLOSED
-                const { c, tail } = completion.get()
-                const text = c + tail
-                this.set({
-                    open: false
-                })
+                let { text, tail } = row.get()
+                text = text + tail
+                this.set({ open: false })
 
                 // Don't commit passive completions unless the key is Tab or a number.
                 if (passive && !/\d/.test(key) && key !== 'Tab') {

@@ -122,7 +122,6 @@ class CMEventDispatcher {
         })
 
         cm.on('changes', (cm, changes) => {
-            console.log('changes')
             if (changes[0].origin === 'setValue') return
             const cursor = doc.getCursor()
             const lineContent = cm.getLine(cursor.line)

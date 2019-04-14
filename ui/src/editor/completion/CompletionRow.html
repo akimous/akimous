@@ -1,7 +1,7 @@
 <div on:click="click()" ref:completionRow class="row" class:selected>
     <div class="row-number"> {rowNumber} </div>
     <div class="row-content">{@html highlight}{tail}</div>
-    <div class="type-indicator {t}"> {@html typeIcon} </div>
+    <div class="type-indicator {type}"> {@html typeIcon} </div>
 </div>
 
 
@@ -171,8 +171,8 @@
         oncreate() {},
         data() {
             return {
-                c: '', // completion text
-                t: '', // completion type
+                text: '',
+                type: '',
                 highlight: '',
                 rowNumber: 0,
                 selected: false,
@@ -188,11 +188,11 @@
             }
         },
         computed: {
-            typeIcon: ({ t }) => {
-                const icon = typeIcons[t]
+            typeIcon: ({ type }) => {
+                const icon = typeIcons[type]
                 if (icon)
                     return icon
-                return t.substring(0, 1).toUpperCase()
+                return type.substring(0, 1).toUpperCase()
             }
         }
     }
