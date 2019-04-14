@@ -32,6 +32,14 @@
     font-display: block;
 }
 
+@font-face {
+    font-family: 'Inconsolata';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Inconsolata Regular'), local('Inconsolata-Regular');
+    font-display: block;
+}
+
 :root {
     --main-bg-color: var(--gray2);
     --panel-color: var(--gray4);
@@ -73,9 +81,9 @@
     --ui-line-height-large: 1.7rem;
 
     --monospace-font-color: var(--gray8);
-    --monospace-font-family: 'Source Code Pro', 'Menlo', 'Consola', monospace;
+    --monospace-font-family: 'Inconsolata', 'Source Code Pro', 'Menlo', 'Consola', monospace;
     --monospace-font-size: 1.2rem;
-    --monospace-line-height: 1.6rem;
+    --monospace-line-height: 1.4rem;
 
     --popup-bg-color: var(--gray9);
 
