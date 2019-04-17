@@ -70,7 +70,7 @@ class CMEventDispatcher {
         cm.on('focus', () => {
             // prevent panel clicks (e.g. in Docs) to interfere with focus
             nextFrame(() => {
-                editor.socket.send('Mtime', {})
+                editor.session.send('Mtime', {})
                 g.setFocus([g.panelMiddle, editor])
                 g.find.clearSelections()
             })

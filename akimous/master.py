@@ -9,7 +9,7 @@ from .spell_checker import SpellChecker
 from .utils import (config_directory, get_merged_config, get_project_config, merge_dict)
 from .websocket import register_handler
 
-handles = partial(register_handler, '')
+handles = partial(register_handler, 'master')
 
 config_file = config_directory / 'akimous.json'
 config = get_merged_config(config_file, 'default_config.json')
@@ -24,8 +24,9 @@ if not macro_file.exists():
 
 
 @handles('_connected')
-async def connected(client_id, send, context):
-    await send('Connected', {'clientId': client_id, 'config': config, 'sep': os.sep})
+async def connected(send, context):
+    print('in connected callback')
+    await send('Connected', {'config': config, 'sep': os.sep})
 
 
 @handles('SetConfig')
@@ -50,7 +51,7 @@ def get_configuration_file(context):
 
 @handles('OpenProject')
 async def open_project(msg, send, context):
-    shared_context = context.shared_context
+    shared_context = context._shared
     shared_context.project_root = Path(*msg['path']).resolve()
     shared_context.project_config_file = shared_context.project_root / '.akimous' / 'config.json'
     shared_context.project_dictionary_file = shared_context.project_root / '.akimous' / 'dictionary.json'

@@ -247,7 +247,7 @@
                     open = !open
                     this.set({ open })
                     if (open) {
-                        g.fileTree.socket.send('OpenDir', {
+                        g.fileTree.session.send('OpenDir', {
                             path: this.getPath(),
                         })
                     } else {
@@ -255,7 +255,7 @@
                             files: [],
                             dirs: []
                         })
-                        g.fileTree.socket.send('CloseDir', {
+                        g.fileTree.session.send('CloseDir', {
                             path: this.getPath()
                         })
                     }
@@ -304,12 +304,12 @@
                         if (!isDir)
                             path.splice(-2, 1) // remove if its parent is a file, not the real parent
                         if (newNode === 'file') { // file or dir 
-                            g.fileTree.socket.send('CreateFile', { path })
+                            g.fileTree.session.send('CreateFile', { path })
                         } else if (newNode === 'dir') {
-                            g.fileTree.socket.send('CreateDir', { path })
+                            g.fileTree.session.send('CreateDir', { path })
                         }
                     } else {
-                        g.fileTree.socket.send('Rename', {
+                        g.fileTree.session.send('Rename', {
                             path: this.getPath(),
                             newName: this.refs.input.value
                         })

@@ -80,7 +80,7 @@ def highlight_spelling_errors(token, words, is_correct):
 
 class SpellChecker:
     def __init__(self, context):
-        shared_context = context.shared_context
+        shared_context = context._shared
         shared_context.spell_checker = self
         self.project_dictionary = set()
 

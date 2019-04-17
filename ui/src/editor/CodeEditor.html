@@ -101,23 +101,20 @@
                 let startTime = performance.now()
                 this.shouldClose = false
                 this.completion = this.refs.completion
-                this.socket = new Socket('editor')
-                    .addHandler('FileOpened', data => {
+                
+                this.session = g.socket.createSession('editor')
+                this.session.send('OpenFile', { filePath: this.get().filePath })
+                Object.assign(this.session.handlers, {
+                    FileOpened: data => {
                         console.debug('transmission took', performance.now() - startTime)
                         resolve(data) // <-- exit here
-                    })
-                    .addHandler('RealTimeLints', ({ result }) => {
+                    },
+                    RealTimeLints: ({ result }) => {
                         this.realtimeLints = result
                         if (g.activeEditor === this)
                             g.linter.set({ realtimeLints: this.realtimeLints })
-                    })
-                    .connect(() => {
-                        this.socket.send('OpenFile', { filePath: this.get().filePath })
-                    })
-
-                // add rest of handlers
-                this.socket
-                    .addHandler('FileSaved', data => {
+                    },
+                    FileSaved: data => {
                         this.mtime = data.mtime
                         this.saving = false
                         if (this.shouldClose)
@@ -135,13 +132,14 @@
                         let message = `"<b>${this.get().fileName}</b>"`
                         message += data.content ? ' formatted and saved.' : ' saved.'
                         g.notificationBar.show('success', message)
-                    })
-                    // prompt to reload if modified by another program
-                    .addHandler('Reloaded', data => {
+                    },
+                    Reloaded: data => {
+                        // prompt to reload if modified by another program
                         this.cm.setValue(data.content)
                         this.markClean()
-                    })
-                    .addHandler('Mtime', data => {
+                    },
+                    Mtime: data => {
+                        console.log(this)
                         if (this.mtime === data.mtime || this.saving) return
                         this.mtime = data.mtime
                         g.notificationBar.show(
@@ -151,10 +149,10 @@
                                 callback: () => this.socket.send('Reload', {})
                             }]
                         )
-                    })
-                    // prompt to reload if deleted or moved
-                    .addHandler('FileDeleted', () => {
+                    },
+                    FileDeleted: () => {
                         if (this.saving) return
+                        // prompt to close if deleted or moved
                         g.notificationBar.show(
                             'question',
                             `The file "<b>${this.get().fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
@@ -165,8 +163,8 @@
                                 }
                             }]
                         )
-                    })
-                    .addHandler('UsageFound', data => {
+                    },
+                    UsageFound: data => {
                         const selections = []
                         for (const pos of data.pos) {
                             const [line, ch] = pos
@@ -184,17 +182,17 @@
                             })
                         }
                         this.cm.setSelections(selections)
-                    })
-                    .addHandler('CompletionDocstring', ({ doc, type }) => {
+                    },
+                    CompletionDocstring: ({ doc, type }) => {
                         if (doc.length === 0) doc = null
                         g.docs.set({ completionDoc: doc, completionDocType: type })
-                    })
-                    .addHandler('FunctionDocumentation', ({ doc, type }) => {
+                    },
+                    FunctionDocumentation: ({ doc, type }) => {
                         if (doc.length === 0) doc = null
                         g.docs.set({ functionDoc: doc, functionDocType: type })
                         g.docs.highlightActiveParameter(this.cm)
-                    })
-                    .addHandler('OfflineLints', data => {
+                    },
+                    OfflineLints: data => {
                         this.offlineLints = data.result
                         this.offlineLints.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
                         this.offlineLints.forEach(x => {
@@ -210,12 +208,13 @@
                         })
                         if (g.activeEditor === this)
                             g.linter.set({ offlineLints: this.offlineLints })
-                    })
-                    .addHandler('SpellingErrors', data => {
+                    },
+                    SpellingErrors: data => {
                         this.spellingErrors = data.result
                         if (g.activeEditor === this)
                             g.linter.set({ spellingErrors: this.spellingErrors })
-                    })
+                    }
+                })
             })
 
             // Step 2: Open editor

@@ -104,7 +104,7 @@ async def run_spell_checker(context, send):
     with Timer('Spelling check'):
         tokens = tokenize(context.content)
         await send('SpellingErrors',
-                   {'result': context.shared_context.spell_checker.check_spelling(tokens)})
+                   {'result': context._shared.spell_checker.check_spelling(tokens)})
 
 
 async def run_pyflakes(context, send):
@@ -124,7 +124,7 @@ async def post_content_change(context, send):
     with Timer('Post content change'):
         with toggle_gc_postcollect:
             context.doc = context.content.splitlines()
-            context.shared_context.doc = context.doc
+            context._shared.doc = context.doc
             # initialize feature extractor
             context.feature_extractor = OnlineFeatureExtractor()
             for line, line_content in enumerate(context.doc):
@@ -163,7 +163,7 @@ async def reload(_, send, context):
 
 @handles('ActivateEditor')
 async def reload(msg, send, context):
-    context.shared_context.doc = context.doc
+    context._shared.doc = context.doc
 
 
 @handles('Mtime')

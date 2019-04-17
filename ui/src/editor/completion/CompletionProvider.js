@@ -84,7 +84,7 @@ class CompletionProvider {
         this.currentCompletions = []
         this.input = ''
 
-        editor.socket.addHandler('Prediction', (data) => {
+        editor.session.handlers['Prediction'] = data => {
             if (debug) console.log('CompletionProvider.receive', data)
             let input = this.lineContent[this.firstTriggeredCharPos.ch]
             this.state = TRIGGERED
@@ -109,15 +109,15 @@ class CompletionProvider {
                 this.firstTriggeredCharPos,
                 this.mode
             )
-        })
-        editor.socket.addHandler('ExtraPrediction', ({ result }) => {
+        }
+        editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             const sortedCompletions = this.sortAndFilter(this.input, result)
             this.completion.setCompletions(
                 sortedCompletions,
                 this.firstTriggeredCharPos,
                 this.mode
             )
-        })
+        }
     }
 
     trigger(lineContent, line, ch, triggeredCharOffset) {
@@ -126,7 +126,7 @@ class CompletionProvider {
         this.firstTriggeredCharPos.line = line
         this.firstTriggeredCharPos.ch = ch + triggeredCharOffset
         this.lineContent = lineContent
-        this.editor.socket.send('Predict', [line, ch, lineContent])
+        this.editor.session.send('Predict', [line, ch, lineContent])
         this.isClassDefinition = /^\s*class\s/.test(lineContent)
         Object.assign(this.context, {
             firstTriggeredCharPos: this.firstTriggeredCharPos,
@@ -157,7 +157,7 @@ class CompletionProvider {
 
         if (!sortedCompletions.length) {
             console.warn({ input })
-            this.editor.socket.send('PredictExtra', [line, ch, input])
+            this.editor.session.send('PredictExtra', [line, ch, input])
         } else
             this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.mode)
     }

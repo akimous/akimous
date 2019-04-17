@@ -29,7 +29,6 @@
     import g from '../lib/Globals'
     import { binarySearch, initializeTabView } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
-    import { Socket } from '../lib/Socket'
 
     function sortAndAddUid(arr) {
         return arr.sort().map(i => {
@@ -55,25 +54,24 @@
             initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
             g.setFocus([g.panelLeft, g.fileTree])
 
-            this.socket = new Socket('fileTree')
-                .addHandler('DirOpened', ({ path, dirs, files }) => {
-                    this.getNode(path).set({
-                        dirs: sortAndAddUid(dirs),
-                        files: sortAndAddUid(files)
-                    })
-                    this.moveToFirstChild()
+            this.session = g.socket.createSession('fileTree')
+            const { handlers } = this.session
+            handlers['DirOpened'] = ({ path, dirs, files }) => {
+                this.getNode(path).set({
+                    dirs: sortAndAddUid(dirs),
+                    files: sortAndAddUid(files)
                 })
-                .addHandler('Done', message => {
-                    g.notificationBar.show('success', message)
-                })
-                .addHandler('Failed', message => {
-                    g.notificationBar.show('error', message)
-                })
-                .connect(() => {
-                    this.socket.send('OpenDir', {
-                        path: this.get().root,
-                    })
-                })
+                this.moveToFirstChild()
+            }
+            handlers['Done'] = message => {
+                g.notificationBar.show('success', message)
+            }
+            handlers['Failed'] = message => {
+                g.notificationBar.show('error', message)
+            }
+            this.session.send('OpenDir', {
+                path: this.get().root,
+            })
 
             const renamingEventHandler = ({ path, newName }, event) => {
                 // change file tree names
@@ -127,15 +125,16 @@
             const fileDeleteHandler = handlerFactory('files', 'deleted')
             const dirDeleteHandler = handlerFactory('dirs', 'deleted')
 
-            this.socket
-                .addHandler('DirRenamed', renamingEventHandler)
-                .addHandler('FileRenamed', renamingEventHandler)
-                .addHandler('DirCreated', handlerFactory('dirs', 'created'))
-                .addHandler('FileCreated', handlerFactory('files', 'created'))
-                .addHandler('DirDeleted', handlerFactory('dirs', 'deleted'))
-                .addHandler('FileDeleted', data => {
+            Object.assign(handlers, {
+                DirRenamed: renamingEventHandler,
+                FileRenamed: renamingEventHandler,
+                DirCreated: handlerFactory('dirs', 'created'),
+                FileCreated: handlerFactory('files', 'created'),
+                DirDeleted: handlerFactory('dirs', 'deleted'),
+                FileDeleted: data => {
                     fileDeleteHandler(data) || dirDeleteHandler(data)
-                })
+                }
+            })
 
             this.keyEventHandler = {
                 handleKeyEvent(event, target) {

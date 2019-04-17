@@ -13,7 +13,7 @@ class ChangeHandler(FileSystemEventHandler):
     def __init__(self, context):
         super().__init__()
         self.context = context
-        self.root = context.shared_context.project_root
+        self.root = context._shared.project_root
 
     def on_created(self, event):
         logger.info('on create %s', repr(event))
@@ -90,10 +90,10 @@ def stop_monitor(path, context):
 
 @handles('OpenDir')
 async def open_dir(msg, send, context):
-    path = Path(context.shared_context.project_root, *msg['path'])
+    path = Path(context._shared.project_root, *msg['path'])
     root, dirs, files = next(os.walk(path))
     result = {
-        'path': path.relative_to(context.shared_context.project_root).parts,
+        'path': path.relative_to(context._shared.project_root).parts,
         'dirs': dirs,
         'files': [file for file in files if file != '.DS_Store']
     }
@@ -104,12 +104,12 @@ async def open_dir(msg, send, context):
 @handles('CloseDir')
 async def close_dir(msg, send, context):
     stop_monitor(
-        Path(context.shared_context.project_root, *msg['path']), context)
+        Path(context._shared.project_root, *msg['path']), context)
 
 
 @handles('Rename')
 async def rename(msg, send, context):
-    old_path = Path(context.shared_context.project_root, *msg['path'])
+    old_path = Path(context._shared.project_root, *msg['path'])
     new_name = msg['newName']
     new_path = old_path.with_name(new_name)
     logger.info('renaming %s to %s', old_path, new_path)
@@ -136,7 +136,7 @@ async def rename(msg, send, context):
 
 @handles('CreateFile')
 async def create_file(msg, send, context):
-    path = Path(context.shared_context.project_root, *msg['path'])
+    path = Path(context._shared.project_root, *msg['path'])
     file_name = msg['path'][-1]
     if path.exists():
         await send(
@@ -156,7 +156,7 @@ async def create_file(msg, send, context):
 
 @handles('CreateDir')
 async def create_dir(msg, send, context):
-    path = Path(context.shared_context.project_root, *msg['path'])
+    path = Path(context._shared.project_root, *msg['path'])
     dir_name = msg['path'][-1]
     if path.exists():
         await send(

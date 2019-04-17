@@ -32,40 +32,6 @@ class Socket {
     }
 
     connect(callback) {
-        this.socket = new WebSocket(`ws://${location.host}/ws/${this.path}`)
-        this.socket.binaryType = 'arraybuffer'
-        this.socket.onopen = () => {
-            if (this.path !== '')
-                this.socket.send(msgpack.encode({ clientId: g.clientId }))
-            callback()
-        }
-        this.socket.onclose = () => {
-            if (this.path === '' && g.app) {
-                g.app.destroy()
-                g.app = null
-            }
-            //            setTimeout(() => {
-            //                this.connect(callback)
-            //            }, 3000)
-        }
-        this.socket.onerror = event => {
-            console.error(`Received error from ${this.path}: ${event}`)
-        }
-        this.socket.onmessage = event => {
-            const [e, obj] = msgpack.decode(new Uint8Array(event.data)) // event.data is ArrayBuffer
-            // console.debug(`Received message from ${this.path}: ${e}`, obj)
-            const preprocessor = rowPreprocessor[e]
-            if (preprocessor && obj.result) {
-                obj.result = obj.result.map(preprocessor)
-            }
-            console.debug(`Preprocessed ${this.path}/${e}`, obj)
-            const handler = this.handlers[e]
-            if (!handler) {
-                console.warn('Unhandled event', e)
-                return
-            }
-            handler(obj, e)
-        }
         return this
     }
     

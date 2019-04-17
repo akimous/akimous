@@ -166,7 +166,7 @@
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)
             this.jobAnimationFrameId = 0
-            g.masterSocket.addHandler('FoundInDirectory', ({ result, overflow, nFiles }) => {
+            g.masterSession.handlers['FoundInDirectory'] = ({ result, overflow, nFiles }) => {
                 const m = []
                 for (const { file, matches } of result) {
                     m.push(file)
@@ -188,7 +188,7 @@
                     nFiles,
                     overflow
                 })
-            })
+            }
         },
         data() {
             return {

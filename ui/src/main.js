@@ -1,5 +1,5 @@
 import { config, projectConfig } from './lib/ConfigManager'
-import { Socket } from './lib/Socket'
+import { Socket } from './lib/NewSocket'
 import g from './lib/Globals'
 import App from './App.html'
 import './lib/common.css'
@@ -16,26 +16,42 @@ let app
 const start = performance.now()
 g.projectRoot = ['.']
 g.ready = false
-const socket = new Socket('')
-    .addHandler('Connected', data => {
-        g.ready = false
-        g.clientId = data.clientId
+
+const socket = new Socket(() => {
+    const session = socket.createSession('master')
+    g.masterSession = session // TODO: get rid of this
+    const { handlers } = session
+    handlers['Connected'] = data => {
+        console.log({ data })
         g.sep = data.sep
         Object.assign(config, data.config)
         console.debug('first round-trip', performance.now() - start)
         app = new App({
             target: document.body,
         })
-    })
-    .addHandler('ProjectOpened', data => {
-        g.projectRoot = data.root
-        Object.assign(projectConfig, data.projectConfig)
-        g.runConfiguration.set(g.projectConfig.runConfiguration)
-    })
-    .connect(() => {
-        console.info('Connected')
-        socket.send('OpenProject', { path: g.projectRoot })
-    })
-g.masterSocket = socket
+    }
+    session.send('OpenProject', { path: g.projectRoot })
+})
+//    .addHandler('Connected', data => {
+//        g.ready = false
+//        g.clientId = data.clientId
+//        g.sep = data.sep
+//        Object.assign(config, data.config)
+//        console.debug('first round-trip', performance.now() - start)
+//        app = new App({
+//            target: document.body,
+//        })
+//    })
+//    .addHandler('ProjectOpened', data => {
+//        g.projectRoot = data.root
+//        Object.assign(projectConfig, data.projectConfig)
+//        g.runConfiguration.set(g.projectConfig.runConfiguration)
+//    })
+//    .connect(() => {
+//        console.info('Connected')
+//        socket.send('OpenProject', { path: g.projectRoot })
+//    })
+//g.masterSocket = socket
+g.socket = socket
 
 export default app
