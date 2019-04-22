@@ -49,7 +49,7 @@ async def find_in_directory(msg, send, context):
     regex = re.compile(msg['query'], 0 if case_sensitive else re.IGNORECASE)
     subdirectory = msg['subdirectory']
     limit = msg['limit']
-    project_root = context.shared_context.project_root
+    project_root = context.shared.project_root
     directory = Path(project_root, *msg['path'])
     pathspec = get_pathspec(project_root)
     results = []
@@ -82,7 +82,7 @@ async def replace_all_in_directory(msg, send, context):
     regex = re.compile(msg['query'], 0 if case_sensitive else re.IGNORECASE)
     subdirectory = msg['subdirectory']
     limit = msg['limit']
-    project_root = context.shared_context.project_root
+    project_root = context.shared.project_root
     directory = Path(project_root, *msg['path'])
     pathspec = get_pathspec(project_root)
     file_count = 0

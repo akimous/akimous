@@ -46,7 +46,8 @@ def set_state(context, new_state):
 
 
 @handles('_connected')
-async def connected(client_id, send, context):
+async def connected(send, context):
+    logger.info('shell connected')
     context.kernel_manager = KernelManager()
     context.part_a_end_line = 0
     context.iopub_buffer = None
@@ -119,6 +120,7 @@ async def iopub_listener(send, context):
 
 @handles('StartKernel')
 async def start_kernel(msg, send, context):
+    logger.info('start_kernel')
     logger.warn(msg)
     context.realtime_evaluation_mode = msg['realtimeEvaluation']
     set_state(context, RESTARTING)
@@ -241,7 +243,7 @@ def cell_boundary_generator(code_lines, start_line=0, end_line=999999):
 async def job_a(context):
     set_state(context, A_RUNNING)
     context.a_queued = False
-    doc = context.shared_context.doc
+    doc = context.shared.doc
     line = context.part_a_end_line
     context.iopub_buffer = []
     part_a_is_empty = True
@@ -257,7 +259,7 @@ async def job_a(context):
 async def job_b(send, context):
     set_state(context, B_RUNNING)
     context.b_queued = False
-    doc = context.shared_context.doc
+    doc = context.shared.doc
     from_line = context.part_a_end_line
     await send('Clear', None)
     await send_buffer(send, context.iopub_buffer)
@@ -283,7 +285,7 @@ async def send_buffer(send, buffer):
 @handles('EvaluatePartA')
 async def evaluate_part_a(msg, send, context):
     logger.info('EvaluatePartA %s', msg)
-    doc = context.shared_context.doc
+    doc = context.shared.doc
     line = 0
     for line in range(msg, -1, -1):
         if (line == len(doc) or not indented.match(doc[line])) \
@@ -306,7 +308,7 @@ async def evaluate_part_b(msg, send, context):
     context.b_queued = True
     line = msg['line']
     line_content = msg['line_content']
-    doc = context.shared_context.doc
+    doc = context.shared.doc
     doc[line] = line_content
 
     state = context.evaluation_state

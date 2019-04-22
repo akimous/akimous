@@ -39,7 +39,7 @@ async def disconnected(context):
 
 @handles('RunInTerminal')
 async def run_in_terminal(msg, send, context):
-    root = context.shared_context.project_root
+    root = context.shared.project_root
     mode = msg['mode']
     path = Path(root, *msg.get('filePath', [])).resolve()
     args = shlex.split(msg.get('args', ''))

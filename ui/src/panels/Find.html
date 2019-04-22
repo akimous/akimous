@@ -443,7 +443,7 @@
                 let query = findText
                 if (!regex) query = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
                 if (wholeWord) query = `\\b${query}\\b`
-                g.masterSocket.send('FindInDirectory', {
+                g.masterSession.send('FindInDirectory', {
                     path: findInDirectory,
                     query,
                     limit,

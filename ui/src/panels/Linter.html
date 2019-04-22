@@ -299,7 +299,7 @@
                 for (const i of parsedDocument.querySelectorAll('em'))
                     words.push(i.innerText)
                 event.stopPropagation()
-                g.masterSocket.send('AddToProjectDictionary', words)
+                g.masterSession.send('AddToProjectDictionary', words)
                 requestAnimationFrame(() => {
                     const editor = g.activeEditor
                     const { line } = editor.cm.getCursor()

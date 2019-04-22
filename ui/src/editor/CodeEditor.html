@@ -37,7 +37,6 @@
     import htmlmixed from 'codemirror/mode/htmlmixed/htmlmixed'
     import javascript from 'codemirror/mode/javascript/javascript'
     import lua from 'codemirror/mode/lua/lua'
-    // import livescript from 'codemirror/mode/livescript/livescript'
     import markdown from 'codemirror/mode/markdown/markdown'
     // import nginx from 'codemirror/mode/nginx/nginx'
     import perl from 'codemirror/mode/perl/perl'
@@ -139,14 +138,13 @@
                         this.markClean()
                     },
                     Mtime: data => {
-                        console.log(this)
                         if (this.mtime === data.mtime || this.saving) return
                         this.mtime = data.mtime
                         g.notificationBar.show(
                             'question',
                             `The file "<b>${this.get().fileName}</b>" has been modified by another program. Do you want to reload it?`, [{
                                 name: 'Reload',
-                                callback: () => this.socket.send('Reload', {})
+                                callback: () => this.session.send('Reload', {})
                             }]
                         )
                     },
@@ -306,7 +304,7 @@
                 g.panelMiddle.pathToEditor[joinPath(newPath)] = this
                 if (previous.filePath) {
                     delete g.panelMiddle.pathToEditor[joinPath(previous.filePath)]
-                    this.socket.send('Mtime', { newPath })
+                    this.session.send('Mtime', { newPath })
                 }
             }
             const tab = this.tab
@@ -321,12 +319,8 @@
             if (changed.active) {
                 const { active } = current
                 tab.set({ active: active })
-                if (active) {
-                    try {
-                        this.socket.send('ActivateEditor')
-                    } catch (e) {
-                        // do nothing if socket is unavailable
-                    }
+                if (active && this.session) {
+                    this.session.send('ActivateEditor')
                 }
             }
             if (changed.highlightOverlay) {
@@ -361,7 +355,7 @@
         methods: {
             save() {
                 this.saving = true
-                this.socket.send('SaveFile', { content: this.cm.getValue() })
+                this.session.send('SaveFile', { content: this.cm.getValue() })
                 // preserve cursor and viewport position in case formatters changes the content
                 this.cursorBeforeSaving = this.cm.getCursor()
                 this.scrollInfoBeforeSaving = this.cm.getScrollInfo()
@@ -392,10 +386,10 @@
                         if (to != from && to - from === text.length - 1)
                             text[text.length - 1] = cm.getLine(to)
 
-                        this.socket.send('SyncRange', [from, to + 1, lint, ...text])
+                        this.session.send('SyncRange', [from, to + 1, lint, ...text])
                     }
                 else {
-                    this.socket.send('SyncRange', [changes, changes + 1, true, lineContent])
+                    this.session.send('SyncRange', [changes, changes + 1, true, lineContent])
                 }
                 schedule(() => {
                     this.outline = g.outline.generateOutline(this.cm)

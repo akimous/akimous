@@ -13,7 +13,7 @@ config_directory = Path(user_config_dir('akimous'))
 
 
 def get_project_config(context, file_name):
-    return context.shared_context.project_config_path / file_name
+    return context.shared.project_config_path / file_name
 
 
 def merge_dict(primary, secondary):

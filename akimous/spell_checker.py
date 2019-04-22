@@ -29,7 +29,7 @@ handles = partial(register_handler, '')
 
 @handles('AddToProjectDictionary')
 async def add_to_project_dictionary(msg, send, context):
-    shared_context = context.shared_context
+    shared_context = context.shared
     shared_context.spell_checker.project_dictionary.update(msg)
     with open(shared_context.project_dictionary_file, 'w') as f:
         json.dump(
@@ -80,7 +80,7 @@ def highlight_spelling_errors(token, words, is_correct):
 
 class SpellChecker:
     def __init__(self, context):
-        shared_context = context._shared
+        shared_context = context.shared
         shared_context.spell_checker = self
         self.project_dictionary = set()
 

@@ -106,10 +106,10 @@
                 
             },
             interrupt() {
-                g.console.socket.send('InterruptKernel', )
+                g.console.session.send('InterruptKernel', )
             },
             restartKernel() {
-                g.console.socket.send('StartKernel', {
+                g.console.session.send('StartKernel', {
                     realtimeEvaluation: false
                 })
             },

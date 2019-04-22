@@ -168,7 +168,7 @@
                 if (match)
                     name = match[0]
                 this.lastRequestedCompletionForDocstring = name
-                this.editor.socket.send('GetCompletionDocstring', { name })
+                this.editor.session.send('GetCompletionDocstring', { name })
             },
             setCompletions(rows, firstTriggeredCharPos, type) {
                 const passive = type !== NORMAL

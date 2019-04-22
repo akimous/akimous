@@ -23,8 +23,6 @@
     :global(#terminal.full-height) {
         height: 100%;
     }
-    
-    
 
 </style>
 
@@ -34,7 +32,6 @@
     import { initializeTabView, nextFrame, schedule } from '../lib/Utils'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
-    import { Socket } from '../lib/Socket'
 
     Terminal.applyAddon(fit)
 
@@ -104,7 +101,7 @@
                         g.setFocus([g.panelRight, this])
                     })
                     terminal.addDisposableListener('data', data => {
-                        this.socket.send('Stdin', data)
+                        this.session.send('Stdin', data)
                     })
 
                     terminal.fit()
@@ -119,9 +116,9 @@
             },
             close() {
                 this.set({ ready: false })
-                if (this.socket) {
-                    this.socket.close()
-                    this.socket = null
+                if (this.session) {
+                    this.session.close()
+                    this.session = null
                 }
                 if (this.terminal) {
                     this.terminal.dispose()
@@ -141,15 +138,15 @@
             connectTerminal() {
                 const { terminal } = this
 
-                this.socket = new Socket('terminal')
-                    .addHandler('Stdout', message => {
-                        terminal.write(message)
-                    })
-                    .addHandler('Started', () => {
-                        terminal.clear()
-                        terminal.reset()
-                    })
-                    .connect(() => {})
+                this.session = g.socket.createSession('terminal')
+                const { handlers } = this.session
+                handlers['Stdout'] = message => {
+                    terminal.write(message)
+                }
+                handlers['Started'] = () => {
+                    terminal.clear()
+                    terminal.reset()
+                }
 
                 nextFrame(() => {
                     terminal.write('Click "Run" on toolbar to run current script.\n')
@@ -181,7 +178,7 @@
                         configuration.args = args
                         configuration.cwd = cwd
                     }
-                    this.socket.send('RunInTerminal', configuration)
+                    this.session.send('RunInTerminal', configuration)
                 }
 
                 run()
@@ -190,24 +187,27 @@
                 if (!this.socket) return
                 const { mode } = this.get()
                 if (mode === 'jupyter') {
-                    this.socket.send('StopKernel', {})
+                    this.session.send('StopKernel', {})
                 } else {
-                    this.socket.send('Stop', {})
+                    this.session.send('Stop', {})
                 }
             },
 
             // Jupyter
             connectJupyter() {
-                if (this.socket)
-                    this.socket.close()
-                this.socket = new Socket('jupyter')
-                    .addHandler('KernelStarted', () => {
+                if (this.session)
+                    this.session.close()
+                this.session = g.socket.createSession('jupyter')
+                const { handlers } = this.session
+                
+                Object.assign(handlers, {
+                    KernelStarted: () => {
                         g.jupyterToolbar.set({
                             executionState: 'idle'
                         })
                         this.set({ ready: true })
-                    })
-                    .addHandler('IOPub', e => {
+                    },
+                    IOPub: e => {
                         const { cells } = this.get()
                         const { execution_state } = e
                         if (execution_state) {
@@ -237,18 +237,18 @@
                             })
                             this.set({ cells })
                         }
-                    })
-                    .addHandler('Clear', () => {
+                    },
+                    Clear: () => {
                         const { cells } = this.get()
                         cells.length = 0
                         this.terminal.clear()
-                    })
-                    .addHandler('KernelStopped', () => {
+                    },
+                    KernelStopped: () => {
                         g.jupyterToolbar.set({
                             executionState: 'stopped'
                         })
-                    })
-                    .connect(() => {})
+                    },
+                })
             },
             runInJupyter() {
                 g.panelRight.activateView(g.panelRight.refs.console)
@@ -259,7 +259,7 @@
                         nextFrame(run)
                         return
                     }
-                    this.socket.send('Run', {
+                    this.session.send('Run', {
                         code: g.activeEditor.cm.getSelection()
                     })
                 }
@@ -271,7 +271,7 @@
                 g.jupyterToolbar.set({
                     executionState: 'starting',
                 })
-                this.socket.send('StartKernel', { realtimeEvaluation })
+                this.session.send('StartKernel', { realtimeEvaluation })
                 this.realtimeEvaluationEditor = g.activeEditor
                 g.activeEditor.cmEventDispatcher.realtimeEvaluation = realtimeEvaluation
                 console.warn('starting')
@@ -285,7 +285,7 @@
             evaluate(cursor) {
                 delete cursor['sticky']
                 console.log('evaluate', cursor)
-                this.socket.send('Evaluate', cursor)
+                this.session.send('Evaluate', cursor)
             },
             evaluatePartA(line) {
                 if (this.lastPartALine === line) {
@@ -293,7 +293,7 @@
                     return
                 }
                 console.warn('evaluateA', line)
-                this.socket.send('EvaluatePartA', line)
+                this.session.send('EvaluatePartA', line)
                 this.lastPartALine = line
             },
             evaluatePartB(line, line_content) {
@@ -301,7 +301,7 @@
                 g.jupyterToolbar.set({
                     executionState: 'busy'
                 })
-                this.socket.send('EvaluatePartB', {
+                this.session.send('EvaluatePartB', {
                     line,
                     line_content
                 })

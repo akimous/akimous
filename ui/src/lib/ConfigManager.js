@@ -7,14 +7,15 @@ g.projectConfig = projectConfig
 
 function setConfig(section, content) {
     Object.assign(config[section], content)
-    g.masterSocket.send('SetConfig', {
+    g.masterSession.send('SetConfig', {
         [section]: content
     })
 }
 
 function setProjectConfig(section, content) {
+    console.warn(section, projectConfig[section], content)
     Object.assign(projectConfig[section], content)
-    g.masterSocket.send('SetProjectConfig', {
+    g.masterSession.send('SetProjectConfig', {
         [section]: content
     })
 }

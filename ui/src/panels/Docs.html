@@ -199,7 +199,7 @@
                 }
                 this.set({ functionDocTriggeredPos: pos, functionDocTriggeredFile: filePath })
 
-                editor.socket.send('GetFunctionDocumentation', {
+                editor.session.send('GetFunctionDocumentation', {
                     line: cursor.line,
                     ch: cursor.ch,
                 })

@@ -53,7 +53,7 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
         event_loop=get_event_loop(),
         main_thread_send=main_thread_send,
         main_thread_create_task=main_thread_create_task,
-        _shared=shared_context,
+        shared=shared_context,
     )
 
     connected_callback = session_handlers.get('_connected', None)
@@ -63,6 +63,8 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
     while 1:
         try:
             event, obj = await queue.get()
+            if endpoint == 'jupyter':
+                logger.warn('got event %s/%s', event, obj)
             event_handler = session_handlers.get(event, None)
             if not event_handler:
                 logger.warning('Unhandled command %s/%s.', endpoint, event)
@@ -109,6 +111,7 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
                     logger.error('Unknown session ID %d', session_id)
                     continue
                 await session.queue.put((event, obj))
+                logger.info('queue put')
 
     except websockets.exceptions.ConnectionClosed:
         logger.info('Connection %s closed.', path)
