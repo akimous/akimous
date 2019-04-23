@@ -27,7 +27,7 @@ def reader(pty, send, context):
 
 
 @handles('_connected')
-async def connected(client_id, send, context):
+async def connected(send, context):
     context.pty = None
     context.reader = None
 

@@ -58,13 +58,14 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
 
     connected_callback = session_handlers.get('_connected', None)
     if connected_callback:
-        await connected_callback(send, context)
+        try:
+            await connected_callback(send, context)
+        except Exception as e:
+            logger.exception(e)
 
     while 1:
         try:
             event, obj = await queue.get()
-            if endpoint == 'jupyter':
-                logger.warn('got event %s/%s', event, obj)
             event_handler = session_handlers.get(event, None)
             if not event_handler:
                 logger.warning('Unhandled command %s/%s.', endpoint, event)

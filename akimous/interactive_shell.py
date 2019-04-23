@@ -152,7 +152,7 @@ async def wait_until_kernel_ready(send, context):
 
 async def reset_kernel(context, interrupt=False):
     set_state(context, RESTARTING)
-    logger.warn('pending_messages %s', context.pending_messages)
+    logger.warning('pending_messages %s', context.pending_messages)
     if interrupt:
         # interrupt the kernel if it is busy
         context.kernel_manager.interrupt_kernel()

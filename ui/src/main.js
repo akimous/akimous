@@ -1,5 +1,5 @@
 import { config, projectConfig } from './lib/ConfigManager'
-import { Socket } from './lib/NewSocket'
+import { Socket } from './lib/Socket'
 import g from './lib/Globals'
 import App from './App.html'
 import './lib/common.css'
@@ -21,7 +21,6 @@ const socket = new Socket(() => {
     g.masterSession = session // TODO: get rid of this
     const { handlers } = session
     handlers['Connected'] = data => {
-        console.log({ data })
         g.sep = data.sep
         Object.assign(config, data.config)
         console.debug('first round-trip', performance.now() - start)
