@@ -5,3 +5,6 @@ JupyterCell.html
 
 # patched from external sources
 python.js
+
+# configuration files
+jest.config.js

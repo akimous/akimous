@@ -38,7 +38,7 @@ static:
 lint:
 	cd ui && yarn run cloc src resources ../akimous
 	cd ui && yarn run eslint --ext .html,.js .
-	cd ui && yarn run stylelint "resources/*.css src/**/*.html src/**/*.css"
+	cd ui && yarn run stylelint "resources/*.css" "src/**/*.html" "src/**/*.css"
 	poetry check
 
 test: | pytest
