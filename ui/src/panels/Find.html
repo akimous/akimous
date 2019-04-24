@@ -166,7 +166,7 @@
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)
             this.jobAnimationFrameId = 0
-            g.masterSession.handlers['FoundInDirectory'] = ({ result, overflow, nFiles }) => {
+            g.projectSession.handlers['FoundInDirectory'] = ({ result, overflow, nFiles }) => {
                 const m = []
                 for (const { file, matches } of result) {
                     m.push(file)
@@ -443,7 +443,7 @@
                 let query = findText
                 if (!regex) query = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
                 if (wholeWord) query = `\\b${query}\\b`
-                g.masterSession.send('FindInDirectory', {
+                g.projectSession.send('FindInDirectory', {
                     path: findInDirectory,
                     query,
                     limit,

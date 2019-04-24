@@ -25,32 +25,33 @@
     .icon-height-adjustment {
         vertical-align: -5%;
     }
+    
+    .active {
+        background: linear-gradient(to bottom, var(--panel-color) 0%, var(--panel-color) 90%,
+            var(--ui-highlight-color) 90%, var(--ui-highlight-color) 100%);
+    }
 
     .text {
         display: inline-block;
         padding-left: .3rem;
+    }
+    
+    .dirty .text {
+        color: var(--ui-danger-color) !important;
+    }
+    
+    .active .text {
+        color: var(--brighter-ui-font-color);
     }
 
     .tab:hover .text {
         color: white;
     }
 
-    .active {
-        background: linear-gradient(to bottom, var(--panel-color) 0%, var(--panel-color) 90%,
-            var(--ui-highlight-color) 90%, var(--ui-highlight-color) 100%);
-    }
-
-    .active .text {
-        color: var(--brighter-ui-font-color);
-    }
-
     .active:hover .text {
         color: white;
     }
 
-    .dirty .text {
-        color: var(--ui-danger-color) !important;
-    }
 
 </style>
 

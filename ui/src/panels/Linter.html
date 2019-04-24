@@ -147,12 +147,12 @@
         color: var(--blue);
     }
 
-    #spelling-errors tr:hover .add-to-dictionary {
-        display: inline-block;
-    }
-
     .add-to-dictionary:hover {
         color: var(--brighter-blue);
+    }
+
+    #spelling-errors tr:hover .add-to-dictionary {
+        display: inline-block;
     }
 
 </style>
@@ -299,7 +299,7 @@
                 for (const i of parsedDocument.querySelectorAll('em'))
                     words.push(i.innerText)
                 event.stopPropagation()
-                g.masterSession.send('AddToProjectDictionary', words)
+                g.projectSession.send('AddToProjectDictionary', words)
                 requestAnimationFrame(() => {
                     const editor = g.activeEditor
                     const { line } = editor.cm.getCursor()

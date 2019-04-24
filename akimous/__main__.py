@@ -28,6 +28,7 @@ with Timer('initialization'), toggle_gc:
     logzero.loglevel(DEBUG if args.verbose else INFO)
 
     from .websocket import start_server
+    from . import project
     from . import file_tree  # 11ms, 4M memory
     from . import editor  # 900ms, 80M memory
     from . import terminal

@@ -14,7 +14,7 @@ from logzero import logger
 from sklearn.externals import joblib
 
 from .doc_generator import DocGenerator  # 165ms, 13M memory
-from .master import config
+from .config import config
 from .modeling.feature.feature_definition import tokenize
 from .online_feature_extractor import \
     OnlineFeatureExtractor  # 90ms, 10M memory

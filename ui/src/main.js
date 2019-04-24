@@ -17,10 +17,10 @@ g.projectRoot = ['.']
 g.ready = false
 
 const socket = new Socket(() => {
-    const session = socket.createSession('master')
-    g.masterSession = session // TODO: get rid of this
-    const { handlers } = session
-    handlers['Connected'] = data => {
+    g.configSession = socket.createSession('config')
+    g.projectSession = socket.createSession('project')
+    
+    g.configSession.handlers['Connected'] = data => {
         g.sep = data.sep
         Object.assign(config, data.config)
         console.debug('first round-trip', performance.now() - start)
@@ -28,12 +28,12 @@ const socket = new Socket(() => {
             target: document.body,
         })
     }
-    handlers['ProjectOpened'] = data => {
+    g.projectSession.handlers['ProjectOpened'] = data => {
         g.projectRoot = data.root
         Object.assign(projectConfig, data.projectConfig)
         g.runConfiguration.set(g.projectConfig.runConfiguration)
     }
-    session.send('OpenProject', { path: g.projectRoot })
+    g.projectSession.send('OpenProject', { path: g.projectRoot })
 })
 g.socket = socket
 
