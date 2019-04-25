@@ -1,9 +1,8 @@
-import asyncio
 import webbrowser
 from asyncio import Queue, ensure_future, CancelledError, create_task, get_event_loop
 from collections import defaultdict, namedtuple
 from types import SimpleNamespace
-
+from websockets.exceptions import ConnectionClosed
 import msgpack
 import websockets
 from logzero import logger
@@ -30,7 +29,7 @@ def register_handler(endpoint, command):
 async def session_handler(session_id: int, endpoint: str, queue: Queue,
                           ws: websockets.WebSocketServerProtocol, shared_context: SimpleNamespace):
     session_handlers = handlers.get(endpoint)
-    # disconnected_callback = path_handler.get('_disconnected', None)  # TODO
+    disconnected_callback = session_handlers.get('_disconnected', None)
 
     if session_handlers is None:
         logger.error('No handlers associated with path %s', endpoint)
@@ -38,7 +37,10 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
 
     async def send(event, obj):
         logger.debug('Sending message to %s/%s: %s', session_id, event, obj)
-        await ws.send(msgpack.packb([session_id, event, obj]))
+        try:
+            await ws.send(msgpack.packb([session_id, event, obj]))
+        except ConnectionClosed:
+            logger.warning('Sending to a socket that is already closed')
 
     def main_thread_send(event, obj):
         context.event_loop.call_soon_threadsafe(ensure_future, send(event, obj))
@@ -77,6 +79,9 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
             queue.task_done()
         except CancelledError:
             logger.warning('Session %s closed.', endpoint)
+            break
+    if disconnected_callback:
+        await disconnected_callback(context)
 
 
 async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
@@ -105,30 +110,18 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
                 session = Session(session_loop, queue)
                 client_sessions[session_id] = session
                 logger.info('Session %s of endpoint %s opened.', session_id, endpoint)
-
             else:
                 session: Session = client_sessions.get(session_id, None)
                 if not session:
                     logger.error('Unknown session ID %d', session_id)
                     continue
                 await session.queue.put((event, obj))
-                logger.info('queue put')
 
-    except websockets.exceptions.ConnectionClosed:
+    except ConnectionClosed:
         logger.info('Connection %s closed.', path)
         for session in client_sessions.values():
             session.loop.cancel()
-        # if disconnected_callback:
-        #     await disconnected_callback(context)
-        # with suppress(Exception):
-        #     clients[client_id][path].remove(ws)
-        # if path == '/':
-        #     del shared_contexts[client_id]
-        # if context.linter_task:
-        #     context.linter_task.cancel()
-        # if context.observer:
-        #     with suppress(Exception):
-        #         context.observer.stop()
+        del sessions[client_id]
 
 
 def start_server(host, port, no_browser, verbose):

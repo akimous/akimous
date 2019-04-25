@@ -81,11 +81,15 @@ def stop_monitor(path, context):
     logger.debug('stop monitoring %s', path)
     watch = context.observed_watches.get(path, None)
     if watch is None:
-        logger.error('stopping watch of path %s', path)
-        logger.error('==> %s', context.observed_watches)
+        logger.error('stopping nonexistent watch of path %s', path)
         return
     get_observer(context).unschedule(watch)
     del context.observed_watches[path]
+
+
+@handles('_disconnected')
+async def disconnected(context):
+    context.observer.stop()
 
 
 @handles('OpenDir')

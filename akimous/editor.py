@@ -1,6 +1,6 @@
 import json
 import shlex
-from asyncio import create_subprocess_shell, create_task, subprocess
+from asyncio import create_subprocess_shell, create_task, subprocess, CancelledError
 from collections import namedtuple
 from functools import partial
 from importlib.resources import open_binary
@@ -54,8 +54,10 @@ async def run_pylint(context, send):
         await send('OfflineLints', {
             'result': context.linter_output,
         })
+    except CancelledError:
+        return
     except Exception as e:
-        logger.exception('Error running pylint', e)
+        logger.exception(e)
 
 
 async def run_yapf(context):
@@ -134,6 +136,11 @@ async def post_content_change(context, send):
             create_task(run_spell_checker(context, send))
             create_task(run_pyflakes(context, send))
             context.linter_task = create_task(run_pylint(context, send))
+
+
+@handles('_disconnected')
+async def disconnected(context):
+    context.linter_task.cancel()
 
 
 @handles('OpenFile')

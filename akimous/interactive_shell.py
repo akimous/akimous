@@ -142,14 +142,6 @@ async def wait_until_kernel_ready(send, context):
     await send('KernelStarted', None)
 
 
-# async def restart_kernel(msg, send, context):
-#     with Timer('restarting kernel'):
-#         set_state(context, RESTARTING)
-#         context.kernel_manager.restart_kernel(now=True)
-#         context.iopub_buffer = []
-#         asyncio.create_task(wait_until_kernel_ready(send, context))
-
-
 async def reset_kernel(context, interrupt=False):
     set_state(context, RESTARTING)
     logger.warning('pending_messages %s', context.pending_messages)
