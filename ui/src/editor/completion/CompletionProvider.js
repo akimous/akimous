@@ -163,6 +163,7 @@ class CompletionProvider {
     }
 
     sortAndFilter(input, completions) {
+        console.warn({completions})
         if (!input) { // for prediction immediately after dot or operator
             completions.forEach(i => {
                 i.sortScore = 1

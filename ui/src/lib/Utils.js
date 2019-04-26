@@ -241,7 +241,7 @@ function highlightSequentially(target, input) {
 }
 
 function joinPath(x) {
-    return x.join(g.sep)
+    return x.join(g.pathSeparator)
 }
 
 //function capitalize(s) {

@@ -164,7 +164,7 @@ class LayeredKeyboardControl {
                             return this.stopPropagation(e)
                         }
                         // Handle "cut" event
-                        // Cut event is handled via cmd-X hotkey,
+                        // Cut event is handled via command-X hotkey,
                         // because we cannot get the content just cut on the cut event.
                         if (e.key === 'x' && (e.metaKey || e.ctrlKey) && g.activeEditor) {
                             const cm = g.activeEditor.cm

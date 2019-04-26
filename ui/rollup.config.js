@@ -49,7 +49,7 @@ export default {
             keep_fnames: true,
             compress: {
                 drop_console: true,
-                unsafe: true,
+                unsafe: false,
                 passes: 1
             }
         }),

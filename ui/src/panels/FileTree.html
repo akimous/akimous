@@ -79,8 +79,8 @@
                 const { parent } = node.get()
                 const oldName = path[path.length - 1]
                 const target = event === 'FileRenamed' ? 'files' : 'dirs'
-                const destPath = [...path]
-                destPath[destPath.length - 1] = newName
+                const newPath = [...path]
+                newPath[newPath.length - 1] = newName
                 node.set({
                     name: newName
                 })
@@ -93,7 +93,7 @@
                         fileName: newName
                     })
                 }
-                g.panelMiddle.renameDir(destPath, path)
+                g.panelMiddle.renameDir(newPath, path)
             }
 
             const handlerFactory = (target, eventType) => {
@@ -123,7 +123,7 @@
             // On Windows, directory deletion event might be reported as file deletion.
             // Thus we need to handle both
             const fileDeleteHandler = handlerFactory('files', 'deleted')
-            const dirDeleteHandler = handlerFactory('dirs', 'deleted')
+            const directoryDeleteHandler = handlerFactory('dirs', 'deleted')
 
             Object.assign(handlers, {
                 DirRenamed: renamingEventHandler,
@@ -132,7 +132,7 @@
                 FileCreated: handlerFactory('files', 'created'),
                 DirDeleted: handlerFactory('dirs', 'deleted'),
                 FileDeleted: data => {
-                    fileDeleteHandler(data) || dirDeleteHandler(data)
+                    fileDeleteHandler(data) || directoryDeleteHandler(data)
                 }
             })
 

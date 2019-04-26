@@ -21,7 +21,7 @@ const socket = new Socket(() => {
     g.projectSession = socket.createSession('project')
     
     g.configSession.handlers['Connected'] = data => {
-        g.sep = data.sep
+        g.pathSeparator = data.pathSeparator
         Object.assign(config, data.config)
         console.debug('first round-trip', performance.now() - start)
         app = new App({

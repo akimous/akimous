@@ -348,12 +348,12 @@
                     const cursor = Pos(cm.getCursor())
                     const commaBefore = needInsertCommaBeforeParameter(cm)
                     const commaAfter = needInsertCommaAfterParameter(cm)
-                    const multiLine = isMultilineParameter(cm)
+                    const multiline = isMultilineParameter(cm)
                     const lineContent = cm.getLine(cursor.line)
                     const strBefore = lineContent.substring(0, cursor.ch)
                     const charAfter = lineContent.charAt(cursor.ch)
-                    const lineBreakBefore = multiLine && strBefore.length > 0 && !/(\($)|^\s+$/.test(strBefore)
-                    const lineBreakAfter = multiLine && charAfter.length > 0 && !/\)|\s/.test(charAfter)
+                    const lineBreakBefore = multiline && strBefore.length > 0 && !/(\($)|^\s+$/.test(strBefore)
+                    const lineBreakAfter = multiline && charAfter.length > 0 && !/\)|\s/.test(charAfter)
 
                     if (commaBefore && lineBreakBefore) {
                         cm.replaceSelection(',')

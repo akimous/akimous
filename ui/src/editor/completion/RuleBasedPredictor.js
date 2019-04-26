@@ -76,6 +76,7 @@ function fullStatementCompletion({ topHit, cm, line, lineContent }) {
         return sourceLineContent.substring(index, result)
 }
 
+/* eslint-disable */
 const fixedPredictionRules = {
     'import': {
         'matplotlib': '.pyplot as plt',
@@ -85,6 +86,7 @@ const fixedPredictionRules = {
         'tensorflow': ' as tf',
     }
 }
+/* eslint-enable */
 
 function fixedPredictionForImport({ t2, t1, topHit, lineContent }) {
     if (!topHit || !t1) return
@@ -119,10 +121,12 @@ function isNone({ input }) {
         return 'is None'
 }
 
+/* eslint-disable */
 function isNot({ input }) {
     if (input === 'isn' || input === 'isnt')
         return 'is not '
 }
+/* eslint-enable */
 
 function args({ cm, input, line, ch, lineContent }) {
     if (input !== '*') return

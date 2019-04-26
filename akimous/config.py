@@ -23,7 +23,7 @@ if not macro_file.exists():
 @handles('_connected')
 async def connected(send, context):
     print('in connected callback')
-    await send('Connected', {'config': config, 'sep': os.sep})
+    await send('Connected', {'config': config, 'pathSeparator': os.sep})
 
 
 @handles('SetConfig')

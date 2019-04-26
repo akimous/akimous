@@ -26,28 +26,26 @@
     // CM modes
     import clike from 'codemirror/mode/clike/clike'
     import cmake from 'codemirror/mode/cmake/cmake'
-    // import coffeescript from 'codemirror/mode/coffeescript/coffeescript'
     import css from 'codemirror/mode/css/css'
     import django from 'codemirror/mode/django/django'
     import dockerfile from 'codemirror/mode/dockerfile/dockerfile'
-    // import fortran from 'codemirror/mode/fortran/fortran'
     import go from 'codemirror/mode/go/go'
     import htmlembedded from 'codemirror/mode/htmlembedded/htmlembedded'
     import htmlmixed from 'codemirror/mode/htmlmixed/htmlmixed'
     import javascript from 'codemirror/mode/javascript/javascript'
     import lua from 'codemirror/mode/lua/lua'
     import markdown from 'codemirror/mode/markdown/markdown'
-    // import nginx from 'codemirror/mode/nginx/nginx'
+    import nginx from 'codemirror/mode/nginx/nginx'
     import perl from 'codemirror/mode/perl/perl'
-    // import php from 'codemirror/mode/php/php'
+    import php from 'codemirror/mode/php/php'
     import protobuf from 'codemirror/mode/protobuf/protobuf'
     import r from 'codemirror/mode/r/r'
     import ruby from 'codemirror/mode/ruby/ruby'
     import rust from 'codemirror/mode/rust/rust'
-    // import sass from 'codemirror/mode/sass/sass'
+    import sass from 'codemirror/mode/sass/sass'
     import shell from 'codemirror/mode/shell/shell'
     import sql from 'codemirror/mode/sql/sql'
-    // import swift from 'codemirror/mode/swift/swift'
+    import swift from 'codemirror/mode/swift/swift'
     import toml from 'codemirror/mode/toml/toml'
     import xml from 'codemirror/mode/xml/xml'
     import yaml from 'codemirror/mode/yaml/yaml'
@@ -120,7 +118,7 @@
                         else if (data.content) {
                             this.cm.setValue(data.content)
                             if (this.cursorBeforeSaving) {
-                                // restore cursor and viewport position in case formatters changes the content
+                                // restore cursor and viewport position in case formatter changes the content
                                 this.cm.setCursor(this.cursorBeforeSaving)
                                 this.cm.scrollTo(this.scrollInfoBeforeSaving.left, this.scrollInfoBeforeSaving.top)
                             }
@@ -216,7 +214,7 @@
 
             // Step 2: Open editor
             this.highlightSelectionMatches = { // search/match-highlighter
-                style: 'matchhighlight',
+                style: 'match-highlight',
                 minChars: 1,
                 delay: 50,
                 wordsOnly: false,
@@ -244,7 +242,8 @@
                     gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
 
                     // keymap
-                    // TODO: add sublime shortcuts
+                    // todo: add sublime shortcuts
+                    /* eslint-disable */
                     extraKeys: {
                         'Tab': 'indentMore',
                         'Shift-Tab': 'indentLess',
@@ -254,6 +253,7 @@
                         'Cmd-J': 'joinLines',
                         'Cmd-B': 'selectNextOccurrence',
                     }
+                    /* eslint-enable */
                 })
                 this.mtime = data.mtime
             })
@@ -270,7 +270,7 @@
                 this.cmEventDispatcher = new CMEventDispatcher(this)
                 this.completion.bindReferences(this)
 
-                // resolve Safari overscroll jitter issue
+                // resolve Safari over-scroll jitter issue
                 const scroller = this.refs.codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
                 scroller.onwheel = e => {
                     if (e.deltaY <= 0) return
@@ -355,7 +355,7 @@
             save() {
                 this.saving = true
                 this.session.send('SaveFile', { content: this.cm.getValue() })
-                // preserve cursor and viewport position in case formatters changes the content
+                // preserve cursor and viewport position in case formatter changes the content
                 this.cursorBeforeSaving = this.cm.getCursor()
                 this.scrollInfoBeforeSaving = this.cm.getScrollInfo()
             },

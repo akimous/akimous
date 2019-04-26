@@ -76,13 +76,13 @@
         text: 'New File',
         icon: 'far fa-file',
         callback: (target) => {
-            target.newfile()
+            target.newFile()
         }
     }, {
         text: 'New Folder',
         icon: 'fas fa-folder',
         callback: (target) => {
-            target.newfolder()
+            target.newFolder()
         }
     }, {
         text: 'New Python Module',
@@ -324,12 +324,12 @@
                     this.set({ renaming: false })
                 }
             },
-            newfile() {
+            newFile() {
                 this.set({ newNode: 'file' })
                 this.refs.placeholderNode.rename()
                 //TODO: focus on new file
             },
-            newfolder() {
+            newFolder() {
                 this.set({ newNode: 'dir' })
                 this.refs.placeholderNode.rename()
             },

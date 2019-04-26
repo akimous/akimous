@@ -62,15 +62,15 @@ function isMultilineParameter(cm) {
 
 /**
  * Scan in braces
- * @param   {object}   cm       CodeMirror instance
- * @param   {object}   cursor   {line, ch}
- * @param   {function} callback (cm, char, pos) => {false|string} to run for every character
- * @param   {dir}      number   1 for forward; -1 for backward
- * @returns {object}   returns what the callback returns, or false
+ * @param   {object}    cm       CodeMirror instance
+ * @param   {object}    cursor   {line, ch}
+ * @param   {function}  callback (cm, char, pos) => {false|string} to run for every character
+ * @param   {direction} number   1 for forward; -1 for backward
+ * @returns {object}    returns what the callback returns, or false
  */
-function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
-    console.assert(dir === 1 || dir === -1)
-    const forward = (dir === 1)
+function scanInSameLevelOfBraces(cm, cursor, callback, direction = -1) {
+    console.assert(direction === 1 || direction === -1)
+    const forward = (direction === 1)
     const matchingHalves = forward ? matchingForward : matchingBackward
     const stack = []
     const pos = Pos(0, 0)
@@ -78,19 +78,19 @@ function scanInSameLevelOfBraces(cm, cursor, callback, dir = -1) {
         Math.min(cm.lineCount(), cursor.line + 10) :
         Math.max(-1, cursor.line - 10)
     let stackTop
-    for (let line = cursor.line; line !== endLine; line += dir) {
+    for (let line = cursor.line; line !== endLine; line += direction) {
         const lineContent = cm.getLine(line)
         pos.line = line
         if (!lineContent) continue
         let ch = forward ? -1 : lineContent.length,
             end = forward ? lineContent.length : -1
         if (line === cursor.line) {
-            ch = cursor.ch - dir
+            ch = cursor.ch - direction
             if (!forward) ch -= 1
         }
 
         for (;;) {
-            ch += dir
+            ch += direction
             if (forward) {
                 if (ch >= end) break
             } else {

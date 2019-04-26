@@ -144,6 +144,7 @@ async def post_content_change(context, send):
 
 @handles('_connected')
 async def connected(send, context):
+    context.doc = []
     context.linter_task = create_task(nop())
 
 
