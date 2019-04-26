@@ -55,7 +55,7 @@ jsdev: | clean static
 	cd ui && yarn run rollup -c -w
 
 pydev:
-	poetry run python -W default -m akimous --no-browser --verbose
+	poetry run python -X dev -m akimous --no-browser --verbose
 
 upgrade:
 	poetry update

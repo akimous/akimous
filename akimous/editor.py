@@ -19,7 +19,7 @@ from .modeling.feature.feature_definition import tokenize
 from .online_feature_extractor import \
     OnlineFeatureExtractor  # 90ms, 10M memory
 from .pyflakes_reporter import PyflakesReporter
-from .utils import Timer, detect_doc_type
+from .utils import Timer, detect_doc_type, nop
 from .websocket import register_handler
 from .word_completer import search_prefix
 
@@ -136,6 +136,11 @@ async def post_content_change(context, send):
             create_task(run_spell_checker(context, send))
             create_task(run_pyflakes(context, send))
             context.linter_task = create_task(run_pylint(context, send))
+
+
+@handles('_connected')
+async def connected(send, context):
+    context.linter_task = create_task(nop())
 
 
 @handles('_disconnected')

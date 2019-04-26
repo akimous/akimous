@@ -58,21 +58,11 @@ class ChangeHandler(FileSystemEventHandler):
 handles = partial(register_handler, 'fileTree')
 
 
-def get_observer(context):
-    observer = context.observer
-    if observer is not None:
-        return observer
-    observer = Observer()
-    observer.start()
-    context.observer = observer
-    return observer
-
-
 def start_monitor(path, context):
     path = str(path)
     logger.debug('start monitoring %s', path)
     change_handler = ChangeHandler(context)
-    context.observed_watches[path] = get_observer(context).schedule(
+    context.observed_watches[path] = context.observer.schedule(
         change_handler, path)
 
 
@@ -83,8 +73,16 @@ def stop_monitor(path, context):
     if watch is None:
         logger.error('stopping nonexistent watch of path %s', path)
         return
-    get_observer(context).unschedule(watch)
+        context.observer.unschedule(watch)
     del context.observed_watches[path]
+
+
+@handles('_connected')
+async def connected(send, context):
+    context.observed_watches = {}
+    context.observer = Observer()
+    context.observer.start()
+    logger.warning('observer constructed')
 
 
 @handles('_disconnected')

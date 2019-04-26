@@ -1,5 +1,5 @@
 import webbrowser
-from asyncio import Queue, ensure_future, CancelledError, create_task, get_event_loop
+from asyncio import Queue, ensure_future, CancelledError, create_task, get_event_loop, sleep
 from collections import defaultdict, namedtuple
 from types import SimpleNamespace
 from websockets.exceptions import ConnectionClosed
@@ -7,6 +7,7 @@ import msgpack
 import websockets
 from logzero import logger
 
+from akimous.utils import nop
 from .static_server import HTTPHandler
 from .word_completer import initialize as initialize_word_completer
 
@@ -29,7 +30,7 @@ def register_handler(endpoint, command):
 async def session_handler(session_id: int, endpoint: str, queue: Queue,
                           ws: websockets.WebSocketServerProtocol, shared_context: SimpleNamespace):
     session_handlers = handlers.get(endpoint)
-    disconnected_callback = session_handlers.get('_disconnected', None)
+    disconnected_callback = session_handlers.get('_disconnected', nop)
 
     if session_handlers is None:
         logger.error('No handlers associated with path %s', endpoint)
@@ -49,9 +50,6 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
         context.event_loop.call_soon_threadsafe(ensure_future, task)
 
     context = SimpleNamespace(
-        linter_task=None,  # TODO: remove
-        observer=None,
-        observed_watches={},
         event_loop=get_event_loop(),
         main_thread_send=main_thread_send,
         main_thread_create_task=main_thread_create_task,
@@ -71,6 +69,7 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
             event_handler = session_handlers.get(event, None)
             if not event_handler:
                 logger.warning('Unhandled command %s/%s.', endpoint, event)
+                queue.task_done()
                 continue
             try:
                 await event_handler(obj, send, context)
@@ -80,8 +79,7 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
         except CancelledError:
             logger.warning('Session %s closed.', endpoint)
             break
-    if disconnected_callback:
-        await disconnected_callback(context)
+    await disconnected_callback(context)
 
 
 async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
@@ -139,13 +137,18 @@ def start_server(host, port, no_browser, verbose):
     if not no_browser and not webbrowser.open(f'http://{host}:{port}'):
         logger.warning(f'No browsers available. Please open http://{host}:{port} manually.')
     logger.info('Press Control-C to stop.')
+
     try:
         loop.run_forever()
     except KeyboardInterrupt:
+
+        async def stop_everything():
+            for sessions_ in sessions.values():
+                for session in sessions_.values():
+                    session.loop.cancel()
+            await sleep(1)  # give it some time to gracefully shutdown, or ResourceWarnings will pop up
+            loop.stop()
+            logger.info('Terminated')
+
         logger.info('Terminating')
-        # for paths in clients.values():
-        #     for path in paths.values():
-        #         for socket in path:
-        #             socket.close()
-        loop.stop()
-        logger.info('Terminated')
+        loop.run_until_complete(loop.create_task(stop_everything()))
