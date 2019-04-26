@@ -1,12 +1,12 @@
 import asyncio
+import json
 import re
 import token
-import json
 from collections import defaultdict
+from contextlib import suppress
 from functools import partial
 from io import StringIO
 from tokenize import generate_tokens
-from contextlib import suppress
 
 from jupyter_client import KernelManager
 from logzero import logger
@@ -24,7 +24,6 @@ IDLE = 'IDLE'
 RESTARTING = 'RESTARTING'
 A_RUNNING = 'A_RUNNING'
 B_RUNNING = 'B_RUNNING'
-
 """Realtime Evaluation State Transition
 | Current State \ Event Received | IDLE  | EvaluatePartA | EvaluatePartB |
 | ------------------------------ | ----- | ------------- | ------------- |
@@ -72,7 +71,9 @@ async def iopub_listener(send, context):
         with open(client.connection_file) as f:
             connection_info = json.load(f)
 
-        socket.connect(f'{connection_info["transport"]}://{connection_info["ip"]}:{connection_info["iopub_port"]}')
+        socket.connect(
+            f'{connection_info["transport"]}://{connection_info["ip"]}:{connection_info["iopub_port"]}'
+        )
         socket.subscribe(b'')
         while True:
             message = await socket.recv_multipart()
@@ -107,7 +108,8 @@ async def iopub_listener(send, context):
                     evaluation_state = context.evaluation_state
                     if evaluation_state is A_RUNNING:
                         if context.b_queued:
-                            context.job_b = asyncio.create_task(job_b(send, context))
+                            context.job_b = asyncio.create_task(
+                                job_b(send, context))
                         else:
                             set_state(context, IDLE)
                     elif evaluation_state is B_RUNNING:
@@ -136,7 +138,8 @@ async def wait_until_kernel_ready(send, context):
     with Timer('waiting kernel'):
         await asyncio.sleep(.1)
         while context.evaluation_state is RESTARTING:
-            context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
+            context.kernel_restart_completion_id = context.jupyter_client.is_complete(
+                '')
             logger.debug('sleeping')
             await asyncio.sleep(.1)
     await send('KernelStarted', None)
@@ -149,9 +152,10 @@ async def reset_kernel(context, interrupt=False):
         # interrupt the kernel if it is busy
         context.kernel_manager.interrupt_kernel()
         context.pending_messages.clear()
-    await execute_lines(context, ('%reset -f',))
+    await execute_lines(context, ('%reset -f', ))
     context.iopub_buffer = []
-    context.kernel_restart_completion_id = context.jupyter_client.is_complete('')
+    context.kernel_restart_completion_id = context.jupyter_client.is_complete(
+        '')
 
 
 @handles('InterruptKernel')
@@ -175,8 +179,8 @@ async def stop_kernel(msg, send, context):
 
 
 async def execute_lines(context, lines):
-    message_id = context.jupyter_client.execute(
-        '\n'.join(lines), store_history=False)
+    message_id = context.jupyter_client.execute('\n'.join(lines),
+                                                store_history=False)
     context.pending_messages.add(message_id)
     logger.info('executing lines\n%s', '\n'.join(lines))
     logger.info('adding message id %s; %s', message_id,

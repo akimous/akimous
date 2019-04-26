@@ -1,13 +1,16 @@
 import webbrowser
-from asyncio import Queue, ensure_future, CancelledError, create_task, get_event_loop, sleep
+from asyncio import (CancelledError, Queue, create_task, ensure_future,
+                     get_event_loop, sleep)
 from collections import defaultdict, namedtuple
 from types import SimpleNamespace
-from websockets.exceptions import ConnectionClosed
+
 import msgpack
 import websockets
 from logzero import logger
+from websockets.exceptions import ConnectionClosed
 
 from akimous.utils import nop
+
 from .static_server import HTTPHandler
 from .word_completer import initialize as initialize_word_completer
 
@@ -28,7 +31,8 @@ def register_handler(endpoint, command):
 
 
 async def session_handler(session_id: int, endpoint: str, queue: Queue,
-                          ws: websockets.WebSocketServerProtocol, shared_context: SimpleNamespace):
+                          ws: websockets.WebSocketServerProtocol,
+                          shared_context: SimpleNamespace):
     session_handlers = handlers.get(endpoint)
     disconnected_callback = session_handlers.get('_disconnected', nop)
 
@@ -44,7 +48,8 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
             logger.warning('Sending to a socket that is already closed')
 
     def main_thread_send(event, obj):
-        context.event_loop.call_soon_threadsafe(ensure_future, send(event, obj))
+        context.event_loop.call_soon_threadsafe(ensure_future,
+                                                send(event, obj))
 
     def main_thread_create_task(task):
         context.event_loop.call_soon_threadsafe(ensure_future, task)
@@ -98,16 +103,20 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
             msg = await ws.recv()
             msg = msgpack.unpackb(msg, raw=False)
             session_id, event, obj = msg
-            logger.debug('Received message from %s/%s: %s', session_id, event, obj)
+            logger.debug('Received message from %s/%s: %s', session_id, event,
+                         obj)
 
             if session_id == 0 and event == 'OpenSession':  # new session
                 endpoint = obj['endpoint']
                 session_id = obj['sessionId']
                 queue = Queue()
-                session_loop = create_task(session_handler(session_id, endpoint, queue, ws, shared_context))
+                session_loop = create_task(
+                    session_handler(session_id, endpoint, queue, ws,
+                                    shared_context))
                 session = Session(session_loop, queue)
                 client_sessions[session_id] = session
-                logger.info('Session %s of endpoint %s opened.', session_id, endpoint)
+                logger.info('Session %s of endpoint %s opened.', session_id,
+                            endpoint)
             else:
                 session: Session = client_sessions.get(session_id, None)
                 if not session:
@@ -129,13 +138,17 @@ def start_server(host, port, no_browser, verbose):
 
     http_handler = HTTPHandler()
     websocket_server = websockets.serve(
-        socket_handler, host=host, port=port, process_request=http_handler.process_request)
+        socket_handler,
+        host=host,
+        port=port,
+        process_request=http_handler.process_request)
     loop.run_until_complete(websocket_server)
     initialize_word_completer(loop)
     logger.info('Starting server, listening on %s:%d.', host, port)
 
     if not no_browser and not webbrowser.open(f'http://{host}:{port}'):
-        logger.warning(f'No browsers available. Please open http://{host}:{port} manually.')
+        logger.warning('No browsers available. ' +
+                       f'Please open http://{host}:{port} manually.')
     logger.info('Press Control-C to stop.')
 
     try:
@@ -146,7 +159,8 @@ def start_server(host, port, no_browser, verbose):
             for sessions_ in sessions.values():
                 for session in sessions_.values():
                     session.loop.cancel()
-            await sleep(1)  # give it some time to gracefully shutdown, or ResourceWarnings will pop up
+            # give it some time to gracefully shutdown, or ResourceWarnings will pop up
+            await sleep(1)
             loop.stop()
             logger.info('Terminated')
 

@@ -1,6 +1,7 @@
 import json
 import shlex
-from asyncio import create_subprocess_shell, create_task, subprocess, CancelledError
+from asyncio import (CancelledError, create_subprocess_shell, create_task,
+                     subprocess)
 from collections import namedtuple
 from functools import partial
 from importlib.resources import open_binary
@@ -13,8 +14,8 @@ from boltons.gcutils import toggle_gc_postcollect
 from logzero import logger
 from sklearn.externals import joblib
 
-from .doc_generator import DocGenerator  # 165ms, 13M memory
 from .config import config
+from .doc_generator import DocGenerator  # 165ms, 13M memory
 from .modeling.feature.feature_definition import tokenize
 from .online_feature_extractor import \
     OnlineFeatureExtractor  # 90ms, 10M memory
@@ -105,8 +106,9 @@ async def run_spell_checker(context, send):
         return
     with Timer('Spelling check'):
         tokens = tokenize(context.content)
-        await send('SpellingErrors',
-                   {'result': context.shared.spell_checker.check_spelling(tokens)})
+        await send(
+            'SpellingErrors',
+            {'result': context.shared.spell_checker.check_spelling(tokens)})
 
 
 async def run_pyflakes(context, send):
@@ -119,7 +121,8 @@ async def run_pyflakes(context, send):
 
 
 async def warm_up_jedi(context):
-    jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path).completions()
+    jedi.Script('\n'.join(context.doc), len(context.doc), 0,
+                context.path).completions()
 
 
 async def post_content_change(context, send):
@@ -130,7 +133,8 @@ async def post_content_change(context, send):
             # initialize feature extractor
             context.feature_extractor = OnlineFeatureExtractor()
             for line, line_content in enumerate(context.doc):
-                context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
+                context.feature_extractor.fill_preprocessor_context(
+                    line_content, line, context.doc)
 
             create_task(warm_up_jedi(context))
             create_task(run_spell_checker(context, send))
@@ -157,7 +161,10 @@ async def open_file(msg, send, context):
         content = f.read()
         context.content = content
     # somehow risky, but it should not wait until the extractor ready
-    await send('FileOpened', {'mtime': context.path.stat().st_mtime, 'content': content})
+    await send('FileOpened', {
+        'mtime': context.path.stat().st_mtime,
+        'content': content
+    })
     # skip all completion, linting etc. if it is not a Python file
     if not context.is_python:
         return
@@ -243,10 +250,14 @@ async def predict(msg, send, context):
 
     with Timer(f'Rest ({line_number}, {ch})'):
         if completions:
-            context.currentCompletions = {completion.name: completion for completion in completions}
+            context.currentCompletions = {
+                completion.name: completion
+                for completion in completions
+            }
             feature_extractor = context.feature_extractor
-            feature_extractor.extract_online(completions, line_content, line_number, ch,
-                                             context.doc, j.call_signatures())
+            feature_extractor.extract_online(completions, line_content,
+                                             line_number, ch, context.doc,
+                                             j.call_signatures())
             scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
             result = [
                 PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s))
@@ -269,7 +280,8 @@ async def predict_extra(msg, send, context):
     result_set = set()
     #
     # 1. existed tokens
-    tokens = context.feature_extractor.context.t0map.query_prefix(text, line_number)
+    tokens = context.feature_extractor.context.t0map.query_prefix(
+        text, line_number)
     for i, token in enumerate(tokens):
         if token in result_set:
             continue
@@ -293,7 +305,11 @@ async def predict_extra(msg, send, context):
             if snake not in result_set:
                 result.append(PredictionRow(c=snake, t='word-segment', s=1))
 
-    await send('ExtraPrediction', {'line': line_number, 'ch': ch, 'result': result})
+    await send('ExtraPrediction', {
+        'line': line_number,
+        'ch': ch,
+        'result': result
+    })
 
 
 @handles('GetCompletionDocstring')

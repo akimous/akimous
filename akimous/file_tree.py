@@ -105,8 +105,7 @@ async def open_dir(msg, send, context):
 
 @handles('CloseDir')
 async def close_dir(msg, send, context):
-    stop_monitor(
-        Path(context.shared.project_root, *msg['path']), context)
+    stop_monitor(Path(context.shared.project_root, *msg['path']), context)
 
 
 @handles('Rename')
