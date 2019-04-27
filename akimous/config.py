@@ -2,12 +2,14 @@ import json
 import os
 from functools import partial
 from importlib import resources
+from logzero import logger
 
 from .utils import (config_directory, get_merged_config, merge_dict)
 from .websocket import register_handler
 
 handles = partial(register_handler, 'config')
 
+logger.info('Reading configuration from %s', config_directory)
 config_file = config_directory / 'akimous.json'
 config = get_merged_config(config_file, 'default_config.json')
 
@@ -22,7 +24,6 @@ if not macro_file.exists():
 
 @handles('_connected')
 async def connected(send, context):
-    print('in connected callback')
     await send('Connected', {'config': config, 'pathSeparator': os.sep})
 
 

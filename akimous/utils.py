@@ -30,6 +30,7 @@ def merge_dict(primary, secondary):
         else:
             for key, value in v.items():
                 section[key] = value
+    return primary
 
 
 def get_merged_config(user_file, default_file):
@@ -38,8 +39,7 @@ def get_merged_config(user_file, default_file):
     if user_file.exists():
         with open(user_file) as f:
             user_config = json.loads(f.read())
-            merge_dict(config, user_config)
-            return config
+            return merge_dict(config, user_config)
     else:
         user_file.parent.mkdir(parents=True, exist_ok=True)
         with open(user_file, 'w') as f:

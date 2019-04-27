@@ -82,7 +82,6 @@ async def connected(send, context):
     context.observed_watches = {}
     context.observer = Observer()
     context.observer.start()
-    logger.warning('observer constructed')
 
 
 @handles('_disconnected')

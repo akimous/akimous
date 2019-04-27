@@ -1,36 +1,67 @@
 import json
+import sqlite3
 from functools import partial
+from importlib import resources
 from pathlib import Path
 
 from .file_finder import find_in_directory, replace_all_in_directory
 from .spell_checker import SpellChecker
-from .utils import get_merged_config, merge_dict
+from .utils import config_directory, merge_dict
 from .websocket import register_handler
 
+
+class PersistentConfig:
+    def __init__(self):
+        self.db = sqlite3.connect(str(config_directory / 'projects.db3'),
+                                  isolation_level=None)
+        self.db.execute(
+            'CREATE TABLE IF NOT EXISTS c(k TEXT PRIMARY KEY, v TEXT)')
+
+    def __setitem__(self, key, value):
+        key = str(key)
+        j = json.dumps(value)
+        self.db.execute('INSERT OR REPLACE INTO c(k, v) VALUES (?, ?)',
+                        (key, j))
+
+    def __getitem__(self, key):
+        with resources.open_text('akimous.resources',
+                                 'default_project_config.json') as f:
+            default = json.load(f)
+        key = str(key)
+        result = self.db.execute('SELECT v FROM c WHERE k=?',
+                                 (key, )).fetchall()
+        result = json.loads(result[0][0]) if result else {}
+        # create default value if not exist
+        return merge_dict(default, result)
+
+    def close(self):
+        self.db.close()
+
+
 handles = partial(register_handler, 'project')
+persistent_config = PersistentConfig()
 
 
 @handles('OpenProject')
 async def open_project(msg, send, context):
-    shared_context = context.shared
-    shared_context.project_root = Path(*msg['path']).resolve()
-    shared_context.project_config_file = shared_context.project_root / '.akimous' / 'config.json'
-    shared_context.project_dictionary_file = shared_context.project_root / '.akimous' / 'dictionary.json'
-    shared_context.project_config = get_merged_config(shared_context.project_config_file,
-                                                      'default_project_config.json')
+    sc = context.shared
+    sc.project_root = Path(*msg['path']).resolve()
+
+    sc.project_config = persistent_config[sc.project_root]
+    sc.project_dictionary_file = sc.project_root / '.akimous' / 'dictionary.json'
+
     await send('ProjectOpened', {
-        'root': shared_context.project_root.parts,
-        'projectConfig': shared_context.project_config
+        'root': sc.project_root.parts,
+        'projectConfig': sc.project_config
     })
     SpellChecker(context)
 
 
 @handles('SetProjectConfig')
 async def set_project_config(msg, send, context):
-    project_config = context.shared.project_config
-    merge_dict(project_config, msg)
-    with open(context.shared.project_config_file, 'w') as f:
-        json.dump(project_config, f, indent=4, sort_keys=True)
+    sc = context.shared
+    # save config
+    persistent_config[sc.project_root] = merge_dict(sc.project_config, msg)
 
 
 handles('FindInDirectory')(find_in_directory)

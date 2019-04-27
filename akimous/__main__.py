@@ -5,7 +5,6 @@ from boltons.gcutils import toggle_gc
 
 from .utils import Timer
 
-
 log_format = '%(color)s[%(levelname)1.1s %(asctime)s.%(msecs)03d %(module)s:%(lineno)d]%(end_color)s %(message)s'
 formatter = logzero.LogFormatter(fmt=log_format)
 logzero.setup_default_logger(formatter=formatter)
@@ -36,11 +35,13 @@ with Timer('initialization'), toggle_gc:
 
 
 def start():
-    start_server(**args.__dict__)
+    start_server(clean_up_callback=stop, **args.__dict__)
+
+
+def stop():
+    project.persistent_config.close()
+    editor.doc_generator.temp_dir.cleanup()  # avoid ResourceWarning
 
 
 if __name__ == '__main__':
     start()
-
-    # clean up to avoid ResourceWarning
-    editor.doc_generator.temp_dir.cleanup()

@@ -131,7 +131,7 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
         del sessions[client_id]
 
 
-def start_server(host, port, no_browser, verbose):
+def start_server(host, port, no_browser, verbose, clean_up_callback):
     loop = get_event_loop()
     loop.set_debug(True)
     loop.slow_callback_duration = .1 if verbose else 1.
@@ -159,10 +159,11 @@ def start_server(host, port, no_browser, verbose):
             for sessions_ in sessions.values():
                 for session in sessions_.values():
                     session.loop.cancel()
+            clean_up_callback()
             # give it some time to gracefully shutdown, or ResourceWarnings will pop up
-            await sleep(1)
-            loop.stop()
+            await sleep(.1)
             logger.info('Terminated')
+            loop.stop()
 
         logger.info('Terminating')
         loop.run_until_complete(loop.create_task(stop_everything()))
