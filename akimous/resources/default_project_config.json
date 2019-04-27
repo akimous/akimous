@@ -1,9 +1,14 @@
 {
+  "activePanels": {
+    "left": "fileTree",
+    "right": "docs"
+  },
   "runConfiguration": {
     "mode": "script",
     "shellCommands": [
       "python",
       ""
-    ]
+    ],
+    "shellCommandIndex": 0
   }
 }

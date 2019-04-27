@@ -41,9 +41,9 @@
             JupyterCell: './JupyterCell.html',
         },
         oncreate() {
+            this.name = 'console'
             g.console = this
             initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
-
         },
         onupdate({ changed, current }) {
             if (changed.mode) {

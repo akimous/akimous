@@ -50,6 +50,7 @@
             FileTreeNode: './FileTreeNode.html'
         },
         oncreate() {
+            this.name = 'fileTree'
             g.fileTree = this
             initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
             g.setFocus([g.panelLeft, g.fileTree])

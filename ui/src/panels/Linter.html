@@ -171,6 +171,7 @@
     export default {
         components: {},
         oncreate() {
+            this.name = 'linter'
             g.linter = this
             initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
 

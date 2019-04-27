@@ -5,16 +5,26 @@ const projectConfig = {}
 g.config = config
 g.projectConfig = projectConfig
 
+function isDirty(original, current) {
+    for (let key in current) {
+        if (original[key] !== current[key]) return true
+    }
+    return false
+}
+
 function setConfig(section, content) {
-    Object.assign(config[section], content)
+    const original = config[section]
+    if (!isDirty(original, content)) return
+    Object.assign(original, content)
     g.configSession.send('SetConfig', {
         [section]: content
     })
 }
 
 function setProjectConfig(section, content) {
-    console.warn(section, projectConfig[section], content)
-    Object.assign(projectConfig[section], content)
+    const original = projectConfig[section]
+    if (!isDirty(original, content)) return
+    Object.assign(original, content)
     g.projectSession.send('SetProjectConfig', {
         [section]: content
     })

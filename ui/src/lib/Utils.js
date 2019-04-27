@@ -1,5 +1,6 @@
 import CodeMirror from 'codemirror'
 import g from './Globals'
+import { setProjectConfig } from './ConfigManager'
 
 // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
 function binarySearch(array, target) {
@@ -37,7 +38,7 @@ function tick(time) {
     }
 
     framesPassed = 0
-    
+
     let job = queue.shift()
     while (job) {
         job()
@@ -92,6 +93,14 @@ function activateView(parent, view) {
         g.setFocus([parent, view])
     oldView && oldView.set({ active: false })
     view.set({ active: true })
+
+    let panel
+    if (parent === g.panelLeft) panel = 'left'
+    else if (parent === g.panelRight) panel = 'right'
+    if (panel)
+        setProjectConfig('activePanels', {
+            [panel]: view.name
+        })
 }
 
 function reformatDocstring(doc) {

@@ -64,6 +64,7 @@
     export default {
         components: {},
         oncreate() {
+            this.name = 'outline'
             g.outline = this
             g.currentHighlight = null
             initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')

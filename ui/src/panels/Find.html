@@ -162,6 +162,7 @@
             isEqual,
         },
         oncreate() {
+            this.name = 'find'
             g.find = this
             initializeTabView(this, 'Find', 'fas fa-search l-blue')
             makeScrollable(this, this.refs.panel)

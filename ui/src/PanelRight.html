@@ -47,7 +47,7 @@
 
             // we must activate console upon initialization, or xterm will break
             schedule(() => {
-                this.activateView(this.refs.console)
+                this.activateView(this.refs[g.projectConfig.activePanels.right])
             })
         },
         onstate({ changed, current }) {

@@ -37,7 +37,7 @@
                 parent: this
             }, this.refs.tabBar, this.refs.fileTree, this.refs.outline)
             schedule(() => {
-                this.activateView(this.refs.fileTree)
+                this.activateView(this.refs[g.projectConfig.activePanels.left])
             })
         },
         onstate({ changed, current }) {
