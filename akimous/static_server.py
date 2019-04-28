@@ -55,7 +55,11 @@ class HTTPHandler:
         if not package:
             return HTTPStatus.NOT_FOUND, [], b''
 
-        header = {'content-type': guess_type(file), 'cache-control': 'max-age=31536000'}
+        header = {
+            'content-type': guess_type(file),
+            'cache-control': 'max-age=60',
+            'X-Frame-Options': "deny"
+        }
 
         # serve user configs
         if package == 'user':

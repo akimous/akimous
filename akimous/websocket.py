@@ -148,6 +148,7 @@ def start_server(host, port, no_browser, verbose, clean_up_callback):
         socket_handler,
         host=host,
         port=port,
+        extra_headers=[('Content-Security-Policy', "frame-ancestors: 'none'")],
         process_request=http_handler.process_request)
     loop.run_until_complete(websocket_server)
     initialize_word_completer(loop)

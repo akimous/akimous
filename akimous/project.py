@@ -60,9 +60,8 @@ async def open_project(msg, send, context):
 
     # remove nonexistence files
     opened_files = sc.project_config['openedFiles']
-    logger.warning('before %s', opened_files)
     opened_files = [i for i in opened_files if (sc.project_root / Path(*i)).is_file()]
-    logger.warning('after %s', opened_files)
+    sc.project_config['openedFiles'] = opened_files
 
     await send('ProjectOpened', {
         'root': sc.project_root.parts,
