@@ -45,7 +45,7 @@ def set_state(context, new_state):
 
 
 @handles('_connected')
-async def connected(send, context):
+async def connected(msg, send, context):
     logger.info('shell connected')
     context.kernel_manager = KernelManager()
     context.part_a_end_line = 0

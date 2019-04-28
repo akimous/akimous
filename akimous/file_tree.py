@@ -78,7 +78,7 @@ def stop_monitor(path, context):
 
 
 @handles('_connected')
-async def connected(send, context):
+async def connected(msg, send, context):
     context.observed_watches = {}
     context.observer = Observer()
     context.observer.start()

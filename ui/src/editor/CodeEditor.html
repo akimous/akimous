@@ -17,7 +17,7 @@
     import RealtimeFormatter from './RealtimeFormatter'
     import { CompletionProvider } from './completion/CompletionProvider'
     import { getIconByFileName } from '../lib/FileTypeToIcon'
-    import { schedule, joinPath } from '../lib/Utils'
+    import { schedule, nextFrame, joinPath } from '../lib/Utils'
 
     /* eslint-disable */
     import CodeMirror from 'codemirror'
@@ -98,8 +98,9 @@
                 this.shouldClose = false
                 this.completion = this.refs.completion
                 
-                this.session = g.socket.createSession('editor')
-                this.session.send('OpenFile', { filePath: this.get().filePath })
+                this.session = g.socket.createSession('editor', {
+                    filePath: this.get().filePath
+                })
                 Object.assign(this.session.handlers, {
                     FileOpened: data => {
                         console.debug('transmission took', performance.now() - startTime)
@@ -295,6 +296,8 @@
             this.tab.destroy()
             g.linter.clear()
             delete g.panelMiddle.pathToEditor[joinPath(this.get().filePath)]
+            this.session.send('Close')
+            this.session.close()
         },
         onstate({ changed, current, previous }) {
             if (!previous) return
@@ -317,9 +320,15 @@
             }
             if (changed.active) {
                 const { active } = current
+                const { cm } = this
                 tab.set({ active: active })
-                if (active && this.session) {
-                    this.session.send('ActivateEditor')
+                if (active && this.session && cm) {
+                    nextFrame(() => {
+                        // content may not show for background editors if multiple editors are opened during startup
+                        cm.refresh()
+                        this.session.send('ActivateEditor')
+                    })
+                    
                 }
             }
             if (changed.highlightOverlay) {

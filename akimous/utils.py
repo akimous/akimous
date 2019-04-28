@@ -1,5 +1,6 @@
 import json
 import os
+from contextlib import contextmanager
 from importlib import resources
 from pathlib import Path
 from time import perf_counter
@@ -25,7 +26,7 @@ def merge_dict(primary, secondary):
     """
     for k, v in secondary.items():
         section = primary.get(k, None)
-        if section is None:
+        if section is None or not isinstance(v, dict):
             primary[k] = v
         else:
             for key, value in v.items():
@@ -64,6 +65,14 @@ def detect_doc_type(docstring):
 
 async def nop(*args, **kwargs):
     pass
+
+
+@contextmanager
+def log_exception():
+    try:
+        yield
+    except Exception as e:
+        logger.exception(e)
 
 
 class Timer:

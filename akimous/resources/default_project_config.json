@@ -3,6 +3,7 @@
     "left": "fileTree",
     "right": "docs"
   },
+  "openedFiles": [],
   "runConfiguration": {
     "mode": "script",
     "shellCommands": [

@@ -37,10 +37,12 @@
             this.openedFiles = new Set()
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
             this.activationHistoryIndex = 0
-            if (g.dev)
-                schedule(() => {
-                    this.openFile(['akimous', 'demo', 'rte.py'])
-                })
+            
+            schedule(() => {
+                for (const path of g.projectConfig.openedFiles) {
+                    this.openFile(path)
+                }
+            })
         },
         onstate({ changed, current, previous }) {
             if (!previous) return

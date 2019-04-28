@@ -61,7 +61,7 @@ class Socket {
         }
     }
 
-    createSession(endpoint) {
+    createSession(endpoint, firstMessage) {
         const { sessions, webSocket } = this
         const sessionId = this.maxSessionId++
         const session = {
@@ -72,12 +72,12 @@ class Socket {
                 webSocket.send(msgpack.encode([sessionId, event, object]))
             },
             close() {
-                webSocket.send(msgpack.encode([0, 'CloseSession', endpoint]))
+                webSocket.send(msgpack.encode([0, 'CloseSession', sessionId]))
                 delete sessions[sessionId]
             }
         }
         this.sessions[sessionId] = session
-        webSocket.send(msgpack.encode([0, 'OpenSession', { sessionId, endpoint }]))
+        webSocket.send(msgpack.encode([0, 'OpenSession', { sessionId, endpoint, firstMessage }]))
         return session
     }
 

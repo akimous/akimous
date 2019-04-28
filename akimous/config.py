@@ -23,7 +23,7 @@ if not macro_file.exists():
 
 
 @handles('_connected')
-async def connected(send, context):
+async def connected(msg, send, context):
     await send('Connected', {'config': config, 'pathSeparator': os.sep})
 
 

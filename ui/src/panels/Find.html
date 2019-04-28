@@ -232,7 +232,9 @@
             if (changed.selectedMatches && editor) {
                 const { cm } = editor
                 const { filePath } = editor.get()
-                if (current.selectedMatches.size) {
+                if (!cm)  {
+                    // do nothing
+                } else if (current.selectedMatches.size) {
                     const selections = []
                     for (const s of current.selectedMatches) {
                         if (isEqual(s.filePath, filePath))

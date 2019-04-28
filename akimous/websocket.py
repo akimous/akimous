@@ -1,6 +1,6 @@
 import webbrowser
 from asyncio import (CancelledError, Queue, create_task, ensure_future,
-                     get_event_loop, sleep)
+                     get_event_loop, sleep, wait_for)
 from collections import defaultdict, namedtuple
 from types import SimpleNamespace
 
@@ -9,7 +9,7 @@ import websockets
 from logzero import logger
 from websockets.exceptions import ConnectionClosed
 
-from akimous.utils import nop
+from akimous.utils import nop, log_exception
 
 from .static_server import HTTPHandler
 from .word_completer import initialize as initialize_word_completer
@@ -32,9 +32,8 @@ def register_handler(endpoint, command):
 
 async def session_handler(session_id: int, endpoint: str, queue: Queue,
                           ws: websockets.WebSocketServerProtocol,
-                          shared_context: SimpleNamespace):
+                          shared_context: SimpleNamespace, first_message):
     session_handlers = handlers.get(endpoint)
-    disconnected_callback = session_handlers.get('_disconnected', nop)
 
     if session_handlers is None:
         logger.error('No handlers associated with path %s', endpoint)
@@ -61,12 +60,11 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
         shared=shared_context,
     )
 
-    connected_callback = session_handlers.get('_connected', None)
-    if connected_callback:
-        try:
-            await connected_callback(send, context)
-        except Exception as e:
-            logger.exception(e)
+    connected_callback = session_handlers.get('_connected', nop)
+    disconnected_callback = session_handlers.get('_disconnected', nop)
+
+    with log_exception():
+        await connected_callback(first_message, send, context)
 
     while 1:
         try:
@@ -82,9 +80,10 @@ async def session_handler(session_id: int, endpoint: str, queue: Queue,
                 logger.exception(e)
             queue.task_done()
         except CancelledError:
-            logger.warning('Session %s closed.', endpoint)
             break
-    await disconnected_callback(context)
+    with log_exception():
+        await disconnected_callback(context)
+    logger.warning('Session %s closed.', endpoint)
 
 
 async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
@@ -106,17 +105,25 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
             logger.debug('Received message from %s/%s: %s', session_id, event,
                          obj)
 
-            if session_id == 0 and event == 'OpenSession':  # new session
-                endpoint = obj['endpoint']
-                session_id = obj['sessionId']
-                queue = Queue()
-                session_loop = create_task(
-                    session_handler(session_id, endpoint, queue, ws,
-                                    shared_context))
-                session = Session(session_loop, queue)
-                client_sessions[session_id] = session
-                logger.info('Session %s of endpoint %s opened.', session_id,
-                            endpoint)
+            if session_id == 0:  # master session
+                if event == 'OpenSession':
+                    endpoint = obj['endpoint']
+                    session_id = obj['sessionId']
+                    first_message = obj['firstMessage']
+                    queue = Queue()
+                    session_loop = create_task(
+                        session_handler(session_id, endpoint, queue, ws,
+                                        shared_context, first_message))
+                    session = Session(session_loop, queue)
+                    client_sessions[session_id] = session
+                    logger.info('Session %s of endpoint %s opened.', session_id,
+                                endpoint)
+                elif event == 'CloseSession':
+                    session_id = obj
+                    session = client_sessions[session_id]
+                    await wait_for(session.queue.join(), timeout=1)
+                    session.loop.cancel()
+                    del client_sessions[session_id]
             else:
                 session: Session = client_sessions.get(session_id, None)
                 if not session:

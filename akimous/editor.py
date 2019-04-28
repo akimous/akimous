@@ -20,9 +20,11 @@ from .modeling.feature.feature_definition import tokenize
 from .online_feature_extractor import \
     OnlineFeatureExtractor  # 90ms, 10M memory
 from .pyflakes_reporter import PyflakesReporter
-from .utils import Timer, detect_doc_type, nop
+from .utils import Timer, detect_doc_type, nop, log_exception
 from .websocket import register_handler
 from .word_completer import search_prefix
+from .project import save_config
+
 
 DEBUG = False
 MODEL_NAME = 'v10.model'
@@ -64,7 +66,7 @@ async def run_pylint(context, send):
 async def run_yapf(context):
     if not config['formatter']['yapf']:
         return
-    try:
+    with log_exception():
         with Timer('YAPF'):
             absolute_path = context.path.absolute()
             context.yapf_process = await create_subprocess_shell(
@@ -77,14 +79,12 @@ async def run_yapf(context):
                 logger.info(stdout)
             if stderr:
                 logger.error(stderr)
-    except Exception as e:
-        logger.error(e)
 
 
 async def run_isort(context):
     if not config['formatter']['isort']:
         return
-    try:
+    with log_exception():
         with Timer('Sorting'):
             absolute_path = context.path.absolute()
             context.isort_process = await create_subprocess_shell(
@@ -97,8 +97,6 @@ async def run_isort(context):
                 logger.info(stdout)
             if stderr:
                 logger.error(stderr)
-    except Exception as e:
-        logger.error(e)
 
 
 async def run_spell_checker(context, send):
@@ -143,18 +141,10 @@ async def post_content_change(context, send):
 
 
 @handles('_connected')
-async def connected(send, context):
+async def connected(msg, send, context):
     context.doc = []
     context.linter_task = create_task(nop())
-
-
-@handles('_disconnected')
-async def disconnected(context):
-    context.linter_task.cancel()
-
-
-@handles('OpenFile')
-async def open_file(msg, send, context):
+    # open file
     context.path = Path(*msg['filePath'])
     context.is_python = context.path.suffix in ('.py', '.pyx')
     context.pyflakes_reporter = PyflakesReporter()
@@ -166,14 +156,35 @@ async def open_file(msg, send, context):
         'mtime': context.path.stat().st_mtime,
         'content': content
     })
+    # update opened files
+    opened_files = context.shared.project_config['openedFiles']
+    path_tuple = tuple(context.path.parts)
+    if path_tuple not in opened_files:
+        opened_files.append(path_tuple)
+        save_config(context)
     # skip all completion, linting etc. if it is not a Python file
     if not context.is_python:
         return
     await post_content_change(context, send)
 
 
+@handles('_disconnected')
+async def disconnected(context):
+    context.linter_task.cancel()
+
+
+@handles('Close')
+async def close(msg, send, context):
+    """
+    Called when the editor is explicitly closed, not when it is disconnected
+    """
+    opened_files = context.shared.project_config['openedFiles']
+    opened_files.remove(tuple(context.path.parts))
+    save_config(context)
+
+
 @handles('Reload')
-async def reload(_, send, context):
+async def reload(msg, send, context):
     with open(context.path) as f:
         content = f.read()
         context.content = content
@@ -337,10 +348,8 @@ async def get_completion_docstring(msg, send, context):
     doc_type = detect_doc_type(docstring)
     html = None
     if doc_type != 'text':
-        try:
+        with log_exception():
             html = doc_generator.make_html(docstring)
-        except Exception as e:
-            logger.error('Failed to get completion docstring', e)
     await send('CompletionDocstring', {
         'doc': html if html else docstring,
         'type': 'html' if html else 'text'
@@ -365,10 +374,8 @@ async def get_function_documentation(msg, send, context):
     doc_type = detect_doc_type(docstring)
     html = None
     if doc_type != 'text':
-        try:
+        with log_exception():
             html = doc_generator.make_html(docstring)
-        except Exception as e:
-            logger.error('failed to generate function documentation', e)
 
     await send(
         'FunctionDocumentation', {
