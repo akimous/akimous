@@ -1,5 +1,8 @@
 <div ref:panelMiddle id="panel-middle" class="{focused?'indicator-on':''}">
     <TabBar ref:tabBar id="tab-bar"></TabBar>
+    {#if !focus}
+    <div class="placeholder">Double click on one of the file on the file tree to open.</div>
+    {/if}
 </div>
 
 
@@ -13,6 +16,16 @@
         box-sizing: border-box;
         z-index: 130;
         /* should be higher than that of PanelRight, or Completion will be blocked */
+    }
+    
+    .placeholder {
+        position: absolute;
+        top: 45%;
+        width: 100%;
+        text-align: center;
+        font-size: var(--ui-font-size-large);
+        color: var(--gray5);
+        z-index: -100;
     }
 
 </style>
@@ -106,6 +119,7 @@
                 this.activateFile(editor.get().filePath)
             },
             activateFile(filePath) {
+                if (!filePath) return
                 const editor = this.getEditor(filePath)
                 if (g.activeEditor === editor) {
                     return // already activated
