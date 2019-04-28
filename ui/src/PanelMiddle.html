@@ -21,7 +21,8 @@
 <script>
     import g from './lib/Globals'
     import CodeEditor from './editor/CodeEditor.html'
-    import { schedule, joinPath } from './lib/Utils'
+    import { schedule, nextFrame, joinPath } from './lib/Utils'
+    import isEqual from 'lodash.isequal'
 
     const MAX_ACTIVATION_HISTORY = 32
 
@@ -38,10 +39,16 @@
             this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
             this.activationHistoryIndex = 0
             
-            schedule(() => {
+            nextFrame(() => {
+                const activePath = g.projectConfig.activePanels.middle
+                let activated = false
                 for (const path of g.projectConfig.openedFiles) {
-                    this.openFile(path)
+                    const shouldActivate = isEqual(activePath, path)
+                    this.openFile(path, null, shouldActivate)
+                    activated |= shouldActivate
                 }
+                if (!activated)
+                    this.activateFile(g.projectConfig.openedFiles[0])
             })
         },
         onstate({ changed, current, previous }) {
@@ -76,7 +83,7 @@
              * @param   {Array}      filePath path to the text file in parts. E.g. ['dir', 'dir', 'file.txt']
              * @returns {CodeEditor} CodeEditor instance if it is already opened, undefined otherwise.
              */
-            openFile(filePath, cmReadyCallback) {
+            openFile(filePath, cmReadyCallback, activate = true) {
                 let editor = this.getEditor(filePath)
                 if (!editor) {
                     const openingEditor = new CodeEditor({
@@ -90,6 +97,7 @@
                     openingEditor.cmReadyCallback = cmReadyCallback
                     this.openedFiles.add(filePath)
                 }
+                if (!activate) return
                 this.activateFile(filePath)
                 if (cmReadyCallback && editor) cmReadyCallback(editor)
                 return editor

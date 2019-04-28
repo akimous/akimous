@@ -161,7 +161,7 @@ async def connected(msg, send, context):
     path_tuple = tuple(context.path.parts)
     if path_tuple not in opened_files:
         opened_files.append(path_tuple)
-        save_config(context)
+    await activate_editor(msg, send, context)
     # skip all completion, linting etc. if it is not a Python file
     if not context.is_python:
         return
@@ -193,8 +193,10 @@ async def reload(msg, send, context):
 
 
 @handles('ActivateEditor')
-async def reload(msg, send, context):
+async def activate_editor(msg, send, context):
     context.shared.doc = context.doc
+    context.shared.project_config['activePanels']['middle'] = context.path.parts
+    save_config(context)
 
 
 @handles('Mtime')

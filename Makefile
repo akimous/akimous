@@ -60,7 +60,7 @@ pydev:
 upgrade:
 	poetry update
 	poetry show --outdated
-	cd ui && yarn upgrade
+	# cd ui && yarn upgrade
 	cd ui && yarn upgrade-interactive --latest
 
 update_docker:
