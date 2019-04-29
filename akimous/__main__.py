@@ -32,6 +32,7 @@ with Timer('initialization'), toggle_gc:
     from . import editor  # 900ms, 80M memory
     from . import terminal
     from . import interactive_shell # 30ms, 3M memory
+    from . import open_folder
 
 
 def start():

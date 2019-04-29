@@ -9,6 +9,7 @@
 <KeyboardControlHint ref:keyboardControlHint></KeyboardControlHint>
 <PanelPopup></PanelPopup>
 <Tooltip></Tooltip>
+<OpenFolder></OpenFolder>
 {#if popup}
 <div id="dismiss-popup" on:mousedown="dismissPopups()"></div>
 {/if}
@@ -106,7 +107,8 @@
             ContextMenu: './popups/ContextMenu.html',
             KeyboardControlHint: './LayeredKeyboardControl/KeyboardControlHint.html',
             PanelPopup: './popups/PanelPopup.html',
-            Tooltip: './lib/tooltip.html'
+            Tooltip: './lib/tooltip.html',
+            OpenFolder: './popups/OpenFolder.html'
         },
 
         oncreate() {

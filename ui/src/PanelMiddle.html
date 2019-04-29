@@ -1,7 +1,7 @@
 <div ref:panelMiddle id="panel-middle" class="{focused?'indicator-on':''}">
     <TabBar ref:tabBar id="tab-bar"></TabBar>
     {#if !focus}
-    <div class="placeholder">Double click on one of the file on the file tree to open.</div>
+    <div class="placeholder non-selectable">Double click on a file on the file tree to open.</div>
     {/if}
 </div>
 
@@ -21,7 +21,8 @@
     .placeholder {
         position: absolute;
         top: 45%;
-        width: 100%;
+        width: 80%;
+        margin: 0 10%;
         text-align: center;
         font-size: var(--ui-font-size-large);
         color: var(--gray5);
