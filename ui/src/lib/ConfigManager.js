@@ -25,7 +25,7 @@ function setProjectState(section, content) {
     const original = projectState[section]
     if (!isDirty(original, content)) return
     Object.assign(original, content)
-    g.projectSession.send('SetProjectConfig', {
+    g.projectSession.send('SetProjectState', {
         [section]: content
     })
 }

@@ -23,7 +23,7 @@ from .pyflakes_reporter import PyflakesReporter
 from .utils import Timer, detect_doc_type, nop, log_exception
 from .websocket import register_handler
 from .word_completer import search_prefix
-from .project import save_config
+from .project import save_state
 
 
 DEBUG = False
@@ -180,7 +180,7 @@ async def close(msg, send, context):
     """
     opened_files = context.shared.project_config['openedFiles']
     opened_files.remove(tuple(context.path.parts))
-    save_config(context)
+    save_state(context)
 
 
 @handles('Reload')
@@ -196,7 +196,7 @@ async def reload(msg, send, context):
 async def activate_editor(msg, send, context):
     context.shared.doc = context.doc
     context.shared.project_config['activePanels']['middle'] = context.path.parts
-    save_config(context)
+    save_state(context)
 
 
 @handles('Mtime')

@@ -72,14 +72,14 @@ async def open_project(msg, send, context):
     await set_config({'lastOpenedFolder': str(sc.project_root)}, None, context)
 
 
-@handles('SetProjectConfig')
-async def set_project_config(msg, send, context):
+@handles('SetProjectState')
+async def set_project_state(msg, send, context):
     sc = context.shared
     # save config
     persistent_state[sc.project_root] = merge_dict(sc.project_config, msg)
 
 
-def save_config(context):
+def save_state(context):
     sc = context.shared
     persistent_state[sc.project_root] = sc.project_config
 

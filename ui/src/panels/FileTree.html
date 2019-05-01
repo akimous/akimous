@@ -211,6 +211,9 @@
             }
             makeScrollable(this, this.refs.fileTree)
         },
+        ondestroy() {
+            this.session && this.session.close()
+        },
         data() {
             return {
                 root: [],

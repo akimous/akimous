@@ -12,12 +12,11 @@ from .websocket import register_handler
 handles = partial(register_handler, 'config')
 
 logger.info('Reading configuration from %s', config_directory)
-config_file = config_directory / 'akimous.json'
+config_file = config_directory / 'config.json'
 config = get_merged_config(config_file, 'default_config.json')
 
 # create user macro template if not exists
 macro_file = config_directory / 'macro.js'
-config['macro']['userMacroFile'] = macro_file.parts
 if not macro_file.exists():
     template = resources.read_text('akimous.resources', 'macro.js')
     with open(macro_file, 'w') as f:
@@ -26,7 +25,8 @@ if not macro_file.exists():
 
 @handles('_connected')
 async def connected(msg, send, context):
-    if not Path(config['lastOpenedFolder']).is_dir():
+    last_opened_folder = config['lastOpenedFolder']
+    if not last_opened_folder or not Path(last_opened_folder).is_dir():
         config['lastOpenedFolder'] = None
     await send('Connected', {'config': config, 'pathSeparator': os.sep})
 

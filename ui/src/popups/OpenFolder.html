@@ -133,6 +133,9 @@
             }
             this.session.send('Open')
         },
+        ondestroy() {
+            this.session && this.session.close()
+        },
         data() {
             return {
                 path: '',
@@ -161,6 +164,7 @@
             },
             open() {
                 const { path } = this.get()
+                g.ready = false
                 g.projectSession.send('OpenProject', { path })
             }
         }

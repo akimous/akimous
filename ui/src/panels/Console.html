@@ -45,6 +45,9 @@
             g.console = this
             initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
         },
+        ondestroy() {
+            this.session && this.session.close()
+        },
         onupdate({ changed, current }) {
             if (changed.mode) {
                 this.stop()
