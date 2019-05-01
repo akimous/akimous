@@ -1,3 +1,4 @@
+{#if initialized}
 <Toolbar ref:toolbar></Toolbar>
 <div ref:splitBarL id="split-bar-l" class="split-bar"></div>
 <div ref:splitBarR id="split-bar-r" class="split-bar"></div>
@@ -9,6 +10,7 @@
 <KeyboardControlHint ref:keyboardControlHint></KeyboardControlHint>
 <PanelPopup></PanelPopup>
 <Tooltip></Tooltip>
+{/if}
 {#if openFolder}
 <OpenFolder></OpenFolder>
 {/if}
@@ -116,6 +118,9 @@
         oncreate() {
             g.app = this
             schedule(() => {
+                const { initialized } = this.get()
+                if (!initialized) return
+                
                 this.refs.splitBarL.onmousedown = e => {
                     e.preventDefault()
                     document.onmousemove = throttle(e => {
@@ -166,6 +171,7 @@
             return {
                 popup: false,
                 openFolder: false,
+                initialized: true,
             }
         },
         methods: {

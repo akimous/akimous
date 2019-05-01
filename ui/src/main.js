@@ -1,4 +1,4 @@
-import { config, projectConfig } from './lib/ConfigManager'
+import { config, projectState } from './lib/ConfigManager'
 import { Socket } from './lib/Socket'
 import g from './lib/Globals'
 import App from './App.html'
@@ -19,22 +19,32 @@ g.ready = false
 const socket = new Socket(() => {
     g.configSession = socket.createSession('config')
     g.projectSession = socket.createSession('project')
-    
+
     g.configSession.handlers['Connected'] = data => {
         g.pathSeparator = data.pathSeparator
         Object.assign(config, data.config)
         console.debug('first round-trip', performance.now() - start)
+        if (g.config.lastOpenedFolder) {
+            g.projectSession.send('OpenProject', { path: g.config.lastOpenedFolder })
+        } else {
+            app = new App({
+                target: document.body,
+                data: {
+                    initialized: false,
+                    openFolder: true
+                }
+            })
+        }
     }
     g.projectSession.handlers['ProjectOpened'] = data => {
         g.projectRoot = data.root
-        Object.assign(projectConfig, data.projectConfig)
+        Object.assign(projectState, data.projectState)
         if (app) app.destroy()
         app = new App({
             target: document.body,
         })
-        g.runConfiguration.set(g.projectConfig.runConfiguration)
+        g.runConfiguration.set(g.projectState.runConfiguration)
     }
-    g.projectSession.send('OpenProject', { path: g.projectRoot })
 })
 g.socket = socket
 

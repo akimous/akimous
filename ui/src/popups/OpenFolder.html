@@ -131,7 +131,7 @@
             this.session.handlers['Listed'] = data => {
                 this.set(data)
             }
-            this.home()
+            this.session.send('Open')
         },
         data() {
             return {

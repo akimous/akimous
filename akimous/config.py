@@ -2,6 +2,8 @@ import json
 import os
 from functools import partial
 from importlib import resources
+from pathlib import Path
+
 from logzero import logger
 
 from .utils import (config_directory, get_merged_config, merge_dict)
@@ -24,6 +26,8 @@ if not macro_file.exists():
 
 @handles('_connected')
 async def connected(msg, send, context):
+    if not Path(config['lastOpenedFolder']).is_dir():
+        config['lastOpenedFolder'] = None
     await send('Connected', {'config': config, 'pathSeparator': os.sep})
 
 

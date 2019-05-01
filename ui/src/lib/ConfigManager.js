@@ -1,9 +1,9 @@
 import g from './Globals'
 
 const config = {}
-const projectConfig = {}
+const projectState = {}
 g.config = config
-g.projectConfig = projectConfig
+g.projectState = projectState
 
 function isDirty(original, current) {
     for (let key in current) {
@@ -21,8 +21,8 @@ function setConfig(section, content) {
     })
 }
 
-function setProjectConfig(section, content) {
-    const original = projectConfig[section]
+function setProjectState(section, content) {
+    const original = projectState[section]
     if (!isDirty(original, content)) return
     Object.assign(original, content)
     g.projectSession.send('SetProjectConfig', {
@@ -30,4 +30,4 @@ function setProjectConfig(section, content) {
     })
 }
 
-export { config, projectConfig, setConfig, setProjectConfig }
+export { config, projectState, setConfig, setProjectState }

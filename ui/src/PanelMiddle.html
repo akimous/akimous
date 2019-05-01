@@ -54,15 +54,15 @@
             this.activationHistoryIndex = 0
             
             nextFrame(() => {
-                const activePath = g.projectConfig.activePanels.middle
+                const activePath = g.projectState.activePanels.middle
                 let activated = false
-                for (const path of g.projectConfig.openedFiles) {
+                for (const path of g.projectState.openedFiles) {
                     const shouldActivate = isEqual(activePath, path)
                     this.openFile(path, null, shouldActivate)
                     activated |= shouldActivate
                 }
                 if (!activated)
-                    this.activateFile(g.projectConfig.openedFiles[0])
+                    this.activateFile(g.projectState.openedFiles[0])
             })
         },
         onstate({ changed, current, previous }) {

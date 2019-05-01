@@ -40,7 +40,7 @@ def start():
 
 
 def stop():
-    project.persistent_config.close()
+    project.persistent_state.close()
     editor.doc_generator.temp_dir.cleanup()  # avoid ResourceWarning
 
 

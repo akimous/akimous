@@ -1,6 +1,6 @@
 import CodeMirror from 'codemirror'
 import g from './Globals'
-import { setProjectConfig } from './ConfigManager'
+import { setProjectState } from './ConfigManager'
 
 // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
 function binarySearch(array, target) {
@@ -98,7 +98,7 @@ function activateView(parent, view) {
     if (parent === g.panelLeft) panel = 'left'
     else if (parent === g.panelRight) panel = 'right'
     if (panel)
-        setProjectConfig('activePanels', {
+        setProjectState('activePanels', {
             [panel]: view.name
         })
 }

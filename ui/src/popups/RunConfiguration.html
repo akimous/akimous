@@ -148,7 +148,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import { setProjectConfig } from '../lib/ConfigManager'
+    import { setProjectState } from '../lib/ConfigManager'
 
     export default {
         components: {
@@ -217,12 +217,12 @@
             },
             saveChanges(what) {
                 if (what) {
-                    setProjectConfig('runConfiguration', {
+                    setProjectState('runConfiguration', {
                         [what]: this.get()[what]
                     })
                 } else {
                     const { mode, shellCommands, shellCommandIndex } = this.get()
-                    setProjectConfig('runConfiguration', {
+                    setProjectState('runConfiguration', {
                         mode,
                         shellCommands,
                         shellCommandIndex
