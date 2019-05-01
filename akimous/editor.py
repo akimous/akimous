@@ -145,7 +145,7 @@ async def connected(msg, send, context):
     context.doc = []
     context.linter_task = create_task(nop())
     # open file
-    context.path = Path(*msg['filePath'])
+    context.path = Path(context.shared.project_root, *msg['filePath'])
     context.is_python = context.path.suffix in ('.py', '.pyx')
     context.pyflakes_reporter = PyflakesReporter()
     with open(context.path) as f:

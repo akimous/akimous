@@ -264,7 +264,7 @@
             g.keyboardControlHint = this
         },
         onstate({ changed, current }) {
-            if (changed.open && g.toolbar) {
+            if (changed.open && g.toolbar && g.toolbar.refs.keyboardControlHint) {
                 g.toolbar.refs.keyboardControlHint.set({
                     on: current.open
                 })

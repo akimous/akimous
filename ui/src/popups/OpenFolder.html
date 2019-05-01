@@ -4,7 +4,7 @@
         <div class="button" on:click="home()"><i class="fas fa-home"></i></div>
         <div class="button" on:click="up()"><i class="fas fa-arrow-up"></i></div>
         <div class="path">
-            <TextInput theme="bright" bind:value="currentPath" on:click="focusPathInput()" on:keydown|capture="pathKeyDown()"></TextInput>
+            <TextInput theme="bright" bind:value="path" on:click="focusPathInput()" on:keydown|capture="pathKeyDown()"></TextInput>
         </div>
     </div>
     <div class="list">
@@ -13,6 +13,11 @@
             <i class="fas fa-folder"></i> {item}
         </div>
         {/each}
+    </div>
+    <div class="buttons non-selectable">
+        <div class="button cancel" on:click="cancel()">Cancel</div>
+        <div class="button open" on:click="open()">Open
+        </div>
     </div>
 </div>
 
@@ -24,19 +29,20 @@
         height: 80vh;
         left: 10vw;
         top: 10vh;
-        padding: 1.5rem;
+        overflow: hidden;
     }
 
     .title {
         color: var(--primary5);
         font-weight: 400;
+        padding: 1.5rem 0 0 2.2rem;
     }
 
     .path-bar {
-        margin: .5rem;
+        margin: 1rem 1.5rem .5rem 2rem;
     }
 
-    .button {
+    .path-bar .button {
         display: inline-block;
         width: 2rem;
         height: 2rem;
@@ -52,7 +58,7 @@
     }
 
     .list {
-        margin: 1rem;
+        margin: 1rem 1.5rem;
         color: var(--gray3);
         font-size: 1.4rem;
         height: calc(80vh - 12rem);
@@ -60,7 +66,7 @@
     }
 
     .item {
-        padding-bottom: .3rem;
+        padding: .2rem .2rem .2rem 1rem;
     }
 
     .fa-folder {
@@ -68,11 +74,53 @@
         padding-right: .5rem;
     }
 
+    .item:hover {
+        color: var(--primary4);
+        background: var(--primary8);
+        border-radius: var(--default-radius);
+    }
+
+    .item:hover .fa-folder {
+        color: var(--primary5);
+    }
+
+    .buttons {
+        position: absolute;
+        display: flex;
+        bottom: 0;
+        width: 100%;
+        font-size: var(--ui-font-size-large);
+        font-weight: 400;
+        text-align: right;
+    }
+
+    .buttons .button {
+        display: inline-block;
+        text-align: center;
+        padding: .4rem;
+    }
+
+    .buttons .button:hover {
+        filter: brightness(110%);
+    }
+
+    .button.cancel {
+        flex-grow: 3;
+        background: var(--gray8);
+        color: var(--primary2);
+    }
+
+    .button.open {
+        flex-grow: 7;
+        background: var(--green);
+        color: var(--gray9);
+    }
+
 </style>
 
 
 <script>
-    // import g from './lib/Globals'
+    import g from '../lib/Globals'
 
     export default {
         components: {
@@ -87,17 +135,17 @@
         },
         data() {
             return {
-                currentPath: '',
+                path: '',
                 list: []
             }
         },
         methods: {
             folderClicked(folder) {
-                this.session.send('Ls', [this.get().currentPath, folder])
+                this.session.send('Ls', [this.get().path, folder])
             },
             pathKeyDown() {
                 if (event.key !== 'Enter') return
-                this.session.send('Ls', [this.get().currentPath])
+                this.session.send('Ls', [this.get().path])
             },
             focusPathInput() {
                 g.setFocus([this])
@@ -106,7 +154,14 @@
                 this.session.send('Home')
             },
             up() {
-                this.session.send('Ls', [this.get().currentPath, '..'])
+                this.session.send('Ls', [this.get().path, '..'])
+            },
+            cancel() {
+                g.app.set({ openFolder: false })
+            },
+            open() {
+                const { path } = this.get()
+                g.projectSession.send('OpenProject', { path })
             }
         }
     }

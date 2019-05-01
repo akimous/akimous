@@ -53,7 +53,7 @@ persistent_config = PersistentConfig()
 @handles('OpenProject')
 async def open_project(msg, send, context):
     sc = context.shared
-    sc.project_root = Path(*msg['path']).resolve()
+    sc.project_root = Path(msg['path']).resolve()
 
     sc.project_config = persistent_config[sc.project_root]
     sc.project_dictionary_file = sc.project_root / '.akimous' / 'dictionary.json'

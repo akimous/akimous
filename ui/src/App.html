@@ -9,7 +9,9 @@
 <KeyboardControlHint ref:keyboardControlHint></KeyboardControlHint>
 <PanelPopup></PanelPopup>
 <Tooltip></Tooltip>
+{#if openFolder}
 <OpenFolder></OpenFolder>
+{/if}
 {#if popup}
 <div id="dismiss-popup" on:mousedown="dismissPopups()"></div>
 {/if}
@@ -163,6 +165,7 @@
         data() {
             return {
                 popup: false,
+                openFolder: false,
             }
         },
         methods: {

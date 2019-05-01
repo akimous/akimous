@@ -13,7 +13,7 @@ import 'devicon/devicon-colors.css'
 
 let app
 const start = performance.now()
-g.projectRoot = ['.']
+g.projectRoot = '.'
 g.ready = false
 
 const socket = new Socket(() => {
@@ -24,13 +24,14 @@ const socket = new Socket(() => {
         g.pathSeparator = data.pathSeparator
         Object.assign(config, data.config)
         console.debug('first round-trip', performance.now() - start)
-        app = new App({
-            target: document.body,
-        })
     }
     g.projectSession.handlers['ProjectOpened'] = data => {
         g.projectRoot = data.root
         Object.assign(projectConfig, data.projectConfig)
+        if (app) app.destroy()
+        app = new App({
+            target: document.body,
+        })
         g.runConfiguration.set(g.projectConfig.runConfiguration)
     }
     g.projectSession.send('OpenProject', { path: g.projectRoot })

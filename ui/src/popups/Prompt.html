@@ -4,13 +4,11 @@
         <i class="icon {icon}" aria-hidden="true"></i>
     </div>
     <div class="text">{@html content}</div>
-    <table class="non-selectable">
-        <tr>
-            {#each buttons as button}
-            <td class="td {button.style}" on:click="onClickButton(button)"> {button.text} </td>
-            {/each}
-        </tr>
-    </table>
+    <div class="buttons non-selectable">
+        {#each buttons as button}
+        <div class="button {button.style}" on:click="onClickButton(button)"> {button.text} </div>
+        {/each}
+    </div>
 </div>
 {/if}
 
@@ -20,9 +18,10 @@
         top: calc(var(--toolbar-height) * 2 + .07rem);
         left: calc(50vw - 20rem);
         font-size: var(--ui-font-size-large);
-        padding: 2rem;
+        padding: 2rem 2rem 3rem 2rem;
         cursor: default;
         z-index: 920;
+        overflow: hidden;
     }
 
     .icon-area {
@@ -47,45 +46,37 @@
         width: calc(100% - 6rem);
         position: relative;
     }
-
-    table {
-        table-layout: fixed;
-        left: 0;
-        width: var(--prompt-width);
-        height: 3rem;
+    
+    .buttons {
+        display: flex;
         position: absolute;
-        border-radius: .5rem;
-        -webkit-border-horizontal-spacing: 0;
-        -webkit-border-vertical-spacing: 0;
+        left: 0;
+        width: 100.1%;
     }
-
-    td {
+    
+    .button {
         background: var(--brighter-ui-font-color);
         color: var(--ui-prompt-color);
         font-size: var(--ui-font-size-large);
         text-align: center;
-        font-weight: bold;
+        font-weight: 400;
+        flex-basis: 0;
+        flex-grow: 1;
+        height: 3rem;
+        line-height: 3rem;
     }
-
-    td:hover {
+    
+    .button:hover {
         filter: brightness(110%);
     }
 
-    table tr:last-child td:first-child {
-        border-bottom-left-radius: .5rem;
-    }
-
-    table tr:last-child td:last-child {
-        border-bottom-right-radius: .5rem;
-    }
-
     .success {
-        background: var(--brighter-green);
+        background: var(--green);
         color: var(--gray9);
     }
 
     .dismiss {
-        background: var(--gray7);
+        background: var(--gray8);
         color: var(--primary2);
     }
 

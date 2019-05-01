@@ -24,7 +24,9 @@
             text: 'Open Folder...',
             hotkey: '⌘O',
             icon: 'fas fa-folder-open',
-            callback: () => {}
+            callback: () => {
+                g.app.set({ openFolder: true })
+            }
         }, {
             text: 'Close',
             hotkey: '⌘W',

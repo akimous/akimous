@@ -9,7 +9,7 @@ handles = partial(register_handler, 'openFolder')
 async def list_folders(path, send):
     content = sorted(i.name for i in path.iterdir() if not i.is_file() and not i.name.startswith('.'))
     await send('Listed', {
-        'currentPath': str(path),
+        'path': str(path),
         'list': content
     })
 
