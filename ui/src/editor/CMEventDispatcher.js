@@ -193,11 +193,11 @@ class CMEventDispatcher {
                         if (!cm.somethingSelected())
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
 
-                        // TODO: move completionProvider above formatter
+                        // TODO: move completionProvider before formatter may yield better performance
                         input = c.text[0] // might change after handled by formatter, so reassign
                         const isInputDot = /\./.test(input)
 
-                        const inputShouldTriggerPrediction = () => {
+                        const shouldTriggerPrediction = () => {
                             if (isInputDot) return true
                             if (t0.type === 'number') return false
                             if (completionProvider.state !== CLOSED) return false
@@ -209,7 +209,7 @@ class CMEventDispatcher {
                         const newLineContent = lineContent.slice(0, cursor.ch) + input + lineContent.slice(cursor.ch)
                         shouldDismissCompletionOnCursorActivity = false
 
-                        if (inputShouldTriggerPrediction()) {
+                        if (shouldTriggerPrediction()) {
                             completionProvider.trigger(
                                 newLineContent,
                                 newCursor.line,

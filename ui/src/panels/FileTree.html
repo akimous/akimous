@@ -29,6 +29,7 @@
     import g from '../lib/Globals'
     import { binarySearch, initializeTabView } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
+    import isEqual from 'lodash.isequal'
 
     function sortAndAddUid(arr) {
         return arr.sort().map(i => {
@@ -52,6 +53,7 @@
         oncreate() {
             this.name = 'fileTree'
             g.fileTree = this
+            this.pendingSelection = null
             initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
             g.setFocus([g.panelLeft, g.fileTree])
 
@@ -85,7 +87,7 @@
                 node.set({
                     name: newName
                 })
-                // change paths to opened files
+                // change paths of opened files
                 parent.get()[target].find(x => x.name == oldName).name = newName
                 sortChildren(parent, target)
                 if (target === 'files') {
@@ -104,12 +106,20 @@
                     const arr = node.get()[target]
                     const name = path[path.length - 1]
                     const position = binarySearch(arr, name)
-                    if (eventType === 'created')
+                    if (eventType === 'created') {
                         arr.splice(position, 0, {
                             name,
                             uid: g.uid
                         })
-                    else if (eventType === 'deleted') {
+                        // select newly created file or folder
+                        if (isEqual(this.pendingSelection, path)) {
+                            this.pendingSelection = null
+                            setTimeout(() => {
+                                const node = this.getNode(path)
+                                node.onClick()
+                            })
+                        }
+                    } else if (eventType === 'deleted') {
                         if (name === arr[position].name)
                             arr.splice(position, 1)
                         else return false

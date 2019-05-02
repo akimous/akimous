@@ -58,7 +58,7 @@
     import comment from 'codemirror/addon/comment/comment'
     import activeline from 'codemirror/addon/selection/active-line'
     import searchcursor from 'codemirror/addon/search/searchcursor'
-    // TODO: current code folding implementation may cause performance problems
+    // TODO: current code folding implementation (especially fold gutter) may cause performance problems
     import foldcode from 'codemirror/addon/fold/foldcode'
     import foldgutter from 'codemirror/addon/fold/foldgutter'
     import indentFold from 'codemirror/addon/fold/indent-fold'
@@ -233,6 +233,8 @@
                     indentWithTabs: indentWithTabs,
                     lineNumbers: true,
                     autofocus: true,
+                    viewportMargin: 20,
+
                     // addons
                     matchBrackets: true, // edit/matchbrackets
                     autoCloseBrackets: true, // edit/closebrackets

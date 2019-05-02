@@ -67,7 +67,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import { binarySearch } from '../lib/Utils'
+    import { binarySearch, schedule } from '../lib/Utils'
 
     import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
     import pressure from 'pressure'
@@ -153,13 +153,13 @@
                 self: this
             })
 
-            g.fileTree.on('cancelAllSelection', () => {
-                this.set({ selected: false })
-            })
-
-            // todo: find a way to move event handler outside
-            pressure.set(this.refs.row, {
-                startDeepPress: () => { this.rename() }
+            schedule(() => {
+                this.cancelAllSelectionListener = g.fileTree.on('cancelAllSelection', () => {
+                    this.set({ selected: false })
+                })
+                pressure.set(this.refs.row, {
+                    startDeepPress: () => { this.rename() }
+                })
             })
 
             if (this.get().placeholderMode)
@@ -168,6 +168,7 @@
             this.keyEventHandler = keyEventHandler
         },
         ondestroy() {
+            this.cancelAllSelectionListener && this.cancelAllSelectionListener.cancel()
             this.removeChildren()
             if (this.get().selected) {
                 try {
@@ -236,9 +237,7 @@
                 const { selected } = this.get()
                 if (selected) return
                 g.fileTree.fire('cancelAllSelection')
-                this.set({
-                    selected: true
-                })
+                this.set({ selected: true })
                 g.setFocus([g.panelLeft, g.fileTree, this])
             },
             onDoubleClick() {
@@ -308,6 +307,10 @@
                         } else if (newNode === 'dir') {
                             g.fileTree.session.send('CreateDir', { path })
                         }
+                        if (newNode) {
+                            // select newly created node after file tree updated
+                            g.fileTree.pendingSelection = path
+                        }
                     } else {
                         g.fileTree.session.send('Rename', {
                             path: this.getPath(),
@@ -327,7 +330,6 @@
             newFile() {
                 this.set({ newNode: 'file' })
                 this.refs.placeholderNode.rename()
-                //TODO: focus on new file
             },
             newFolder() {
                 this.set({ newNode: 'dir' })
