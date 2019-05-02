@@ -57,6 +57,7 @@ ptyprocess = "^0.6.0"
 jupyter_client = "^5.2"
 ipykernel = "^5.1"
 toml = "^0.10.0" # required by isort
+Send2Trash = "^1.5"
 
 [tool.poetry.dev-dependencies]
 pandas = "^0.24.0"

@@ -105,7 +105,9 @@
     }, {
         text: 'Delete',
         icon: 'fas fa-trash',
-        callback: () => {}
+        callback: (target) => {
+            target.delete()
+        }
     }, {
         text: 'Show in File Manager',
         icon: 'fas fa-external-link-alt',
@@ -334,6 +336,11 @@
             newFolder() {
                 this.set({ newNode: 'dir' })
                 this.refs.placeholderNode.rename()
+            },
+            delete() {
+                g.fileTree.session.send('Delete', {
+                    path: this.getPath(),
+                })
             },
             sibling(direction) {
                 const { parent, isDir } = this.get()

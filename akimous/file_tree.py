@@ -1,10 +1,13 @@
 import os
 from functools import partial
 from pathlib import Path
+from shutil import rmtree
 
 from logzero import logger
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+from send2trash import send2trash
+from send2trash.exceptions import TrashPermissionError
 
 from .websocket import register_handler
 
@@ -171,3 +174,21 @@ async def create_dir(msg, send, context):
             await send(
                 'Failed',
                 f'Failed to create folder "<b>{dir_name}</b>". {e.strerror}')
+
+
+@handles('Delete')
+async def delete(msg, send, context):
+    path = Path(context.shared.project_root, *msg['path']).resolve()
+    name = msg['path'][-1]
+    try:
+        try:
+            send2trash(str(path))
+            await send('Done', f'"<b>{name}</b>" moved to trash.')
+        except TrashPermissionError:
+            if path.is_dir():
+                rmtree(str(path))
+            else:
+                path.unlink()
+            await send('Done', f'"<b>{name}</b>" deleted.')
+    except OSError as e:
+        await send('Failed', f'Failed to delete "<b>{name}</b>". {e.strerror}')
