@@ -72,6 +72,12 @@
     import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
     import pressure from 'pressure'
 
+    const copyPath = {
+        text: 'Copy Path',
+        icon: 'fas fa-link',
+        clipboardText: null
+    }
+    
     const contextMenu = [{
         text: 'New File',
         icon: 'far fa-file',
@@ -111,13 +117,11 @@
     }, {
         text: 'Show in File Manager',
         icon: 'fas fa-external-link-alt',
-        callback: () => {}
-    }, {
-        text: 'Copy Path',
-        icon: 'fas fa-link',
-        callback: () => {}
-    }]
-
+        callback: (target) => {
+            target.openInFileManager()
+        }
+    }, copyPath]
+    
     const keyEventHandler = {
         handleKeyEvent(e, target) {
             if (!target.get().renaming) return true
@@ -268,6 +272,7 @@
             onContextMenu(e) {
                 g.fileTree.fire('cancelAllSelection')
                 this.set({ selected: true })
+                copyPath.clipboardText = this.getAbsolutePath()
                 g.contextMenu.set({
                     open: true,
                     x: e.clientX,
@@ -406,6 +411,17 @@
                 g.panelRight.activateView(g.panelRight.refs.find)
                 g.setFocus([g.panelRight, g.find])
                 g.find.refs.findText.focus()
+            },
+            openInFileManager() {
+                g.fileTree.session.send('OpenInFileManager', {
+                    path: this.getPath(),
+                })
+            },
+            getAbsolutePath() {
+                const path = g.projectRoot.concat(this.getPath())
+                let pathString = path.join(g.pathSeparator)
+                pathString = pathString.replace(g.pathSeparator + g.pathSeparator, g.pathSeparator)
+                return pathString
             }
         }
     }

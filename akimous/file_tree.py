@@ -1,4 +1,6 @@
 import os
+import platform
+from subprocess import Popen
 from functools import partial
 from pathlib import Path
 from shutil import rmtree
@@ -192,3 +194,16 @@ async def delete(msg, send, context):
             await send('Done', f'"<b>{name}</b>" deleted.')
     except OSError as e:
         await send('Failed', f'Failed to delete "<b>{name}</b>". {e.strerror}')
+
+
+@handles('OpenInFileManager')
+async def open_in_file_manager(msg, send, context):
+    path = Path(context.shared.project_root, *msg['path']).resolve()
+    if platform.system() == 'Windows':
+        Popen(['explorer', '/select,', str(path)])
+    elif platform.system() == 'Darwin':
+        path = str(path.parent) if path.is_file() else str(path)
+        Popen(['open', path])
+    else:
+        path = str(path.parent) if path.is_file() else str(path)
+        Popen(['xdg-open', path])
