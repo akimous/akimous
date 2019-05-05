@@ -53,7 +53,7 @@
         oncreate() {
             this.name = 'fileTree'
             g.fileTree = this
-            this.pendingSelection = null
+            this.nodeCreatedCallbacks = {}
             initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
             g.setFocus([g.panelLeft, g.fileTree])
 
@@ -112,11 +112,12 @@
                             uid: g.uid
                         })
                         // select newly created file or folder
-                        if (isEqual(this.pendingSelection, path)) {
-                            this.pendingSelection = null
+                        const stringifiedPath = JSON.stringify(path)
+                        const callback = this.nodeCreatedCallbacks[stringifiedPath]
+                        if (callback) {
+                            delete this.nodeCreatedCallbacks[stringifiedPath]
                             setTimeout(() => {
-                                const node = this.getNode(path)
-                                node.onClick()
+                                callback(this.getNode(path))
                             })
                         }
                     } else if (eventType === 'deleted') {
@@ -314,6 +315,9 @@
                 const anyNode = Object.values(this.children)[0]
                 if (!anyNode) return
                 anyNode.lastChild.bind(this)().onClick()
+            },
+            addNodeCreatedCallback(path, callback) {
+                this.nodeCreatedCallbacks[JSON.stringify(path)] = callback
             }
         }
     }

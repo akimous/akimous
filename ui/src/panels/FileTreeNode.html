@@ -93,7 +93,9 @@
     }, {
         text: 'New Python Module',
         icon: 'fas fa-cube',
-        callback: () => {}
+        callback: (target) => {
+            target.newModule()
+        }
     }, {
         divider: true
     }, {
@@ -146,6 +148,7 @@
         components: {},
         oncreate() {
             this.children = {}
+            this.renamingCommittedCallback = null
 
             // set icon
             let icon
@@ -309,15 +312,8 @@
                         const { isDir, newNode } = parent.get()
                         if (!isDir)
                             path.splice(-2, 1) // remove if its parent is a file, not the real parent
-                        if (newNode === 'file') { // file or dir 
-                            g.fileTree.session.send('CreateFile', { path })
-                        } else if (newNode === 'dir') {
-                            g.fileTree.session.send('CreateDir', { path })
-                        }
-                        if (newNode) {
-                            // select newly created node after file tree updated
-                            g.fileTree.pendingSelection = path
-                        }
+                        if (this.renamingCommittedCallback)
+                            this.renamingCommittedCallback(path)
                     } else {
                         g.fileTree.session.send('Rename', {
                             path: this.getPath(),
@@ -337,10 +333,28 @@
             newFile() {
                 this.set({ newNode: 'file' })
                 this.refs.placeholderNode.rename()
+                this.refs.placeholderNode.renamingCommittedCallback = path => {
+                    g.fileTree.session.send('CreateFile', { path })
+                    // select newly created node after file tree updated
+                    g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
+                }
             },
             newFolder() {
                 this.set({ newNode: 'dir' })
                 this.refs.placeholderNode.rename()
+                this.refs.placeholderNode.renamingCommittedCallback = path => {
+                    g.fileTree.session.send('CreateDir', { path })
+                    g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
+                }
+            },
+            newModule() {
+                this.set({ newNode: 'dir' })
+                this.refs.placeholderNode.rename()
+                this.refs.placeholderNode.renamingCommittedCallback = path => {
+                    g.fileTree.session.send('CreateDir', { path })
+                    g.fileTree.session.send('CreateFile', { path: [...path, '__init__.py'] })
+                    g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
+                }
             },
             delete() {
                 g.fileTree.session.send('Delete', {
