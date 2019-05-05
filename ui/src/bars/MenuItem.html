@@ -19,6 +19,19 @@
 <script>
     import g from '../lib/Globals'
     import { getRem } from '../lib/Utils'
+    
+    /* eslint-disable */
+    /* Note: following Sublime commands not included in menu
+    "Cmd-Left": "goLineStartSmart",
+    "Ctrl-Alt-Up": "scrollLineUp",
+    "Ctrl-Alt-Down": "scrollLineDown",
+    "Cmd-L": "selectLine",
+    "Cmd-M": "goToBracket",
+    "Shift-Cmd-Space": "selectScope",
+    "Ctrl-Left": "goSubwordLeft",
+    "Ctrl-Right": "goSubwordRight",
+    */
+    /* eslint-enable */
     const menus = {
         File: [{
             text: 'Open Folder...',
@@ -80,29 +93,124 @@
         }, {
             divider: true
         }, {
+            text: 'Toggle Comment',
+            hotkey: '⌘/',
+            icon: 'fas fa-hashtag',
+            callback: () => g.CMCommand('toggleCommentIndented')
+        },{
+            divider: true
+        }, {
+            text: 'Insert Line Before',
+            hotkey: '⌘⇧⮐',
+            callback: () => g.CMCommand('insertLineBefore')
+        }, {
+            text: 'Insert Line After',
+            hotkey: '⌘⮐',
+            callback: () => g.CMCommand('insertLineAfter')
+        }, {
+            text: 'Join Lines',
+            hotkey: '⌘J',
+            callback: () => g.CMCommand('joinLines')
+        }, {
+            text: 'Duplicate Line',
+            hotkey: '⌘D',
+            callback: () => g.CMCommand('duplicateLine')
+        }, {
+            divider: true
+        }, {
+            text: 'Delete Line (go up)',
+            hotkey: '⌘⌫',
+            callback: () => g.CMCommand('deleteLineAndGoUp')
+        }, {
+            text: 'Delete Line (go down)',
+            hotkey: '⌘⌦',
+            callback: () => g.CMCommand('deleteLineAndGoDown')
+        }, {
+            text: 'Delete to Line Start',
+            hotkey: '⌘⇧⌫',
+            callback: () => g.CMCommand('delLineLeft')
+        }, {
+            text: 'Delete to Line End',
+            hotkey: '⌘⇧⌦',
+            callback: () => g.CMCommand('delLineRight')
+        }, {
+            divider: true
+        }, {
+            text: 'Swap Line Up',
+            icon: 'fas fa-caret-up',
+            callback: () => g.CMCommand('swapLineUp')
+        }, {
+            text: 'Swap Line Down',
+            icon: 'fas fa-caret-down',
+            callback: () => g.CMCommand('swapLineDown')
+        }, {
+            text: 'Sort Lines',
+            icon: 'fas fa-sort-alpha-down',
+            callback: () => g.CMCommand('sortLines')
+        }, {
+            text: 'Sort Lines (case-insensitive)',
+            icon: 'fas fa-sort-alpha-down',
+            callback: () => g.CMCommand('sortLinesInsensitive')
+        }, {
+            divider: true
+        }, {
+            text: 'To Upper Case',
+            callback: () => g.CMCommand('upcaseAtCursor') // eslint-disable-line
+        }, {
+            text: 'To Lower Case',
+            callback: () => g.CMCommand('downcaseAtCursor') // eslint-disable-line
+        }, ],
+        Select: [{
             text: 'Select All',
             hotkey: '⌘A',
             icon: 'far fa-check-square',
             callback: () => {}
         }, {
+            text: 'Select Next Occurrence',
+            hotkey: '⌘B',
+            icon: 'far fa-hand-point-right',
+            callback: () => g.CMCommand('selectNextOccurrence')
+        }, {
+            text: 'Select Between Brackets',
+            callback: () => g.CMCommand('selectBetweenBrackets')
+        }, {
+            divider: true
+        }, {
             text: 'Add Cursor to Previous Line',
-            hotkey: '⌥⇧↑',
+            hotkey: '⌥⌘↑',
             icon: 'fas fa-arrow-up',
-            callback: () => {}
+            callback: () => g.CMCommand('addCursorToPrevLine') // eslint-disable-line
         }, {
             text: 'Add Cursor to Next Line',
-            hotkey: '⌥⇧↓',
+            hotkey: '⌥⌘↓',
             icon: 'fas fa-arrow-down',
-            callback: () => {}
+            callback: () => g.CMCommand('addCursorToNextLine')
+        }, {
+            divider: true
+        }, {
+            text: 'Single Selection',
+            hotkey: '⎋',
+            callback: () => g.CMCommand('singleSelectionTop')
+        }, {
+            text: 'Split Selection By Line',
+            hotkey: '⌘L',
+            callback: () => g.CMCommand('splitSelectionByLine')
         }, ],
-        View: [
-            {
-                text: 'Word Wrap',
-                hotkey: '⌥⇧W',
-                icon: 'fas fa-paragraph',
-                callback: () => {}
-            },
-        ]
+        View: [{
+            divider: true
+        }, {
+            text: 'Fold',
+            hotkey: '␣ -',
+            callback: () => g.CMCommand('fold')
+        }, {
+            text: 'Unfold',
+            hotkey: '␣ =',
+            callback: () => g.CMCommand('unfold')
+        }, {
+            text: 'Unfold All',
+            hotkey: '␣ 0',
+            callback: () => g.CMCommand('unfoldAll')
+        }, ]
     }
 
     export default {

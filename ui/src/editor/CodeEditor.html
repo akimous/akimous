@@ -67,6 +67,8 @@
     import matchhighlighter from './match-highlighter'
     /* eslint-enable */
 
+    g.CodeMirror = CodeMirror
+
     registerCMCommands(CodeMirror)
     const overlayOption = {
         opaque: true,
@@ -97,7 +99,7 @@
                 let startTime = performance.now()
                 this.shouldClose = false
                 this.completion = this.refs.completion
-                
+
                 this.session = g.socket.createSession('editor', {
                     filePath: this.get().filePath
                 })
@@ -245,16 +247,29 @@
                     gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
 
                     // keymap
-                    // todo: add sublime shortcuts
                     /* eslint-disable */
                     extraKeys: {
                         'Tab': 'indentMore',
                         'Shift-Tab': 'indentLess',
                         'Cmd-/': 'toggleCommentIndented',
-                        'Cmd-Backspace': 'deleteLineAndGoLineEnd',
+                        'Cmd-Backspace': 'deleteLineAndGoUp',
+                        'Cmd-Delete': 'deleteLineAndGoDown',
                         'Cmd-D': 'duplicateLine',
                         'Cmd-J': 'joinLines',
                         'Cmd-B': 'selectNextOccurrence',
+
+                        'Ctrl-Left': 'goSubwordLeft', // should implement on LKC
+                        'Ctrl-Right': 'goSubwordRight', // should implement on LKC
+                        'Cmd-L': 'splitSelectionByLine', // change not visible, need modification
+                        'Esc': 'singleSelectionTop',
+                        'Cmd-Enter': 'insertLineAfter',
+                        'Shift-Cmd-Enter': 'insertLineBefore',
+                        'Backspace': 'smartBackspace',
+
+                        "Shift-Cmd-Backspace": "delLineLeft",
+                        "Shift-Cmd-Delete": "delLineRight",
+                        "Cmd-Alt-Up": "addCursorToPrevLine",
+                        "Cmd-Alt-Down": "addCursorToNextLine",
                     }
                     /* eslint-enable */
                 })
@@ -330,7 +345,7 @@
                         cm.refresh()
                         this.session.send('ActivateEditor')
                     })
-                    
+
                 }
             }
             if (changed.highlightOverlay) {

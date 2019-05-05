@@ -12,9 +12,15 @@ function registerCMCommands(CodeMirror) {
         cm.setExtending(false)
     }
 
-    commands.deleteLineAndGoLineEnd = cm => {
+    commands.deleteLineAndGoUp = cm => {
         cm.execCommand('deleteLine')
+        cm.execCommand('goLineUp')
         cm.execCommand('goLineEnd')
+    }
+
+    commands.deleteLineAndGoDown = cm => {
+        cm.execCommand('deleteLine')
+        cm.execCommand('goLineStartSmart')
     }
 
     commands.duplicateLine = cm => {
@@ -54,44 +60,10 @@ function registerCMCommands(CodeMirror) {
         cm.extendSelection(pos)
     }
 
-
-    function moveLines(cm, direction) {
-        cm.operation(() => {
-            const selections = []
-            for (const range of cm.listSelections()) {
-                const from = Pos(range.from().line, 0)
-                const rangeTo = range.to()
-                const to = Pos(rangeTo.line + (rangeTo.ch > 0 ? 1 : 0), 0)
-                const needSelect = CodeMirror.cmpPos(range.anchor, range.head) !== 0
-                const selectedLines = cm.getRange(from, to)
-                const newString = direction > 0 ?
-                    cm.getLine(to.line) + '\n' + selectedLines :
-                    selectedLines + cm.getLine(from.line - 1) + '\n'
-                if (direction > 0) to.line += 1
-                else from.line -= 1
-                cm.replaceRange(newString, from, to)
-                if (needSelect) {
-                    if (direction > 0) from.line += 1
-                    else to.line -= 1
-                    selections.push({
-                        anchor: from,
-                        head: to
-                    })
-                } else {
-                    range.anchor.line += direction
-                    selections.push(range)
-                }
-            }
-            cm.setSelections(selections)
-        })
-    }
-    commands.moveLineUp = cm => moveLines(cm, -1)
-    commands.moveLineDown = cm => moveLines(cm, 1)
-
     commands.toggleCommentIndented = cm => {
         cm.toggleComment({
             indent: true,
-            padding: ''
+            padding: ' '
         })
         if (cm.doc.somethingSelected()) return
         cm.execCommand('goLineDown')
@@ -409,7 +381,7 @@ function registerCMCommands(CodeMirror) {
             return tail || range.to()
         })
     }
-    
+
     commands.fold = cm => {
         const cursor = cm.getCursor()
         cm.foldCode(cursor, {

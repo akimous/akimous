@@ -18,8 +18,8 @@ const editorCommandKeyMap = {
     'KeyD': 'scrollDown',
     'KeyC': 'focusAtCenter',
     
-    'KeyW': 'moveLineUp',
-    'KeyS': 'moveLineDown',
+    'KeyW': 'swapLineUp',
+    'KeyS': 'swapLineDown',
     
     'KeyR': 'selectLine',
     'KeyT': 'selectScope',
@@ -29,7 +29,9 @@ const editorCommandKeyMap = {
     'Backspace': 'delGroupBefore',
     'Delete': 'delGroupAfter',
     
+    'Digit0': 'unfoldAll',
     'Minus': 'fold',
+    'Equal': 'unfold',
 }
 
 const genericCommandKeyMap = {

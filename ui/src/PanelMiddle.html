@@ -175,7 +175,6 @@
                 const editor = this.getEditor(filePath)
                 // if the file has been edited, prompt for saving
                 if (!editor.get().clean) {
-                    // todo: close completion, blur editor
                     g.prompt.open({
                         icon: 'far fa-hdd',
                         content: `Do you want to save the changes you made in <em>${editor.get().fileName}</em> ?`,

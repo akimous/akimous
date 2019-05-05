@@ -27,7 +27,7 @@ function bindHotkeys() {
         g.find.refs.findText.focus()
     })
 
-    hotkey('mod + alt + f', () => {
+    const replaceMode = () => {
         g.panelRight.activateView(g.find)
         g.setFocus([g.panelRight, g.find])
         g.find.set({ 
@@ -35,7 +35,9 @@ function bindHotkeys() {
             findInDirectory: null,
         })
         g.find.refs.findText.focus()
-    })
+    }
+    hotkey('mod + alt + f', replaceMode)
+    hotkey('mod + h', replaceMode)
 
     hotkey('mod + g', () => {
         g.find.find(1)
@@ -83,7 +85,7 @@ function bindHotkeys() {
     hotkey('f2', () => {
         g.panelLeft.tabBar.switchToTab(2)
     })
-    for (let i = 1; i < 8; i++)
+    for (let i = 1; i < 6; i++)
         hotkey('f' + (i + 2), () => {
             g.panelRight.tabBar.switchToTab(i)
         })

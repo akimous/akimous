@@ -127,8 +127,9 @@
                     "stackoverflow",
                     "stdin",
                     "stdout",
-                    "subdirectory",
                     "str",
+                    "stringified",
+                    "subdirectory",
                     "timestamp",
                     "tooltip",
                     "traceback",
@@ -151,7 +152,8 @@
                     "cmpPos",
                     "coordsChar",
                     "composition",
-                    "edit/"
+                    "edit/",
+                    "__"
                 ],
                 "skipWordIfMatch": [
                     "px"

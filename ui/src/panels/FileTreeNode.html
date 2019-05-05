@@ -309,7 +309,7 @@
                     if (this.get().placeholderMode) {
                         this.set({ name: this.refs.input.value })
                         const path = this.getPath()
-                        const { isDir, newNode } = parent.get()
+                        const { isDir } = parent.get()
                         if (!isDir)
                             path.splice(-2, 1) // remove if its parent is a file, not the real parent
                         if (this.renamingCommittedCallback)

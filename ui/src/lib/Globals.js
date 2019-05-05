@@ -83,6 +83,12 @@ const g = {
                 editor.save()
         }
     },
+    CMCommand(command) {
+        if (!g.activeEditor) return
+        const { cm } = g.activeEditor
+        if (!cm) return
+        cm.execCommand(command)
+    },
     get uid() {
         return _uid++
     },
