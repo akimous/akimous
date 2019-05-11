@@ -11,6 +11,11 @@ import livereload from 'rollup-plugin-livereload'
 const production = !process.env.ROLLUP_WATCH
 
 export default {
+    external: [
+        '/macro.js',
+        '/user/macro.js',
+        '/katex.js',
+    ],
     watch: {
         chokidar: false,
         exclude: 'node_modules/**',

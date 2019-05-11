@@ -106,11 +106,11 @@
 
             // load macros
             const macros = {}
-            import('./macro.js').then(({ default: defaultMacros }) => {
+            import('/macro.js').then(({ default: defaultMacros }) => {
                 for (const macro of defaultMacros) {
                     macros[macro.hotkey] = macro
                 }
-                import('./user/macro.js').then(({ default: userMacros }) => {
+                import('/user/macro.js').then(({ default: userMacros }) => {
                     for (const macro of userMacros) {
                         macros[macro.hotkey] = macro
                     }

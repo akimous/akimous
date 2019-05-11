@@ -67,7 +67,7 @@
     function katex(callback) {
         if (_katex) return callback(_katex)
 
-        import('./katex.js').then(({ default: k }) => {
+        import('/katex.js').then(({ default: k }) => {
             // load CSS
             const style = document.createElement('link')
             style.href = 'katex.min.css'
