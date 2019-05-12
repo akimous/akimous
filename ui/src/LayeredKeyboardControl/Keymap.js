@@ -10,13 +10,15 @@ const editorCommandKeyMap = {
     'KeyO': 'goLineDown5X',
     'KeyY': 'goDocStart',
     'KeyP': 'goDocEnd',
+    'KeyM': 'goSubwordLeft',
+    'Comma': 'focusAtCenter',
+    'Period': 'goSubwordRight',
     
     'BracketLeft': 'goToPreviousBracket',
     'BracketRight': 'goToNextBracket',
     
     'KeyE': 'scrollUp',
     'KeyD': 'scrollDown',
-    'KeyC': 'focusAtCenter',
     
     'KeyW': 'swapLineUp',
     'KeyS': 'swapLineDown',
@@ -51,11 +53,11 @@ const genericCommandKeyMap = {
     
     'Space': 'commit',
     
-    'KeyN': 'togglePanelLeft',
-    'KeyM': 'panelLeft',
-    'Comma': 'panelMiddle',
-    'Period': 'panelRight',
-    'Slash': 'togglePanelRight',
+    'KeyZ': 'togglePanelLeft',
+    'KeyX': 'panelLeft',
+    'KeyC': 'panelMiddle',
+    'KeyV': 'panelRight',
+    'KeyB': 'togglePanelRight',
     
     'Digit1': '1',
     'Digit2': '2',

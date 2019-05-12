@@ -66,11 +66,11 @@
     </ul>
     <ul class="row">
         <li class="key" id="key-ShiftLeft" on:mouseover="showDescription('ShiftLeft')">⇧</li>
-        <li class="key" id="key-Z" on:mouseover="showDescription('Z')"></li>
-        <li class="key" id="key-X" on:mouseover="showDescription('X')"></li>
+        <li class="key" id="key-Z" on:mouseover="showDescription('Z')">{@html keys[mode].Z}</li>
+        <li class="key" id="key-X" on:mouseover="showDescription('X')">{@html keys[mode].X}</li>
         <li class="key" id="key-C" on:mouseover="showDescription('C')">{@html keys[mode].C}</li>
-        <li class="key" id="key-V" on:mouseover="showDescription('V')"></li>
-        <li class="key" id="key-B" on:mouseover="showDescription('B')"></li>
+        <li class="key" id="key-V" on:mouseover="showDescription('V')">{@html keys[mode].V}</li>
+        <li class="key" id="key-B" on:mouseover="showDescription('B')">{@html keys[mode].B}</li>
         <li class="key" id="key-N" on:mouseover="showDescription('N')">{@html keys[mode].N}</li>
         <li class="key" id="key-M" on:mouseover="showDescription('M')">{@html keys[mode].M}</li>
         <li class="key" id="key-Comma" on:mouseover="showDescription('Comma')">{@html keys[mode].Comma}</li>
@@ -79,7 +79,7 @@
         <li class="key" id="key-ShiftRight" on:mouseover="showDescription('ShiftRight')">⇧</li>
     </ul>
     <ul class="row" id="bottomrow">
-        <li class="key">fn</li>
+        <li class="key" id="key-Fn" on:mouseover="showDescription('Fn')">fn</li>
         <li class="key" id="key-ControlLeft" on:mouseover="showDescription('ControlLeft')">⌃</li>
         <li class="key" id="key-AltLeft" on:mouseover="showDescription('AltLeft')">⌥</li>
         <li class="key" id="key-MetaLeft" on:mouseover="showDescription('MetaLeft')">⌘</li>
@@ -230,23 +230,24 @@
     :global(#keyboard-control-hint .active) {
         box-shadow: var(--blue) 0 0 0 .2rem;
     }
-    
+
     :global(#keyboard-control-hint .highlight) {
         animation-name: highlight-animation;
         animation-duration: 1s;
     }
-    
+
     @keyframes highlight-animation {
         0% {
             background: var(--blue);
             border-top: .05rem solid var(--blue);
             border-bottom: .05rem solid var(--blue);
         }
+
         100% {
             background: var(--darker-color);
         }
     }
-    
+
     :global(#keyboard-control-hint .persistent-highlight) {
         background: var(--blue);
     }
@@ -262,6 +263,9 @@
         components: {},
         oncreate() {
             g.keyboardControlHint = this
+            this.set({
+                description: this.get().descriptions.normal.Space
+            })
         },
         onstate({ changed, current }) {
             if (changed.open && g.toolbar && g.toolbar.refs.keyboardControlHint) {
@@ -274,7 +278,7 @@
             if (changed.open && g.toolbar) {
                 if (current.open) {
                     dragElement(this.refs.self)
-                } 
+                }
             }
         },
         data() {
@@ -298,10 +302,10 @@
                         Minus: '<div class="l-magenta">-</div>',
                         Equal: '<div class="l-magenta">+</div>',
 
-                        W: '<div class="bigger l-yellow">⤉</div>',
-                        E: '<div class="bigger lower l-ao">⇞</div>',
-                        R: '<div class="bigger l-purple">—</div>',
-                        T: '<i class="fas fa-square l-purple"></i>',
+                        W: '<div class="bigger l-red">⤉</div>',
+                        E: '<div class="bigger lower l-orange">⇞</div>',
+                        R: '<div class="bigger l-yellow">—</div>',
+                        T: '<i class="fas fa-square l-yellow"></i>',
                         Y: '<div class="bigger l-green">⇱</div>',
                         U: '<div class="two-lines l-green">▲<br>x5</div>',
                         I: '<div class="l-blue">▲</div>',
@@ -310,22 +314,27 @@
                         BracketLeft: '<div class="l-olive"><b>[</b></div>',
                         BracketRight: '<div class="l-olive"><b>]</b></div>',
 
-                        S: '<div class="bigger l-yellow">⤈</div>',
-                        D: '<div class="bigger lower l-ao">⇟</div>',
-                        F: '<i class="fas fa-mouse-pointer l-purple"></i>',
-                        G: '<b><div class="l-purple">{ }</div></b>',
+                        S: '<div class="bigger l-red">⤈</div>',
+                        D: '<div class="bigger lower l-orange">⇟</div>',
+                        F: '<i class="fas fa-mouse-pointer l-yellow"></i>',
+                        G: '<b><div class="l-yellow">{ }</div></b>',
                         H: '<i class="fas fa-fast-backward l-green"></i>',
                         J: '<div class="l-blue">◀</div>',
                         K: '<div class="l-blue">▼</div>',
                         L: '<div class="l-blue">▶</div>',
                         Semicolon: '<i class="fas fa-fast-forward l-green"></i>',
 
-                        C: '<div class="l-orange">℄</div>',
-                        N: '<b><span class="l-purple">|</span> ||</b>',
-                        M: '<b><span class="l-blue">|</span> ||</b>',
-                        Comma: '<b>| <span class="l-blue">|</span> |</b>',
-                        Period: '<b>|| <span class="l-blue">|</span></b>',
-                        Slash: '<b>|| <span class="l-purple">|</span></b>',
+                        Z: '<b><span class="l-magenta">|</span> ||</b>',
+                        X: '<b><span class="l-blue">|</span> ||</b>',
+                        C: '<b>| <span class="l-blue">|</span> |</b>',
+                        V: '<b>|| <span class="l-blue">|</span></b>',
+                        B: '<b>|| <span class="l-magenta">|</span></b>',
+
+                        N: '',
+                        M: '<div class="two-lines l-ao">◀<br>sub</div>',
+                        Comma: '<div class="l-purple">℄</div>',
+                        Period: '<div class="two-lines l-ao">▶<br>sub</div>',
+                        Slash: '',
                     }
                 },
                 descriptions: {
@@ -366,12 +375,17 @@
                         L: 'Move the cursor right by a word',
                         Semicolon: 'Move the cursor to the end of the line',
 
-                        C: 'Move the cursor to the center line in the viewport',
-                        N: 'Toggle auto-hide of the left panel',
-                        M: 'Focus on the left panel',
-                        Comma: 'Focus on the editor',
-                        Period: 'Focus on the right panel',
-                        Slash: 'Toggle auto-hide of the right panel',
+                        Z: 'Toggle auto-hide of the left panel',
+                        X: 'Focus on the left panel',
+                        C: 'Focus on the editor',
+                        V: 'Focus on the right panel',
+                        B: 'Toggle auto-hide of the right panel',
+
+                        N: '',
+                        M: 'Move the cursor left by a sub-word',
+                        Comma: 'Move the cursor to the center line in the viewport',
+                        Period: 'Move the cursor right by a sub-word',
+                        Slash: '',
 
                         Space: '<div class="small">Hold down the space bar and tap on one of the keys with colored icon to execute the command.</div>'
                     }
@@ -381,12 +395,18 @@
         methods: {
             showDescription(key) {
                 const { open, mode, descriptions } = this.get()
-                if (!open) return 
+                if (!open) return
                 const description = descriptions[mode][key]
-                this.set({ description: description ? description : '' })
                 for (const element of document.querySelectorAll('#keyboard-control-hint .active')) {
                     element.classList.remove('active')
                 }
+                if (!description) {
+                    this.set({
+                        description: descriptions.normal.Space
+                    })
+                    return
+                }
+                this.set({ description })
                 document.getElementById(`key-${key}`).classList.add('active')
             },
             highlight(key) {
