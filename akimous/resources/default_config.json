@@ -19,5 +19,8 @@
   "macro": {
     "macroFormatWithShift": "${NAME} = "
   },
+  "keyboardHint": {
+    "open": false
+  },
   "lastOpenedFolder": null
 }

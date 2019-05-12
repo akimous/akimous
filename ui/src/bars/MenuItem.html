@@ -197,8 +197,6 @@
             callback: () => g.CMCommand('splitSelectionByLine')
         }, ],
         View: [{
-            divider: true
-        }, {
             text: 'Fold',
             hotkey: '␣ -',
             callback: () => g.CMCommand('fold')
@@ -210,7 +208,31 @@
             text: 'Unfold All',
             hotkey: '␣ 0',
             callback: () => g.CMCommand('unfoldAll')
-        }, ]
+        }, ],
+        'Go To': [{
+            text: 'Line',
+            hotkey: '⌘L',
+            icon: 'fas fa-grip-lines',
+        }, {
+            text: 'Last Edit Location',
+            icon: 'fas fa-arrow-left',
+        }, {
+            text: 'Next Edit Location',
+            icon: 'fas fa-arrow-right',
+        }, {
+            divider: true
+        }, {
+            text: 'Definition',
+        }, {
+            text: 'Usages',
+        }, ],
+        Help: [{
+            text: 'Website',
+            icon: 'fas fa-globe',
+        }, {
+            text: 'Documentation',
+            icon: 'fas fa-book',
+        },]
     }
 
     export default {
