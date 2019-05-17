@@ -19,7 +19,7 @@
 <script>
     import g from '../lib/Globals'
     import { getRem } from '../lib/Utils'
-    
+
     /* eslint-disable */
     /* Note: following Sublime commands not included in menu
     "Cmd-Left": "goLineStartSmart",
@@ -97,7 +97,7 @@
             hotkey: '⌘/',
             icon: 'fas fa-hashtag',
             callback: () => g.CMCommand('toggleCommentIndented')
-        },{
+        }, {
             divider: true
         }, {
             text: 'Insert Line Before',
@@ -209,17 +209,23 @@
             hotkey: '␣ 0',
             callback: () => g.CMCommand('unfoldAll')
         }, ],
-        'Go To': [{
+        Go: [{
             text: 'Line',
             hotkey: '⌘L',
             icon: 'fas fa-grip-lines',
+            callback: () => g.commandPalette.promptForInput('Go to line:', (line) => {
+                console.log('meow')
+                if (!g.activeEditor) return
+                g.activeEditor.cm.setCursor(+line - 1, 0)
+                g.CMCommand('goLineStartSmart')
+            })
         }, {
-            text: 'Last Edit Location',
-            icon: 'fas fa-arrow-left',
-        }, {
-            text: 'Next Edit Location',
-            icon: 'fas fa-arrow-right',
-        }, {
+            //     text: 'Last Edit Location',
+            //     icon: 'fas fa-arrow-left',
+            // }, {
+            //     text: 'Next Edit Location',
+            //     icon: 'fas fa-arrow-right',
+            // }, {
             divider: true
         }, {
             text: 'Definition',
@@ -229,10 +235,12 @@
         Help: [{
             text: 'Website',
             icon: 'fas fa-globe',
+            callback: () => window.open('https://akimous.com', '_blank'),
         }, {
             text: 'Documentation',
             icon: 'fas fa-book',
-        },]
+            callback: () => window.open('https://akimous.com/doc', '_blank'),
+        }, ]
     }
 
     export default {

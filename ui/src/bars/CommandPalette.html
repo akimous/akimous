@@ -1,0 +1,86 @@
+<div id="command-palette" class="non-selectable" class:gone="!active">
+    <span class="message">{message}</span>
+    <input ref:input type="text" on:keydown="onKeyDown()" />
+</div>
+
+
+<style>
+    #command-palette {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: var(--toolbar-height);
+        line-height: var(--toolbar-height);
+        z-index: 240;
+        color: var(--brighter-ui-font-color);
+        text-align: center;
+        vertical-align: middle;
+        background: var(--blue);
+    }
+
+    .message {
+        margin-right: .5rem;
+    }
+
+    input {
+        min-width: 30%;
+        background: transparent;
+        border: none;
+        color: white;
+        font-family: var(--ui-font-family);
+        font-weight: 300;
+    }
+
+    input:focus {
+        outline: none;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+
+    export default {
+        components: {},
+        oncreate() {
+            g.commandPalette = this
+        },
+        onupdate({ changed, current }) {
+            if (changed.active && current.active) {
+                g.setFocus([this])
+                this.refs.input.focus()
+            }
+        },
+        data() {
+            return {
+                active: false,
+                message: '',
+                callback: null,
+            }
+        },
+        methods: {
+            show() {
+                this.set({
+                    active: true,
+                    message: 'Command:'
+                })
+            },
+            promptForInput(message, callback) {
+                this.set({
+                    active: true,
+                    message,
+                    callback
+                })
+            },
+            onKeyDown() {
+                if (event.key === 'Enter') {
+                    const input = this.refs.input.value
+                    this.get().callback(input)
+                    this.set({ active: false })
+                }
+            }
+        }
+    }
+
+</script>
