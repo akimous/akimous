@@ -25,18 +25,10 @@
 }
 
 @font-face {
-    font-family: 'Source Code Pro';
+    font-family: "DejaVuSansMono";
     font-style: normal;
-    font-weight: 400;
-    src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(fonts/source-code-pro-v8-regular.woff2);
-    font-display: block;
-}
-
-@font-face {
-    font-family: 'Inconsolata';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Inconsolata Regular'), local('Inconsolata-Regular');
+    font-weight: normal;
+    src: url(fonts/DejaVuSansMono.woff2);
     font-display: block;
 }
 
@@ -81,8 +73,8 @@
     --ui-line-height-large: 1.7rem;
 
     --monospace-font-color: var(--gray8);
-    --monospace-font-family: 'Inconsolata', 'Source Code Pro', 'Menlo', 'Consola', monospace;
-    --monospace-font-size: 1.3rem;
+    --monospace-font-family: 'DejaVuSansMono', 'Menlo', 'Consola', monospace;
+    --monospace-font-size: 1.1rem;
     --monospace-line-height: 1.4rem;
 
     --popup-bg-color: var(--gray9);
@@ -118,7 +110,7 @@
     --purple: #8e44ad;
     --brighter-purple: #9b59b6;
     --darker-purple: #6F3587;
-    
+
     --magenta: #CC66BE;
     --brighter-magenta: #FF80EE;
 

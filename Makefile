@@ -12,7 +12,6 @@ install:
 
 bootstrap:
 	cd ui && yarn install
-	poetry install
 
 clean:
 	mkdir -p dist
