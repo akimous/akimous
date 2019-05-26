@@ -130,6 +130,7 @@
                     "str",
                     "stringified",
                     "subdirectory",
+                    "subword",
                     "timestamp",
                     "tooltip",
                     "traceback",
@@ -153,7 +154,8 @@
                     "coordsChar",
                     "composition",
                     "edit/",
-                    "__"
+                    "__",
+                    "DejaVuSansMono"
                 ],
                 "skipWordIfMatch": [
                     "px"

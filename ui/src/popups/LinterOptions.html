@@ -1,5 +1,5 @@
 {#if open}
-<div ref:linterOptions id="linter-options" class="popup">
+<div ref:linterOptions id="linter-options" class="popup" style="left: calc({left}px - 10rem);">
     <div class="container non-selectable">
         <div class="title">Real-Time Formatter</div>
         <div class="message">Format code as you type.</div>
@@ -154,6 +154,7 @@
         data() {
             return {
                 open: false,
+                left: 0,
                 realtime: config.formatter.realtime,
                 pyflakes: config.linter.pyflakes,
                 spellChecker: config.linter.spellChecker,

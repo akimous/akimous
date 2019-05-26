@@ -1,5 +1,5 @@
 {#if open}
-<div ref:runConfiguration id="run-configuration" class="popup">
+<div ref:runConfiguration id="run-configuration" class="popup" style="left: calc({left}px - 12rem);">
     <div class="container non-selectable">
         <div class="title">Run Configuration</div>
         <div class="message">Choose a way to run your program.</div>
@@ -186,6 +186,7 @@
         data() {
             return {
                 open: false,
+                left: 0,
                 mode: 'script', // 'script', 'module', 'shell', 'interactive', 'realtime'
                 editing: false,
                 allowWhiteSpace: true,

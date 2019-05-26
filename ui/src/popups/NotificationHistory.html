@@ -1,5 +1,5 @@
 {#if open}
-<div ref:notificationHistory id="notification-history" class="popup">
+<div ref:notificationHistory id="notification-history" class="popup" style="left: calc({left}px - 15rem);">
     <div class="container">
         {#each items as {level, message}}
         <div class="item {level}">{@html message}</div>
@@ -56,7 +56,7 @@
         content: '';
         position: absolute;
         top: 0;
-        right: 4.3rem;
+        right: 14.5rem;
         width: 0;
         height: 0;
         border: 0.5rem solid transparent;
@@ -106,6 +106,7 @@
         data() {
             return {
                 open: false,
+                left: 0,
                 items: [
                     // {
                     //     level: 'success',

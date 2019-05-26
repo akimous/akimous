@@ -42,6 +42,7 @@
         },
         oncreate() {
             this.name = 'console'
+            this.initializing = false
             g.console = this
             initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
         },
@@ -79,42 +80,47 @@
         },
         methods: {
             initialize() {
-                const { mode } = this.get()
-
+                if (this.initializing) return
+                this.initializing = true
+                
                 this.tab.set({ active: false })
                 this.tab.set({ active: true })
+                
+                document.fonts.ready.then(() => { 
+                    // make sure the font is already loaded 
+                    // (as it will not be replaced after terminal loads)
+                    schedule(() => {
+                        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+                        const terminal = new Terminal({
+                            tabStopWidth: 4,
+                            fontSize: 1.1 * rem,
+                            fontFamily: 'DejaVuSansMono',
+                            fontWeight: 400, // workaround for broken block (e.g. tqdm) rendering
+                            theme: {
+                                foreground: '#CCC',
+                                background: '#3F3F3F'
+                            },
+                            convertEol: true,
+                        })
+                        this.terminal = terminal
+                        terminal.open(this.refs.terminal, false)
 
-                schedule(() => {
-                    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                    const terminal = new Terminal({
-                        tabStopWidth: 4,
-                        fontSize: 1.1 * rem,
-                        fontFamily: 'DejaVuSansMono',
-                        fontWeight: 400, // workaround for broken block (e.g. tqdm) rendering
-                        theme: {
-                            foreground: '#CCC',
-                            background: '#3F3F3F'
-                        },
-                        convertEol: true,
+                        terminal.on('focus', () => {
+                            g.setFocus([g.panelRight, this])
+                        })
+                        terminal.addDisposableListener('data', data => {
+                            this.session.send('Stdin', data)
+                        })
+                        terminal.fit()
+                        
+                        const { mode } = this.get()
+                        if (mode === 'terminal') {
+                            this.connectTerminal()
+                        } else if (mode === 'jupyter') {
+                            this.connectJupyter()
+                        }
+                        this.initializing = false
                     })
-                    this.terminal = terminal
-                    terminal.open(this.refs.terminal, false)
-
-                    terminal.on('focus', () => {
-                        g.setFocus([g.panelRight, this])
-                    })
-                    terminal.addDisposableListener('data', data => {
-                        this.session.send('Stdin', data)
-                    })
-
-                    terminal.fit()
-
-                    if (mode === 'terminal') {
-                        this.connectTerminal()
-                    }
-                    if (mode === 'jupyter') {
-                        this.connectJupyter()
-                    }
                 })
             },
             close() {

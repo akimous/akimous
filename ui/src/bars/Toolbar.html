@@ -1,12 +1,15 @@
 <div id="toolbar">
     <div id="buttons">
-        <ToolbarButton ref:run iconClass="fas fa-play" title="Run" />
-        <ToolbarButton ref:runConfiguration iconClass="fas fa-caret-square-right" title="Run Configuration" />
-        <ToolbarButton ref:stop iconClass="fas fa-square" title="Stop" />
+        <ToolbarButton ref:linterOptions on:click="togglePopup('linterOptions')" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
+        <ToolbarButton ref:keyboardControlHint on:click="togglePopup('keyboardControlHint')" iconClass="fas fa-fw fa-keyboard" title="Keyboard Hint" />
+        <ToolbarButton ref:notificationHistory on:click="togglePopup('notificationHistory')" iconClass="fas fa-fw fa-bell" title="Notification History" />
+        <span class="gap">|</span>
         <ToolbarButton ref:debug iconClass="fas fa-bug" title="Debug" />
-        <ToolbarButton ref:linterOptions iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
-        <ToolbarButton ref:keyboardControlHint iconClass="fas fa-fw fa-keyboard" title="Keyboard Hint" />
-        <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell" title="Notification History" />
+        <ToolbarButton ref:stop on:click="stop()" iconClass="fas fa-square" title="Stop" />
+        <ToolbarButton ref:run on:click="run()" iconClass="fas fa-play" title="Run" />
+        <ToolbarButton ref:runConfiguration on:click="togglePopup('runConfiguration')" iconClass="fas fa-caret-down" title="Run Configuration">
+            <span class="text">Run Configuration</span>
+        </ToolbarButton>
         <CursorPosition ref:cursorPosition />
     </div>
 </div>
@@ -33,6 +36,14 @@
         right: 0;
     }
 
+    .gap {
+        color: var(--gray5);
+    }
+
+    .text {
+        font-size: var(--ui-font-size-small);
+    }
+
 </style>
 
 <script>
@@ -53,65 +64,6 @@
         },
         oncreate() {
             g.toolbar = this
-            this.refs.notificationHistory.set({
-                callback: () => {
-                    g.notificationHistory.set({
-                        open: !g.notificationHistory.get().open
-                    })
-                }
-            })
-            this.refs.keyboardControlHint.set({
-                callback: () => {
-                    g.keyboardControlHint.set({
-                        open: !g.keyboardControlHint.get().open
-                    })
-                }
-            })
-            this.refs.linterOptions.set({
-                callback: () => {
-                    g.linterOptions.set({
-                        open: !g.linterOptions.get().open
-                    })
-                }
-            })
-            this.refs.run.set({
-                callback: () => {
-                    const { mode } = g.runConfiguration.get()
-                    if (!g.activeEditor && mode !== 'shell') {
-                        g.notificationBar.show('warning', 'Please open a Python file to run.')
-                        return
-                    }
-                    switch (mode) {
-                        case 'script':
-                        case 'module':
-                        case 'shell':
-                            g.saveFile()
-                            g.console.runInTerminal()
-                            break
-                        case 'interactive':
-                            g.console.startKernel(false)
-                            console.warn('meow')
-                            break
-                        case 'realtime':
-                            g.console.startKernel(true)
-                            break
-                    }
-                }
-            })
-            this.refs.runConfiguration.set({
-                callback: () => {
-                    g.setFocus([g.runConfiguration])
-                    g.runConfiguration.set({
-                        open: !g.runConfiguration.get().open
-                    })
-                }
-            })
-            this.refs.stop.set({
-                callback: () => {
-                    g.console.stop()
-                }
-            })
-
             schedule(() => {
                 g.tooltip.register(this.refs.run.refs.button)
             })
@@ -119,7 +71,43 @@
         data() {
             return {}
         },
-        methods: {}
+        methods: {
+            togglePopup(name) {
+                const popup = g[name]
+                const { left, right } = event.target.getBoundingClientRect()
+                const { open } = popup.get()
+                popup.set({
+                    open: !open,
+                    left: (left + right) / 2
+                })
+            },
+            run() {
+                const { mode } = g.runConfiguration.get()
+                if (!g.activeEditor && mode !== 'shell') {
+                    g.notificationBar.show('warning', 'Please open a Python file to run.')
+                    return
+                }
+                switch (mode) {
+                    case 'script':
+                    case 'module':
+                    case 'shell':
+                        if (!g.activeEditor.cm.isClean())
+                            g.saveFile()
+                        g.console.runInTerminal()
+                        break
+                    case 'interactive':
+                        g.console.startKernel(false)
+                        console.warn('meow')
+                        break
+                    case 'realtime':
+                        g.console.startKernel(true)
+                        break
+                }
+            },
+            stop() {
+                g.console.stop()
+            }
+        }
     }
 
 </script>
