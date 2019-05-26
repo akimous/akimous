@@ -1,5 +1,5 @@
 {#if open}
-<div ref:notificationHistory id="notification-history" class="popup" style="left: calc({left}px - 15rem);">
+<div ref:notificationHistory id="notification-history" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
         {#each items as {level, message}}
         <div class="item {level}">{@html message}</div>
@@ -15,25 +15,19 @@
 
 <style>
     #notification-history {
-        right: 0.5rem;
-        top: calc(var(--toolbar-height) + 0.5rem);
-        width: 30rem;
-        min-height: 10rem;
-        max-height: 40rem;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
     }
-
-    .container {
-        min-height: 10rem;
-        max-height: 39rem;
-        overflow-y: scroll;
-        margin: .5rem 0;
-        font-weight: 400;
+    
+    #notification-history .container {
+        margin-left: 0;
+        margin-right: 0;
     }
-
+    
     #no-notifications {
         text-align: center;
         color: var(--gray5);
-        padding-top: 4rem;
+        padding-top: 5rem;
         user-select: none;
     }
 
@@ -48,21 +42,6 @@
 
     .item:hover {
         background: #C5D6ED;
-    }
-
-    /* https://leaverou.github.io/bubbly/ */
-
-    #notification-history:after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 14.5rem;
-        width: 0;
-        height: 0;
-        border: 0.5rem solid transparent;
-        border-bottom-color: var(--popup-bg-color);
-        border-top: 0;
-        margin-top: -0.5rem;
     }
 
     .question {

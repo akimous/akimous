@@ -1,5 +1,5 @@
 {#if open}
-<div ref:linterOptions id="linter-options" class="popup" style="left: calc({left}px - 10rem);">
+<div ref:linterOptions id="linter-options" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container non-selectable">
         <div class="title">Real-Time Formatter</div>
         <div class="message">Format code as you type.</div>
@@ -54,78 +54,7 @@
 
 
 <style>
-    #linter-options {
-        right: 5rem;
-        top: calc(var(--toolbar-height) + 0.5rem);
-        width: 20rem;
-        min-height: 10rem;
-        max-height: 40rem;
-    }
 
-    /* https://leaverou.github.io/bubbly/ */
-    #linter-options:after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 9.5rem;
-        width: 0;
-        height: 0;
-        border: 0.5rem solid transparent;
-        border-bottom-color: var(--popup-bg-color);
-        border-top: 0;
-        margin-top: -0.5rem;
-    }
-
-    .container {
-        min-height: 10rem;
-        max-height: 39rem;
-        overflow-y: scroll;
-        margin: 0 0 1rem 0;
-    }
-
-    .title {
-        color: var(--primary5);
-        font-weight: 400;
-        margin-top: 1.5rem;
-        padding-left: 1.5rem;
-    }
-
-    .message {
-        color: var(--gray7);
-        padding-left: 1.5rem;
-    }
-
-    .option {
-        color: var(--gray5);
-        padding: .4rem;
-        margin: .5rem 1.5rem;
-        font-size: var(--monospace-font-size);
-        border-radius: var(--default-radius);
-    }
-
-    .option:hover {
-        background: var(--primary8);
-
-    }
-
-    .checkbox {
-        padding-left: .4rem;
-        vertical-align: middle;
-        color: var(--primary7);
-    }
-
-    .checked {
-        color: var(--green);
-    }
-
-    .description {
-        padding-left: .4rem;
-        vertical-align: middle;
-    }
-
-    .option:hover .description {
-        color: var(--primary3);
-    }
 
 </style>
 

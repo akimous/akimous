@@ -1,7 +1,7 @@
 <div id="toolbar">
     <div id="buttons">
         <ToolbarButton ref:linterOptions on:click="togglePopup('linterOptions')" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
-        <ToolbarButton ref:keyboardControlHint on:click="togglePopup('keyboardControlHint')" iconClass="fas fa-fw fa-keyboard" title="Keyboard Hint" />
+        <ToolbarButton ref:keyboardControlHint on:click="togglePopup('keymapSettings')" iconClass="fas fa-fw fa-keyboard" title="Keyboard Hint" />
         <ToolbarButton ref:notificationHistory on:click="togglePopup('notificationHistory')" iconClass="fas fa-fw fa-bell" title="Notification History" />
         <span class="gap">|</span>
         <ToolbarButton ref:debug iconClass="fas fa-bug" title="Debug" />
@@ -20,6 +20,7 @@
 <NotificationHistory></NotificationHistory>
 <LinterOptions></LinterOptions>
 <RunConfiguration></RunConfiguration>
+<KeymapSettings></KeymapSettings>
 
 <style>
     #toolbar {
@@ -56,6 +57,7 @@
             NotificationHistory: '../popups/NotificationHistory.html',
             LinterOptions: '../popups/LinterOptions.html',
             RunConfiguration: '../popups/RunConfiguration.html',
+            KeymapSettings: '../popups/KeymapSettings.html',
             TabNumber: './TabNumber.html',
             ToolbarButton: './ToolbarButton.html',
             MenuBar: './MenuBar.html',

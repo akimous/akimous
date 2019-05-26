@@ -188,7 +188,7 @@ span.tooltipped::after {
     box-sizing: border-box;
 }
 
-.title {
+.panel .title {
     display: flex;
     user-select: none;
     cursor: default;
@@ -273,6 +273,9 @@ span.tooltipped::after {
 }
 
 .popup {
+    top: calc(var(--toolbar-height) + 0.5rem);
+    width: 25rem;
+
     z-index: 320;
     position: absolute;
     background: var(--popup-bg-color);
@@ -283,10 +286,75 @@ span.tooltipped::after {
     max-height: 85vh;
 }
 
+/* https://leaverou.github.io/bubbly/ */
+.popup.from-top:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12rem;
+    width: 0;
+    height: 0;
+    border: 0.5rem solid transparent;
+    border-bottom-color: var(--popup-bg-color);
+    border-top: 0;
+    margin-top: -0.5rem;
+}
+
 .popup .container {
     min-height: 10rem;
     max-height: 84vh;
     overflow-y: scroll;
+    margin: 0 1.5rem 2rem 1.5rem;
+}
+
+.popup .title {
+    font-size: var(--ui-font-size-large);
+    user-select: none;
+    cursor: default;
+    color: var(--primary5);
+    font-weight: 400;
+    margin-top: 1.5rem;
+}
+
+.popup .title.with-button {
+    justify-content: space-between;
+    display: flex;
+}
+
+.popup .message {
+    color: var(--gray7);
+}
+
+.popup .option {
+    display: flex;
+    color: var(--gray5);
+    padding: 1rem .4rem 0 .4rem;
+    margin-top: .5rem 0 -.5rem 0;
+    font-size: var(--monospace-font-size);
+    border-radius: var(--default-radius);
+}
+
+.popup .option:hover {
+    background: var(--primary8);
+}
+
+.popup .option .checkbox {
+    padding-left: .4rem;
+    vertical-align: middle;
+    color: var(--primary7);
+}
+
+.popup .option .checked {
+    color: var(--green);
+}
+
+.popup .option .description {
+    padding-left: .4rem;
+    vertical-align: middle;
+}
+
+.popup .option:hover .description {
+    color: var(--primary3);
 }
 
 .l-ui-text {

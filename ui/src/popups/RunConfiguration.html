@@ -1,5 +1,5 @@
 {#if open}
-<div ref:runConfiguration id="run-configuration" class="popup" style="left: calc({left}px - 12rem);">
+<div ref:runConfiguration id="run-configuration" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container non-selectable">
         <div class="title">Run Configuration</div>
         <div class="message">Choose a way to run your program.</div>
@@ -55,84 +55,11 @@
 
 
 <style>
-    #run-configuration {
-        right: 8rem;
-        top: calc(var(--toolbar-height) + 0.5rem);
-        width: 24rem;
-    }
-
-    /* https://leaverou.github.io/bubbly/ */
-    #run-configuration:after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 12rem;
-        width: 0;
-        height: 0;
-        border: 0.5rem solid transparent;
-        border-bottom-color: var(--popup-bg-color);
-        border-top: 0;
-        margin-top: -0.5rem;
-    }
-
-    .container {
-        margin: 0 1.5rem 1rem 1.5rem;
-    }
-
-    .title {
-        color: var(--primary5);
-        font-weight: 400;
-        margin-top: 1.5rem;
-        padding: 0 1.5rem .6rem 1.5rem;
-        padding: 0 0 .6rem 0;
-    }
-
-    .with-button {
-        justify-content: space-between;
-        display: flex;
-    }
-
-    .message {
-        color: var(--gray7);
-    }
-
-    .option {
-        display: flex;
-        color: var(--gray5);
-        padding: .6rem .4rem;
-        font-size: var(--monospace-font-size);
-        border-radius: var(--default-radius);
-    }
-
-    .option:hover {
-        background: var(--primary8);
-
-    }
-
-    .checkbox {
-        padding-left: .4rem;
-        vertical-align: middle;
-        color: var(--primary7);
-    }
-
-    .checked {
-        color: var(--green);
-    }
-
-    .description {
-        padding-left: .4rem;
-        vertical-align: middle;
-    }
-    
     .run-now {
         flex-grow: 1;
         text-align: right;
         color: var(--primary5);
         display: none;
-    }
-
-    .option:hover .description {
-        color: var(--primary3);
     }
 
     .option:hover .run-now {
