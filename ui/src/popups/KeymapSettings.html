@@ -1,12 +1,10 @@
 {#if open}
 <div ref:keymapSettings id="keymap-settings" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container non-selectable">
-        <div class="title">Layered Keyboard Control</div>
-        <div class="option" on:click="toggle('layeredKeyboardControlEnabled')">
-            <span class="checkbox">
-                <i class="fa-circle { layeredKeyboardControlEnabled ? 'checked fas' : 'far' }"></i>
-            </span>
-            <span class="description">Enabled</span>
+        <div class="title">Keymap Settings</div>
+        <div class="option" class:checked="layeredKeyboardControlEnabled" on:click="toggle('layeredKeyboardControlEnabled')">
+            <i class="checkbox fas"/>
+            <span class="description">Enable layered keyboard control</span>
         </div>
     </div>
 </div>

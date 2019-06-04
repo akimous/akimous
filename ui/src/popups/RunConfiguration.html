@@ -10,16 +10,12 @@
         <TextInput bind:value=args on:change="saveChanges('args')" theme="bright" padded={false}>
             <span style="width: 8rem; display: inline-block;">Arguments: </span>
         </TextInput>
-        <div class="option" on:click="set({ mode: 'script' })">
-            <span class="checkbox">
-                <i class="fa-circle { mode==='script'?'checked fas': 'far' }"></i>
-            </span>
+        <div class="option" class:checked="mode==='script'" on:click="set({ mode: 'script' })">
+            <i class="checkbox fas"/>
             <span class="description">Run current script</span>
         </div>
-        <div class="option" on:click="set({ mode: 'module' })">
-            <span class="checkbox">
-                <i class="fa-circle { mode==='module'?'checked fas': 'far' }"></i>
-            </span>
+        <div class="option" class:checked="mode==='module'" on:click="set({ mode: 'module' })">
+            <i class="checkbox fas"/>
             <span class="description">Run current script as module</span>
         </div>
         <div class="title with-button">
@@ -28,25 +24,19 @@
         </div>
 
         {#each shellCommands as command, i}
-        <div class="option" class:gone="i === shellCommands.length - 1 && !editing" on:click="set({ mode: 'shell', shellCommandIndex: i })">
-            <span class="checkbox">
-                <i class="fa-circle { (shellCommandIndex===i && mode==='shell') ? 'checked fas' : 'far' }"></i>
-            </span>
+        <div class="option"  class:checked="shellCommandIndex===i && mode==='shell'" class:gone="i === shellCommands.length - 1 && !editing" on:click="set({ mode: 'shell', shellCommandIndex: i })">
+            <i class="checkbox fas"/>
             <RunConfigShellCommand value={command} index={i} {shellCommands} {editing}></RunConfigShellCommand>
         </div>
         {/each}
 
         <div class="title">IPython</div>
-        <div class="option" on:click="set({ mode: 'interactive' })">
-            <span class="checkbox">
-                <i class="fa-circle { mode==='interactive'?'checked fas': 'far' }"></i>
-            </span>
+        <div class="option" class:checked="mode==='interactive'" on:click="set({ mode: 'interactive' })">
+            <i class="checkbox fas"/>
             <span class="description">Interactive shell</span>
         </div>
-        <div class="option" on:click="set({ mode: 'realtime' })">
-            <span class="checkbox">
-                <i class="fa-circle { mode==='realtime'?'checked fas': 'far' }"></i>
-            </span>
+        <div class="option" class:checked="mode==='realtime'" on:click="set({ mode: 'realtime' })">
+            <i class="checkbox fas"/>
             <span class="description">Realtime evaluation</span>
         </div>
     </div>
@@ -68,6 +58,10 @@
 
     .shell-commands {
         padding: 0 1rem 0 2rem;
+    }
+    
+    .checked .checkbox:before {
+        content: "\f111";
     }
 
 </style>

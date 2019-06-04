@@ -328,8 +328,8 @@ span.tooltipped::after {
 .popup .option {
     display: flex;
     color: var(--gray5);
-    padding: 1rem .4rem 0 .4rem;
-    margin-top: .5rem 0 -.5rem 0;
+    padding: .5rem;
+    margin: .5rem 0 -.5rem 0;
     font-size: var(--monospace-font-size);
     border-radius: var(--default-radius);
 }
@@ -339,13 +339,23 @@ span.tooltipped::after {
 }
 
 .popup .option .checkbox {
-    padding-left: .4rem;
-    vertical-align: middle;
     color: var(--primary7);
+    line-height: 1.15;
+    padding-right: .4rem;
 }
 
-.popup .option .checked {
+.popup .option .checkbox:before {
+    content: "\f111";
+    font-weight: 400;
+}
+
+.popup .option.checked .checkbox {
     color: var(--green);
+}
+
+.popup .option.checked .checkbox:before {
+    content: "\f058";
+    font-weight: 900;
 }
 
 .popup .option .description {
