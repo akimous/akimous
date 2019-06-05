@@ -151,6 +151,11 @@ body {
     font-weight: 300;
 }
 
+.non-selectable {
+    user-select: none;
+    cursor: default;
+}
+
 .tab-view {
     height: calc(100% - var(--toolbar-height) - var(--indicator-height));
     width: 100%;
@@ -275,7 +280,6 @@ span.tooltipped::after {
 .popup {
     top: calc(var(--toolbar-height) + 0.5rem);
     width: 25rem;
-
     z-index: 320;
     position: absolute;
     background: var(--popup-bg-color);
@@ -284,6 +288,8 @@ span.tooltipped::after {
     box-shadow: var(--default-shadow);
     box-sizing: border-box;
     max-height: 85vh;
+    user-select: none;
+    cursor: default;
 }
 
 /* https://leaverou.github.io/bubbly/ */
