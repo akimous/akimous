@@ -6,6 +6,12 @@
             <i class="checkbox fas"/>
             <span class="description">Enable layered keyboard control</span>
         </div>
+        {#if layeredKeyboardControlEnabled}
+        <div class="option" class:checked="keymapHint" on:click="toggle('keymapHint')">
+            <i class="checkbox fas"/>
+            <span class="description">Show keymap hint</span>
+        </div>
+        {/if}
     </div>
 </div>
 {/if}
@@ -31,12 +37,18 @@
                     popup: current.open ? this : null
                 })
             }
+            if (changed.layeredKeyboardControlEnabled && current.layeredKeyboardControlEnabled && current.keymapHint) {
+                this.set({
+                    keymapHint: false
+                })
+            }
         },
         data() {
             return {
                 open: false,
                 left: 0,
-                layeredKeyboardControlEnabled: true
+                layeredKeyboardControlEnabled: true,
+                keymapHint: false,
             }
         },
         methods: {
