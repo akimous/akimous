@@ -311,6 +311,7 @@ span.tooltipped::after {
     max-height: 84vh;
     overflow-y: scroll;
     margin: 0 1.5rem 2rem 1.5rem;
+    padding-bottom: 1rem;
 }
 
 .popup .title {

@@ -1,4 +1,4 @@
-<div ref:button class="tool-bar-button" class:indicator-on="on" on:click aria-label="{title}">
+<div ref:button class="tool-bar-button" class:active="active" on:click aria-label="{title}">
     <slot></slot><i class="{iconClass}"></i>
 </div>
 
@@ -15,12 +15,9 @@
         z-index: 210;
     }
 
-    .tool-bar-button:hover {
+    .tool-bar-button:hover,
+    .tool-bar-button.active {
         background: var(--main-bg-color);
-    }
-
-    .tool-bar-button.on {
-        border-bottom: .2rem solid var(--ui-highlight-color);
     }
 
 </style>
@@ -41,7 +38,7 @@
             return {
                 // title: ''
                 // iconClass: 'fas fa-fw fa-bell',
-                on: false,
+                active: false,
             }
         },
         methods: {}

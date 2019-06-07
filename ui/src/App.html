@@ -177,8 +177,14 @@
         methods: {
             dismissPopups() {
                 const { popup } = this.get()
-                if (popup)
+                let { name } = popup.constructor
+                name = name.charAt(0).toLowerCase() + name.slice(1)
+                const toolbarButton = g.toolbar.refs[name]
+                if (toolbarButton) {
+                    g.toolbar.togglePopup(name) // also deactivate button shade
+                } else if (popup) {   
                     popup.set({ open: false })
+                }
                 this.set({ popup: null })
             }
         }

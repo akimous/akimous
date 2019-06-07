@@ -1,7 +1,7 @@
 <div id="toolbar">
     <div id="buttons">
         <ToolbarButton ref:linterOptions on:click="togglePopup('linterOptions')" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
-        <ToolbarButton ref:keyboardControlHint on:click="togglePopup('keymapSettings')" iconClass="fas fa-fw fa-keyboard" title="Keyboard Hint" />
+        <ToolbarButton ref:keymapSettings on:click="togglePopup('keymapSettings')" iconClass="fas fa-fw fa-keyboard" title="Keymap Settings" />
         <ToolbarButton ref:notificationHistory on:click="togglePopup('notificationHistory')" iconClass="fas fa-fw fa-bell" title="Notification History" />
         <span class="gap">|</span>
         <ToolbarButton ref:debug iconClass="fas fa-bug" title="Debug" />
@@ -82,6 +82,7 @@
                     open: !open,
                     left: (left + right) / 2
                 })
+                this.refs[name].set({ active: !open })
             },
             run() {
                 const { mode } = g.runConfiguration.get()

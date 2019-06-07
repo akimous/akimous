@@ -1,4 +1,5 @@
 import g from '../lib/Globals'
+import { config } from '../lib/ConfigManager'
 import KeyMap from './KeyMap'
 import CodeEditor from '../editor/CodeEditor.html'
 
@@ -93,6 +94,7 @@ class LayeredKeyboardControl {
         return this._macroMode
     }
     constructor() {
+        this.enabled = config.keymap.layeredKeyboardControl
         this.commandSent = false
         let spacePressed = false
         let textSent = false
@@ -101,6 +103,7 @@ class LayeredKeyboardControl {
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
 
         document.addEventListener('keydown', e => {
+            if (!this.enabled) return true
             if (e.isComposing) return true // do not interfere with IME
             switch (e.key) {
                 case 'Shift':
@@ -181,6 +184,7 @@ class LayeredKeyboardControl {
         })
 
         document.addEventListener('keyup', e => {
+            if (!this.enabled) return true
             if (e.isComposing) return true // do not interfere with IME
             switch (e.key) {
                 case 'Shift':

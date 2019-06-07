@@ -257,9 +257,8 @@
 
 <script>
     import g from '../lib/Globals'
-    import { nextFrame } from '../lib/Utils'
     import { dragElement } from '../lib/UIUtils'
-    import { config, setConfig } from '../lib/ConfigManager'
+    import { config } from '../lib/ConfigManager'
 
     export default {
         components: {},
@@ -268,21 +267,6 @@
             this.set({
                 description: this.get().descriptions.normal.Space
             })
-            nextFrame(() => {
-                g.toolbar.refs.keyboardControlHint.set({
-                    on: this.get().open
-                })
-            })
-        },
-        onstate({ changed, current }) {
-            if (changed.open && g.toolbar && g.toolbar.refs.keyboardControlHint) {
-                g.toolbar.refs.keyboardControlHint.set({
-                    on: current.open
-                })
-                setConfig('keyboardHint', {
-                    open: current.open
-                })
-            }
         },
         onupdate({ changed, current }) {
             if (changed.open && g.toolbar) {
@@ -293,7 +277,7 @@
         },
         data() {
             return {
-                open: config.keyboardHint.open,
+                open: config.keymap.keymapHint,
                 mode: 'normal',
                 description: '',
                 keys: {
