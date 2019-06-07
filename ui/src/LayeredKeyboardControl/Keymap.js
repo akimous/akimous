@@ -30,6 +30,7 @@ const editorCommandKeyMap = {
     
     'Backspace': 'delGroupBefore',
     'Delete': 'delGroupAfter',
+    'Digit8': 'deleteSubwordLeft',
     
     'Digit0': 'unfoldAll',
     'Minus': 'fold',
@@ -66,7 +67,6 @@ const genericCommandKeyMap = {
     'Digit5': '5',
     'Digit6': '6',
     'Digit7': '7',
-    'Digit8': '8',
 }
 
 export default {

@@ -23,6 +23,15 @@ function registerCMCommands(CodeMirror) {
         cm.execCommand('goLineStartSmart')
     }
 
+    commands.deleteSubwordLeft = cm => {
+        cm.operation(() => {
+            const head = cm.getCursor()
+            cm.execCommand('goSubwordLeft')
+            const anchor = cm.getCursor()
+            cm.replaceRange('', anchor, head)
+        })
+    }
+
     commands.duplicateLine = cm => {
         cm.operation(() => {
             const selections = []

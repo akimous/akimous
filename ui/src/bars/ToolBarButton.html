@@ -1,9 +1,9 @@
-<div ref:button class="tool-bar-button" class:active="active" on:click aria-label="{title}">
+<div ref:button class="toolbar-button" class:active="active" on:click aria-label="{title}">
     <slot></slot><i class="{iconClass}"></i>
 </div>
 
 <style>
-    .tool-bar-button {
+    .toolbar-button {
         color: var(--basic-ui-font-color);
         font-size: var(--ui-font-size-default);
         min-width: var(--ui-line-height-default);
@@ -15,8 +15,8 @@
         z-index: 210;
     }
 
-    .tool-bar-button:hover,
-    .tool-bar-button.active {
+    .toolbar-button:hover,
+    .toolbar-button.active {
         background: var(--main-bg-color);
     }
 
