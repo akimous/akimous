@@ -23,12 +23,66 @@ function registerCMCommands(CodeMirror) {
         cm.execCommand('goLineStartSmart')
     }
 
+    function findPosSubword(doc, start, dir) {
+        if (dir < 0 && start.ch === 0)
+            return doc.clipPos(Pos(start.line - 1))
+        const line = doc.getLine(start.line)
+        if (dir > 0 && start.ch >= line.length)
+            return doc.clipPos(Pos(start.line + 1, 0))
+
+        const UPPER = 1,
+            LOWER = 2,
+            DIGIT = 3,
+            SPACE = 4,
+            OTHER = 5
+        let lastType = 0 // not started yet
+        let lastChar = ''
+        const end = dir < 0 ? -1 : line.length + 1
+        let pos = dir < 0 ? start.ch - 1 : start.ch
+        for (; pos !== end; pos += dir) {
+            const char = line.charAt(pos)
+            let type = OTHER
+            if (/\d/.test(char)) type = DIGIT
+            else if (/\s/.test(char)) type = SPACE
+            else if (char === '_') type = OTHER
+            else if (CodeMirror.isWordChar(char)) type = LOWER
+            if (type === LOWER && char === char.toUpperCase()) type = UPPER
+            
+            if (type === OTHER && lastType && lastChar !== char) break
+            if (!lastType) {
+                lastType = type
+                lastChar = char
+            } else if (lastType !== type) {
+                if (lastType === LOWER && type === UPPER && dir < 0) pos--
+                else if (lastType === UPPER && type === LOWER && dir > 0) {
+                    lastType = LOWER
+                    continue
+                }
+                break
+            }
+        }
+        if (dir < 0 && start.ch - pos > 1) pos -= dir 
+        return Pos(start.line, pos)
+    }
+
+    function moveSubword(cm, dir) {
+        cm.extendSelectionsBy(range => {
+            if (cm.display.shift || cm.doc.extend || range.empty())
+                return findPosSubword(cm.doc, range.head, dir)
+            else
+                return dir < 0 ? range.from() : range.to()
+        })
+    }
+
+    commands.goSubwordLeft = cm => moveSubword(cm, -1)
+    commands.goSubwordRight = cm => moveSubword(cm, 1)
+
     commands.deleteSubwordLeft = cm => {
         cm.operation(() => {
             const head = cm.getCursor()
-            cm.execCommand('goSubwordLeft')
-            const anchor = cm.getCursor()
+            const anchor = findPosSubword(cm.doc, head, -1)
             cm.replaceRange('', anchor, head)
+            cm.scrollIntoView(anchor)
         })
     }
 
