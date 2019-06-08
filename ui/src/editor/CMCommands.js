@@ -22,7 +22,8 @@ function registerCMCommands(CodeMirror) {
         cm.execCommand('deleteLine')
         cm.execCommand('goLineStartSmart')
     }
-
+    
+    // from CM sublime plugin
     function findPosSubword(doc, start, dir) {
         if (dir < 0 && start.ch === 0)
             return doc.clipPos(Pos(start.line - 1))

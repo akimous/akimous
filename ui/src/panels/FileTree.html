@@ -27,7 +27,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import { binarySearch, initializeTabView } from '../lib/Utils'
+    import { binarySearch, initializeTabView, schedule } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
 
     function sortAndAddUid(arr) {
@@ -54,16 +54,23 @@
             g.fileTree = this
             this.nodeCreatedCallbacks = {}
             initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
-            g.setFocus([g.panelLeft, g.fileTree])
 
             this.session = g.socket.createSession('fileTree')
             const { handlers } = this.session
+            
+            const moveToFirstChildWhenReady = () => {
+                if (!g.ready) {
+                    schedule(moveToFirstChildWhenReady)
+                    return
+                }
+                this.moveToFirstChild()
+            }
             handlers['DirOpened'] = ({ path, dirs, files }) => {
                 this.getNode(path).set({
                     dirs: sortAndAddUid(dirs),
                     files: sortAndAddUid(files)
                 })
-                this.moveToFirstChild()
+                moveToFirstChildWhenReady()
             }
             handlers['Done'] = message => {
                 g.notificationBar.show('success', message)
@@ -300,7 +307,7 @@
                 })
             },
             moveToTopIfNothingSelected() {
-                if (g.focus.constructor.name !== 'FileTreeNode' || !g.focus.get().parent) {
+                if (!g.focus || g.focus.constructor.name !== 'FileTreeNode' || !g.focus.get().parent) {
                     this.top()
                     return true
                 }

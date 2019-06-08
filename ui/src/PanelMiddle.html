@@ -68,7 +68,7 @@
         onstate({ changed, current, previous }) {
             if (!previous) return
             if (changed.focus) {
-                const focus = current.focus
+                const { focus } = current
                 if (focus === previous.focus) return
                 if (!focus) g.setFocus([g.panelLeft, g.fileTree])
                 else g.setFocus([this, focus])

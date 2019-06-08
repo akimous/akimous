@@ -8,7 +8,6 @@ const g = {
     },
     setFocus(x) {
         const focusStack = this.focusStack
-
         // backup original focus stack
         const oldRoot = focusStack[0]
         const newRoot = x[0]
@@ -23,7 +22,6 @@ const g = {
             newRoot.set({
                 hidden: false
             })
-
             // store focus stack if needed
             if (focusStack.length > 1) {
                 if (this.focus.constructor.name === 'Completion' ||
@@ -37,7 +35,6 @@ const g = {
                 })
             }
         }
-
         this.focusStack = x
         // restore focus stack
         if (x.length === 1) {

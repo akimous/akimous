@@ -247,7 +247,8 @@
                 if (selected) return
                 g.fileTree.fire('cancelAllSelection')
                 this.set({ selected: true })
-                g.setFocus([g.panelLeft, g.fileTree, this])
+                if (event || g.focusStack[0] === g.panelLeft) // avoid focus being stealed on startup
+                    g.setFocus([g.panelLeft, g.fileTree, this])
             },
             onDoubleClick() {
                 if (this.get().isDir) {
