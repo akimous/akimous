@@ -36,13 +36,15 @@ const socket = new Socket(() => {
         }
     }
     g.projectSession.handlers['ProjectOpened'] = data => {
-        g.projectRoot = data.root
+        const { root } = data
+        g.projectRoot = root
         Object.assign(projectState, data.projectState)
         if (app) app.destroy()
         app = new App({
             target: document.body,
         })
         g.runConfiguration.set(g.projectState.runConfiguration)
+        document.title = `Akimous - ${root[root.length - 1]}`
     }
 })
 g.socket = socket

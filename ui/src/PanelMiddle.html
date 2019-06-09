@@ -73,6 +73,7 @@
                 if (!focus) g.setFocus([g.panelLeft, g.fileTree])
                 else g.setFocus([this, focus])
                 g.activeEditor = focus
+                g.pathIndicator.set({ path: focus ? focus.get().filePath : null })
             }
             if (changed.focused) {
                 const editor = this.get().focus

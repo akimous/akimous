@@ -1,40 +1,36 @@
 <div id="toolbar">
-    <div id="buttons">
-        <ToolbarButton ref:linterOptions on:click="togglePopup('linterOptions')" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
-        <ToolbarButton ref:keymapSettings on:click="togglePopup('keymapSettings')" iconClass="fas fa-fw fa-keyboard" title="Keymap Settings" />
-        <ToolbarButton ref:notificationHistory on:click="togglePopup('notificationHistory')" iconClass="fas fa-fw fa-bell" title="Notification History" />
-        <span class="gap">|</span>
-        <ToolbarButton ref:debug iconClass="fas fa-bug" title="Debug" />
-        <ToolbarButton ref:stop on:click="stop()" iconClass="fas fa-square" title="Stop" />
-        <ToolbarButton ref:run on:click="run()" iconClass="fas fa-play" title="Run" />
-        <ToolbarButton ref:runConfiguration on:click="togglePopup('runConfiguration')" iconClass="fas fa-caret-down" title="Run Configuration">
-            <span class="text">Run Configuration</span>
-        </ToolbarButton>
-        <CursorPosition ref:cursorPosition />
-    </div>
+    <MenuBar />
+    <PathIndicator />
+    <ToolbarButton ref:linterOptions on:click="togglePopup('linterOptions')" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
+    <ToolbarButton ref:keymapSettings on:click="togglePopup('keymapSettings')" iconClass="fas fa-fw fa-keyboard" title="Keymap Settings" />
+    <ToolbarButton ref:notificationHistory on:click="togglePopup('notificationHistory')" iconClass="fas fa-fw fa-bell" title="Notification History" />
+    <span class="gap">|</span>
+    <ToolbarButton ref:runConfiguration on:click="togglePopup('runConfiguration')" iconClass="fas fa-caret-down" title="Run Configuration">
+        <span class="text">Run Configuration</span>
+    </ToolbarButton>
+    <ToolbarButton ref:run on:click="run()" iconClass="fas fa-play" title="Run" />
+    <ToolbarButton ref:debug iconClass="fas fa-bug" title="Debug" />
+    <ToolbarButton ref:stop on:click="stop()" iconClass="fas fa-square" title="Stop" />
+    <CursorPosition ref:cursorPosition />
 </div>
-<MenuBar></MenuBar>
-<CommandPalette></CommandPalette>
-<NotificationBar></NotificationBar>
-<TabNumber></TabNumber>
-<NotificationHistory></NotificationHistory>
-<LinterOptions></LinterOptions>
-<RunConfiguration></RunConfiguration>
-<KeymapSettings></KeymapSettings>
+<CommandPalette />
+<NotificationBar />
+<TabNumber />
+<NotificationHistory />
+<LinterOptions />
+<RunConfiguration />
+<KeymapSettings />
 
 <style>
     #toolbar {
+        display: flex;
         height: var(--toolbar-height);
         background: var(--panel-color);
         border-bottom: var(--panel-border);
         box-sizing: border-box;
         z-index: 200;
         user-select: none;
-    }
-
-    #buttons {
-        position: absolute;
-        right: 0;
+        line-height: var(--toolbar-height);
     }
 
     .gap {
@@ -62,7 +58,8 @@
             ToolbarButton: './ToolbarButton.html',
             MenuBar: './MenuBar.html',
             CursorPosition: './CursorPosition.html',
-            CommandPalette: './CommandPalette.html'
+            CommandPalette: './CommandPalette.html',
+            PathIndicator: './PathIndicator.html',
         },
         oncreate() {
             g.toolbar = this

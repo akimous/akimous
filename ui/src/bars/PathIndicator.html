@@ -1,0 +1,82 @@
+<div ref:pathIndicator id="path-indicator">
+    {display}
+</div>
+
+<style>
+    #path-indicator {
+        display: inline-block;
+        text-align: center;
+        font-size: var(--ui-font-size-small);
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 0;
+        min-width: 0;
+        overflow: hidden;
+        user-select: text;
+        color: var(--primary7);
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+    import { schedule } from '../lib/Utils'
+    import throttle from 'lodash.throttle'
+
+
+    export default {
+        components: {},
+        oncreate() {
+            g.pathIndicator = this
+            const setAvailableWidth = () => {
+                this.set({ availableWidth: this.refs.pathIndicator.getBoundingClientRect().width })
+            }
+            window.addEventListener('resize', throttle(setAvailableWidth))
+            setAvailableWidth()
+        },
+        data() {
+            return {
+                path: [],
+                display: '',
+                availableWidth: 0,
+            }
+        },
+        onstate({ changed, current }) {
+            if (changed.path || changed.availableWidth) {
+                schedule(() => {
+                    this.set({
+                        display: this.fitWidth()
+                    })
+                })
+            }
+        },
+        methods: {
+            fitWidth() {
+                let { availableWidth, path } = this.get()
+                if (!path || path.length === 0) return ''
+                
+                if (!g.hiddenCanvas) g.hiddenCanvas = document.createElement('canvas')
+                const context = g.hiddenCanvas.getContext('2d')
+                const style = window.getComputedStyle(this.refs.pathIndicator, null)
+                context.font = `${style.getPropertyValue('font-weight')} ${style.getPropertyValue('font-size')} ${style.getPropertyValue('font-family')}`
+
+                if (path[0] === g.pathSeparator) { // remove duplicated /
+                    path = path.slice(0)
+                    path[0] = ''
+                }
+                
+                const full = path.join(g.pathSeparator)
+                let measuredWidth = context.measureText(full).width
+                if (measuredWidth < availableWidth - 10) return full
+
+                const short = path[path.length - 1]
+                measuredWidth = context.measureText(short).width
+                if (measuredWidth < availableWidth - 10) return short
+                
+                return ''
+            }
+        }
+    }
+
+</script>
