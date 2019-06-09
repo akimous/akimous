@@ -253,9 +253,10 @@ function joinPath(x) {
     return x.join(g.pathSeparator)
 }
 
-//function capitalize(s) {
-//    return s && s.charAt(0).toUpperCase() + s.slice(1)
-//}
+function capitalize(s) {
+    console.log('cap')
+    return s && s.charAt(0).toUpperCase() + s.slice(1)
+}
 
 export {
     binarySearch,
@@ -274,5 +275,5 @@ export {
     inBraces,
     highlightSequentially,
     joinPath,
-    //capitalize,
+    capitalize,
 }

@@ -6,7 +6,7 @@
     <ToolbarButton ref:notificationHistory on:click="togglePopup('notificationHistory')" iconClass="fas fa-fw fa-bell" title="Notification History" />
     <span class="gap">|</span>
     <ToolbarButton ref:runConfiguration on:click="togglePopup('runConfiguration')" iconClass="fas fa-caret-down" title="Run Configuration">
-        <span class="text">Run Configuration</span>
+        <span class="text">{runConfigurationDisplay}</span>
     </ToolbarButton>
     <ToolbarButton ref:run on:click="run()" iconClass="fas fa-play" title="Run" />
     <ToolbarButton ref:debug iconClass="fas fa-bug" title="Debug" />
@@ -39,6 +39,7 @@
 
     .text {
         font-size: var(--ui-font-size-small);
+        padding: 0 .3rem;
     }
 
 </style>
@@ -68,7 +69,9 @@
             })
         },
         data() {
-            return {}
+            return {
+                runConfigurationDisplay: ''
+            }
         },
         methods: {
             togglePopup(name) {

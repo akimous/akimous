@@ -70,6 +70,7 @@
 <script>
     import g from '../lib/Globals'
     import { setProjectState } from '../lib/ConfigManager'
+    import { capitalize, nextFrame } from '../lib/Utils'
 
     export default {
         components: {
@@ -81,6 +82,13 @@
             g.runConfiguration = this
         },
         onstate({ changed, current }) {
+            if (changed.mode) {
+                nextFrame(() => {
+                    g.toolbar.set({
+                        runConfigurationDisplay: capitalize(current.mode)
+                    })
+                })
+            }
             if (!g.ready) return
             if (changed.open && g.toolbar) {
                 g.app.set({

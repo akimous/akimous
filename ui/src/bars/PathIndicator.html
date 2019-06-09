@@ -42,7 +42,7 @@
                 availableWidth: 0,
             }
         },
-        onstate({ changed, current }) {
+        onstate({ changed }) {
             if (changed.path || changed.availableWidth) {
                 schedule(() => {
                     this.set({
