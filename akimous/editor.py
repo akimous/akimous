@@ -409,7 +409,47 @@ async def find_usage(msg, send, context):
     content = context.content
     j = jedi.Script(content, msg['line'] + 1, msg['ch'], context.path)
     usages = j.usages()
-    await send('UsageFound', {
-        'pos': [(i.line - 1, i.column + 1) for i in usages],
-        'token': msg['token']
+    results = [{
+        'path': u.module_path,
+        'module': u.module_name,
+        'definition': u.is_definition(),
+        'line': u.line,
+        'ch': u.column,
+        'code': u.get_line_code().strip()
+    } for u in usages]
+    await send('UsagesFound', results)
+
+
+def definition_to_dict(d):
+    return {
+        'path': d.module_path,
+        'module': d.module_name,
+        'builtin': d.in_builtin_module(),
+        'definition': d.is_definition(),
+        'line': d.line,
+        'ch': d.column,
+        'code': d.get_line_code().strip()
+    }
+
+
+@handles('FindReferences')
+async def find_references(msg, send, context):
+    definitions = []
+    assignments = []
+    usages = []
+    mode = msg['type']
+    j = jedi.Script(context.content, msg['line'] + 1, msg['ch'], context.path)
+    if 'assignments' in mode:
+        references = j.goto_assignments(follow_imports=True)
+        if 'usages' not in mode:
+            definitions.extend(r for r in references if r.is_definition())
+        assignments.extend(r for r in references if not r.is_definition())
+    if 'usages' in mode:
+        references = j.usages()
+        definitions.extend(r for r in references if r.is_definition())
+        usages.extend(r for r in references if not r.is_definition())
+    await send('ReferencesFound', {
+        'definitions': [definition_to_dict(x) for x in definitions],
+        'assignments': [definition_to_dict(x) for x in assignments],
+        'usages': [definition_to_dict(x) for x in usages]
     })

@@ -162,25 +162,6 @@
                             }]
                         )
                     },
-                    UsageFound: data => {
-                        const selections = []
-                        for (const pos of data.pos) {
-                            const [line, ch] = pos
-                            const startPos = { line, ch }
-                            const token = this.cm.getTokenAt(startPos)
-                            startPos.ch -= 1
-                            const endPos = { line, ch: token.end }
-                            if (token.string !== data.token) {
-                                console.warn('variable name not match', token.string, data.token)
-                                continue
-                            }
-                            selections.push({
-                                anchor: startPos,
-                                head: endPos
-                            })
-                        }
-                        this.cm.setSelections(selections)
-                    },
                     CompletionDocstring: ({ doc, type }) => {
                         if (doc.length === 0) doc = null
                         g.docs.set({ completionDoc: doc, completionDocType: type })
@@ -218,6 +199,12 @@
                             assignments: data.filter(x => !x.definition)
                         })
                     },
+                    UsagesFound: data => {
+                        g.references.set({
+                            definitions: data.filter(x => x.definition),
+                            usages: data.filter(x => !x.definition)
+                        })
+                    }
                 })
             })
 

@@ -239,14 +239,22 @@ class CMEventDispatcher {
         })
 
         cm.on('contextmenu', (cm, event) => {
+            if (!event.ctrlKey && !event.metaKey && !event.altKey)
+                return
+            const cursor = cm.coordsChar({left: event.x - 1, top: event.y - 1})
+            const type = []
             if (event.ctrlKey || event.metaKey) {
-                const cursor = cm.coordsChar({left: event.x - 1, top: event.y - 1})
-                editor.session.send('FindAssignments', {
-                    line: cursor.line,
-                    ch: cursor.ch
-                })
-                event.preventDefault()
+                type.push('assignments')
+            } 
+            if (event.altKey) {
+                type.push('usages')
             }
+            editor.session.send('FindReferences', {
+                type,
+                line: cursor.line,
+                ch: cursor.ch
+            })
+            event.preventDefault()
         })
     }
 
