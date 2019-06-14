@@ -22,7 +22,7 @@ class CMEventDispatcher {
             formatter = editor.realtimeFormatter,
             completionProvider = editor.completionProvider,
             completion = editor.completion
-            
+
         this.realtimeEvaluation = false
 
         let dirtyLine = NONE
@@ -110,7 +110,7 @@ class CMEventDispatcher {
                 g.linter.set(pos)
                 g.find.set(pos)
             })
-            
+
             if (this.realtimeEvaluation)
                 g.console.evaluatePartA(cursor.line)
         })
@@ -236,6 +236,17 @@ class CMEventDispatcher {
             const timeElapsed = performance.now() - startTime
             if (editor.debug) console.log('beforeChange took', timeElapsed)
             if (timeElapsed > 5) console.warn('slow', c, timeElapsed)
+        })
+
+        cm.on('contextmenu', (cm, event) => {
+            if (event.ctrlKey || event.metaKey) {
+                const cursor = cm.coordsChar({left: event.x - 1, top: event.y - 1})
+                editor.session.send('FindAssignments', {
+                    line: cursor.line,
+                    ch: cursor.ch
+                })
+                event.preventDefault()
+            }
         })
     }
 

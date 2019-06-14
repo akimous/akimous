@@ -225,6 +225,11 @@ span.tooltipped::after {
     border-spacing: 0;
 }
 
+.panel table td.row-body {
+    padding: .3rem .2rem .3rem .5rem;
+    background: var(--gray2);
+}
+
 .panel td {
     vertical-align: top;
     cursor: default;
@@ -242,7 +247,7 @@ span.tooltipped::after {
 
 .panel .line-number {
     width: 3rem;
-    padding: .2rem .2rem 0 0;
+    padding: .3rem .3rem .3rem 0;
     text-align: right;
     color: var(--primary7);
     background: var(--primary2);

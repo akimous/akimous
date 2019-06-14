@@ -211,7 +211,13 @@
                         this.spellingErrors = data.result
                         if (g.activeEditor === this)
                             g.linter.set({ spellingErrors: this.spellingErrors })
-                    }
+                    },
+                    AssignmentsFound: data => {
+                        g.references.set({
+                            definitions: data.filter(x => x.definition),
+                            assignments: data.filter(x => !x.definition)
+                        })
+                    },
                 })
             })
 

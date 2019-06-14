@@ -387,6 +387,23 @@ async def get_function_documentation(msg, send, context):
         })
 
 
+@handles('FindAssignments')
+async def find_assignments(msg, send, context):
+    content = context.content
+    j = jedi.Script(content, msg['line'] + 1, msg['ch'], context.path)
+    definitions = j.goto_assignments(follow_imports=True)
+    results = [{
+        'path': d.module_path,
+        'module': d.module_name,
+        'builtin': d.in_builtin_module(),
+        'definition': d.is_definition(),
+        'line': d.line,
+        'ch': d.column,
+        'code': d.get_line_code().strip()
+    } for d in definitions]
+    await send('AssignmentsFound', results)
+
+
 @handles('FindUsages')
 async def find_usage(msg, send, context):
     content = context.content

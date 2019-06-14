@@ -1,0 +1,74 @@
+<div ref:panel id="references" class="panel" class:gone="!active" on:click="onFocus()">
+    <div class="title">Definitions</div>
+    <table id="table-definitions">
+        {#each definitions as i}
+            <tr class="row">
+                {#if i.module === 'builtins'}
+                <td class="line-number">0</td>
+                <td class="row-body">built-in</td>
+                {:else}
+                <td class="line-number">{i.line + 1}</td>
+                <td class="row-body">{i.code}</td>
+                {/if}
+            </tr>
+        {/each}
+    </table>
+    <div class="title">Assignments</div>
+    <table id="table-assignments">
+        {#each assignments as i}
+            <tr class="row">
+                <td class="line-number">{i.line + 1}</td>
+                <td class="row-body">{i.code}</td>
+            </tr>
+        {/each}
+    </table>
+    <div class="title">Usages</div>
+    <table id="table-usages">
+        {#each usages as i}
+            <tr class="row">
+                <td class="line-number">{i.line + 1}</td>
+                <td class="row-body">{i.code}</td>
+            </tr>
+        {/each}
+    </table>
+</div>
+
+<style>
+
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+    import { initializeTabView, Pos } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
+
+    export default {
+        components: {},
+        oncreate() {
+            this.name = 'references'
+            g.references = this
+            initializeTabView(this, 'References', 'fas fa-link l-ao')
+            makeScrollable(this, this.refs.panel)
+        },
+        data() {
+            return {
+                active: false,
+                definitions: [{
+                    line: 10,
+                    code: 'bla',
+                    
+                }],
+                assignments: [],
+                usages: []
+            }
+        },
+        methods: {
+            onFocus() {
+                g.setFocus([g.panelRight, this])
+            },
+        },
+    }
+
+</script>

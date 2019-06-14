@@ -12,7 +12,7 @@
         {#each realtimeLints as {line, ch, message}}
         <tr on:click="jumpTo(line, ch)" class:highlight="currentLine + 1 === line">
             <td class="line-number">{line}</td>
-            <td class="message error">{message}</td>
+            <td class="row-body error">{message}</td>
         </tr>
         {:else}
         <tr>
@@ -27,7 +27,7 @@
         {#each spellingErrors as {line, ch, highlight}}
         <tr on:click="jumpTo(line, ch)" class:highlight="currentLine + 1 === line">
             <td class="line-number">{line}</td>
-            <td class="message">{@html highlight}
+            <td class="row-body">{@html highlight}
                 <div class="add-to-dictionary" aria-label="Add to project dictionary" on:click="addToDictionary(highlight)" on:mouseenter="mouseEnter()" on:mouseleave="mouseLeave()"><i class="fas fa-book"></i></div>
             </td>
         </tr>
@@ -52,7 +52,7 @@
         {#each filteredOfflineLints as message, i}
         <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)" class:highlight="currentLine + 1 === message.line">
             <td class="line-number">{message.line}</td>
-            <td class="{message.type} message">{message.message0}</td>
+            <td class="row-body {message.type}">{message.message0}</td>
         </tr>
         {:else}
         <tr>
@@ -108,11 +108,6 @@
 
     .type-filter .type {
         font-weight: 400;
-    }
-
-    .message {
-        padding: .3rem .5rem;
-        background: var(--gray2);
     }
 
     .informational {

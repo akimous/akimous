@@ -6,7 +6,7 @@
             {#each Array(level) as indent}
             <td class="indent"></td>
             {/each}
-            <td class="display {type}">{display}</td>
+            <td class="row-body {type}">{display}</td>
         </tr>
         {:else}
             <tr>
@@ -33,22 +33,20 @@
         border-right: .05rem solid var(--panel-delimiter-color);
     }
 
-    .display {
+    .row-body {
         display: inline-block;
-        padding: .3rem .5rem;
         flex-grow: 1;
-        background: var(--gray2);
     }
 
-    .display.def {
+    .row-body.def {
         color: var(--c-function);
     }
 
-    .display.class {
+    .row-body.class {
         color: var(--c-def);
     }
 
-    .display.async {
+    .row-body.async {
         color: var(--c-attribute);
     }
 

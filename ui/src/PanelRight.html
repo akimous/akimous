@@ -5,6 +5,7 @@
     <Linter ref:linter></Linter>
     <Macro ref:macro></Macro>
     <Docs ref:docs></Docs>
+    <References ref:references></References>
 </div>
 
 
@@ -36,14 +37,15 @@
             Macro: './panels/Macro.html',
             Docs: './panels/Docs.html',
             Find: './panels/Find.html',
-            Linter: './panels/Linter.html'
+            Linter: './panels/Linter.html',
+            References: './panels/References.html',
         },
         oncreate() {
             g.panelRight = this
             this.tabBar = this.refs.tabBar
             setAttributeForMultipleComponent({
                 parent: this
-            }, this.refs.tabBar, this.refs.console, this.refs.macro, this.refs.docs, this.refs.find, this.refs.linter)
+            }, this.refs.tabBar, this.refs.console, this.refs.macro, this.refs.docs, this.refs.find, this.refs.linter, this.refs.references)
 
             // we must activate console upon initialization, or xterm will break
             schedule(() => {
