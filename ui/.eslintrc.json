@@ -54,6 +54,7 @@
                     "breakpoint",
                     "closable",
                     "codemirror",
+                    "contextmenu",
                     "coords",
                     "ctrl",
                     "cwd",
