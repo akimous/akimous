@@ -1,49 +1,93 @@
 <div ref:panel id="references" class="panel" class:gone="!active" on:click="onFocus()">
     <div class="title">Definitions</div>
     <table id="table-definitions">
-        {#each definitions as i}
-            <tr class="row">
-                {#if i.module === 'builtins'}
-                <td class="line-number">0</td>
-                <td class="row-body">built-in</td>
-                {:else}
-                <td class="line-number">{i.line + 1}</td>
-                <td class="row-body">{i.code}</td>
-                {/if}
-            </tr>
+        {#each definitionsWithTitles as i}
+            {#if i.title}
+                <tr class="row file">
+                    <td class="line-number"><i class="fas fa-file"></i></td>
+                    <td class="row-body module">{i.title}</td>
+                </tr>
+            {:else}
+                <tr class="row">
+                    {#if i.module === 'builtins'}
+                    <td class="line-number">0</td>
+                    <td class="row-body">built-in</td>
+                    {:else}
+                    <td class="line-number">{i.line + 1}</td>
+                    <td class="row-body">{i.code}</td>
+                    {/if}
+                </tr>
+            {/if}
         {/each}
     </table>
     <div class="title">Assignments</div>
     <table id="table-assignments">
-        {#each assignments as i}
+        {#each assignmentsWithTitles as i}
+            {#if i.title}
+                <tr class="row file">
+                    <td class="line-number"><i class="fas fa-file"></i></td>
+                    <td class="row-body module">{i.title}</td>
+                </tr>
+            {:else}
             <tr class="row">
                 <td class="line-number">{i.line + 1}</td>
                 <td class="row-body">{i.code}</td>
             </tr>
+            {/if}
         {/each}
     </table>
     <div class="title">Usages</div>
     <table id="table-usages">
-        {#each usages as i}
+        {#each usagesWithTitles as i}
+            {#if i.title}
+                <tr class="row file">
+                    <td class="line-number"><i class="fas fa-file"></i></td>
+                    <td class="row-body module">{i.title}</td>
+                </tr>
+            {:else}
             <tr class="row">
                 <td class="line-number">{i.line + 1}</td>
                 <td class="row-body">{i.code}</td>
             </tr>
+            {/if}
         {/each}
     </table>
 </div>
 
+
 <style>
-
-
+    .file .line-number {
+        color: var(--accent7);
+        background: var(--accent3);
+        text-align: center;
+        padding-right: 0;
+    }
+    
+    .row-body.module {
+        color: var(--accent7);
+        background: var(--accent2);
+    }
+    
 </style>
-
 
 <script>
     import g from '../lib/Globals'
     import { initializeTabView } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
 
+    function* withTitles(iterable) {
+        let title = ''
+        for (let i of iterable) {
+            if (i.path !== title) {
+                title = i.path
+                yield {
+                    title: i.module
+                }
+            }
+            yield i
+        }
+    }
+    
     export default {
         components: {},
         oncreate() {
@@ -59,6 +103,11 @@
                 assignments: [],
                 usages: []
             }
+        },
+        computed: {
+            definitionsWithTitles: ({ definitions }) => [...withTitles(definitions)],
+            assignmentsWithTitles: ({ assignments }) => [...withTitles(assignments)],
+            usagesWithTitles: ({ usages }) => [...withTitles(usages)],
         },
         methods: {
             onFocus() {

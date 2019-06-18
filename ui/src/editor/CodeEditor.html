@@ -193,18 +193,9 @@
                         if (g.activeEditor === this)
                             g.linter.set({ spellingErrors: this.spellingErrors })
                     },
-                    AssignmentsFound: data => {
-                        g.references.set({
-                            definitions: data.filter(x => x.definition),
-                            assignments: data.filter(x => !x.definition)
-                        })
+                    ReferencesFound: data => {
+                        g.references.set(data)
                     },
-                    UsagesFound: data => {
-                        g.references.set({
-                            definitions: data.filter(x => x.definition),
-                            usages: data.filter(x => !x.definition)
-                        })
-                    }
                 })
             })
 
