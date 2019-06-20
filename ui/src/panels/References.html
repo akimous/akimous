@@ -14,7 +14,7 @@
                     <td class="row-body">built-in</td>
                     {:else}
                     <td class="line-number">{i.line + 1}</td>
-                    <td class="row-body">{i.code}</td>
+                    <td class="row-body">{@html formatForDisplay(i)}</td>
                     {/if}
                 </tr>
             {/if}
@@ -31,7 +31,7 @@
             {:else}
             <tr class="row">
                 <td class="line-number">{i.line + 1}</td>
-                <td class="row-body">{i.code}</td>
+                <td class="row-body">{@html formatForDisplay(i)}</td>
             </tr>
             {/if}
         {/each}
@@ -47,7 +47,7 @@
             {:else}
             <tr class="row">
                 <td class="line-number">{i.line + 1}</td>
-                <td class="row-body">{i.code}</td>
+                <td class="row-body">{@html formatForDisplay(i)}</td>
             </tr>
             {/if}
         {/each}
@@ -68,11 +68,16 @@
         background: var(--accent2);
     }
     
+    .row-body :global(em) {
+        color: var(--brighter-yellow);
+        font-style: normal;
+    }
+    
 </style>
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView } from '../lib/Utils'
+    import { initializeTabView, highlightMatch } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
 
     function* withTitles(iterable) {
@@ -88,8 +93,15 @@
         }
     }
     
+    function formatForDisplay(i) {
+        return highlightMatch(i.code, i.from, i.to).trim()
+    }
+    
     export default {
         components: {},
+        helpers: {
+            formatForDisplay
+        },
         oncreate() {
             this.name = 'references'
             g.references = this

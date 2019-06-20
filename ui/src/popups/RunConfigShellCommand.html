@@ -1,6 +1,6 @@
 <div class="text-input" class:editing>
     {#if editing}
-    <input ref:input type="text" bind:value on:change on:keydown on:blur="commitChange()">
+    <input ref:input type="text" spellcheck="false" bind:value on:change on:keydown on:blur="commitChange()">
     {:else}
     <span>{value}</span>
     {/if}

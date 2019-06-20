@@ -3,7 +3,7 @@
     <span class="display-name">
         {name}
     </span> {:else}
-    <input ref:input class="display-name" type="text" value="{name}" on:blur="commitRename()"> {/if}
+    <input ref:input class="display-name" type="text" spellcheck="false" value="{name}" on:blur="commitRename()"> {/if}
 </div>
 
 {#if newNode}

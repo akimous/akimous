@@ -126,7 +126,7 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView, nextFrame, Pos, joinPath } from '../lib/Utils'
+    import { initializeTabView, nextFrame, Pos, joinPath, highlightMatch } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
     import isEqual from 'lodash.isequal'
@@ -172,15 +172,11 @@
                 for (const { file, matches } of result) {
                     m.push(file)
                     for (const [line, from, to, text] of matches) {
-                        const head = text.substring(0, from)
-                        const body = text.substring(from, to)
-                        const tail = text.substring(to)
-                        const display = `${head}<em>${body}</em>${tail}`
                         m.push({
                             from: Pos(line, from),
                             to: Pos(line, to),
                             filePath: file,
-                            display,
+                            display: highlightMatch(text, from, to),
                         })
                     }
                 }
@@ -407,11 +403,9 @@
                             const match = found[0]
                             const { length } = match
                             const { input, index } = found
-                            const head = input.substring(0, index)
-                            const tail = input.substring(index + length)
                             const from = searchCursor.from()
-                            const to = searchCursor.to()
-                            const display = `${head}<em>${match}</em>${tail}`
+                            const to = searchCursor.to()                            
+                            const display = highlightMatch(input, index, index + length)
                             matches.push({ display, from, to, filePath })
                             if (matches.length === limit) {
                                 limit += 100

@@ -427,8 +427,9 @@ def definition_to_dict(d):
         'builtin': d.in_builtin_module(),
         'definition': d.is_definition(),
         'line': d.line,
-        'ch': d.column,
-        'code': d.get_line_code().strip()
+        'from': d.column,
+        'to': d.column + len(d.name),
+        'code': d.get_line_code()
     }
 
 

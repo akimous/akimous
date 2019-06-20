@@ -257,6 +257,13 @@ function capitalize(s) {
     return s && s.charAt(0).toUpperCase() + s.slice(1)
 }
 
+function highlightMatch(text, from, to) {
+    const head = text.substring(0, from)
+    const body = text.substring(from, to)
+    const tail = text.substring(to)
+    return `${head}<em>${body}</em>${tail}`
+}
+
 export {
     binarySearch,
     schedule,
@@ -275,4 +282,5 @@ export {
     highlightSequentially,
     joinPath,
     capitalize,
+    highlightMatch,
 }
