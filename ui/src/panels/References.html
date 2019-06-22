@@ -118,6 +118,13 @@
                 usages: []
             }
         },
+        onstate({ changed, current }) {
+            if (changed.definitions) {
+                if (current.definitions.length === 1 && current.assignments.length + current.usages.length === 0) {
+                    this.jumpTo(current.definitions[0])
+                }
+            }
+        },
         computed: {
             definitionsWithTitles: ({ definitions }) => [...withTitles(definitions)],
             assignmentsWithTitles: ({ assignments }) => [...withTitles(assignments)],
