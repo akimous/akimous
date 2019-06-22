@@ -250,6 +250,8 @@ function highlightSequentially(target, input) {
 }
 
 function joinPath(x) {
+    if (x[0] === g.pathSeparator)
+        return g.pathSeparator + x.slice(1).join(g.pathSeparator)
     return x.join(g.pathSeparator)
 }
 

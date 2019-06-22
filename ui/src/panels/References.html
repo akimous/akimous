@@ -8,7 +8,7 @@
                     <td class="row-body module">{i.title}</td>
                 </tr>
             {:else}
-                <tr class="row">
+                <tr class="row" on:click="jumpTo(i)">
                     {#if i.module === 'builtins'}
                     <td class="line-number">0</td>
                     <td class="row-body">built-in</td>
@@ -29,10 +29,10 @@
                     <td class="row-body module">{i.title}</td>
                 </tr>
             {:else}
-            <tr class="row">
-                <td class="line-number">{i.line + 1}</td>
-                <td class="row-body">{@html formatForDisplay(i)}</td>
-            </tr>
+                <tr class="row" on:click="jumpTo(i)">
+                    <td class="line-number">{i.line + 1}</td>
+                    <td class="row-body">{@html formatForDisplay(i)}</td>
+                </tr>
             {/if}
         {/each}
     </table>
@@ -45,10 +45,10 @@
                     <td class="row-body module">{i.title}</td>
                 </tr>
             {:else}
-            <tr class="row">
-                <td class="line-number">{i.line + 1}</td>
-                <td class="row-body">{@html formatForDisplay(i)}</td>
-            </tr>
+                <tr class="row" on:click="jumpTo(i)">
+                    <td class="line-number">{i.line + 1}</td>
+                    <td class="row-body">{@html formatForDisplay(i)}</td>
+                </tr>
             {/if}
         {/each}
     </table>
@@ -77,16 +77,18 @@
 
 <script>
     import g from '../lib/Globals'
-    import { initializeTabView, highlightMatch } from '../lib/Utils'
+    import { initializeTabView, highlightMatch, joinPath, Pos, schedule } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
+    import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
     function* withTitles(iterable) {
         let title = ''
         for (let i of iterable) {
-            if (i.path !== title) {
-                title = i.path
+            const path = joinPath(i.path)
+            if (path !== title) {
+                title = path
                 yield {
-                    title: i.module
+                    title: path
                 }
             }
             yield i
@@ -125,6 +127,12 @@
             onFocus() {
                 g.setFocus([g.panelRight, this])
             },
+            jumpTo(row) {
+                g.panelMiddle.openFile(row.path, editor => {
+                    const cm = setCursorAndScrollIntoView(row.line, row.from)
+                    cm.extendSelection(Pos(row.line, row.from), Pos(row.line, row.to))
+                })
+            }
         },
     }
 

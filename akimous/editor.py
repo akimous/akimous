@@ -120,7 +120,7 @@ async def run_pyflakes(context, send):
 
 async def warm_up_jedi(context):
     jedi.Script('\n'.join(context.doc), len(context.doc), 0,
-                context.path).completions()
+                str(context.path)).completions()
 
 
 async def post_content_change(context, send):
@@ -259,7 +259,7 @@ async def predict(msg, send, context):
     doc = '\n'.join(context.doc)
     context.content = doc
     with Timer(f'Prediction ({line_number}, {ch})'):
-        j = jedi.Script(doc, line_number + 1, ch, context.path)
+        j = jedi.Script(doc, line_number + 1, ch, str(context.path))
         completions = j.completions()
 
     with Timer(f'Rest ({line_number}, {ch})'):
@@ -364,7 +364,7 @@ async def get_function_documentation(msg, send, context):
     ch = msg['ch']
     content = context.content
 
-    j = jedi.Script(content, line_number + 1, ch, context.path)
+    j = jedi.Script(content, line_number + 1, ch, str(context.path))
     call_signatures = j.call_signatures()
     if not call_signatures:
         logger.debug('call signature is empty while obtaining docstring')
@@ -390,7 +390,7 @@ async def get_function_documentation(msg, send, context):
 @handles('FindAssignments')
 async def find_assignments(msg, send, context):
     content = context.content
-    j = jedi.Script(content, msg['line'] + 1, msg['ch'], context.path)
+    j = jedi.Script(content, msg['line'] + 1, msg['ch'], str(context.path))
     definitions = j.goto_assignments(follow_imports=True)
     results = [{
         'path': d.module_path,
@@ -407,7 +407,7 @@ async def find_assignments(msg, send, context):
 @handles('FindUsages')
 async def find_usage(msg, send, context):
     content = context.content
-    j = jedi.Script(content, msg['line'] + 1, msg['ch'], context.path)
+    j = jedi.Script(content, msg['line'] + 1, msg['ch'], str(context.path))
     usages = j.usages()
     results = [{
         'path': u.module_path,
@@ -422,11 +422,11 @@ async def find_usage(msg, send, context):
 
 def definition_to_dict(d):
     return {
-        'path': d.module_path,
+        'path': Path(d.module_path).parts,
         'module': d.module_name,
         'builtin': d.in_builtin_module(),
         'definition': d.is_definition(),
-        'line': d.line,
+        'line': d.line - 1,
         'from': d.column,
         'to': d.column + len(d.name),
         'code': d.get_line_code()
@@ -439,7 +439,7 @@ async def find_references(msg, send, context):
     assignments = []
     usages = []
     mode = msg['type']
-    j = jedi.Script(context.content, msg['line'] + 1, msg['ch'], context.path)
+    j = jedi.Script(context.content, msg['line'] + 1, msg['ch'], str(context.path))
     if 'assignments' in mode:
         references = j.goto_assignments(follow_imports=True)
         if 'usages' not in mode:
