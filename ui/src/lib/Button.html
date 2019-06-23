@@ -1,4 +1,6 @@
-<div class="non-selectable" class:active class:flashing style="{roundCorners(corner)}" class:coalesced="corner.startsWith('00')" on:click><slot></slot></div>
+<div ref:button class="non-selectable" class:active class:flashing style="{roundCorners(corner)}" class:coalesced="corner.startsWith('00')" on:click aria-label="{title}">
+    <slot></slot>
+</div>
 
 
 <style>
@@ -12,16 +14,16 @@
         flex-grow: 10;
         text-align: center;
     }
-    
+
     div.coalesced {
         border-top: none;
     }
-    
+
     div.flashing,
     div:hover {
         filter: brightness(1.2);
     }
-    
+
     div.flashing,
     div:active,
     div.active {
@@ -33,17 +35,27 @@
 
 
 <script>
+    import g from './Globals'
+    import { schedule } from './Utils'
     import { roundCorners } from './UIUtils'
 
     export default {
         components: {},
-        oncreate() {},
+        oncreate() {
+            const { title } = this.get()
+            if (title) {
+                schedule(() => {
+                    g.tooltip.register(this.refs.button)
+                })
+            }
+        },
         data() {
             return {
                 active: false,
                 flashing: false,
                 corner: '0000',
-                callback: null
+                callback: null,
+                title: '',
             }
         },
         helpers: {

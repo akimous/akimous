@@ -49,6 +49,7 @@
         },
         methods: {
             register(element) {
+                // those listeners should be garbage collected when the element is destroyed
                 if (!Array.isArray(element)) {
                     element.addEventListener('mouseenter', mouseEnterListener)
                     element.addEventListener('mouseleave', mouseLeaveListener)
@@ -59,6 +60,7 @@
                     i.addEventListener('mouseleave', mouseLeaveListener)
                 }
             },
+            
         }
     }
 

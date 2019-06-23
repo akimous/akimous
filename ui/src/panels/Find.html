@@ -2,27 +2,27 @@
     <div class="label">Find...</div>
     <TextInput ref:findText bind:value=findText coalesced="true" on:keydown="onKeyDown(event)"></TextInput>
     <div class="button-group">
-        <Button corner="0001" active={caseSensitive} on:click="set({ caseSensitive: !caseSensitive })">Aa</Button>
-        <Button active={regex} on:click="set({ regex: !regex })">.*</Button>
+        <Button corner="0001" active={caseSensitive} on:click="set({ caseSensitive: !caseSensitive })" title="Case-Sensitive">Aa</Button>
+        <Button active={regex} on:click="set({ regex: !regex })" title="Regular Expression">.*</Button>
         {#if findInDirectory}
-        <Button corner="0000" active={wholeWord} on:click="set({ wholeWord: !wholeWord })"><i class="far fa-square"></i></Button>
-        <Button corner="0010" active={subdirectory} on:click="set({ subdirectory: !subdirectory })"><i class="fas fa-sitemap"></i></Button>
+        <Button corner="0000" active={wholeWord} on:click="set({ wholeWord: !wholeWord })" title="Whole Word"><i class="far fa-square"></i></Button>
+        <Button corner="0010" active={subdirectory} on:click="set({ subdirectory: !subdirectory })" title="Search in Subdirectory"><i class="fas fa-sitemap"></i></Button>
         {:else}
-        <Button corner="0010" active={wholeWord} on:click="set({ wholeWord: !wholeWord })"><i class="far fa-square"></i></Button>
+        <Button corner="0010" active={wholeWord} on:click="set({ wholeWord: !wholeWord })" title="Whole Word"><i class="far fa-square"></i></Button>
         {/if}
         <span class="gap"></span>
-        <Button ref:findPrevious corner="0001" on:click="findNext(-1)"><i class="fas fa-caret-left"></i></Button>
-        <Button ref:findNext corner="0010" on:click="findNext(1)"><i class="fas fa-caret-right"></i></Button>
+        <Button ref:findPrevious corner="0001" on:click="findNext(-1)" title="Find Previous"><i class="fas fa-caret-left"></i></Button>
+        <Button ref:findNext corner="0010" on:click="findNext(1)" title="Find Next"><i class="fas fa-caret-right"></i></Button>
     </div>
     {#if replaceMode}
     <div class="label">Replace with...</div>
     <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
     <div class="button-group">
-        <Button corner="0011">All</Button>
+        <Button corner="0011" title="Replace All Occurances">All</Button>
         <span class="gap"></span>
-        <Button corner="0001" on:click="replace(-1)"><i class="fas fa-caret-left"></i></Button>
-        <Button on:click="replace(0)">Replace</Button>
-        <Button corner="0010" on:click="replace(1)"><i class="fas fa-caret-right"></i></Button>
+        <Button corner="0001" on:click="replace(-1)" title="Replace and Select Previous Occurance"><i class="fas fa-caret-left"></i></Button>
+        <Button on:click="replace(0)" title="Replace Selected">Replace</Button>
+        <Button corner="0010" on:click="replace(1)" title="Replace and Select Next Occurance"><i class="fas fa-caret-right"></i></Button>
     </div>
     {/if}
 
@@ -76,7 +76,7 @@
     }
 
     .button-group {
-        margin: 0 .3rem .3rem .3rem;
+        margin: 0 .3rem .3rem .4rem;
         display: flex;
     }
 
@@ -270,13 +270,8 @@
                 let { findInDirectory, selectedIndex, matches } = this.get()
                 if (findInDirectory) {
                     const { length } = matches
-                    if (selectedIndex === -1) {
-                        selectedIndex = length - 1
-                    } else {
-                        selectedIndex = (selectedIndex + length + direction) % length
-                        selectedIndex += selectedIndex ? 0 : direction
-                        if (selectedIndex < 0) selectedIndex = length - 1
-                    }
+                    selectedIndex = (selectedIndex + length + direction) % length
+                    if (selectedIndex < 0) selectedIndex = length - 1
                     let match = matches[selectedIndex]
                     if (Array.isArray(match)) {
                         selectedIndex = (selectedIndex + length + direction) % length
@@ -370,6 +365,21 @@
                     selectedMatches.add(match)
                 }
                 this.set({ selectedMatches })
+            },
+            reset() {
+                this.set({
+                    matches: [],
+                    selectedIndex: -1,
+                    selectedMatches: new Set(),
+
+                    currentFilePath: [],
+                    currentLine: 0,
+                    currentCh: 0,
+
+                    nFiles: 0,
+                    overflow: false,
+                    cannotDisplay: false,
+                })
             },
             clearSelections() {
                 const { selectedMatches } = this.get()

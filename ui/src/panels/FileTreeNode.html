@@ -105,6 +105,12 @@
             target.findIn()
         }
     }, {
+        text: 'Replace in directory...',
+        icon: 'fas fa-retweet',
+        callback: (target) => {
+            target.replaceIn()
+        }
+    }, {
         text: 'Rename',
         icon: 'fas fa-pen-square',
         callback: (target) => {
@@ -422,10 +428,19 @@
             findIn() {
                 const path = this.getPath()
                 if (!this.get().isDir) path.pop()
-                g.find.set({ findInDirectory: path })
+                g.find.reset()
+                g.find.set({ 
+                    findInDirectory: path,
+                    replaceMode: false,
+                })
                 g.panelRight.activateView(g.panelRight.refs.find)
                 g.setFocus([g.panelRight, g.find])
                 g.find.refs.findText.focus()
+                g.find.findInDirectory()
+            },
+            replaceIn() {
+                this.findIn()
+                g.find.set({ replaceMode: true })
             },
             openInFileManager() {
                 g.fileTree.session.send('OpenInFileManager', {
