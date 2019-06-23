@@ -5,6 +5,8 @@ from pathlib import Path
 
 from cachetools import TTLCache, cached
 from pathspec import PathSpec
+from logzero import logger
+
 
 Match = namedtuple('Match', ('line', 'start', 'end', 'text'))
 
@@ -79,28 +81,35 @@ async def find_in_directory(msg, send, context):
 
 async def replace_all_in_directory(msg, send, context):
     case_sensitive = msg['caseSensitive']
-    regex = re.compile(msg['query'], 0 if case_sensitive else re.IGNORECASE)
+    regex = re.compile(msg['findText'], 0 if case_sensitive else re.IGNORECASE)
+    replacement = msg['replaceText']
     subdirectory = msg['subdirectory']
-    limit = msg['limit']
     project_root = context.shared.project_root
     directory = Path(project_root, *msg['path'])
     pathspec = get_pathspec(project_root)
-    file_count = 0
     match_count = 0
-
     for root, _, files in os.walk(directory):
         for file in files:
             path = Path(root) / file
             relative_path = path.relative_to(project_root)
             if pathspec.match_file(str(relative_path)):
                 continue
-            # matches = search(path, regex)
-            # if not matches:
-            #     continue
-            # results.append((relative_path.parts, matches))
-            file_count += 1
-            # match_count += len(matches)
-            if match_count > limit:
-                break
-        if not subdirectory or match_count > limit:
+            logger.warning(str(file))
+            replaced_content = []
+            dirty = False
+            with open(path) as f:
+                for line_content in f:
+                    new_string, number_of_substitute = regex.subn(replacement, line_content)
+                    replaced_content.append(new_string)
+                    if number_of_substitute:
+                        dirty = True
+                        match_count += number_of_substitute
+            if not dirty:
+                continue
+            with open(path, 'w') as f:
+                f.writelines(replaced_content)
+        if not subdirectory:
             break
+    await send('ReplacedInDirectory', {
+        'count': match_count
+    })

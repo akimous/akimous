@@ -18,7 +18,7 @@
     <div class="label">Replace with...</div>
     <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
     <div class="button-group">
-        <Button corner="0011" title="Replace All Occurances">All</Button>
+        <Button corner="0011" on:click="replaceAll()" title="Replace All Occurances">All</Button>
         <span class="gap"></span>
         <Button corner="0001" on:click="replace(-1)" title="Replace and Select Previous Occurance"><i class="fas fa-caret-left"></i></Button>
         <Button on:click="replace(0)" title="Replace Selected">Replace</Button>
@@ -47,7 +47,9 @@
             {/if}
         </div>
         <span class="gap"></span>
+        {#if !findInDirectory}
         <Button corner="1111" on:click="selectAll()">Select All</Button>
+        {/if}
     </div>
     <table id="found-matches">
         {#each matches as match}
@@ -185,6 +187,9 @@
                     nFiles,
                     overflow
                 })
+            }
+            g.projectSession.handlers['ReplacedInDirectory'] = ({ count }) => {
+                g.notificationBar.show('success', `${count} matches replaced.`)
             }
         },
         data() {
@@ -342,9 +347,28 @@
                     }
                     searchCursor.replace(replaceText)
                 }
+                if (!direction)
+                    return
                 const searchCursor = this.findNext(direction)
                 if (!searchCursor)
                     g.notificationBar.show('warning', 'No result found.')
+            },
+            replaceAll() {
+                const { findText, replaceText, findInDirectory, caseSensitive, subdirectory } = this.get()
+                if (findInDirectory) {
+                    g.projectSession.send('ReplaceAllInDirectory', {
+                        path: findInDirectory,
+                        findText,
+                        replaceText,
+                        caseSensitive,
+                        subdirectory,
+                    })
+                    return
+                } else {
+                    this.selectAll()
+                    this.replace()
+                    g.notificationBar.show('success', `${this.get().matches.length} matches replaced.`)
+                }
             },
             jumpTo(match) {
                 g.panelMiddle.openFile(match.filePath, editor => {
