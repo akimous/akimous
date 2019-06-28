@@ -24,6 +24,7 @@ from .utils import Timer, detect_doc_type, nop, log_exception
 from .websocket import register_handler
 from .word_completer import search_prefix
 from .project import save_state
+from .completion_utilities import is_parameter_of_def
 
 
 DEBUG = False
@@ -258,6 +259,17 @@ async def predict(msg, send, context):
     context.doc[line_number] = line_content
     doc = '\n'.join(context.doc)
     context.content = doc
+
+    if is_parameter_of_def(context.doc, line_number, ch):
+        logger.warning('meow')
+        # don't make prediction if it is defining function parameters
+        await send('Prediction', {
+            'line': line_number,
+            'ch': ch,
+            'result': [],
+        })
+        return
+
     with Timer(f'Prediction ({line_number}, {ch})'):
         j = jedi.Script(doc, line_number + 1, ch, str(context.path))
         completions = j.completions()
