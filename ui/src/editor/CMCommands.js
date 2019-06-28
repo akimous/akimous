@@ -453,6 +453,11 @@ function registerCMCommands(CodeMirror) {
             minFoldSize: 2,
         })
     }
+    
+    commands.moveToLineEndAndInsertLineAfter = cm => {
+        commands.goLineEnd(cm)
+        commands.newlineAndIndent(cm)
+    }
 }
 
 export default registerCMCommands
