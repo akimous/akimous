@@ -174,7 +174,7 @@ class CompletionProvider {
             for (let i of completions) {
                 i.sortScore = this.sorter.score(i.text) * 10
                 if (shouldUseSequentialHighlighter.has(i.type))
-                    i.highlight = highlightSequentially(i.completion, input)
+                    i.highlight = highlightSequentially(i.text, input)
                 else
                     i.highlight = this.sorter.highlight()
             }

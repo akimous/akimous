@@ -35,9 +35,9 @@
         "popper.js": "^1.14.7",
         "pressure": "^2.1.2",
         "rollup": "1.16.2",
-        "rollup-plugin-commonjs": "^10.0.0",
+        "rollup-plugin-commonjs": "^10.0.1",
         "rollup-plugin-livereload": "^1.0.1",
-        "rollup-plugin-node-resolve": "^5.0.4",
+        "rollup-plugin-node-resolve": "^5.1.0",
         "rollup-plugin-postcss": "^2.0.3",
         "rollup-plugin-progress": "^1.0.0",
         "rollup-plugin-svelte": "^5.1.0",
@@ -47,7 +47,7 @@
         "stylelint-config-recommended": "^2.1.0",
         "svelte": "^2.16.1",
         "terser": "^4.0.0",
-        "xterm": "^3.14.2"
+        "xterm": "^3.14.4"
     },
     "scripts": {},
     "browserslist": [

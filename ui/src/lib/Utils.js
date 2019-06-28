@@ -224,6 +224,12 @@ function inBraces(cm, cursor) {
     return inSomething(cm, cursor, '{', '}')
 }
 
+/**
+ * Emphasize input in target for completion display.
+ * @param   {string} target e.g. "something"
+ * @param   {string} input  e.g. "some"
+ * @returns {string} e.g. "<em>some</em>thing"
+ */
 function highlightSequentially(target, input) {
     const result = []
     let t = 0
