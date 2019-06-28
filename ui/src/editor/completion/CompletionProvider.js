@@ -156,7 +156,6 @@ class CompletionProvider {
         sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
 
         if (!sortedCompletions.length) {
-            console.warn({ input })
             this.editor.session.send('PredictExtra', [line, ch, input])
         } else
             this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.mode)

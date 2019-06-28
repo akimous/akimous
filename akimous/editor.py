@@ -289,40 +289,38 @@ async def predict(msg, send, context):
 
 @handles('PredictExtra')
 async def predict_extra(msg, send, context):
+    """
+    Prediction from tokens, words and snake-cases from word segments
+    """
     line_number, ch, text = msg
-    result = []
-    result_set = set()
-    #
-    # 1. existed tokens
+    results = {}  # used as an ordered set
+
+    # 1. words from dictionary
+    if len(results) < 6:
+        words = search_prefix(text)
+        for i, word in enumerate(words):
+            if word not in results:
+                results[word] = PredictionRow(c=word, t='word', s=990 - i)
+
+    # 2. existing tokens
     tokens = context.feature_extractor.context.t0map.query_prefix(
         text, line_number)
     for i, token in enumerate(tokens):
-        if token in result_set:
-            continue
-        result.append(PredictionRow(c=token, t='token', s=990 - i))
-        result_set.add(token)
-
-    # 2. words from dictionary
-    if len(result) < 6:
-        words = search_prefix(text)
-        for i, word in enumerate(words):
-            if word in result_set:
-                continue
-            result.append(PredictionRow(c=word, t='word', s=980 - i))
-            result_set.add(word)
+        if token not in results:
+            results[token] = PredictionRow(c=token, t='token', s=980 - i)
 
     # 3. segmented words
-    if len(result) < 6:
+    if len(results) < 6:
         segmented_words = wordsegment.segment(text)
         if segmented_words:
             snake = '_'.join(segmented_words)
-            if snake not in result_set:
-                result.append(PredictionRow(c=snake, t='word-segment', s=1))
+            if snake not in results:
+                results[snake] = PredictionRow(c=snake, t='word-segment', s=1)
 
     await send('ExtraPrediction', {
         'line': line_number,
         'ch': ch,
-        'result': result
+        'result': list(results.values())
     })
 
 
