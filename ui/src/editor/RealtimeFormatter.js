@@ -59,6 +59,15 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             'lineContent': cm.doc.getLine(c.from.line)
         })
 
+        // split string into two lines if enter is pressed inside a string token
+        if (c.text.length === 2 && currentText === '' && t0.type === 'string' 
+            && t0.start < c.from.ch && c.from.ch < t0.end) {
+            let quote = t0.string[0]
+            if (t0.string[1] === quote && t0.string[2] === quote)
+                return // do nothing if is triple quote 
+            c.text[0] = `${quote} \\`
+            c.text[1] = quote
+        }
         // skip if the cursor is in a string
         if (t0.type === 'comment' || (t0.type === 'string' && !(t0.end === c.to.ch))) return
         if (currentText === '') { // new line
