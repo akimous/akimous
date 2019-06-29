@@ -151,9 +151,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             ensureSpaceBefore(t0)
         } else if (t0.string === '.' && t1.type === null && identifier.test(currentText)) {
             // .x => self.x
-            c.cancel()
-            const from = Pos(c.from.line, c.from.ch - 1)
-            cm.doc.replaceRange('self.' + currentText, from, c.to)
+            c.text[0] = `self.${currentText}`
+            c.from = Pos(c.from.line, c.from.ch - 1)
         } else {
             if (editor.debug) console.log('none of above applies')
         }
@@ -162,14 +161,13 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const deleteChars = (lines, chars) => {
         let replaceWith = ''
         const from = Pos(c.from.line - lines, c.to.ch - chars)
-        const to = c.to
         if (lines > 0) {
             const lineContent = cm.doc.getLine(c.from.line - lines)
             from.ch = lineContent.length - chars
             if (/[,;:]$/.test(lineContent)) replaceWith = ' '
         }
-        c.cancel() // must go before replaceRange
-        cm.doc.replaceRange(replaceWith, from, to)
+        c.text[0] = replaceWith
+        c.from = from
     }
 
     const forwardDeleteChars = (lines, chars) => {
@@ -184,8 +182,9 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             if (indent)
                 to.ch = indent[0].length
         }
-        c.cancel() // must go before replaceRange
-        cm.doc.replaceRange(replaceWith, from, to)
+        c.text[0] = replaceWith
+        c.from = from
+        c.to = to
     }
 
     const deleteHandler = () => {
@@ -219,6 +218,11 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 forwardDeleteChars(0, 2)
             } else if (/^[=<>/*]\s/.test(tx)) {
                 forwardDeleteChars(0, 2)
+            }
+        } else if (c.from.ch < cursor.ch) {
+            const t0 = cm.getTokenAt(c.to, true)
+            if (/\s+/.test(t0.string) && t0.start === 0) { // start of line indentations
+                deleteChars(1, 0)
             }
         }
     }

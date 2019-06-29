@@ -91,8 +91,10 @@ class CompletionProvider {
             let input = this.lineContent[this.firstTriggeredCharPos.ch]
             this.state = RESPONDED
             this.currentCompletions = data.result
-            if (data.result.length < 1)
+            if (data.result.length < 1) {
+                this.state = CLOSED
                 return this.completion.set({ open: false })
+            }
 
             if (this.mode === AFTER_OPERATOR)
                 input = null

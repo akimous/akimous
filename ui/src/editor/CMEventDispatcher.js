@@ -157,7 +157,8 @@ class CMEventDispatcher {
 
         cm.on('beforeChange', (cm, c) => {
             formatter.setContext(cm, c)
-            if (editor.debug) console.log('beforeChange', c)
+            if (editor.debug) 
+                console.log('beforeChange', c)
             const startTime = performance.now()
             try {
                 const cursor = c.from
@@ -198,12 +199,12 @@ class CMEventDispatcher {
                         if (!cm.somethingSelected()) {
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                         }
-
                         // TODO: move completionProvider before formatter may yield better performance
                         input = c.text[0] // might change after handled by formatter, so reassign
                         const isInputDot = /\./.test(input)
 
                         const shouldTriggerPrediction = () => {
+                            if (c.canceled) return false
                             if (isInputDot) return true
                             if (t0.type === 'number') return false
                             if (completionProvider.state !== CLOSED) return false
@@ -211,16 +212,16 @@ class CMEventDispatcher {
                             return false
                         }
                         // handle completion and predictions
-                        const newCursor = { line: cursor.line, ch: cursor.ch + input.length }
-                        const newLineContent = lineContent.slice(0, cursor.ch) + input + lineContent.slice(cursor.ch)
+                        const newCursor = { line: c.from.line, ch: c.from.ch + input.length }
+                        const newLineContent = lineContent.slice(0, c.from.ch) + input + lineContent.slice(c.to.ch)
                         shouldDismissCompletionOnCursorActivity = false
-
                         if (shouldTriggerPrediction()) {
+                            let offset = (c.from.ch - c.to.ch) + (isInputDot ? 0 : -1)
                             completionProvider.trigger(
                                 newLineContent,
                                 newCursor.line,
                                 newCursor.ch,
-                                -(!isInputDot)
+                                offset
                             )
                             dirtyLine = NONE
                             if (t0.type === 'string') completionProvider.type = STRING
