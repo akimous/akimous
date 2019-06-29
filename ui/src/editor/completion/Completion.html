@@ -120,6 +120,15 @@
                     return true
                 },
             })
+            
+            const oldCommandHandler = this.keyEventHandler.handleCommand
+            const PASSTHROUGH_COMMANDS = new Set([
+                'home', 'left', 'right', 'end'
+            ])
+            this.keyEventHandler.handleCommand = command => {
+                if (PASSTHROUGH_COMMANDS.has(command)) return true
+                oldCommandHandler(command)
+            }
         },
         data() {
             return {
