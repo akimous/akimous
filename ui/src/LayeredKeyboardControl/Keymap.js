@@ -67,6 +67,10 @@ const genericCommandKeyMap = {
     'Digit5': '5',
     'Digit6': '6',
     'Digit7': '7',
+    
+    // for passthrough to editor
+    'Backspace': 'delGroupBefore',
+    'Delete': 'delGroupAfter',
 }
 
 export default {
