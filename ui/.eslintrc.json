@@ -66,6 +66,7 @@
                     "dir",
                     "docstring",
                     "dom",
+                    "enqueue",
                     "eol",
                     "eslint",
                     "fas",

@@ -2,6 +2,7 @@ import g from '../lib/Globals'
 import {
     CLOSED,
     TRIGGERED,
+    RESPONDED,
     RETRIGGERED,
     NORMAL,
     STRING,
@@ -137,10 +138,13 @@ class CMEventDispatcher {
             }
             // handles Jedi sync if the change isn't a single-char input
             const origin = changes[0].origin
+            const { state } = completionProvider
             if (origin !== '+input' && origin !== '+completion' && origin !== '+delete') {
                 syncIfNeeded(changes)
             } else if (
-                (completionProvider.state === TRIGGERED || completionProvider.state === RETRIGGERED) &&
+                (state === TRIGGERED || 
+                 state === RESPONDED ||
+                 state === RETRIGGERED) &&
                 (origin === '+input' || origin === '+delete')
             ) {
                 completionProvider.retrigger({ lineContent, ...cursor })

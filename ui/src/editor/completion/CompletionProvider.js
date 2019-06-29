@@ -5,7 +5,8 @@ import { highlightSequentially } from '../../lib/Utils'
 // state
 const CLOSED = 0,
     TRIGGERED = 1,
-    RETRIGGERED = 2
+    RESPONDED = 2,
+    RETRIGGERED = 3
 const NORMAL = 0,
     STRING = 1,
     COMMENT = 2,
@@ -83,11 +84,12 @@ class CompletionProvider {
         this.isClassDefinition = false
         this.currentCompletions = []
         this.input = ''
+        this.retriggerQueue = []
 
         editor.session.handlers['Prediction'] = data => {
             if (debug) console.log('CompletionProvider.receive', data)
             let input = this.lineContent[this.firstTriggeredCharPos.ch]
-            this.state = TRIGGERED
+            this.state = RESPONDED
             this.currentCompletions = data.result
             if (data.result.length < 1)
                 return this.completion.set({ open: false })
@@ -109,6 +111,11 @@ class CompletionProvider {
                 this.firstTriggeredCharPos,
                 this.mode
             )
+            
+            const lastRetriggerJob = this.retriggerQueue.pop()
+            this.retriggerQueue.length = 0
+            if (lastRetriggerJob)
+                this.retrigger(lastRetriggerJob)
         }
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             const sortedCompletions = this.sortAndFilter(this.input, result)
@@ -134,10 +141,16 @@ class CompletionProvider {
             line,
             ch
         })
+        this.state = TRIGGERED
     }
 
     retrigger({ lineContent, line, ch }) {
         if (!this.enabled) return
+        if (this.state === TRIGGERED) {
+            // enqueue retrigger requests if there's any in-flight requests
+            this.retriggerQueue.push({ lineContent, line, ch })
+            return
+        }
         if (this.firstTriggeredCharPos.ch === ch) {
             this.completion.set({ open: false })
             this.state = CLOSED
@@ -214,6 +227,7 @@ export {
     CompletionProvider,
     CLOSED,
     TRIGGERED,
+    RESPONDED,
     RETRIGGERED,
     NORMAL,
     STRING,
