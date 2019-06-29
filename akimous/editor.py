@@ -150,7 +150,11 @@ async def connected(msg, send, context):
     context.is_python = context.path.suffix in ('.py', '.pyx')
     context.pyflakes_reporter = PyflakesReporter()
     with open(context.path) as f:
-        content = f.read()
+        try:
+            content = f.read()
+        except UnicodeDecodeError:
+            await send('FailedToOpen', f'Failed to open file {context.path}. (only text files are supported)')
+            return
         context.content = content
     # somehow risky, but it should not wait until the extractor ready
     await send('FileOpened', {

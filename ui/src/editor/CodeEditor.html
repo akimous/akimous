@@ -108,6 +108,10 @@
                         console.debug('transmission took', performance.now() - startTime)
                         resolve(data) // <-- exit here
                     },
+                    FailedToOpen: reason => {
+                        g.notificationBar.show('warning', reason)
+                        g.panelMiddle.closeFile(this.get().filePath)
+                    },
                     RealTimeLints: ({ result }) => {
                         this.realtimeLints = result
                         if (g.activeEditor === this)
