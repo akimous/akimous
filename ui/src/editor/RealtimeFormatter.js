@@ -72,20 +72,17 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         if (t0.type === 'comment' || (t0.type === 'string' && !(t0.end === c.to.ch))) return
         if (currentText === '') { // new line
             stripTrailingSpaces(line)
-            line = cm.doc.getLine(c.from.line)
-            const inScope = _inParentheses() || _inBrackets() || _inBraces()
-            let tr = ''
-            if (inScope) {
+            const inParentheses = _inParentheses()
+            if (inParentheses) {
                 try {
-                    tr = cm.doc.getRange(Pos(inScope.line, inScope.ch + 1),
-                        Pos(inScope.line, inScope.ch + 2))
+                    if (t0.string === '(' && /^\s*def\s/.test(line)) {
+                        // add extra indentation when inserting new line at, e.g.
+                        // def something(|a, b)
+                        editor.cmEventDispatcher.adjustIndent(1)
+                    }
                 } catch (e) {
                     // skip this test if out of range
                 }
-                const shouldAlignOpenParenthesis = tr && !/\s/.test(tr) && !/\)/.test(tr)
-                editor.cmEventDispatcher.setIndentAfterChange(
-                    shouldAlignOpenParenthesis ? currentScope.align : currentScope.offset + 4
-                )
             } else if ((/^\s*(if|def|for|while|with|class)\s.+[^\\:;]$/.test(line) ||
                     /^\s*(try|except|finally)/.test(line)
             ) && !/(:\s)|;$/.test(line) &&
@@ -100,8 +97,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 ) && t0.string !== ':') {
                     c.text[0] = c.text[0] + ':'
                 }
-            } else if (currentState.lastToken === 'break') {
-                editor.cmEventDispatcher.setIndentAfterChange(currentScope.offset - 4)
+            } else if (t1.string === 'break') {
+                editor.cmEventDispatcher.adjustIndent(-1)
             }
         } else if (currentText[0] === ' ') {
             return

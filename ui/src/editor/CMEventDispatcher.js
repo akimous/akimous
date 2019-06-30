@@ -25,6 +25,7 @@ class CMEventDispatcher {
             completion = editor.completion
 
         this.realtimeEvaluation = false
+        this._indentDelta = 0
 
         let dirtyLine = NONE
         let shouldDismissCompletionOnCursorActivity = false
@@ -128,15 +129,19 @@ class CMEventDispatcher {
             if (changes[0].origin === 'setValue') return
             const cursor = doc.getCursor()
             const lineContent = cm.getLine(cursor.line)
-            const indent = this.ensureIndent
-            this.ensureIndent = undefined
-            if (indent !== undefined) {
-                const diff = indent - cursor.ch
-                if (diff > 0)
-                    cm.doc.replaceRange(' '.repeat(diff), cursor, cursor)
-                else if (diff < 0)
-                    cm.execCommand('indentLess')
+            
+            // adjust indent
+            let i = this._indentDelta
+            this._indentDelta = 0 // must set to 0 immediatly or it will run into infinite loop
+            while (i > 0) {
+                cm.execCommand('indentMore')
+                i -= 1
             }
+            while (i < 0) {
+                cm.execCommand('indentLess')
+                i += 1
+            }
+
             // handles Jedi sync if the change isn't a single-char input
             const origin = changes[0].origin
             const { state } = completionProvider
@@ -265,9 +270,9 @@ class CMEventDispatcher {
             event.preventDefault()
         })
     }
-
-    setIndentAfterChange(n) {
-        this.ensureIndent = n
+    
+    adjustIndent(n) {
+        this._indentDelta = n
     }
 }
 
