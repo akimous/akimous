@@ -18,6 +18,8 @@ def is_parameter_of_def(doc, line, ch):
                 if len(stack) == 1 and stack[0] == '(':
                     return True
                 return False
+            if l != line and '):' in line_content:
+                return False
             if char in open_brackets:
                 stack.append(char)
             if char in close_brackets and open_brackets[stack[-1]] == char:

@@ -24,7 +24,7 @@ const shouldUseSequentialHighlighter = new Set([
 const tails = {
     'class': '()',
     'function': '()',
-    // 'param': '=',  // already handled by Jedi in completion.name_with_symbols
+    // 'param': '=',  // not reliable, see predict in editor.py
     // 'word': ' = ',  // handled in addTail()
     // 'word-segment': ' = ',  // handled in addTail()
     // 'token': ' = ',  // handled in addTail()

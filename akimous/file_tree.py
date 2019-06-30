@@ -1,3 +1,4 @@
+import asyncio
 import os
 import platform
 from subprocess import Popen
@@ -78,7 +79,7 @@ def stop_monitor(path, context):
     if watch is None:
         logger.error('stopping nonexistent watch of path %s', path)
         return
-        context.observer.unschedule(watch)
+    context.observer.unschedule(watch)
     del context.observed_watches[path]
 
 

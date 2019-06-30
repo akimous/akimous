@@ -247,12 +247,12 @@ async def sync_range(msg, send, context):
     from_line, to_line, lint, *lines = msg  # to_line is exclusive
     doc = context.doc
     doc[from_line:to_line] = lines
+    context.content = '\n'.join(doc)
 
     for i in range(from_line, to_line):
         context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
 
     if lint:
-        context.content = '\n'.join(doc)
         await run_spell_checker(context, send)
         await run_pyflakes(context, send)
 
@@ -270,6 +270,7 @@ async def predict(msg, send, context):
             'line': line_number,
             'ch': ch,
             'result': [],
+            'parameterDefinition': True
         })
         return
     try:
@@ -288,8 +289,11 @@ async def predict(msg, send, context):
                                                  line_number, ch, context.doc,
                                                  j.call_signatures())
                 scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
+                # c.name_with_symbol is not reliable
+                # e.g. def something(path): len(p|)
+                # will return "path="
                 result = [
-                    PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s))
+                    PredictionRow(c=c.name, t=c.type, s=int(s))
                     for c, s in zip(completions, scores)
                 ]
             else:
