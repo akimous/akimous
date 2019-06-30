@@ -151,6 +151,8 @@ class CompletionProvider {
 
     retrigger({ lineContent, line, ch }) {
         if (!this.enabled) return
+        if (this.firstTriggeredCharPos.ch === ch - 1)
+            return // should not do anything if it is just triggered and nothing else is typed
         if (this.state === TRIGGERED) {
             // enqueue retrigger requests if there's any in-flight requests
             this.retriggerQueue.push({ lineContent, line, ch })

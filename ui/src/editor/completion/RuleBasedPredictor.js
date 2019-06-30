@@ -236,18 +236,16 @@ class RuleBasedPredictor {
     predict(context) {
         context = Object.assign(this.context, context)
         const { input } = context
-
         context.lineContent = context.cm.getLine(context.line)
-
         let result = []
         const startTime = performance.now()
         this.predictors.forEach(predictor => {
             try {
-                const predict = predictor(context)
-                if (!predict) return
-                if (Array.isArray(predict))
-                    result.splice(-1, 0, ...predict)
-                else result.push(predict)
+                const predictions = predictor(context)
+                if (!predictions) return
+                if (Array.isArray(predictions))
+                    result.splice(-1, 0, ...predictions)
+                else result.push(predictions)
             } catch (e) {
                 console.error(e)
             }
@@ -255,8 +253,6 @@ class RuleBasedPredictor {
         
         // deduplicate and order by length
         result = [...new Set(result)].sort((a, b) => a.length - b.length)
-        
-        console.log(`Rule-based prediction took ${performance.now() - startTime}`)
         return result.map(text => {
             return {
                 text,
@@ -267,7 +263,6 @@ class RuleBasedPredictor {
             }
         })
     }
-
 }
 
 export default RuleBasedPredictor
