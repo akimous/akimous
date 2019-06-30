@@ -93,7 +93,10 @@ class CompletionProvider {
             this.currentCompletions = data.result
             if (data.result.length < 1) {
                 this.state = CLOSED
-                return this.completion.set({ open: false })
+                this.completion.set({ open: false })
+                // do not return here, or 
+                // def some|
+                // will not work
             }
 
             if (this.mode === AFTER_OPERATOR)
