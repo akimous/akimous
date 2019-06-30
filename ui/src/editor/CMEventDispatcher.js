@@ -62,6 +62,7 @@ class CMEventDispatcher {
             let selection = cm.getSelection()
             if (!selection) selection = cm.getLine(cm.getCursor().line) + '\n'
             g.macro.addClipboardItem(selection)
+            completion.set({ open: false })
         })
 
         cm.on('scroll', () => {

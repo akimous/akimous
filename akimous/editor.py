@@ -265,7 +265,6 @@ async def predict(msg, send, context):
     context.content = doc
 
     if is_parameter_of_def(context.doc, line_number, ch):
-        logger.warning('meow')
         # don't make prediction if it is defining function parameters
         await send('Prediction', {
             'line': line_number,
@@ -273,34 +272,37 @@ async def predict(msg, send, context):
             'result': [],
         })
         return
+    try:
+        with Timer(f'Prediction ({line_number}, {ch})'):
+            j = jedi.Script(doc, line_number + 1, ch, str(context.path))
+            completions = j.completions()
 
-    with Timer(f'Prediction ({line_number}, {ch})'):
-        j = jedi.Script(doc, line_number + 1, ch, str(context.path))
-        completions = j.completions()
+        with Timer(f'Rest ({line_number}, {ch})'):
+            if completions:
+                context.currentCompletions = {
+                    completion.name: completion
+                    for completion in completions
+                }
+                feature_extractor = context.feature_extractor
+                feature_extractor.extract_online(completions, line_content,
+                                                 line_number, ch, context.doc,
+                                                 j.call_signatures())
+                scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
+                result = [
+                    PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s))
+                    for c, s in zip(completions, scores)
+                ]
+            else:
+                result = []
 
-    with Timer(f'Rest ({line_number}, {ch})'):
-        if completions:
-            context.currentCompletions = {
-                completion.name: completion
-                for completion in completions
-            }
-            feature_extractor = context.feature_extractor
-            feature_extractor.extract_online(completions, line_content,
-                                             line_number, ch, context.doc,
-                                             j.call_signatures())
-            scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
-            result = [
-                PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s))
-                for c, s in zip(completions, scores)
-            ]
-        else:
-            result = []
-
-    await send('Prediction', {
-        'line': line_number,
-        'ch': ch,
-        'result': result,
-    })
+        await send('Prediction', {
+            'line': line_number,
+            'ch': ch,
+            'result': result,
+        })
+    except Exception as e:
+        logger.exception(e)
+        await send('RequestFullSync', None)
 
 
 @handles('PredictExtra')

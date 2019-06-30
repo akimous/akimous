@@ -201,6 +201,10 @@
                         g.references.set(data)
                         g.panelRight.activateView(g.references)
                     },
+                    RequestFullSync: () => {
+                        this.session.send('SyncRange', [0, this.cm.lineCount(), false, 
+                                                        ...g.activeEditor.cm.getValue().split('\n')])
+                    }
                 })
             })
 
