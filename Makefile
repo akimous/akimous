@@ -62,5 +62,8 @@ upgrade:
 	# cd ui && yarn upgrade
 	cd ui && yarn upgrade-interactive --latest
 
+fixpoetry:
+	poetry cache:clear --all pypi
+
 update_docker:
 	cd docker && poetry run python update.py
