@@ -132,7 +132,7 @@ class CMEventDispatcher {
             
             // adjust indent
             let i = this._indentDelta
-            this._indentDelta = 0 // must set to 0 immediatly or it will run into infinite loop
+            this._indentDelta = 0 // must set to 0 immediately or it will run into infinite loop
             while (i > 0) {
                 cm.execCommand('indentMore')
                 i -= 1

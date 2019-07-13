@@ -278,12 +278,17 @@ async def predict(msg, send, context):
             j = jedi.Script(doc, line_number + 1, ch, str(context.path))
             completions = j.completions()
 
+        offset = 0
         with Timer(f'Rest ({line_number}, {ch})'):
             if completions:
                 context.currentCompletions = {
                     completion.name: completion
                     for completion in completions
                 }
+
+                completion = completions[0]
+                offset = len(completion.complete) - len(completion.name)
+
                 feature_extractor = context.feature_extractor
                 feature_extractor.extract_online(completions, line_content,
                                                  line_number, ch, context.doc,
@@ -302,6 +307,7 @@ async def predict(msg, send, context):
         await send('Prediction', {
             'line': line_number,
             'ch': ch,
+            'offset': offset,
             'result': result,
         })
     except Exception as e:

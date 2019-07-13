@@ -238,7 +238,6 @@ class RuleBasedPredictor {
         const { input } = context
         context.lineContent = context.cm.getLine(context.line)
         let result = []
-        const startTime = performance.now()
         this.predictors.forEach(predictor => {
             try {
                 const predictions = predictor(context)

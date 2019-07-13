@@ -46,7 +46,7 @@
         "stylelint": "^10.1.0",
         "stylelint-config-recommended": "^2.1.0",
         "svelte": "^2.16.1",
-        "terser": "^4.0.1",
+        "terser": "^4.0.2",
         "xterm": "^3.14.4"
     },
     "scripts": {},

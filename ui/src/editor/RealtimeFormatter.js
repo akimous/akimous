@@ -1,4 +1,4 @@
-import { inParentheses, inBrackets, inBraces } from '../lib/Utils'
+import { inParentheses, inBrackets } from '../lib/Utils'
 import { config } from '../lib/ConfigManager'
 
 const RealtimeFormatter = (editor, CodeMirror) => {
@@ -11,7 +11,6 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const identifier = /^[^\d\W]\w*$/
     const _inParentheses = () => inParentheses(cm, c.from)
     const _inBrackets = () => inBrackets(cm, c.from)
-    const _inBraces = () => inBraces(cm, c.from)
 
     const ensureSpaceBefore = (t0) => {
         if (/\s+/.test(t0.string)) return // don't duplicate spaces

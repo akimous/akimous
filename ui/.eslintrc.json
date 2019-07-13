@@ -106,6 +106,7 @@
                     "onstate",
                     "onupdate",
                     "param",
+                    "passthrough",
                     "polyfill",
                     "popup",
                     "popups",

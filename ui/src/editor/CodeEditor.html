@@ -203,7 +203,7 @@
                     },
                     RequestFullSync: () => {
                         this.session.send('SyncRange', [0, this.cm.lineCount(), false, 
-                                                        ...g.activeEditor.cm.getValue().split('\n')])
+                            ...g.activeEditor.cm.getValue().split('\n')])
                     }
                 })
             })
