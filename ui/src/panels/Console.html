@@ -193,7 +193,7 @@
                 run()
             },
             stop() {
-                if (!this.socket) return
+                if (!this.session) return
                 const { mode } = this.get()
                 if (mode === 'jupyter') {
                     this.session.send('StopKernel', {})
@@ -283,7 +283,6 @@
                 this.session.send('StartKernel', { realtimeEvaluation })
                 this.realtimeEvaluationEditor = g.activeEditor
                 g.activeEditor.cmEventDispatcher.realtimeEvaluation = realtimeEvaluation
-                console.warn('starting')
             },
             stopRealtimeEvaluation() {
                 this.realtimeEvaluationEditor = null
