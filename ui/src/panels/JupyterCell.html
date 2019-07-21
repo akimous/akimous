@@ -90,7 +90,7 @@
                 if (source && (!previous || previous.output['text/latex'] !== source)) {
                     nextFrame(() => {
                         katex(katex => {
-                            katex.render(source.replace(/(^\$\$)|(\$\$$)/g, ''), this.refs.tex)
+                            katex.render(source.replace(/(^\$)|(\$$)/g, ''), this.refs.tex)
                         })
                     })
                 }

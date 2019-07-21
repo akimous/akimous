@@ -242,7 +242,7 @@
                         if (e.data) {
                             cells.push({
                                 output: e.data,
-                                executionCount: e.execution_count,
+                                executionCount: e.execution_count || '',
                             })
                             this.set({ cells })
                         }
