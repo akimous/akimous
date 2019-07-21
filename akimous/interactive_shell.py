@@ -25,12 +25,12 @@ RESTARTING = 'RESTARTING'
 A_RUNNING = 'A_RUNNING'
 B_RUNNING = 'B_RUNNING'
 """Realtime Evaluation State Transition
-| Current State \ Event Received | IDLE  | EvaluatePartA | EvaluatePartB |
-| ------------------------------ | ----- | ------------- | ------------- |
-| IDLE                           |       | reset         | job B         |
-| RESTARTING                     | job A |               |               |
-| RUNNING_A                      | job B | reset         |               |
-| RUNNING_B                      | reset |               | reset         |
+| Current State \\ Event Received | IDLE  | EvaluatePartA | EvaluatePartB |
+| ------------------------------- | ----- | ------------- | ------------- |
+| IDLE                            |       | reset         | job B         |
+| RESTARTING                      | job A |               |               |
+| RUNNING_A                       | job B | reset         |               |
+| RUNNING_B                       | reset |               | reset         |
 """
 
 
@@ -61,6 +61,9 @@ async def connected(msg, send, context):
 async def disconnected(context):
     logger.info('stopping kernel')
     await stop_kernel({}, nop, context)
+    context.kernel_manager.cleanup()
+    context.kernel_manager = None
+    logger.debug('shell disconnected')
 
 
 async def iopub_listener(send, context):
@@ -174,8 +177,8 @@ async def stop_kernel(msg, send, context):
     if not context.kernel_manager.is_alive():
         return
     context.kernel_manager.shutdown_kernel()
-    await send('KernelStopped', None)
     context.iopub_listener.cancel()
+    await send('KernelStopped', None)
 
 
 async def execute_lines(context, lines):

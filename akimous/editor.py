@@ -10,7 +10,6 @@ from pathlib import Path
 import jedi
 import pyflakes.api
 import wordsegment
-from boltons.gcutils import toggle_gc_postcollect
 from logzero import logger
 from sklearn.externals import joblib
 
@@ -126,19 +125,17 @@ async def warm_up_jedi(context):
 
 async def post_content_change(context, send):
     with Timer('Post content change'):
-        with toggle_gc_postcollect:
-            context.doc = context.content.splitlines()
-            context.shared.doc = context.doc
-            # initialize feature extractor
-            context.feature_extractor = OnlineFeatureExtractor()
-            for line, line_content in enumerate(context.doc):
-                context.feature_extractor.fill_preprocessor_context(
-                    line_content, line, context.doc)
-
-            create_task(warm_up_jedi(context))
-            create_task(run_spell_checker(context, send))
-            create_task(run_pyflakes(context, send))
-            context.linter_task = create_task(run_pylint(context, send))
+        context.doc = context.content.splitlines()
+        context.shared.doc = context.doc
+        # initialize feature extractor
+        context.feature_extractor = OnlineFeatureExtractor()
+        for line, line_content in enumerate(context.doc):
+            context.feature_extractor.fill_preprocessor_context(
+                line_content, line, context.doc)
+        create_task(warm_up_jedi(context))
+        create_task(run_spell_checker(context, send))
+        create_task(run_pyflakes(context, send))
+        context.linter_task = create_task(run_pylint(context, send))
 
 
 @handles('_connected')
