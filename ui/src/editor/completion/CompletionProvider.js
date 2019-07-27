@@ -13,7 +13,7 @@ const NORMAL = 0,
     FOR = 3,
     PARAMETER_DEFINITION = 4,
     AFTER_OPERATOR = 5
-const debug = false
+const debug = true
 
 const shouldUseSequentialHighlighter = new Set([
     'word-segment',
@@ -88,7 +88,7 @@ class CompletionProvider {
 
         editor.session.handlers['Prediction'] = data => {
             if (debug) console.log('CompletionProvider.receive', data)
-            let input = this.lineContent[this.firstTriggeredCharPos.ch]
+            let input = this.lineContent[this.firstTriggeredCharPos.ch] || ''
             this.state = RESPONDED
             this.currentCompletions = data.result
             if (data.result.length < 1) {
@@ -111,25 +111,41 @@ class CompletionProvider {
                 })
                 sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
             }
+            this.deduplicateAndSetCompletions(sortedCompletions)
             this.completion.setCompletions(
                 sortedCompletions,
                 this.firstTriggeredCharPos,
                 this.mode
             )
-            
+
             const lastRetriggerJob = this.retriggerQueue.pop()
             this.retriggerQueue.length = 0
-            if (lastRetriggerJob)
-                this.retrigger(lastRetriggerJob)
+            if (!lastRetriggerJob) return
+            if (lastRetriggerJob.line === data.line && lastRetriggerJob.ch === data.ch) return
+            this.retrigger(lastRetriggerJob)
         }
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             const sortedCompletions = this.sortAndFilter(this.input, result)
+            this.deduplicateAndSetCompletions(sortedCompletions)
             this.completion.setCompletions(
                 sortedCompletions,
                 this.firstTriggeredCharPos,
                 this.mode
             )
         }
+    }
+
+    deduplicateAndSetCompletions(sortedCompletions) {
+        const set = new Set()
+        this.completion.setCompletions(
+            sortedCompletions.filter(v => {
+                if (set.has(v.text)) return false
+                set.add(v.text)
+                return true
+            }),
+            this.firstTriggeredCharPos,
+            this.mode
+        )
     }
 
     trigger(lineContent, line, ch, triggeredCharOffset) {
@@ -178,7 +194,8 @@ class CompletionProvider {
         if (!sortedCompletions.length) {
             this.editor.session.send('PredictExtra', [line, ch, input])
         } else
-            this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.mode)
+            this.deduplicateAndSetCompletions(sortedCompletions)
+        this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.mode)
     }
 
     sortAndFilter(input, completions) {

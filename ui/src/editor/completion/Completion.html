@@ -204,9 +204,9 @@
                 const completionHeight = completionArea.bottom - completionArea.top
 
                 let x = coords.left - editorArea.left - 3 * rem
-                let y = coords.bottom - editorArea.top + 1.3 * charHeight
+                let y = coords.bottom - editorArea.top + 1.6 * charHeight
                 if (y + completionHeight > editorArea.bottom) {
-                    y = coords.top - completionHeight - 1.3 * charHeight
+                    y = coords.top - completionHeight - 1.6 * charHeight
                 }
                 container.style.left = `${x}px`
                 container.style.top = `${y}px`

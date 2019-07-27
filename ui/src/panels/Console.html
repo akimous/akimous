@@ -1,6 +1,6 @@
 <div id="console" class="panel" class:gone="!active">
     {#if mode === 'jupyter'}
-    <div ref:jupyter class="half">
+    <div ref:jupyter class="upper-half">
         <JupyterToolbar ref:jupyterToolbar></JupyterToolbar>
         <table id="jupyter-cells">
             {#each cells as cell}
@@ -11,13 +11,17 @@
         </table>
     </div>
     {/if}
-    <div id="terminal" ref:terminal class="{mode === 'jupyter' ? 'half' : 'full-height'}"></div>
+    <div id="terminal" ref:terminal class="{mode === 'jupyter' ? 'lower-half' : 'full-height'}"></div>
 </div>
 
 
 <style>
-    .half {
-        height: 50%;
+    .upper-half {
+        height: 70%;
+    }
+	
+    .lower-half {
+    	height: 30%;
     }
 
     :global(#terminal.full-height) {
