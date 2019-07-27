@@ -43,7 +43,7 @@ const socket = new Socket(() => {
         app = new App({
             target: document.body,
         })
-        g.runConfiguration.set(g.projectState.runConfiguration)
+//        g.runConfiguration.set(g.projectState.runConfiguration)
         document.title = `Akimous - ${root[root.length - 1]}`
     }
 })

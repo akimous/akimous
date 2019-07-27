@@ -1,6 +1,52 @@
+<script>
+    import { beforeUpdate, onMount } from 'svelte';
+
+    export let input;
+
+    import g from '../lib/Globals'
+
+    export let editing = false;
+    export let value = '';
+    export let placeholder = '';
+    export let allowWhiteSpace = true;
+    export let index = 0;
+    export let shellCommands = [];
+
+    onMount(() => {});
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+        if (changed.value) {
+            const { shellCommands } = current
+            shellCommands[current.index] = current.value
+
+            if (current.index === shellCommands.length - 1) {
+                if (current.value.length) {
+                    shellCommands.push('')
+                    g.runConfiguration.set({
+                        shellCommands
+                    })
+                }
+            }
+        }
+    });
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function commitChange() {
+        if (!value.length) {
+            shellCommands.splice(index, 1)
+            g.runConfiguration.set({ shellCommands })
+        }
+        g.runConfiguration.saveChanges()
+    }
+</script>
+
 <div class="text-input" class:editing>
     {#if editing}
-    <input ref:input type="text" spellcheck="false" bind:value on:change on:keydown on:blur="commitChange()">
+    <input bind:this={input} type="text" spellcheck="false" bind:value on:change on:keydown on:blur="{commitChange}">
     {:else}
     <span>{value}</span>
     {/if}
@@ -37,50 +83,3 @@
     }
 
 </style>
-
-
-<script>
-    import g from '../lib/Globals'
-
-    export default {
-        components: {},
-        oncreate() {},
-        onstate({ changed, current }) {
-            if (changed.value) {
-                const { shellCommands } = current
-                shellCommands[current.index] = current.value
-
-                if (current.index === shellCommands.length - 1) {
-                    if (current.value.length) {
-                        shellCommands.push('')
-                        g.runConfiguration.set({
-                            shellCommands
-                        })
-                    }
-                }
-            }
-        },
-        data() {
-            return {
-                value: '',
-                placeholder: '',
-                allowWhiteSpace: true,
-                editing: false,
-
-                index: 0,
-                shellCommands: [],
-            }
-        },
-        methods: {
-            commitChange() {
-                const { shellCommands, index, value } = this.get()
-                if (!value.length) {
-                    shellCommands.splice(index, 1)
-                    g.runConfiguration.set({ shellCommands })
-                }
-                g.runConfiguration.saveChanges()
-            }
-        }
-    }
-
-</script>

@@ -1,4 +1,18 @@
-<div ref:MenuBar id="menu-bar">
+<script>
+    import { onMount } from 'svelte';
+
+    export let MenuBar;
+
+    import g from '../lib/Globals'
+
+    import MenuItem from './MenuItem.html';
+
+    onMount(() => {
+        g.menuBar = this
+    });
+</script>
+
+<div bind:this={MenuBar} id="menu-bar">
     <MenuItem name="File"></MenuItem>
     <MenuItem name="Edit"></MenuItem>
     <MenuItem name="Select"></MenuItem>
@@ -16,22 +30,3 @@
     }
 
 </style>
-
-
-<script>
-    import g from '../lib/Globals'
-
-    export default {
-        components: {
-            MenuItem: './MenuItem.html'
-        },
-        oncreate() {
-            g.menuBar = this
-        },
-        data() {
-            return {}
-        },
-        methods: {}
-    }
-
-</script>

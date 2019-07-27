@@ -1,4 +1,61 @@
-<div ref:row class="context-menu-row non-selectable" class:selected on:mouseover="mouseover()" on:click="click()">
+<script>
+    import { afterUpdate, onMount } from 'svelte';
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {};
+
+    export let row;
+
+    import ClipboardJS from 'clipboard'
+
+    export let icon = '';
+    export let text = '';
+    export let hotkey = '';
+    export let selected = false;
+    export let callback = null;
+    export let clipboardText = null;
+
+    onMount(() => {});
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    afterUpdate(() => {
+        if (changed.clipboardText) {
+            if (current.clipboardText) {
+                // dirty hack to make copying text work, as browsers do not allow in allow async API on localhost
+                __this.clipboardHandler = new ClipboardJS(row, {
+                    text: () => {
+                        return current.clipboardText
+                    }
+                })
+            } else {
+                if (__this.clipboardHandler) {
+                    __this.clipboardHandler.destroy()
+                    __this.clipboardHandler = null
+                }
+            }
+        }
+    });
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function mouseover() {
+        __this.parent.set({
+            selectedRow: this
+        })
+    }
+
+    export function click() {
+        callback && callback(__this.parent.get().caller)
+        __this.parent.set({
+            open: false
+        })
+    }
+</script>
+
+<div bind:this={row} class="context-menu-row non-selectable" class:selected on:mouseover="{mouseover}" on:click="{click}">
     <span class="icon">
         <i class="{icon}" aria-hidden="true"></i>
     </span>
@@ -49,56 +106,3 @@
     }
 
 </style>
-
-
-<script>
-    // import g from './Globals'
-    import ClipboardJS from 'clipboard'
-
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {
-                selected: false,
-                text: '',
-                hotkey: '',
-                callback: null,
-                icon: '',
-                clipboardText: null,
-            }
-        },
-        onupdate({ changed, current }) {
-            if (changed.clipboardText) {
-                if (current.clipboardText) {
-                    // dirty hack to make copying text work, as browsers do not allow in allow async API on localhost
-                    this.clipboardHandler = new ClipboardJS(this.refs.row, {
-                        text: () => {
-                            return current.clipboardText
-                        }
-                    })
-                } else {
-                    if (this.clipboardHandler) {
-                        this.clipboardHandler.destroy()
-                        this.clipboardHandler = null
-                    }
-                }
-            }
-        },
-        methods: {
-            mouseover() {
-                this.parent.set({
-                    selectedRow: this
-                })
-            },
-            click() {
-                const { callback } = this.get()
-                callback && callback(this.parent.get().caller)
-                this.parent.set({
-                    open: false
-                })
-            },
-        }
-    }
-
-</script>

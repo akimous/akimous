@@ -1,41 +1,142 @@
+<script>
+    import { beforeUpdate, onMount } from 'svelte';
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ open, left, cwd, args, mode, editing, shellCommands, shellCommandIndex, allowWhiteSpace })
+    };
+
+    export let runConfiguration;
+    export let edit;
+
+    import g from '../lib/Globals'
+    import { setProjectState } from '../lib/ConfigManager'
+    import { capitalize, nextFrame } from '../lib/Utils'
+
+    export let open = false;
+    export let left = 0;
+    export let cwd = '';
+    export let args = 'args';
+    export let mode = 'script';
+    export let editing = false;
+    export let shellCommands = [
+        'python',
+        ''
+    ];
+    export let shellCommandIndex = 0;
+    export let allowWhiteSpace = true;
+
+    import RunConfigShellCommand from './RunConfigShellCommand.html';
+    import ToggleButton from '../lib/ToggleButton.html';
+    import TextInput from '../lib/TextInput.html';
+
+    onMount(() => {
+        g.runConfiguration = this
+    });
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+//        if (changed.mode) {
+//            nextFrame(() => {
+//                g.toolbar.set({
+//                    runConfigurationDisplay: capitalize(current.mode)
+//                })
+//            })
+//        }
+//        if (!g.ready) return
+//        if (changed.open && g.toolbar) {
+//            g.app.set({
+//                popup: current.open ? this : null
+//            })
+//        }
+//        if (changed.editing && edit) {
+//            edit.set({
+//                active: current.editing
+//            })
+//        }
+//        if (changed.open && !current.open) {
+//            editing = false
+//        }
+//        if (changed.mode || changed.shellCommandIndex) {
+//            saveChanges()
+//        }
+//        if (changed.mode) {
+//            setConsoleMode()
+//        }
+    });
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function setConsoleMode() {
+        if (['script', 'module', 'shell'].includes(mode)) {
+            g.console.set({ mode: 'terminal' })
+        } else if (['interactive', 'realtime'].includes(mode)) {
+            g.console.set({ mode: 'jupyter' })
+            g.jupyterToolbar.set({ mode })
+        }
+        g.console.stop()
+    }
+
+    export function onClickEdit() {
+        editing = !editing
+    }
+
+    export function saveChanges(what) {
+        if (what) {
+            setProjectState('runConfiguration', {
+                [what]: __this.get()[what]
+            })
+        } else {
+            setProjectState('runConfiguration', {
+                mode,
+                shellCommands,
+                shellCommandIndex
+            })
+        }
+    }
+</script>
+
 {#if open}
-<div ref:runConfiguration id="run-configuration" class="popup from-top" style="left: calc({left}px - 12.5rem);">
+<div bind:this={runConfiguration} id="run-configuration" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
         <div class="title">Run Configuration</div>
         <div class="message">Choose a way to run your program.</div>
         <div class="title">Python Script</div>
-        <TextInput bind:value=cwd on:change="saveChanges('cwd')" theme="bright" padded={false}>
+        <TextInput bind:value={cwd} on:change="{() => saveChanges('cwd')}" theme="bright" padded={false}>
             <span style="width: 8rem; display: inline-block;">Working directory: </span>
         </TextInput>
-        <TextInput bind:value=args on:change="saveChanges('args')" theme="bright" padded={false}>
+        <TextInput bind:value={args} on:change="{() => saveChanges('args')}" theme="bright" padded={false}>
             <span style="width: 8rem; display: inline-block;">Arguments: </span>
         </TextInput>
-        <div class="option" class:checked="mode==='script'" on:click="set({ mode: 'script' })">
+        <div class="option" class:checked="{mode==='script'}" on:click="{() => mode = 'script'}">
             <i class="checkbox fas"/>
             <span class="description">Run current script</span>
         </div>
-        <div class="option" class:checked="mode==='module'" on:click="set({ mode: 'module' })">
+        <div class="option" class:checked="{mode==='module'}" on:click="{() => mode = 'module'}">
             <i class="checkbox fas"/>
             <span class="description">Run current script as module</span>
         </div>
         <div class="title with-button">
             Shell
-            <ToggleButton ref:edit on:click="onClickEdit()">{ editing ? 'Done' : 'Edit' }</ToggleButton>
+            <ToggleButton bind:this={edit} on:click="{onClickEdit}">{ editing ? 'Done' : 'Edit' }</ToggleButton>
         </div>
 
         {#each shellCommands as command, i}
-        <div class="option"  class:checked="shellCommandIndex===i && mode==='shell'" class:gone="i === shellCommands.length - 1 && !editing" on:click="set({ mode: 'shell', shellCommandIndex: i })">
+        <div class="option"  class:checked="{shellCommandIndex===i && mode==='shell'}" class:gone="{i === shellCommands.length - 1 && !editing}" on:click="{() => mode = 'shell', shellCommandIndex = i}">
             <i class="checkbox fas"/>
             <RunConfigShellCommand value={command} index={i} {shellCommands} {editing}></RunConfigShellCommand>
         </div>
         {/each}
 
         <div class="title">IPython</div>
-        <div class="option" class:checked="mode==='interactive'" on:click="set({ mode: 'interactive' })">
+        <div class="option" class:checked="{mode==='interactive'}" on:click="{() => mode = 'interactive'}">
             <i class="checkbox fas"/>
             <span class="description">Interactive shell</span>
         </div>
-        <div class="option" class:checked="mode==='realtime'" on:click="set({ mode: 'realtime' })">
+        <div class="option" class:checked="{mode==='realtime'}" on:click="{() => mode = 'realtime'}">
             <i class="checkbox fas"/>
             <span class="description">Realtime evaluation</span>
         </div>
@@ -65,101 +166,3 @@
     }
 
 </style>
-
-
-<script>
-    import g from '../lib/Globals'
-    import { setProjectState } from '../lib/ConfigManager'
-    import { capitalize, nextFrame } from '../lib/Utils'
-
-    export default {
-        components: {
-            RunConfigShellCommand: './RunConfigShellCommand.html',
-            ToggleButton: '../lib/ToggleButton.html',
-            TextInput: '../lib/TextInput.html',
-        },
-        oncreate() {
-            g.runConfiguration = this
-        },
-        onstate({ changed, current }) {
-            if (changed.mode) {
-                nextFrame(() => {
-                    g.toolbar.set({
-                        runConfigurationDisplay: capitalize(current.mode)
-                    })
-                })
-            }
-            if (!g.ready) return
-            if (changed.open && g.toolbar) {
-                g.app.set({
-                    popup: current.open ? this : null
-                })
-            }
-            if (changed.editing && this.refs.edit) {
-                this.refs.edit.set({
-                    active: current.editing
-                })
-            }
-            if (changed.open && !current.open) {
-                this.set({
-                    editing: false
-                })
-            }
-            if (changed.mode || changed.shellCommandIndex) {
-                this.saveChanges()
-            }
-            if (changed.mode) {
-                this.setConsoleMode()
-            }
-        },
-        data() {
-            return {
-                open: false,
-                left: 0,
-                mode: 'script', // 'script', 'module', 'shell', 'interactive', 'realtime'
-                editing: false,
-                allowWhiteSpace: true,
-                args: 'args',
-                cwd: '',
-                shellCommandIndex: 0,
-                shellCommands: [
-                    'python',
-                    ''
-                ]
-            }
-        },
-        methods: {
-            setConsoleMode() {
-                const { mode } = this.get()
-                if (['script', 'module', 'shell'].includes(mode)) {
-                    g.console.set({ mode: 'terminal' })
-                } else if (['interactive', 'realtime'].includes(mode)) {
-                    g.console.set({ mode: 'jupyter' })
-                    g.jupyterToolbar.set({ mode })
-                }
-                g.console.stop()
-            },
-            onClickEdit() {
-                const { editing } = this.get()
-                this.set({
-                    editing: !editing
-                })
-            },
-            saveChanges(what) {
-                if (what) {
-                    setProjectState('runConfiguration', {
-                        [what]: this.get()[what]
-                    })
-                } else {
-                    const { mode, shellCommands, shellCommandIndex } = this.get()
-                    setProjectState('runConfiguration', {
-                        mode,
-                        shellCommands,
-                        shellCommandIndex
-                    })
-                }
-            },
-        }
-    }
-
-</script>

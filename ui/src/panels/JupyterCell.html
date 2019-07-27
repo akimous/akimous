@@ -1,4 +1,56 @@
-<tr ref:cell>
+<script>
+    import { beforeUpdate, onMount } from 'svelte';
+
+    export let cell;
+    export let tex;
+
+    import { nextFrame } from '../lib/Utils'
+
+    let _katex = null
+
+    function katex(callback) {
+        if (_katex) return callback(_katex)
+
+        import('/katex.js').then(({ default: k }) => {
+            // load CSS
+            const style = document.createElement('link')
+            style.href = 'katex.min.css'
+            style.rel = 'stylesheet'
+            document.head.appendChild(style)
+
+            _katex = k
+            callback(k)
+        })
+    }
+
+    export let executionCount = '';
+    export let code = null;
+    export let stdout = null;
+    export let stderr = null;
+    export let output = {};
+
+    onMount(() => {
+
+    });
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+        if (changed.output) {
+            const source = current.output['text/latex']
+            if (source && (!previous || previous.output['text/latex'] !== source)) {
+                nextFrame(() => {
+                    katex(katex => {
+                        katex.render(source.replace(/(^\$)|(\$$)/g, ''), tex)
+                    })
+                })
+            }
+        }
+    });
+</script>
+
+<tr bind:this={cell}>
     <td class="execution-count">{@html executionCount}</td>
     <td class="content">
 
@@ -15,7 +67,7 @@
         {/if}
 
         {#if output && output['text/latex']}
-        <div ref:tex></div>
+        <div bind:this={tex}></div>
 
         {:elseif output && output['text/html']}
         {@html output['text/html']}
@@ -57,55 +109,3 @@
     
 
 </style>
-
-
-<script>
-    import { nextFrame } from '../lib/Utils'
-
-    let _katex = null
-
-    function katex(callback) {
-        if (_katex) return callback(_katex)
-
-        import('/katex.js').then(({ default: k }) => {
-            // load CSS
-            const style = document.createElement('link')
-            style.href = 'katex.min.css'
-            style.rel = 'stylesheet'
-            document.head.appendChild(style)
-
-            _katex = k
-            callback(k)
-        })
-    }
-
-    export default {
-        components: {},
-        oncreate() {
-
-        },
-        onstate({ changed, current, previous }) {
-            if (changed.output) {
-                const source = current.output['text/latex']
-                if (source && (!previous || previous.output['text/latex'] !== source)) {
-                    nextFrame(() => {
-                        katex(katex => {
-                            katex.render(source.replace(/(^\$)|(\$$)/g, ''), this.refs.tex)
-                        })
-                    })
-                }
-            }
-        },
-        data() {
-            return {
-                executionCount: '',
-                code: null,
-                output: {},
-                stdout: null,
-                stderr: null,
-            }
-        },
-        methods: {}
-    }
-
-</script>

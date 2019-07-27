@@ -1,22 +1,15 @@
-<div ref:Sample></div>
+<script>
+    import { onMount } from 'svelte';
+
+    export let Sample;
+
+    onMount(() => {});
+</script>
+
+<div bind:this={Sample}></div>
 
 
 <style>
 
 
 </style>
-
-
-<script>
-    // import g from './lib/Globals'
-
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {}
-        },
-        methods: {}
-    }
-
-</script>

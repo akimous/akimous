@@ -1,21 +1,8 @@
-<div ref:menuItem on:mousedown="click(event, name)" class="menu-item non-selectable">{name}</div>
-
-
-<style>
-    .menu-item {
-        display: inline-block;
-        font-size: var(--ui-font-size-small);
-        padding: 0 .5rem;
-    }
-
-    .menu-item:hover {
-        color: white;
-    }
-
-</style>
-
-
 <script>
+    import { onMount } from 'svelte';
+
+    export let menuItem;
+
     import g from '../lib/Globals'
     import { getRem } from '../lib/Utils'
 
@@ -242,30 +229,42 @@
         }, ]
     }
 
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {}
-        },
-        methods: {
-            click(e, name) {
-                const { left, bottom } = this.refs.menuItem.getBoundingClientRect()
-                const { items, open } = g.contextMenu.get()
-                if (items === menus[name] && open)
-                    g.contextMenu.set({ open: false })
-                else {
-                    g.contextMenu.set({
-                        open: true,
-                        x: left,
-                        y: bottom + .5 * getRem(),
-                        items: menus[name],
-                        caller: this
-                    })
-                }
-                e.stopPropagation()
-            }
+    export let name;
+
+    onMount(() => {});
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function click(e, name) {
+        const { left, bottom } = menuItem.getBoundingClientRect()
+        const { items, open } = g.contextMenu.get()
+        if (items === menus[name] && open)
+            g.contextMenu.set({ open: false })
+        else {
+            g.contextMenu.set({
+                open: true,
+                x: left,
+                y: bottom + .5 * getRem(),
+                items: menus[name],
+                caller: this
+            })
         }
+        e.stopPropagation()
+    }
+</script>
+
+<div bind:this={menuItem} on:mousedown="{event => click(event, name)}" class="menu-item non-selectable">{name}</div>
+
+
+<style>
+    .menu-item {
+        display: inline-block;
+        font-size: var(--ui-font-size-small);
+        padding: 0 .5rem;
     }
 
-</script>
+    .menu-item:hover {
+        color: white;
+    }
+
+</style>

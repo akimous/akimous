@@ -1,5 +1,329 @@
-<div ref:fileTree class="file-tree non-selectable tab-view" class:gone="!active">
-    <div class="container" ref:children>
+<script>
+    import { onDestroy, onMount } from 'svelte';
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ active, dirs, self, files, root })
+    };
+
+    export let fileTree;
+    export let children;
+
+    import g from '../lib/Globals'
+    import { binarySearch, initializeTabView, schedule } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
+
+    function sortAndAddUid(arr) {
+        return arr.sort().map(i => {
+            return {
+                name: i,
+                uid: g.uid
+            }
+        })
+    }
+
+    function sortChildren(node, type) {
+        node.set({
+            type: node.get()[type].sort((a, b) => a.name > b.name)
+        })
+    }
+
+    export let active = false;
+    export let dirs = [];
+    export let self = null;
+    export let files = [];
+    export let root = [];
+
+    import FileTreeNode from './FileTreeNode.html';
+
+    onMount(() => {
+        __this.name = 'fileTree'
+//        g.fileTree = this
+        __this.nodeCreatedCallbacks = {}
+//        initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
+
+        __this.session = g.socket.createSession('fileTree')
+        const { handlers } = __this.session
+        
+        const moveToFirstChildWhenReady = () => {
+            if (!g.ready) {
+                schedule(moveToFirstChildWhenReady)
+                return
+            }
+            moveToFirstChild()
+        }
+        handlers['DirOpened'] = ({ path, dirs, files }) => {
+            const node = getNode(path)
+            node.dirs = sortAndAddUid(dirs)
+            node.files = sortAndAddUid(files)
+//            getNode(path).set({
+//                dirs: sortAndAddUid(dirs),
+//                files: sortAndAddUid(files)
+//            })
+            moveToFirstChildWhenReady()
+        }
+        handlers['Done'] = message => {
+            g.notificationBar.show('success', message)
+        }
+        handlers['Failed'] = message => {
+            g.notificationBar.show('error', message)
+        }
+        __this.session.send('OpenDir', {
+            path: __this.get().root,
+        })
+
+        const renamingEventHandler = ({ path, newName }, event) => {
+            // change file tree names
+            const node = getNode(path)
+            const { parent } = node.get()
+            const oldName = path[path.length - 1]
+            const target = event === 'FileRenamed' ? 'files' : 'dirs'
+            const newPath = [...path]
+            newPath[newPath.length - 1] = newName
+            node.set({
+                name: newName
+            })
+            // change paths of opened files
+            parent.get()[target].find(x => x.name == oldName).name = newName
+            sortChildren(parent, target)
+            if (target === 'files') {
+                const editor = g.panelMiddle.getEditor(path)
+                editor && editor.set({
+                    fileName: newName
+                })
+            }
+            g.panelMiddle.renameDir(newPath, path)
+        }
+
+        const handlerFactory = (target, eventType) => {
+            // return true if handled
+            return ({ path }) => {
+                const node = getNode(path.slice(0, -1))
+                const arr = node.get()[target]
+                const name = path[path.length - 1]
+                const position = binarySearch(arr, name)
+                if (eventType === 'created') {
+                    arr.splice(position, 0, {
+                        name,
+                        uid: g.uid
+                    })
+                    // select newly created file or folder
+                    const stringifiedPath = JSON.stringify(path)
+                    const callback = __this.nodeCreatedCallbacks[stringifiedPath]
+                    if (callback) {
+                        delete __this.nodeCreatedCallbacks[stringifiedPath]
+                        setTimeout(() => {
+                            callback(getNode(path))
+                        })
+                    }
+                } else if (eventType === 'deleted') {
+                    if (name === arr[position].name)
+                        arr.splice(position, 1)
+                    else return false
+                }
+                node.set({
+                    [target]: arr
+                })
+                return true
+            }
+        }
+
+        // On Windows, directory deletion event might be reported as file deletion.
+        // Thus we need to handle both
+        const fileDeleteHandler = handlerFactory('files', 'deleted')
+        const directoryDeleteHandler = handlerFactory('dirs', 'deleted')
+
+        Object.assign(handlers, {
+            DirRenamed: renamingEventHandler,
+            FileRenamed: renamingEventHandler,
+            DirCreated: handlerFactory('dirs', 'created'),
+            FileCreated: handlerFactory('files', 'created'),
+            DirDeleted: handlerFactory('dirs', 'deleted'),
+            FileDeleted: data => {
+                fileDeleteHandler(data) || directoryDeleteHandler(data)
+            }
+        })
+
+        __this.keyEventHandler = {
+            handleKeyEvent(event, target) {
+                if (g.focus.constructor.name === 'FileTreeNode' && g.focus.get().renaming)
+                    return true
+                switch (event.key) {
+                    case 'ArrowDown':
+                        target.moveToNeighbor(1)
+                        break
+                    case 'ArrowUp':
+                        target.moveToNeighbor(-1)
+                        break
+                    case 'ArrowLeft':
+                        target.moveToParent()
+                        break
+                    case 'ArrowRight':
+                        target.moveToFirstChild()
+                        break
+                    case 'Enter':
+                        target.enter()
+                        break
+                    default:
+                        return true // if not handled
+                }
+                return false
+            },
+            handleCommand(command, target) {
+                switch (command) {
+                    case 'down':
+                        target.moveToSibling(1)
+                        break
+                    case 'up':
+                        target.moveToSibling(-1)
+                        break
+                    case 'down5X':
+                        target.moveToSibling(5)
+                        break
+                    case 'up5X':
+                        target.moveToSibling(-5)
+                        break
+                    case 'left':
+                        target.moveToParent()
+                        break
+                    case 'right':
+                        target.moveToFirstChild()
+                        break
+                    case 'end':
+                        target.moveToSibling(999999)
+                        break
+                    case 'home':
+                        target.moveToSibling(-999999)
+                        break
+                    case 'top':
+                        target.top()
+                        break
+                    case 'bottom':
+                        target.bottom()
+                        break
+                    case 'commit':
+                        target.contextMenu()
+                        break
+                    case 'scrollUp':
+                        target.scroll(-0.5)
+                        break
+                    case 'scrollDown':
+                        target.scroll(0.5)
+                        break
+                    default:
+                        return true // if not handled
+                }
+                return false
+            }
+        }
+//        makeScrollable(this, fileTree)
+    });
+
+    onDestroy(() => {
+        __this.session && __this.session.close()
+    });
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function getNode(path) {
+        let node = this
+        for (const i of path) {
+            node = node.children[i]
+        }
+        return node
+    }
+
+    export function moveToSibling(n) {
+        const currentFocus = g.focus
+        if (moveToTopIfNothingSelected()) return
+        let node = currentFocus
+        for (let i = Math.abs(n); i > 0; i--) {
+            const sibling = node.sibling(n)
+            if (!sibling) break
+            node = sibling
+        }
+        if (!node && node === currentFocus) return
+        if (!node.get().selected) node.onClick()
+        node.refs.row.scrollIntoViewIfNeeded(false)
+    }
+
+    export function moveToNeighbor(direction) {
+        const node = g.focus
+        if (moveToTopIfNothingSelected()) return
+        const neighbor = node.neighbor(direction)
+        neighbor && neighbor.onClick && neighbor.onClick()
+    }
+
+    export function moveToFirstChild() {
+        const node = g.focus
+        if (moveToTopIfNothingSelected()) return
+        if (!node.get().isDir) return
+        if (node.get().open) {
+            const firstChild = node.firstChild()
+            if (firstChild) {
+                firstChild.onClick()
+                firstChild.refs.row.scrollIntoViewIfNeeded(false)
+            }
+            return
+        }
+        node.onDoubleClick()
+    }
+
+    export function moveToParent() {
+        const node = g.focus
+        if (moveToTopIfNothingSelected()) return
+        const { parent } = node.get()
+        if (!parent) return
+        parent.onClick()
+        parent.refs.row.scrollIntoViewIfNeeded(false)
+    }
+
+    export function enter() {
+        const node = g.focus
+        if (node.constructor.name !== 'FileTreeNode') return
+        node.onDoubleClick()
+    }
+
+    export function contextMenu() {
+        const focus = g.focus
+        if (focus.constructor.name !== 'FileTreeNode') return
+
+        const x = fileTree.getBoundingClientRect().right
+        const y = focus.refs.row.getBoundingClientRect().top
+        focus.onContextMenu({
+            clientX: x - 10,
+            clientY: y + 10,
+            preventDefault() {}
+        })
+    }
+
+    export function moveToTopIfNothingSelected() {
+        if (!g.focus || g.focus.constructor.name !== 'FileTreeNode' || !g.focus.get().parent) {
+            top()
+            return true
+        }
+    }
+
+    export function top() {
+        const anyNode = Object.values(__this.children)[0]
+        if (!anyNode) return
+        anyNode.firstChild.bind(this)().onClick()
+    }
+
+    export function bottom() {
+        const anyNode = Object.values(__this.children)[0]
+        if (!anyNode) return
+        anyNode.lastChild.bind(this)().onClick()
+    }
+
+    export function addNodeCreatedCallback(path, callback) {
+        __this.nodeCreatedCallbacks[JSON.stringify(path)] = callback
+    }
+</script>
+
+<div bind:this={fileTree} class="file-tree non-selectable tab-view" class:gone="{!active}">
+    <div class="container" bind:this={children}>
         {#each dirs as i (i.uid)}
         <FileTreeNode name={i.name} parent={self} isDir></FileTreeNode>
         {/each} {#each files as i (i.uid)}
@@ -23,309 +347,3 @@
     }
 
 </style>
-
-
-<script>
-    import g from '../lib/Globals'
-    import { binarySearch, initializeTabView, schedule } from '../lib/Utils'
-    import { makeScrollable } from '../lib/UIUtils'
-
-    function sortAndAddUid(arr) {
-        return arr.sort().map(i => {
-            return {
-                name: i,
-                uid: g.uid
-            }
-        })
-    }
-
-    function sortChildren(node, type) {
-        node.set({
-            type: node.get()[type].sort((a, b) => a.name > b.name)
-        })
-    }
-
-    export default {
-        components: {
-            FileTreeNode: './FileTreeNode.html'
-        },
-        oncreate() {
-            this.name = 'fileTree'
-            g.fileTree = this
-            this.nodeCreatedCallbacks = {}
-            initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
-
-            this.session = g.socket.createSession('fileTree')
-            const { handlers } = this.session
-            
-            const moveToFirstChildWhenReady = () => {
-                if (!g.ready) {
-                    schedule(moveToFirstChildWhenReady)
-                    return
-                }
-                this.moveToFirstChild()
-            }
-            handlers['DirOpened'] = ({ path, dirs, files }) => {
-                this.getNode(path).set({
-                    dirs: sortAndAddUid(dirs),
-                    files: sortAndAddUid(files)
-                })
-                moveToFirstChildWhenReady()
-            }
-            handlers['Done'] = message => {
-                g.notificationBar.show('success', message)
-            }
-            handlers['Failed'] = message => {
-                g.notificationBar.show('error', message)
-            }
-            this.session.send('OpenDir', {
-                path: this.get().root,
-            })
-
-            const renamingEventHandler = ({ path, newName }, event) => {
-                // change file tree names
-                const node = this.getNode(path)
-                const { parent } = node.get()
-                const oldName = path[path.length - 1]
-                const target = event === 'FileRenamed' ? 'files' : 'dirs'
-                const newPath = [...path]
-                newPath[newPath.length - 1] = newName
-                node.set({
-                    name: newName
-                })
-                // change paths of opened files
-                parent.get()[target].find(x => x.name == oldName).name = newName
-                sortChildren(parent, target)
-                if (target === 'files') {
-                    const editor = g.panelMiddle.getEditor(path)
-                    editor && editor.set({
-                        fileName: newName
-                    })
-                }
-                g.panelMiddle.renameDir(newPath, path)
-            }
-
-            const handlerFactory = (target, eventType) => {
-                // return true if handled
-                return ({ path }) => {
-                    const node = this.getNode(path.slice(0, -1))
-                    const arr = node.get()[target]
-                    const name = path[path.length - 1]
-                    const position = binarySearch(arr, name)
-                    if (eventType === 'created') {
-                        arr.splice(position, 0, {
-                            name,
-                            uid: g.uid
-                        })
-                        // select newly created file or folder
-                        const stringifiedPath = JSON.stringify(path)
-                        const callback = this.nodeCreatedCallbacks[stringifiedPath]
-                        if (callback) {
-                            delete this.nodeCreatedCallbacks[stringifiedPath]
-                            setTimeout(() => {
-                                callback(this.getNode(path))
-                            })
-                        }
-                    } else if (eventType === 'deleted') {
-                        if (name === arr[position].name)
-                            arr.splice(position, 1)
-                        else return false
-                    }
-                    node.set({
-                        [target]: arr
-                    })
-                    return true
-                }
-            }
-
-            // On Windows, directory deletion event might be reported as file deletion.
-            // Thus we need to handle both
-            const fileDeleteHandler = handlerFactory('files', 'deleted')
-            const directoryDeleteHandler = handlerFactory('dirs', 'deleted')
-
-            Object.assign(handlers, {
-                DirRenamed: renamingEventHandler,
-                FileRenamed: renamingEventHandler,
-                DirCreated: handlerFactory('dirs', 'created'),
-                FileCreated: handlerFactory('files', 'created'),
-                DirDeleted: handlerFactory('dirs', 'deleted'),
-                FileDeleted: data => {
-                    fileDeleteHandler(data) || directoryDeleteHandler(data)
-                }
-            })
-
-            this.keyEventHandler = {
-                handleKeyEvent(event, target) {
-                    if (g.focus.constructor.name === 'FileTreeNode' && g.focus.get().renaming)
-                        return true
-                    switch (event.key) {
-                        case 'ArrowDown':
-                            target.moveToNeighbor(1)
-                            break
-                        case 'ArrowUp':
-                            target.moveToNeighbor(-1)
-                            break
-                        case 'ArrowLeft':
-                            target.moveToParent()
-                            break
-                        case 'ArrowRight':
-                            target.moveToFirstChild()
-                            break
-                        case 'Enter':
-                            target.enter()
-                            break
-                        default:
-                            return true // if not handled
-                    }
-                    return false
-                },
-                handleCommand(command, target) {
-                    switch (command) {
-                        case 'down':
-                            target.moveToSibling(1)
-                            break
-                        case 'up':
-                            target.moveToSibling(-1)
-                            break
-                        case 'down5X':
-                            target.moveToSibling(5)
-                            break
-                        case 'up5X':
-                            target.moveToSibling(-5)
-                            break
-                        case 'left':
-                            target.moveToParent()
-                            break
-                        case 'right':
-                            target.moveToFirstChild()
-                            break
-                        case 'end':
-                            target.moveToSibling(999999)
-                            break
-                        case 'home':
-                            target.moveToSibling(-999999)
-                            break
-                        case 'top':
-                            target.top()
-                            break
-                        case 'bottom':
-                            target.bottom()
-                            break
-                        case 'commit':
-                            target.contextMenu()
-                            break
-                        case 'scrollUp':
-                            target.scroll(-0.5)
-                            break
-                        case 'scrollDown':
-                            target.scroll(0.5)
-                            break
-                        default:
-                            return true // if not handled
-                    }
-                    return false
-                }
-            }
-            makeScrollable(this, this.refs.fileTree)
-        },
-        ondestroy() {
-            this.session && this.session.close()
-        },
-        data() {
-            return {
-                root: [],
-                dirs: [],
-                files: [],
-                active: false,
-                self: null // set in initializeTabView()
-            }
-        },
-        methods: {
-            getNode(path) {
-                let node = this
-                for (const i of path) {
-                    node = node.children[i]
-                }
-                return node
-            },
-            moveToSibling(n) {
-                const currentFocus = g.focus
-                if (this.moveToTopIfNothingSelected()) return
-                let node = currentFocus
-                for (let i = Math.abs(n); i > 0; i--) {
-                    const sibling = node.sibling(n)
-                    if (!sibling) break
-                    node = sibling
-                }
-                if (!node && node === currentFocus) return
-                if (!node.get().selected) node.onClick()
-                node.refs.row.scrollIntoViewIfNeeded(false)
-            },
-            moveToNeighbor(direction) {
-                const node = g.focus
-                if (this.moveToTopIfNothingSelected()) return
-                const neighbor = node.neighbor(direction)
-                neighbor && neighbor.onClick && neighbor.onClick()
-            },
-            moveToFirstChild() {
-                const node = g.focus
-                if (this.moveToTopIfNothingSelected()) return
-                if (!node.get().isDir) return
-                if (node.get().open) {
-                    const firstChild = node.firstChild()
-                    if (firstChild) {
-                        firstChild.onClick()
-                        firstChild.refs.row.scrollIntoViewIfNeeded(false)
-                    }
-                    return
-                }
-                node.onDoubleClick()
-            },
-            moveToParent() {
-                const node = g.focus
-                if (this.moveToTopIfNothingSelected()) return
-                const { parent } = node.get()
-                if (!parent) return
-                parent.onClick()
-                parent.refs.row.scrollIntoViewIfNeeded(false)
-            },
-            enter() {
-                const node = g.focus
-                if (node.constructor.name !== 'FileTreeNode') return
-                node.onDoubleClick()
-            },
-            contextMenu() {
-                const focus = g.focus
-                if (focus.constructor.name !== 'FileTreeNode') return
-
-                const x = this.refs.fileTree.getBoundingClientRect().right
-                const y = focus.refs.row.getBoundingClientRect().top
-                focus.onContextMenu({
-                    clientX: x - 10,
-                    clientY: y + 10,
-                    preventDefault() {}
-                })
-            },
-            moveToTopIfNothingSelected() {
-                if (!g.focus || g.focus.constructor.name !== 'FileTreeNode' || !g.focus.get().parent) {
-                    this.top()
-                    return true
-                }
-            },
-            top() {
-                const anyNode = Object.values(this.children)[0]
-                if (!anyNode) return
-                anyNode.firstChild.bind(this)().onClick()
-            },
-            bottom() {
-                const anyNode = Object.values(this.children)[0]
-                if (!anyNode) return
-                anyNode.lastChild.bind(this)().onClick()
-            },
-            addNodeCreatedCallback(path, callback) {
-                this.nodeCreatedCallbacks[JSON.stringify(path)] = callback
-            }
-        }
-    }
-
-</script>

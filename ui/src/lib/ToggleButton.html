@@ -1,3 +1,12 @@
+<script>
+    import { onMount } from 'svelte';
+
+    export let active = false;
+    export let callback = null;
+
+    onMount(() => {});
+</script>
+
 <div class="non-selectable" class:active on:click><slot></slot></div>
 
 
@@ -27,20 +36,3 @@
     }
 
 </style>
-
-
-<script>
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {
-                active: false,
-                callback: null
-            }
-        },
-        methods: {
-        }
-    }
-
-</script>

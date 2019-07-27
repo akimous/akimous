@@ -1,6 +1,56 @@
-<div id="command-palette" class="non-selectable" class:gone="!active">
+<script>
+    import { afterUpdate, onMount } from 'svelte';
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ active, message, callback })
+    };
+
+    export let input;
+
+    import g from '../lib/Globals'
+
+    export let active = false;
+    export let message = '';
+    export let callback = null;
+
+    onMount(() => {
+        g.commandPalette = this
+    });
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    afterUpdate(() => {
+//        if (changed.active && current.active) {
+//            g.setFocus([this])
+//            input.focus()
+//        }
+    });
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function show() {
+        active = true, message = 'Command:'
+    }
+
+    export function promptForInput(message, callback) {
+//        active = true, message = message, callback = callback
+    }
+
+    export function onKeyDown() {
+        if (event.key === 'Enter') {
+            const input = input.value
+            __this.get().callback(input)
+            active = false
+        }
+    }
+</script>
+
+<div id="command-palette" class="non-selectable" class:gone="{!active}">
     <span class="message">{message}</span>
-    <input ref:input type="text" spellcheck="false" on:keydown="onKeyDown()" />
+    <input bind:this={input} type="text" spellcheck="false" on:keydown="{onKeyDown}" />
 </div>
 
 
@@ -36,51 +86,3 @@
     }
 
 </style>
-
-
-<script>
-    import g from '../lib/Globals'
-
-    export default {
-        components: {},
-        oncreate() {
-            g.commandPalette = this
-        },
-        onupdate({ changed, current }) {
-            if (changed.active && current.active) {
-                g.setFocus([this])
-                this.refs.input.focus()
-            }
-        },
-        data() {
-            return {
-                active: false,
-                message: '',
-                callback: null,
-            }
-        },
-        methods: {
-            show() {
-                this.set({
-                    active: true,
-                    message: 'Command:'
-                })
-            },
-            promptForInput(message, callback) {
-                this.set({
-                    active: true,
-                    message,
-                    callback
-                })
-            },
-            onKeyDown() {
-                if (event.key === 'Enter') {
-                    const input = this.refs.input.value
-                    this.get().callback(input)
-                    this.set({ active: false })
-                }
-            }
-        }
-    }
-
-</script>

@@ -60,22 +60,20 @@ function nextFrame(callback) {
     })
 }
 
-function initializeTabView(view, title, icon) {
-    view.set({ self: view })
-    view.children = {}
+function initializeTabView(view, tabBar, title, icon) {
+//    view.self = view
+//    view.children = {}
     schedule(() => {
-        view.parent = view.get().parent
-        view.tab = view.parent.tabBar.openTab(view, title, icon)
-        view.tab.set({
-            labeled: false
-        })
-        view.on('state', ({ changed, current }) => {
-            if (changed.active) {
-                view.tab.set({
-                    active: current.active
-                })
-            }
-        })
+//        view.parent = view.parent
+        view.tab = tabBar.openTab(view, title, icon)
+        view.tab.labeled = false
+//        view.on('state', ({ changed, current }) => {
+//            if (changed.active) {
+//                view.tab.set({
+//                    active: current.active
+//                })
+//            }
+//        })
     })
 }
 

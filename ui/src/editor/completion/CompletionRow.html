@@ -1,4 +1,43 @@
-<div on:click="click()" ref:completionRow class="row" class:selected>
+<script>
+    import { onMount } from 'svelte';
+
+    export let completionRow;
+
+    const typeIcons = {
+        'instruction': '<i class="fas fa-info-circle"></i>',
+        'full-statement': '<i class="fas fa-crosshairs"></i>',
+        'word-segment': '<i class="fas fa-ellipsis-h"></i>',
+        'word': '<i class="fas fa-book"></i>',
+        'token': '<i class="fas fa-signature"></i>',
+    }
+    export let type = '';
+    export let rowNumber = 0;
+    export let highlight = '';
+    export let tail = '';
+    export let text = '';
+    export let selected = false;
+    export let index = 0;
+    export let parent;
+
+    onMount(() => {});
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function click() {
+        parent.set({ selectedCompletionRow: this })
+        parent.enter()
+    }
+
+    export let typeIcon;
+    $: {
+        const icon = typeIcons[type]
+        if (icon)
+            typeIcon = icon
+        return type.substring(0, 1).toUpperCase()
+    }
+</script>
+
+<div on:click="{click}" bind:this={completionRow} class="row" class:selected>
     <div class="row-number"> {rowNumber} </div>
     <div class="row-content">{@html highlight}{tail}</div>
     <div class="type-indicator {type}"> {@html typeIcon} </div>
@@ -154,47 +193,3 @@
     }
 
 </style>
-
-
-<script>
-    // import g from '../../lib/Globals'
-
-    const typeIcons = {
-        'instruction': '<i class="fas fa-info-circle"></i>',
-        'full-statement': '<i class="fas fa-crosshairs"></i>',
-        'word-segment': '<i class="fas fa-ellipsis-h"></i>',
-        'word': '<i class="fas fa-book"></i>',
-        'token': '<i class="fas fa-signature"></i>',
-    }
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {
-                text: '',
-                type: '',
-                highlight: '',
-                rowNumber: 0,
-                selected: false,
-                index: 0,
-                tail: '',
-            }
-        },
-        methods: {
-            click() {
-                const { parent } = this.get()
-                parent.set({ selectedCompletionRow: this })
-                parent.enter()
-            }
-        },
-        computed: {
-            typeIcon: ({ type }) => {
-                const icon = typeIcons[type]
-                if (icon)
-                    return icon
-                return type.substring(0, 1).toUpperCase()
-            }
-        }
-    }
-
-</script>

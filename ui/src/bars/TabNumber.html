@@ -1,5 +1,41 @@
+<script>
+    import { beforeUpdate, onMount } from 'svelte';
+
+    export let tabNumberHint;
+
+    import g from '../lib/Globals'
+
+    export let active = false;
+    export let numberOffsets = [];
+
+    onMount(() => {
+//        g.tabNumber = this
+    });
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+//        if (changed.active) {
+//            if (!current.active) return
+//            const activePanel = g.focusStack[0]
+//            if (!activePanel || !activePanel.tabBar) return
+//            let children = activePanel.tabBar.refs.tabBar.childNodes
+//            // remove resizeSensor
+//            children = [...children].filter(child => child.classList.contains('tab'))
+//            if (children.length < 2) {
+//                active = false
+//            }
+//            numberOffsets = children.map(tab => {
+//                    const rect = tab.getBoundingClientRect()
+//                    return (rect.left + rect.right) / 2 - 15
+//                })
+//        }
+    });
+</script>
+
 {#if active}
-<div ref:tabNumberHint id="tab-number-hint">
+<div bind:this={tabNumberHint} id="tab-number-hint">
     {#each numberOffsets as offset, i} {#if i < 9} 
        <span class="number l-orange" style="left:{offset}px">{i + 1}</span>
     {/if} {/each}
@@ -24,44 +60,3 @@
     }
 
 </style>
-
-
-<script>
-    import g from '../lib/Globals'
-
-    export default {
-        components: {},
-        oncreate() {
-            g.tabNumber = this
-        },
-        onstate({ changed, current }) {
-            if (changed.active) {
-                if (!current.active) return
-                const activePanel = g.focusStack[0]
-                if (!activePanel || !activePanel.tabBar) return
-                let children = activePanel.tabBar.refs.tabBar.childNodes
-                // remove resizeSensor
-                children = [...children].filter(child => child.classList.contains('tab'))
-                if (children.length < 2) {
-                    this.set({
-                        active: false
-                    })
-                }
-                this.set({
-                    numberOffsets: children.map(tab => {
-                        const rect = tab.getBoundingClientRect()
-                        return (rect.left + rect.right) / 2 - 15
-                    })
-                })
-            }
-        },
-        data() {
-            return {
-                active: false,
-                numberOffsets: []
-            }
-        },
-        methods: {}
-    }
-
-</script>

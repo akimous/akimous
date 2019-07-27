@@ -1,23 +1,22 @@
 <div id="toolbar">
     <MenuBar />
-    <PathIndicator />
-    <ToolbarButton ref:linterOptions on:click="togglePopup('linterOptions')" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
-    <ToolbarButton ref:keymapSettings on:click="togglePopup('keymapSettings')" iconClass="fas fa-fw fa-keyboard" title="Keymap Settings" />
-    <ToolbarButton ref:notificationHistory on:click="togglePopup('notificationHistory')" iconClass="fas fa-fw fa-bell" title="Notification History" />
+<!--    <PathIndicator />-->
+    <ToolbarButton on:click="{() => togglePopup('linterOptions')}" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
+    <ToolbarButton on:click="{() => togglePopup('keymapSettings')}" iconClass="fas fa-fw fa-keyboard" title="Keymap Settings" />
+    <ToolbarButton on:click="{() => togglePopup('notificationHistory')}" iconClass="fas fa-fw fa-bell" title="Notification History" />
     <span class="gap">|</span>
-    <ToolbarButton ref:runConfiguration on:click="togglePopup('runConfiguration')" iconClass="fas fa-caret-down" title="Run Configuration">
+    <ToolbarButton on:click="{() => togglePopup('runConfiguration')}" iconClass="fas fa-caret-down" title="Run Configuration">
         <span class="text">{runConfigurationDisplay}</span>
     </ToolbarButton>
-    <ToolbarButton ref:run on:click="run()" iconClass="fas fa-play" title="Run" />
-    <!--    <ToolbarButton ref:debug iconClass="fas fa-bug" title="Debug" />-->
-    <ToolbarButton ref:stop on:click="stop()" iconClass="fas fa-square" title="Stop" />
-    <CursorPosition ref:cursorPosition />
+    <ToolbarButton on:click="{run}" iconClass="fas fa-play" title="Run" />
+    <ToolbarButton on:click="{stop}" iconClass="fas fa-square" title="Stop" />
+    <CursorPosition bind:this={cursorPosition} />
 </div>
 <CommandPalette />
 <NotificationBar />
 <TabNumber />
 <NotificationHistory />
-<LinterOptions />
+<LinterOptions bind:this={linterOptions} />
 <RunConfiguration />
 <KeymapSettings />
 
@@ -44,72 +43,80 @@
 
 </style>
 
+   
+
 <script>
+    import { onMount } from 'svelte'
+    import NotificationBar from './NotificationBar.html';
+    import NotificationHistory from '../popups/NotificationHistory.html';
+    import LinterOptions from '../popups/LinterOptions.html';
+    import RunConfiguration from '../popups/RunConfiguration.html';
+    import KeymapSettings from '../popups/KeymapSettings.html';
+    import TabNumber from './TabNumber.html';
+    import ToolbarButton from './ToolbarButton.html';
+    import MenuBar from './MenuBar.html'
+    import CursorPosition from './CursorPosition.html'
+    import CommandPalette from './CommandPalette.html';
+//    import PathIndicator from './PathIndicator.html';
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
 
-    export default {
-        components: {
-            NotificationBar: './NotificationBar.html',
-            NotificationHistory: '../popups/NotificationHistory.html',
-            LinterOptions: '../popups/LinterOptions.html',
-            RunConfiguration: '../popups/RunConfiguration.html',
-            KeymapSettings: '../popups/KeymapSettings.html',
-            TabNumber: './TabNumber.html',
-            ToolbarButton: './ToolbarButton.html',
-            MenuBar: './MenuBar.html',
-            CursorPosition: './CursorPosition.html',
-            CommandPalette: './CommandPalette.html',
-            PathIndicator: './PathIndicator.html',
-        },
-        oncreate() {
-            g.toolbar = this
-            schedule(() => {
-                g.tooltip.register(this.refs.run.refs.button)
-            })
-        },
-        data() {
-            return {
-                runConfigurationDisplay: ''
-            }
-        },
-        methods: {
-            togglePopup(name) {
-                const popup = g[name]
-                const { left, right } = event.target.getBoundingClientRect()
-                const { open } = popup.get()
-                popup.set({
-                    open: !open,
-                    left: (left + right) / 2
-                })
-                this.refs[name].set({ active: !open })
-            },
-            run() {
-                const { mode } = g.runConfiguration.get()
-                if (!g.activeEditor && mode !== 'shell') {
-                    g.notificationBar.show('warning', 'Please open a Python file to run.')
-                    return
-                }
-                switch (mode) {
-                    case 'script':
-                    case 'module':
-                    case 'shell':
-                        if (!g.activeEditor.cm.isClean())
-                            g.saveFile()
-                        g.console.runInTerminal()
-                        break
-                    case 'interactive':
-                        g.console.startKernel(false)
-                        break
-                    case 'realtime':
-                        g.console.startKernel(true)
-                        break
-                }
-            },
-            stop() {
-                g.console.stop()
-            }
+    export let linterOptionButton;
+    export let linterOptions;
+    export let runConfiguration;
+    export let runButton;
+    export let stopButton;
+    export let cursorPosition;
+
+
+    export let runConfigurationDisplay = '';
+
+
+    onMount(() => {
+        g.linterOptions = linterOptions
+//        g.toolbar = this
+//        schedule(() => {
+//            g.tooltip.register(run.refs.button)
+//        })
+    })
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function togglePopup(name) {
+        const popup = g[name]
+        const { left, right } = event.target.getBoundingClientRect()
+        popup.open = !popup.open
+        if (popup.open) {
+            popup.left = (left + right) / 2
+        }
+//        name].set({ active: !open })
+    }
+
+    export function run() {
+        const { mode } = g.runConfiguration.get()
+        if (!g.activeEditor && mode !== 'shell') {
+            g.notificationBar.show('warning', 'Please open a Python file to run.')
+            return
+        }
+        switch (mode) {
+            case 'script':
+            case 'module':
+            case 'shell':
+                if (!g.activeEditor.cm.isClean())
+                    g.saveFile()
+                g.console.runInTerminal()
+                break
+            case 'interactive':
+                g.console.startKernel(false)
+                break
+            case 'realtime':
+                g.console.startKernel(true)
+                break
         }
     }
 
+    export function stop() {
+        g.console.stop()
+    }
 </script>
+

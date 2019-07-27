@@ -1,92 +1,99 @@
+<script>
+    import { beforeUpdate, onMount } from 'svelte';
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ open, left, realtime, pyflakes, spellChecker, isort, yapf, pylint })
+    };
+
+    export let linterOptions;
+
+    import g from '../lib/Globals'
+    import { config, setConfig } from '../lib/ConfigManager'
+
+    export let open = false;
+    export let left = 0;
+    export let realtime = config.formatter.realtime;
+    export let pyflakes = config.linter.pyflakes;
+    export let spellChecker = config.linter.spellChecker;
+    export let isort = config.formatter.isort;
+    export let yapf = config.formatter.yapf;
+    export let pylint = config.linter.pylint;
+
+    onMount(() => {
+//        g.linterOptions = this
+    });
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+//    beforeUpdate(() => {
+//        if (changed.open && g.toolbar) {
+//            g.app.set({
+//                popup: current.open ? this : null
+//            })
+//        }
+//        if (g.linter) {
+//            if (changed.spellChecker) g.linter.set({ spellChecker: current.spellChecker })
+//            if (changed.pylint) g.linter.set({ pylint: current.pylint })
+//            if (changed.pyflakes) g.linter.set({ pyflakes: current.pyflakes })
+//        }
+//    });
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function toggle(item) {
+        const originalValue = __this.get()[item]
+        const changed = {
+            [item]: !originalValue
+        }
+//                this.set(changed)
+        let section = 'formatter'
+        if (item === 'pylint' || item === 'pyflakes')
+            section = 'linter'
+        setConfig(section, changed)
+    }
+</script>
+
 {#if open}
-<div ref:linterOptions id="linter-options" class="popup from-top" style="left: calc({left}px - 12.5rem);">
+<div bind:this={linterOptions} id="linter-options" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
         <div class="title">Real-Time Formatter</div>
         <div class="message">Format code as you type.</div>
-        <div class="option" class:checked="realtime" on:click="toggle('realtime')">
+        <div class="option" class:checked="{realtime}" on:click="{() => toggle('realtime')}">
             <i class="checkbox fas"/>
             <span class="description">Built-in</span>
         </div>
 
         <div class="title">Real-Time Linter</div>
         <div class="message">Check for errors as you type.</div>
-        <div class="option" class:checked="pyflakes" on:click="toggle('pyflakes')">
+        <div class="option" class:checked="{pyflakes}" on:click="{() => toggle('pyflakes')}">
             <i class="checkbox fas"/>
             <span class="description">Pyflakes</span>
         </div>
-        <div class="option" class:checked="spellChecker" on:click="toggle('spellChecker')">
+        <div class="option" class:checked="{spellChecker}" on:click="{() => toggle('spellChecker')}">
             <i class="checkbox fas"/>
             <span class="description">Spell checker</span>
         </div>
 
         <div class="title">Beautifier</div>
         <div class="message">Reformat code before saving.</div>
-        <div class="option" class:checked="isort" on:click="toggle('isort')">
+        <div class="option" class:checked="{isort}" on:click="{() => toggle('isort')}">
             <i class="checkbox fas"/>
             <span class="description">isort</span>
         </div>
-        <div class="option" class:checked="yapf" on:click="toggle('yapf')">
+        <div class="option" class:checked="{yapf}" on:click="{() => toggle('yapf')}">
             <i class="checkbox fas"/>
             <span class="description">YAPF</span>
         </div>
 
         <div class="title">Offline Linter</div>
         <div class="message">Check for subtle problems after saving.</div>
-        <div class="option" class:checked="pylint" on:click="toggle('pylint')">
+        <div class="option" class:checked="{pylint}" on:click="{() => toggle('pylint')}">
             <i class="checkbox fas"/>
             <span class="description">Pylint</span>
         </div>
     </div>
 </div>
 {/if}
-
-
-<script>
-    import g from '../lib/Globals'
-    import { config, setConfig } from '../lib/ConfigManager'
-
-    export default {
-        components: {},
-        oncreate() {
-            g.linterOptions = this
-        },
-        onstate({ changed, current }) {
-            if (changed.open && g.toolbar) {
-                g.app.set({
-                    popup: current.open ? this : null
-                })
-            }
-            if (g.linter) {
-                if (changed.spellChecker) g.linter.set({ spellChecker: current.spellChecker })
-                if (changed.pylint) g.linter.set({ pylint: current.pylint })
-                if (changed.pyflakes) g.linter.set({ pyflakes: current.pyflakes })
-            }
-        },
-        data() {
-            return {
-                open: false,
-                left: 0,
-                realtime: config.formatter.realtime,
-                pyflakes: config.linter.pyflakes,
-                spellChecker: config.linter.spellChecker,
-                isort: config.formatter.isort,
-                yapf: config.formatter.yapf,
-                pylint: config.linter.pylint,
-            }
-        },
-        methods: {
-            toggle(item) {
-                const originalValue = this.get()[item]
-                const changed = {
-                    [item]: !originalValue
-                }
-                this.set(changed)
-                let section = 'formatter'
-                if (item === 'pylint' || item === 'pyflakes')
-                    section = 'linter'
-                setConfig(section, changed)
-            }
-        }
-    }
-
-</script>
