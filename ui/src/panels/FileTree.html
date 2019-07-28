@@ -1,3 +1,29 @@
+<div bind:this={fileTree} class="file-tree non-selectable tab-view" class:gone="{!active}">
+    <div class="container" bind:this={container}>
+        {#each dirs as i (i.uid)}
+        <FileTreeNode bind:this={children[i.name]} name={i.name} parent={self} isDir on:created={onChildNodeCreation}></FileTreeNode>
+        {/each} {#each files as i (i.uid)}
+        <FileTreeNode bind:this={children[i.name]} name={i.name} parent={self}></FileTreeNode>
+        {/each}
+    </div>
+</div>
+
+<style>
+    .file-tree {
+        color: var(--basic-ui-font-color);
+        font-family: var(--ui-font-family);
+        font-size: var(--ui-font-size-default);
+        overflow-x: scroll;
+    }
+
+    .container {
+        padding: .4rem 0;
+        min-width: 100%;
+        display: inline-block;
+    }
+
+</style>
+
 <script>
     import { onDestroy, onMount } from 'svelte';
 
@@ -8,12 +34,17 @@
     };
 
     export let fileTree;
-    export let children;
+    export let children = {}
+    export let container
 
     import g from '../lib/Globals'
     import { binarySearch, initializeTabView, schedule } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
 
+    function onChildNodeCreation() {
+//        console.log('meow')
+        
+    }
     function sortAndAddUid(arr) {
         return arr.sort().map(i => {
             return {
@@ -29,13 +60,21 @@
         })
     }
 
-    export let active = false;
-    export let dirs = [];
-    export let self = null;
-    export let files = [];
-    export let root = [];
+    export let active = false
+    export let dirs = []
+    export let self = null
+    export let files = []
+    export let root = []
 
-    import FileTreeNode from './FileTreeNode.html';
+    import FileTreeNode from './FileTreeNode.html'
+    import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    $: {
+        dispatch('active', {
+            name: 'FileTree',
+            active
+        })
+    }
 
     onMount(() => {
         __this.name = 'fileTree'
@@ -53,14 +92,15 @@
             }
             moveToFirstChild()
         }
-        handlers['DirOpened'] = ({ path, dirs, files }) => {
-            const node = getNode(path)
-            node.dirs = sortAndAddUid(dirs)
-            node.files = sortAndAddUid(files)
-//            getNode(path).set({
-//                dirs: sortAndAddUid(dirs),
-//                files: sortAndAddUid(files)
-//            })
+        handlers['DirOpened'] = message => {
+            if (message.path.length) {
+                const node = getNode(message.path)
+                node.dirs = sortAndAddUid(message.dirs)
+                node.files = sortAndAddUid(message.files)
+            } else {
+                dirs = sortAndAddUid(message.dirs)
+                files = sortAndAddUid(message.files)
+            }
             moveToFirstChildWhenReady()
         }
         handlers['Done'] = message => {
@@ -227,7 +267,9 @@
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function getNode(path) {
-        let node = this
+        console.log(children)
+        let node = children.shift()
+        
         for (const i of path) {
             node = node.children[i]
         }
@@ -321,29 +363,3 @@
         __this.nodeCreatedCallbacks[JSON.stringify(path)] = callback
     }
 </script>
-
-<div bind:this={fileTree} class="file-tree non-selectable tab-view" class:gone="{!active}">
-    <div class="container" bind:this={children}>
-        {#each dirs as i (i.uid)}
-        <FileTreeNode name={i.name} parent={self} isDir></FileTreeNode>
-        {/each} {#each files as i (i.uid)}
-        <FileTreeNode name={i.name} parent={self}></FileTreeNode>
-        {/each}
-    </div>
-</div>
-
-<style>
-    .file-tree {
-        color: var(--basic-ui-font-color);
-        font-family: var(--ui-font-family);
-        font-size: var(--ui-font-size-default);
-        overflow-x: scroll;
-    }
-
-    .container {
-        padding: .4rem 0;
-        min-width: 100%;
-        display: inline-block;
-    }
-
-</style>

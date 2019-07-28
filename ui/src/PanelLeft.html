@@ -1,7 +1,7 @@
-<div bind:this={panelLeft} id="panel-left" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
+<div bind:this={self} id="panel-left" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
     <TabBar bind:this={tabBar} id="tab-bar"></TabBar>
-    <FileTree bind:this={fileTree}></FileTree>
-<!--    <Outline bind:this={outline}></Outline>-->
+    <FileTree bind:this={children.fileTree} on:active={onTabChange}></FileTree>
+    <Outline bind:this={children.outline}></Outline>
 </div>
 
 
@@ -26,13 +26,14 @@
     // manually refactor all references to __this
     const __this = {};
 
-    export let panelLeft;
-    export let tabBar;
-    export let fileTree;
-    export let outline;
+    export let self
+    export let children = {}
+    export let tabBar
+//    export let fileTree;
+//    export let outline;
 
     import g from './lib/Globals'
-    import { setAttributeForMultipleComponent, activateView, schedule } from './lib/Utils'
+    import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
     import { initializeTabView } from './lib/Utils'
 
     export let focused = false;
@@ -41,10 +42,16 @@
 
     import TabBar from './bars/TabBar.html';
     import FileTree from './panels/FileTree.html';
-//    import Outline from './panels/Outline.html';
+    import Outline from './panels/Outline.html';
 
+    function onTabChange({ detail }) {
+        tabBar.updateTabIndicator(detail)
+    }
+    
     onMount(() => {
-        initializeTabView(fileTree, tabBar, 'FileTree', 'fas fa-tree l-green')
+        // TODO: refactor, remove tabBar
+        initializeTabView(children.fileTree, tabBar, 'FileTree', 'fas fa-tree l-green')
+        initializeTabView(children.outline, tabBar, 'Outline', 'fas fa-align-left l-blue')
         
         
 //        g.panelLeft = this
@@ -52,9 +59,10 @@
 //        setAttributeForMultipleComponent({
 //            parent: this
 //        }, tabBar, fileTree, outline)
-//        schedule(() => {
+        schedule(() => {
 //            activateView(this, g.projectState.activePanels.left)
-//        })
+        children[g.projectState.activePanels.left].active = true
+        })
     });
 
     // [svelte-upgrade warning]

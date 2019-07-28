@@ -1,95 +1,7 @@
-<script>
-    import { onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ parent })
-    };
-
-    export let tabBar;
-
-    import Tab from './Tab.html'
-    import Sortable from 'sortablejs'
-    import elementQueries from 'css-element-queries'
-
-    export let parent = null;
-
-    onMount(() => {
-        __this.tabs = new Set()
-        __this.sortable = Sortable.create(tabBar, {
-            animation: 0,
-        })
-        new elementQueries.ResizeSensor(tabBar, () => {
-            fitTabWidth()
-        })
-    });
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function openTab(view, name, icon) {
-        const tab = new Tab({
-            target: tabBar,
-            data: {
-                icon,
-                name,
-                view,
-                panel: __this.get().parent,
-                parent: this
-            }
-        })
-        fitTabWidth()
-        return tab
-    }
-
-    export function switchToTab(index) {
-        index += 1 // resizeSensor counts 1
-        for (const tab of __this.tabs) {
-            if (tab.getIndex() === index) {
-                tab.activate()
-                return
-            }
-        }
-    }
-
-    export function fitTabWidth() {
-        cancelAnimationFrame(__this.tabFittingTask)
-        __this.tabFittingTask = requestAnimationFrame(() => {
-            const tabBarWidth = tabBar.getBoundingClientRect().width
-            const tabs = [...__this.tabs]
-            if (!tabs.length) return
-            const equalTabWidth = tabBarWidth / tabs.length
-
-            const originalWidths = tabs.map(tab => tab.getInternalWidth())
-            const totalTabWidth = originalWidths.reduce((a, b) => a + b)
-            let largerThanEqualTabWidth = 0
-            const spareTabSpace = originalWidths.reduce((a, b) => {
-                if (b < equalTabWidth)
-                    return equalTabWidth - b + a
-                largerThanEqualTabWidth += 1
-                return a
-            }, 0)
-
-            const paddingPerSide = Math.max((tabBarWidth - totalTabWidth) / __this.tabs.size / 2, 0)
-
-            const newTabWidth = equalTabWidth + (spareTabSpace / largerThanEqualTabWidth)
-            for (let i = 0; i < tabs.length; i++) {
-                const tab = tabs[i]
-                if ((paddingPerSide > 0) || (originalWidths[i] < equalTabWidth)) {
-                    tab.autoWidth()
-                    tab.set({
-                        padding: paddingPerSide
-                    })
-                } else {
-                    tab.forceSetWidth(newTabWidth)
-                }
-            }
-        })
-    }
-</script>
-
 <div bind:this={tabBar} class="tab-bar">
-
+    {#each tabData as t}
+    <Tab {...t} bind:this={tabs[t.name]}></Tab>
+    {/each}
 </div>
 
 
@@ -105,3 +17,111 @@
     }
 
 </style>
+
+   
+
+<script>
+    import { onMount } from 'svelte';
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ parent })
+    };
+
+    export let tabBar;
+
+    import Tab from './Tab.html'
+    import Sortable from 'sortablejs'
+    import elementQueries from 'css-element-queries'
+
+    export let parent = null
+    export let tabData = []
+    export let tabs = {}
+    let tabFittingTask = -1
+
+    onMount(() => {
+        __this.tabs = new Set()
+        __this.sortable = Sortable.create(tabBar, {
+            animation: 0,
+        })
+//        new elementQueries.ResizeSensor(tabBar, () => {
+//            fitTabWidth()
+//        })
+    });
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function openTab(view, name, icon, labeled = true) {
+        console.log({icon})
+        tabData.push({
+            view, name, icon, labeled
+        })
+        tabData = tabData
+        fitTabWidth()
+        return tabs[name]
+//        const tab = new Tab({
+//            target: tabBar,
+//            data: {
+//                icon,
+//                name,
+//                view,
+//                panel: __this.get().parent,
+//                parent: this
+//            }
+//        })
+//        fitTabWidth()
+//        return tab
+    }
+
+    export function switchToTab(index) {
+        index += 1 // resizeSensor counts 1
+        for (const tab of __this.tabs) {
+            if (tab.getIndex() === index) {
+                tab.activate()
+                return
+            }
+        }
+    }
+    
+    export function updateTabIndicator({ name, active }) {
+        console.log({tabs, name})
+        tabs[name].active = active
+    }
+
+    function _fitTabWidth() {
+        const tabBarWidth = tabBar.getBoundingClientRect().width
+        const _tabs = Object.values(tabs)
+        if (!_tabs.length) return
+        const equalTabWidth = tabBarWidth / _tabs.length
+
+        const originalWidths = _tabs.map(t => t.getInternalWidth())
+        const totalTabWidth = originalWidths.reduce((a, b) => a + b)
+        let largerThanEqualTabWidth = 0
+        const spareTabSpace = originalWidths.reduce((a, b) => {
+            if (b < equalTabWidth)
+                return equalTabWidth - b + a
+            largerThanEqualTabWidth += 1
+            return a
+        }, 0)
+
+        const paddingPerSide = Math.max((tabBarWidth - totalTabWidth) / _tabs.length / 2, 0)
+
+        const newTabWidth = equalTabWidth + (spareTabSpace / largerThanEqualTabWidth)
+        for (let i = 0; i < _tabs.length; i++) {
+            const tab = _tabs[i]
+            if ((paddingPerSide > 0) || (originalWidths[i] < equalTabWidth)) {
+                tab.autoWidth()
+                tab.padding = paddingPerSide
+            } else {
+                tab.forceSetWidth(newTabWidth)
+            }
+        }
+    }
+    
+    export function fitTabWidth() {
+        cancelAnimationFrame(tabFittingTask)
+        tabFittingTask = requestAnimationFrame(_fitTabWidth)
+    }
+</script>
+

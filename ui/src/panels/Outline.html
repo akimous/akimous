@@ -1,3 +1,59 @@
+<div bind:this={panel} class="panel" class:gone="{!active}" on:click="{onFocus}">
+    <table bind:this={outline} id="outline">
+        {#each outlineItems as { line, display, type, level }, i }
+        <tr bind:this={row} on:click="{() => jumpTo(line, display)}" class="outline-node" class:highlight="{line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)}">
+<!--            <td class="line-number" class:highlight>{line + 1}</td>-->
+            <td class="line-number">{line + 1}</td>
+            {#each Array(level) as indent}
+            <td class="indent"></td>
+            {/each}
+            <td class="row-body {type}">{display}</td>
+        </tr>
+        {:else}
+            <tr>
+                <td class="placeholder">Empty <br>(classes and functions defined in your code will be shown here)</td>
+            </tr>
+        {/each}
+    </table>
+</div>
+
+<style>
+    .outline-node {
+        height: var(--ui-line-height-default);
+        white-space: nowrap;
+        min-width: 100%;
+        display: inline-flex;
+    }
+
+    .indent {
+        display: inline-block;
+        width: 1rem;
+        height: 100%;
+        color: transparent;
+        box-sizing: border-box;
+        border-right: .05rem solid var(--panel-delimiter-color);
+    }
+
+    .row-body {
+        display: inline-block;
+        flex-grow: 1;
+    }
+
+    .row-body.def {
+        color: var(--c-function);
+    }
+
+    .row-body.class {
+        color: var(--c-def);
+    }
+
+    .row-body.async {
+        color: var(--c-attribute);
+    }
+
+</style>
+   
+
 <script>
     import { onMount } from 'svelte';
 
@@ -19,11 +75,11 @@
     export let currentLine = 0;
 
     onMount(() => {
-        __this.name = 'outline'
-        g.outline = this
+//        __this.name = 'outline'
+//        g.outline = this
         g.currentHighlight = null
-        initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')
-        makeScrollable(this, panel)
+//        initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')
+//        makeScrollable(this, panel)
     });
 
     // [svelte-upgrade suggestion]
@@ -95,56 +151,4 @@
     }
 </script>
 
-<div bind:this={panel} class="panel" class:gone="{!active}" on:click="{onFocus}">
-    <table bind:this={outline} id="outline">
-        {#each outlineItems as { line, display, type, level }, i }
-        <tr bind:this={row} on:click="{() => jumpTo(line, display)}" class="outline-node" class:highlight="{line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)}">
-            <td class="line-number" class:highlight>{line + 1}</td>
-            {#each Array(level) as indent}
-            <td class="indent"></td>
-            {/each}
-            <td class="row-body {type}">{display}</td>
-        </tr>
-        {:else}
-            <tr>
-                <td class="placeholder">Empty <br>(classes and functions defined in your code will be shown here)</td>
-            </tr>
-        {/each}
-    </table>
-</div>
 
-<style>
-    .outline-node {
-        height: var(--ui-line-height-default);
-        white-space: nowrap;
-        min-width: 100%;
-        display: inline-flex;
-    }
-
-    .indent {
-        display: inline-block;
-        width: 1rem;
-        height: 100%;
-        color: transparent;
-        box-sizing: border-box;
-        border-right: .05rem solid var(--panel-delimiter-color);
-    }
-
-    .row-body {
-        display: inline-block;
-        flex-grow: 1;
-    }
-
-    .row-body.def {
-        color: var(--c-function);
-    }
-
-    .row-body.class {
-        color: var(--c-def);
-    }
-
-    .row-body.async {
-        color: var(--c-attribute);
-    }
-
-</style>

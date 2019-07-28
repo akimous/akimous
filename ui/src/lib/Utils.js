@@ -65,8 +65,8 @@ function initializeTabView(view, tabBar, title, icon) {
 //    view.children = {}
     schedule(() => {
 //        view.parent = view.parent
-        view.tab = tabBar.openTab(view, title, icon)
-        view.tab.labeled = false
+        view.tab = tabBar.openTab(view, title, icon, false)
+//        view.tab.labeled = false
 //        view.on('state', ({ changed, current }) => {
 //            if (changed.active) {
 //                view.tab.set({
@@ -82,24 +82,24 @@ function setAttributeForMultipleComponent(obj, ...targets) {
         i.set(obj)
 }
 
-function activateView(parent, view) {
-    const oldView = parent.get().focus
-    if (view === oldView) return
-    parent.set({ focus: view })
-    if (!view) return
-    if (g.focusStack.includes(parent))
-        g.setFocus([parent, view])
-    oldView && oldView.set({ active: false })
-    view.set({ active: true })
+//function activateView(parent, view) {
+//    const oldView = parent.get().focus
+//    if (view === oldView) return
+//    parent.set({ focus: view })
+//    if (!view) return
+//    if (g.focusStack.includes(parent))
+//        g.setFocus([parent, view])
+//    oldView && oldView.set({ active: false })
+//    view.set({ active: true })
 
-    let panel
-    if (parent === g.panelLeft) panel = 'left'
-    else if (parent === g.panelRight) panel = 'right'
-    if (panel)
-        setProjectState('activePanels', {
-            [panel]: view.name
-        })
-}
+//    let panel
+//    if (parent === g.panelLeft) panel = 'left'
+//    else if (parent === g.panelRight) panel = 'right'
+//    if (panel)
+//        setProjectState('activePanels', {
+//            [panel]: view.name
+//        })
+//}
 
 function reformatDocstring(doc) {
     if (!doc) return doc
@@ -276,7 +276,7 @@ export {
     nextFrame,
     initializeTabView,
     setAttributeForMultipleComponent,
-    activateView,
+//    activateView,
     reformatDocstring,
     getRem,
     Pos,

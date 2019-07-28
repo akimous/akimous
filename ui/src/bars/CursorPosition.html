@@ -3,7 +3,7 @@
     {#if editingIndentSize}
     <input bind:this={indentSizeInput} id="indent-size-input" type="number" max=12 min=1 step=1 on:blur="{commitIndentSize}" value={indentSize}>
     {:else}
-    <span bind:this={indentSize} on:click="{editIndentSize}" class="tool-bar-button" aria-label="Click to edit indent size.">{indentSize}</span>
+    <span on:click="{editIndentSize}" class="tool-bar-button" aria-label="Click to edit indent size.">{indentSize}</span>
     {/if}
 </div>
 <div bind:this={cursorPosition} id="cursor-position" class="non-selectable tool-bar-button" aria-label="Cursor Position (line : column)"> {line+1} : {ch} </div>

@@ -1,5 +1,78 @@
+<div bind:this={row} on:mousedown="{onClick}" on:dblclick="{onDoubleClick}" on:contextmenu="{onContextMenu}" class="file-tree-node" class:selected class:hidden-file="{name.startsWith('.')}" style="padding-left: {0.3 + level}rem;">
+    <span class="icon {icon}"></span> 
+    {#if !renaming}
+    <span class="display-name">
+        {name}
+    </span> 
+    {:else}
+    <input bind:this={input} class="display-name" type="text" spellcheck="false" value="{name}" on:blur="{commitRename}"> 
+    {/if}
+</div>
+
+{#if newNode}
+<svelte:self bind:this={placeholderNode} placeholderMode={true} level={level+isDir} parent={self} isDir="{ newNode==='dir' }" /> 
+{/if}
+
+<div bind:this={children}>
+    {#each dirs as i (i.uid)}
+    <svelte:self level={level+1} name={i.name} parent={self} isDir /> 
+    {/each} 
+    {#each files as i (i.uid)}
+    <svelte:self level={level+1} name={i.name} parent={self} /> 
+    {/each}
+</div>
+
+
+<style>
+    .file-tree-node {
+        height: var(--ui-line-height-default);
+        line-height: var(--ui-line-height-default);
+        cursor: default;
+        white-space: nowrap;
+        min-width: 100%;
+        font-size: var(--ui-font-size-default);
+        /* don't remove this or the font on non-retina display with Safari will become crappy. */
+        background: var(--panel-color);
+    }
+
+    .file-tree-node.selected {
+        background: var(--ui-highlight-color);
+        color: white;
+    }
+
+    .file-tree-node:hover {
+        color: white;
+    }
+
+    .icon {
+        width: 1rem;
+        min-height: 1rem;
+        display: inline-block;
+        vertical-align: text-bottom;
+        background-size: 100% 100% !important;
+        text-align: center;
+    }
+
+    .display-name {
+        padding-left: 0.3rem;
+        vertical-align: middle;
+    }
+
+    input.display-name {
+        border-radius: var(--small-radius);
+        font-size: var(--ui-font-size-default);
+        height: var(--ui-font-size-default);
+    }
+
+    .hidden-file .icon,
+    .hidden-file .display-name {
+        opacity: 0.6;
+    }
+
+</style>
+
 <script>
-    import { beforeUpdate, onDestroy, onMount } from 'svelte';
+    import { beforeUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte';
 
     // [svelte-upgrade suggestion]
     // manually refactor all references to __this
@@ -7,10 +80,11 @@
         get: () => ({ renaming, name, level, icon, newNode, isDir, self, dirs, files, parent, open, selected, placeholderMode })
     };
 
-    export let row;
-    export let input;
-    export let placeholderNode;
-    export let children;
+    const dispatch = createEventDispatcher()
+    export let row = null
+    export let input = ''
+    export let placeholderNode = null
+    export let children = {}
 
     import g from '../lib/Globals'
     import { binarySearch, schedule } from '../lib/Utils'
@@ -99,43 +173,39 @@
     export let renaming = false;
     export let name = '';
     export let level = 0;
-    export let icon = '';
+//    export let icon = '';
     export let newNode = null;
     export let isDir = false;
-    export let self = this;
     export let dirs = [];
     export let files = [];
     export let parent;
     export let open = false;
     export let selected = false;
     export let placeholderMode = false;
+    
+    export let icon
+    $: icon = isDir ? fileTypeToIcon['folder'] : getIconByFileName(name)
 
+    const methods = {
+        
+    }
+    
     onMount(() => {
         __this.children = {}
         __this.renamingCommittedCallback = null
+//        schedule(() => {
+//            __this.cancelAllSelectionListener = g.fileTree.on('cancelAllSelection', () => {
+//                selected = false
+//            })
+//            pressure.set(row, {
+//                startDeepPress: () => { rename() }
+//            })
+//        })
 
-        // set icon
-        let icon
-        if (__this.get().isDir) {
-            icon = fileTypeToIcon['folder']
-        } else {
-            icon = getIconByFileName(__this.get().name)
-        }
-        self = this
-
-        schedule(() => {
-            __this.cancelAllSelectionListener = g.fileTree.on('cancelAllSelection', () => {
-                selected = false
-            })
-            pressure.set(row, {
-                startDeepPress: () => { rename() }
-            })
-        })
-
-        if (__this.get().placeholderMode)
+        if (placeholderMode)
             onClick() // select this node if it is a placeholder
 
-        __this.keyEventHandler = keyEventHandler
+        dispatch('created', { name, methods })
     });
 
     onDestroy(() => {
@@ -147,8 +217,8 @@
                 if (node && node !== this) return node.onClick()
                 node = sibling(1)
                 if (node && node !== this) return node.onClick()
-                node = __this.get().parent
-                if (node) return node.onClick()
+//                node = __this.get().parent
+//                if (node) return node.onClick()
             } catch (e) {
                 // swallow exception
             }
@@ -160,16 +230,16 @@
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
     beforeUpdate(() => {
-        if (changed.name) {
-            if (previous && previous.name) delete parent.children[previous.name]
-            parent.children[current.name] = this
-        } else if (changed.open && current.isDir) {
-            if (current.open) {
-                icon = fileTypeToIcon['folder-open']
-            } else {
-                icon = fileTypeToIcon['folder']
-            }
-        }
+//        if (changed.name) {
+//            if (previous && previous.name) delete parent.children[previous.name]
+//            parent.children[current.name] = this
+//        } else if (changed.open && current.isDir) {
+//            if (current.open) {
+//                icon = fileTypeToIcon['folder-open']
+//            } else {
+//                icon = fileTypeToIcon['folder']
+//            }
+//        }
     });
 
     export let allowWhiteSpace;
@@ -397,68 +467,3 @@
     }
 </script>
 
-<div bind:this={row} on:mousedown="{onClick}" on:dblclick="{onDoubleClick}" on:contextmenu="{onContextMenu}" class="file-tree-node" class:selected class:hidden-file="{name.startsWith('.')}" style="padding-left: {0.3 + level}rem;">
-    <span class="icon {icon}"></span> {#if !renaming}
-    <span class="display-name">
-        {name}
-    </span> {:else}
-    <input bind:this={input} class="display-name" type="text" spellcheck="false" value="{name}" on:blur="{commitRename}"> {/if}
-</div>
-
-{#if newNode}
-<svelte:self bind:this={placeholderNode} placeholderMode={true} level={level+isDir} parent={self} isDir={newNode==='dir' } /> {/if}
-
-<div bind:this={children}>
-    {#each dirs as i (i.uid)}
-    <svelte:self level={level+1} name={i.name} parent={self} isDir /> {/each} {#each files as i (i.uid)}
-    <svelte:self level={level+1} name={i.name} parent={self} /> {/each}
-</div>
-
-
-<style>
-    .file-tree-node {
-        height: var(--ui-line-height-default);
-        line-height: var(--ui-line-height-default);
-        cursor: default;
-        white-space: nowrap;
-        min-width: 100%;
-        font-size: var(--ui-font-size-default);
-        /* don't remove this or the font on non-retina display with Safari will become crappy. */
-        background: var(--panel-color);
-    }
-
-    .file-tree-node.selected {
-        background: var(--ui-highlight-color);
-        color: white;
-    }
-
-    .file-tree-node:hover {
-        color: white;
-    }
-
-    .icon {
-        width: 1rem;
-        min-height: 1rem;
-        display: inline-block;
-        vertical-align: text-bottom;
-        background-size: 100% 100% !important;
-        text-align: center;
-    }
-
-    .display-name {
-        padding-left: 0.3rem;
-        vertical-align: middle;
-    }
-
-    input.display-name {
-        border-radius: var(--small-radius);
-        font-size: var(--ui-font-size-default);
-        height: var(--ui-font-size-default);
-    }
-
-    .hidden-file .icon,
-    .hidden-file .display-name {
-        opacity: 0.6;
-    }
-
-</style>
