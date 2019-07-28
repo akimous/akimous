@@ -82,31 +82,33 @@
     export let view = null;
     export let panel = null;
 
-    onMount(() => {
-        console.log({icon})
-//        __this.get().parent.tabs.add(this)
-    });
+//    onMount(() => {
 
-    onDestroy(() => {
-        parent.tabs.delete(this)
-        parent.fitTabWidth()
-    });
+//    })
+
+//    onDestroy(() => {
+//        parent.tabs.delete(this)
+//        parent.fitTabWidth()
+//    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
-    beforeUpdate(() => {
+//    beforeUpdate(() => {
 //        if (!previous) return
 //        if (changed.parent) {
 //            previous.parent && previous.parent.tabs.delete(this)
 //            current.parent && current.parent.tabs.add(this)
 //        }
-    });
+//    });
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function activate() {
-        __this.get().panel.activateView(__this.get().view)
+//        __this.get().panel.activateView(__this.get().view)
+        console.log(view)
+//        if (view)
+            view.active = true
     }
 
     export function close() {
@@ -116,11 +118,11 @@
     export function mouseEnter() {
         if (padding && labeled)
             return
-        g.tooltip.mouseEnterListener(event)
+//        g.tooltip.mouseEnterListener(event)
     }
 
     export function mouseLeave() {
-        g.tooltip.mouseLeaveListener(event)
+//        g.tooltip.mouseLeaveListener(event)
     }
 
     export function getIndex() {

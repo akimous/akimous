@@ -34,6 +34,7 @@
     import Tab from './Tab.html'
     import Sortable from 'sortablejs'
     import elementQueries from 'css-element-queries'
+    import { nextFrame } from '../lib/Utils.js'
 
     export let parent = null
     export let tabData = []
@@ -53,25 +54,10 @@
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function openTab(view, name, icon, labeled = true) {
-        console.log({icon})
-        tabData.push({
-            view, name, icon, labeled
-        })
+        tabData.push({ view, name, icon, labeled })
         tabData = tabData
         fitTabWidth()
         return tabs[name]
-//        const tab = new Tab({
-//            target: tabBar,
-//            data: {
-//                icon,
-//                name,
-//                view,
-//                panel: __this.get().parent,
-//                parent: this
-//            }
-//        })
-//        fitTabWidth()
-//        return tab
     }
 
     export function switchToTab(index) {
@@ -85,8 +71,9 @@
     }
     
     export function updateTabIndicator({ name, active }) {
-        console.log({tabs, name})
-        tabs[name].active = active
+        nextFrame(() => {
+            tabs[name].active = active
+        })
     }
 
     function _fitTabWidth() {

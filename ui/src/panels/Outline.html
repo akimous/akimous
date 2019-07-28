@@ -74,6 +74,15 @@
     export let outlineItems = [];
     export let currentLine = 0;
 
+    import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    $: {
+        dispatch('active', {
+            name: 'Outline',
+            active
+        })
+    }
+    
     onMount(() => {
 //        __this.name = 'outline'
 //        g.outline = this
