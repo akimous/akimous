@@ -1,5 +1,41 @@
+<div bind:this={panelMiddle} id="panel-middle" class="{focused?'indicator-on':''}">
+    <TabBar bind:this={tabBar} id="tab-bar"></TabBar>
+    {#if !focus}
+    <div class="placeholder non-selectable">Double click on a file on the file tree to open.</div>
+    {/if}
+    {#each Object.values(editorProps) as prop, i(prop.uid)}
+        <CodeEditor bind:this={editors[prop.pathString]} {...prop} on:active="{(e) => onTabChange(e)}"></CodeEditor>
+    {/each}
+</div>
+
+
+<style>
+    #panel-middle {
+        position: fixed;
+        top: var(--toolbar-height);
+        height: calc(100% - var(--toolbar-height));
+        left: calc(var(--panel-left-width) + 1px);
+        width: calc(100% - var(--panel-left-width) - var(--panel-right-width) - 1px);
+        box-sizing: border-box;
+        z-index: 130;
+        /* should be higher than that of PanelRight, or Completion will be blocked */
+    }
+    
+    .placeholder {
+        position: absolute;
+        top: 45%;
+        width: 80%;
+        margin: 0 10%;
+        text-align: center;
+        font-size: var(--ui-font-size-large);
+        color: var(--gray5);
+        z-index: -100;
+    }
+
+</style>
+
 <script>
-    import { beforeUpdate, onMount } from 'svelte';
+    import { beforeUpdate, onMount, tick } from 'svelte';
 
     // [svelte-upgrade suggestion]
     // manually refactor all references to __this
@@ -13,20 +49,24 @@
     import g from './lib/Globals'
     import CodeEditor from './editor/CodeEditor.html'
     import { schedule, nextFrame, joinPath } from './lib/Utils'
+    import { onTabChangeFactory } from './lib/UIUtils'
+    import { getIconByFileName } from './lib/FileTypeToIcon'
     import isEqual from 'lodash.isequal'
 
     const MAX_ACTIVATION_HISTORY = 32
 
-    export let focused = false;
-    export let focus = null;
+    export let focused = false
+    export let focus = null
+    export let pathToEditor = {}
 
-    import TabBar from './bars/TabBar.html';
+    import TabBar from './bars/TabBar.html'
+    
+    let onTabChange
 
     onMount(() => {
-        g.panelMiddle = this
-        __this.tabBar = tabBar
-        __this.tabBar.set({ parent: this })
-        __this.pathToEditor = {}
+//        g.panelMiddle = this
+        onTabChange = onTabChangeFactory(tabBar, editors)
+//        __this.tabBar.set({ parent: this })
         __this.openedFiles = new Set()
         __this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
         __this.activationHistoryIndex = 0
@@ -48,43 +88,51 @@
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
     beforeUpdate(() => {
-        if (!previous) return
-        if (changed.focus) {
-            const { focus } = current
-            if (focus === previous.focus) return
-            if (!focus) g.setFocus([g.panelLeft, g.fileTree])
-            else g.setFocus([this, focus])
-            g.activeEditor = focus
-            g.pathIndicator.set({ path: focus ? focus.get().filePath : null })
-        }
-        if (changed.focused) {
-            const editor = __this.get().focus
-            if (current.focused) {
-                editor && editor.cm && editor.cm.focus()
-            } else
-                editor && editor.cm && editor.cm.getInputField().blur()
-        }
+//        if (!previous) return
+//        if (changed.focus) {
+//            const { focus } = current
+//            if (focus === previous.focus) return
+//            if (!focus) g.setFocus([g.panelLeft, g.fileTree])
+//            else g.setFocus([this, focus])
+//            g.activeEditor = focus
+//            g.pathIndicator.set({ path: focus ? focus.get().filePath : null })
+//        }
+//        if (changed.focused) {
+//            const editor = __this.get().focus
+//            if (current.focused) {
+//                editor && editor.cm && editor.cm.focus()
+//            } else
+//                editor && editor.cm && editor.cm.getInputField().blur()
+//        }
     });
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function getEditor(filePath) {
-        return __this.pathToEditor[joinPath(filePath)]
+        return editors[joinPath(filePath)]
     }
 
-    export function openFile(filePath, cmReadyCallback, activate = true) {
+    export let editorProps = {}
+    let editorUid = 0
+    export let editors = {}
+    
+    export async function openFile(filePath, cmReadyCallback, activate = true) {
+        console.log('openFile', filePath)
         let editor = getEditor(filePath)
         if (!editor) {
-            const openingEditor = new CodeEditor({
-                target: panelMiddle,
-                data: {
-                    filePath,
-                    fileName: filePath[filePath.length - 1],
-                    parent: this
-                }
-            })
-            openingEditor.cmReadyCallback = cmReadyCallback
-            __this.openedFiles.add(filePath)
+            const fileName = filePath[filePath.length - 1]
+            const pathString = joinPath(filePath)
+            editorProps[pathString] = {
+                fileName, 
+                filePath, 
+                pathString,
+                uid: editorUid++
+            }
+            await tick()
+            editor = editors[pathString]
+            editor.cmReadyCallback = cmReadyCallback
+//            __this.openedFiles.add(filePath)
+            tabBar.openTab(pathString, fileName, editor, getIconByFileName(fileName), true)
         }
         if (!activate) return
         activateFile(filePath)
@@ -115,11 +163,11 @@
             g.linter.clear()
             return
         }
-        editor.set({ active: true })
-        const { isMakefile } = editor.get()
-        g.cursorPosition.set({ isMakefile })
+        editor.active = true
+//        const { isMakefile } = editor.get()
+//        g.cursorPosition.set({ isMakefile })
         schedule(() => {
-            g.find.set({ currentFilePath: filePath })
+//            g.find.set({ currentFilePath: filePath })
         })
         
         const cm = editor.cm
@@ -138,9 +186,9 @@
 
     export function renameDir(newDirPath, oldDirPath) {
         const oldDirPathString = joinPath(oldDirPath)
-        for (const oldPathString in __this.pathToEditor) {
+        for (const oldPathString in pathToEditor) {
             if (oldPathString.indexOf(oldDirPathString) !== 0) continue
-            const editor = __this.pathToEditor[oldPathString]
+            const editor = pathToEditor[oldPathString]
             editor.set({
                 filePath: [...newDirPath, ...editor.get().filePath.slice(newDirPath.length)]
             })
@@ -206,36 +254,3 @@
         focus = null
     }
 </script>
-
-<div bind:this={panelMiddle} id="panel-middle" class="{focused?'indicator-on':''}">
-    <TabBar bind:this={tabBar} id="tab-bar"></TabBar>
-    {#if !focus}
-    <div class="placeholder non-selectable">Double click on a file on the file tree to open.</div>
-    {/if}
-</div>
-
-
-<style>
-    #panel-middle {
-        position: fixed;
-        top: var(--toolbar-height);
-        height: calc(100% - var(--toolbar-height));
-        left: calc(var(--panel-left-width) + 1px);
-        width: calc(100% - var(--panel-left-width) - var(--panel-right-width) - 1px);
-        box-sizing: border-box;
-        z-index: 130;
-        /* should be higher than that of PanelRight, or Completion will be blocked */
-    }
-    
-    .placeholder {
-        position: absolute;
-        top: 45%;
-        width: 80%;
-        margin: 0 10%;
-        text-align: center;
-        font-size: var(--ui-font-size-large);
-        color: var(--gray5);
-        z-index: -100;
-    }
-
-</style>

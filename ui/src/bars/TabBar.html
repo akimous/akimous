@@ -1,6 +1,6 @@
 <div bind:this={tabBar} class="tab-bar">
     {#each tabData as t}
-    <Tab {...t} bind:this={tabs[t.name]}></Tab>
+    <Tab {...t} bind:this={tabs[t.id]}></Tab>
     {/each}
 </div>
 
@@ -53,11 +53,11 @@
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
-    export function openTab(view, name, icon, labeled = true) {
-        tabData.push({ view, name, icon, labeled })
+    export function openTab(id, name, view, icon, labeled = false) {
+        tabData.push({ id, name, view, icon, labeled })
         tabData = tabData
         fitTabWidth()
-        return tabs[name]
+        view.tab = tabs[id]
     }
 
     export function switchToTab(index) {
@@ -70,9 +70,9 @@
         }
     }
     
-    export function updateTabIndicator({ name, active }) {
+    export function updateTabIndicator({ id, active }) {
         nextFrame(() => {
-            tabs[name].active = active
+            tabs[id].active = active
         })
     }
 

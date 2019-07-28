@@ -68,7 +68,7 @@ class CompletionProvider {
 
     constructor(editor) {
         this.editor = editor
-        this.completion = editor.completion
+//        this.completion = editor.completion
         this.sorter = new Sorter()
         this.context = { cm: this.editor.cm }
         this.ruleBasedPredictor = new RuleBasedPredictor(this.context)

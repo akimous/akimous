@@ -1,7 +1,7 @@
 <div bind:this={self} id="panel-left" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
     <TabBar bind:this={tabBar} id="tab-bar"></TabBar>
-    <FileTree bind:this={children.FileTree} on:active={onTabChange}></FileTree>
-    <Outline bind:this={children.Outline} on:active={onTabChange}></Outline>
+    <FileTree bind:this={children.FileTree} on:active="{(e) => onTabChange(e)}"></FileTree>
+    <Outline bind:this={children.Outline} on:active="{(e) => onTabChange(e)}"></Outline>
 </div>
 
 
@@ -29,6 +29,7 @@
     import g from './lib/Globals'
     import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
     import { initializeTabView } from './lib/Utils'
+    import { onTabChangeFactory } from './lib/UIUtils'
 
     export let focused = false;
     export let hidden = false;
@@ -38,22 +39,22 @@
     import FileTree from './panels/FileTree.html';
     import Outline from './panels/Outline.html';
 
-    function onTabChange({ detail }) {
-        if (detail.active === true) {
-            for (const [name, view] of Object.entries(children)) {
-                if (name !== detail.name && view) {
-                    view.active = false
-                }
-            }
-        }
-        tabBar.updateTabIndicator(detail)
-    }
+    let onTabChange
+//    function onTabChange({ detail }) {
+//        if (detail.active === true) {
+//            for (const [name, view] of Object.entries(children)) {
+//                if (name !== detail.name && view) {
+//                    view.active = false
+//                }
+//            }
+//        }
+//        tabBar.updateTabIndicator(detail)
+//    }
     
     onMount(() => {
-        // TODO: refactor, remove tabBar
-        initializeTabView(children.FileTree, tabBar, 'FileTree', 'fas fa-tree l-green')
-        initializeTabView(children.Outline, tabBar, 'Outline', 'fas fa-align-left l-blue')
-        
+        onTabChange = onTabChangeFactory(tabBar, children)
+        tabBar.openTab('FileTree', 'FileTree', children.FileTree, 'fas fa-tree l-green', false)
+        tabBar.openTab('Outline', 'Outline', children.Outline, 'fas fa-align-left l-blue', false)
         
 //        g.panelLeft = this
 //        __this.tabBar = tabBar
@@ -61,7 +62,7 @@
 //            parent: this
 //        }, tabBar, fileTree, outline)
         schedule(() => {            
-        children[g.projectState.activePanels.left].active = true
+            children[g.projectState.activePanels.left].active = true
         })
     });
 

@@ -274,7 +274,7 @@ export {
     binarySearch,
     schedule,
     nextFrame,
-    initializeTabView,
+//    initializeTabView,
     setAttributeForMultipleComponent,
 //    activateView,
     reformatDocstring,

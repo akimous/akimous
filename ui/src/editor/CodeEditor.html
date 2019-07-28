@@ -1,3 +1,14 @@
+<div bind:this={codeEditor} class="tab-view" class:hideTextSelection="{highlightOverlay}" class:gone="{!active}" />
+<!--<Completion bind:this={completion}></Completion>-->
+
+
+<style>
+    :global(.hideTextSelection .CodeMirror-selected) {
+        display: none;
+    }
+
+</style>
+
 <script>
     import { beforeUpdate, onDestroy, onMount } from 'svelte';
 
@@ -67,6 +78,15 @@
     /* eslint-enable */
 
     g.CodeMirror = CodeMirror
+    
+    import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    $: {
+        dispatch('active', {
+            id: joinPath(filePath),
+            active
+        })
+    }
 
     registerCMCommands(CodeMirror)
     const overlayOption = {
@@ -80,6 +100,7 @@
     export let filePath = null;
     export let clean = true;
     export let textMark = null;
+    export let cm, mtime
 
     import Completion from './completion/Completion.html';
 
@@ -90,9 +111,9 @@
         __this.realtimeLints = []
         __this.spellingErrors = []
         __this.outline = []
-        g.linter.clear()
-        __this.tab = __this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
-        g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)] = this
+//        g.linter.clear()
+//        __this.tab = __this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
+//        g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)] = this
 
         const mode = CodeMirror.findModeByFileName(fileName)
 
@@ -116,8 +137,8 @@
                 },
                 RealTimeLints: ({ result }) => {
                     __this.realtimeLints = result
-                    if (g.activeEditor === this)
-                        g.linter.set({ realtimeLints: __this.realtimeLints })
+//                    if (g.activeEditor === this)
+//                        g.linter.set({ realtimeLints: __this.realtimeLints })
                 },
                 FileSaved: data => {
                     __this.mtime = data.mtime
@@ -196,8 +217,8 @@
                 },
                 SpellingErrors: data => {
                     __this.spellingErrors = data.result
-                    if (g.activeEditor === this)
-                        g.linter.set({ spellingErrors: __this.spellingErrors })
+//                    if (g.activeEditor === this)
+//                        g.linter.set({ spellingErrors: __this.spellingErrors })
                 },
                 ReferencesFound: data => {
                     g.references.set(data)
@@ -221,13 +242,13 @@
             trim: false
         }
         const initializeCM = readFile.then(data => {
-            const { indentWithTabs, indentSize } = g.cursorPosition.get()
-            __this.cm = CodeMirror(codeEditor, {
+//            const { indentWithTabs, indentSize } = g.cursorPosition.get()
+            cm = CodeMirror(codeEditor, {
                 value: data.content,
                 mode: mode ? mode.mime : undefined,
                 theme: 'akimous',
-                indentUnit: indentSize,
-                indentWithTabs: indentWithTabs,
+//                indentUnit: indentSize,
+//                indentWithTabs: indentWithTabs,
                 lineNumbers: true,
                 autofocus: true,
                 viewportMargin: 20,
@@ -268,20 +289,20 @@
                 }
                 /* eslint-enable */
             })
-            __this.mtime = data.mtime
+            mtime = data.mtime
         })
 
         // Step 3: Do the rest of things (about 20 ms)
         initializeCM.then(() => schedule(() => {
-            __this.cm.refresh() // prevent CM occasionally shifts to the right
-            __this.completionProvider = new CompletionProvider(this)
+            cm.refresh() // prevent CM occasionally shifts to the right
+//            __this.completionProvider = new CompletionProvider(this)
             // only enable completionProvider when the document is a Python file
-            if (mode && mode.mode !== 'python') {
-                __this.completionProvider.enabled = false
-            }
-            __this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
-            __this.cmEventDispatcher = new CMEventDispatcher(this)
-            __this.completion.bindReferences(this)
+//            if (mode && mode.mode !== 'python') {
+//                __this.completionProvider.enabled = false
+//            }
+//            __this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
+//            __this.cmEventDispatcher = new CMEventDispatcher(this)
+//            __this.completion.bindReferences(this)
 
             // resolve Safari over-scroll jitter issue
             const scroller = codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
@@ -298,9 +319,9 @@
             }
 
             schedule(() => {
-                __this.outline = g.outline.generateOutline(__this.cm)
-                if (g.activeEditor === this)
-                    g.outline.set({ outlineItems: __this.outline })
+//                __this.outline = g.outline.generateOutline(__this.cm)
+//                if (g.activeEditor === this)
+//                    g.outline.set({ outlineItems: __this.outline })
             })
         }))
     });
@@ -317,52 +338,52 @@
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
     beforeUpdate(() => {
-        if (!previous) return
-        if (changed.filePath) {
-            const newPath = current.filePath
-            g.panelMiddle.pathToEditor[joinPath(newPath)] = this
-            if (previous.filePath) {
-                delete g.panelMiddle.pathToEditor[joinPath(previous.filePath)]
-                __this.session.send('Mtime', { newPath })
-            }
-        }
-        const tab = __this.tab
-        if (!tab) return
-
-        if (changed.fileName) {
-            tab.set({ name: current.fileName })
-        }
-        if (changed.clean) {
-            tab.set({ clean: current.clean })
-        }
-        if (changed.active) {
-            const { active } = current
-            const { cm } = this
-            tab.set({ active: active })
-            if (active && __this.session && cm) {
-                nextFrame(() => {
-                    // content may not show for background editors if multiple editors are opened during startup
-                    cm.refresh()
-                    __this.session.send('ActivateEditor')
-                })
-
-            }
-        }
-        if (changed.highlightOverlay) {
-            const { cm } = this
-            cm.removeOverlay(previous.highlightOverlay)
-            if (current.highlightOverlay && !cm.hasFocus()) {
-                cm.setOption('highlightSelectionMatches', false) // pause highlightSelectionMatches
-                cm.addOverlay(current.highlightOverlay, overlayOption)
-            } else { // resume highlightSelectionMatches
-                const currentOption = cm.getOption('highlightSelectionMatches')
-                if (__this.highlightSelectionMatches !== currentOption)
-                    cm.setOption('highlightSelectionMatches', __this.highlightSelectionMatches)
-            }
-        }
-        if (changed.textMark && previous.textMark) {
-            previous.textMark.clear()
-        }
+//        if (!previous) return
+//        if (changed.filePath) {
+//            const newPath = current.filePath
+//            g.panelMiddle.pathToEditor[joinPath(newPath)] = this
+//            if (previous.filePath) {
+//                delete g.panelMiddle.pathToEditor[joinPath(previous.filePath)]
+//                __this.session.send('Mtime', { newPath })
+//            }
+//        }
+//        const tab = __this.tab
+//        if (!tab) return
+//
+//        if (changed.fileName) {
+//            tab.set({ name: current.fileName })
+//        }
+//        if (changed.clean) {
+//            tab.set({ clean: current.clean })
+//        }
+//        if (changed.active) {
+//            const { active } = current
+//            const { cm } = this
+//            tab.set({ active: active })
+//            if (active && __this.session && cm) {
+//                nextFrame(() => {
+//                    // content may not show for background editors if multiple editors are opened during startup
+//                    cm.refresh()
+//                    __this.session.send('ActivateEditor')
+//                })
+//
+//            }
+//        }
+//        if (changed.highlightOverlay) {
+//            const { cm } = this
+//            cm.removeOverlay(previous.highlightOverlay)
+//            if (current.highlightOverlay && !cm.hasFocus()) {
+//                cm.setOption('highlightSelectionMatches', false) // pause highlightSelectionMatches
+//                cm.addOverlay(current.highlightOverlay, overlayOption)
+//            } else { // resume highlightSelectionMatches
+//                const currentOption = cm.getOption('highlightSelectionMatches')
+//                if (__this.highlightSelectionMatches !== currentOption)
+//                    cm.setOption('highlightSelectionMatches', __this.highlightSelectionMatches)
+//            }
+//        }
+//        if (changed.textMark && previous.textMark) {
+//            previous.textMark.clear()
+//        }
     });
 
     export let isMakefile;
@@ -421,14 +442,3 @@
         })
     }
 </script>
-
-<div bind:this={codeEditor} class="tab-view" class:hideTextSelection="{highlightOverlay}" class:gone="{!active}" />
-<Completion bind:this={completion}></Completion>
-
-
-<style>
-    :global(.hideTextSelection .CodeMirror-selected) {
-        display: none;
-    }
-
-</style>

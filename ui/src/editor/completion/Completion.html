@@ -29,8 +29,6 @@
     export let closable = true;
 
     onMount(() => {
-        const completion = completion
-        const container = container
         __this.completionRows = []
         __this.completionRowShortcuts = new Array(9)
 
@@ -61,29 +59,29 @@
             passive: true
         })
 
-        __this.on('state', ({ changed, current }) => {
-            // Don't merge this with onstate, or the completion selection will break
-            if (changed.rows) {
-                const rows = current.rows
-                for (const row of __this.completionRows)
-                    row.destroy()
-                __this.completionRows.length = 0
-                if (rows.length === 0) return
-                for (const [i, row] of rows.entries()) {
-                    row.index = i
-                    row.rowNumber = i + 1
-                    row.parent = this
-                    const completionRow = new CompletionRow({
-                        target: completion,
-                        data: row
-                    })
-                    __this.completionRows.push(completionRow)
-                    __this.completionRowShortcuts[row.rowNumber] = completionRow
-                }
-                lastFVI = 999
-                selectedCompletionRow = this.completionRows[0]
-            }
-        })
+//        __this.on('state', ({ changed, current }) => {
+//            // Don't merge this with onstate, or the completion selection will break
+//            if (changed.rows) {
+//                const rows = current.rows
+//                for (const row of __this.completionRows)
+//                    row.destroy()
+//                __this.completionRows.length = 0
+//                if (rows.length === 0) return
+//                for (const [i, row] of rows.entries()) {
+//                    row.index = i
+//                    row.rowNumber = i + 1
+//                    row.parent = this
+//                    const completionRow = new CompletionRow({
+//                        target: completion,
+//                        data: row
+//                    })
+//                    __this.completionRows.push(completionRow)
+//                    __this.completionRowShortcuts[row.rowNumber] = completionRow
+//                }
+//                lastFVI = 999
+//                selectedCompletionRow = this.completionRows[0]
+//            }
+//        })
 
         __this.keyEventHandler = EventDispatcherFactory({
             target: this,
@@ -118,24 +116,24 @@
     // differently to their v2 counterparts
     beforeUpdate(() => {
         // Don't merge this with on('stat), or the completion selection will break
-        if (!previous) return
-        if (changed.open) {
-            if (current.open) g.pushFocus(this)
-            else {
-                g.popFocus(this)
-                g.docs.set({ completionDoc: null })
-            }
-        }
-        if (changed.selectedCompletionRow) {
-            if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({
-                selected: false
-            })
-            if (current.selectedCompletionRow) current.selectedCompletionRow.set({
-                selected: true
-            })
-        }
-        if (changed.open && !current.open)
-            __this.completionProvider.state = CLOSED
+//        if (!previous) return
+//        if (changed.open) {
+//            if (current.open) g.pushFocus(this)
+//            else {
+//                g.popFocus(this)
+//                g.docs.set({ completionDoc: null })
+//            }
+//        }
+//        if (changed.selectedCompletionRow) {
+//            if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({
+//                selected: false
+//            })
+//            if (current.selectedCompletionRow) current.selectedCompletionRow.set({
+//                selected: true
+//            })
+//        }
+//        if (changed.open && !current.open)
+//            __this.completionProvider.state = CLOSED
     });
 
     // [svelte-upgrade suggestion]
@@ -165,7 +163,7 @@
         if (!rows.length) {
             open = false
         } else {
-            rows = rows, open = true, passive = passive
+            open = true
             repositionCompletionWindow(firstTriggeredCharPos)
             requestCompletionDocstringIfNeeded(rows[0])
         }

@@ -85,8 +85,23 @@ function makeScrollable(component, target) {
     }
 }
 
+function onTabChangeFactory(tabBar, children) {
+    function onTabChange({ detail }) {
+        if (detail.active) {
+            for (const [name, view] of Object.entries(children)) {
+                if (name !== detail.id && view) {
+                    view.active = false
+                }
+            }
+        }
+        tabBar.updateTabIndicator(detail)
+    }
+    return onTabChange
+}
+
 export {
     dragElement,
     roundCorners,
     makeScrollable,
+    onTabChangeFactory,
 }

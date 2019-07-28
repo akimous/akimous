@@ -1,6 +1,10 @@
-<script>
-    import { onMount } from 'svelte';
+<div on:click="{click}" bind:this={completionRow} class="row" class:selected>
+    <div class="row-number"> {rowNumber} </div>
+    <div class="row-content">{@html highlight}{tail}</div>
+    <div class="type-indicator {type}"> {@html typeIcon} </div>
+</div>
 
+<script>
     export let completionRow;
 
     const typeIcons = {
@@ -19,7 +23,6 @@
     export let index = 0;
     export let parent;
 
-    onMount(() => {});
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
@@ -29,19 +32,14 @@
     }
 
     export let typeIcon;
-    $: {
+    function _getTypeIcon(type) {
         const icon = typeIcons[type]
         if (icon)
-            typeIcon = icon
+            return icon
         return type.substring(0, 1).toUpperCase()
     }
+    $: typeIcon = _getTypeIcon(type)
 </script>
-
-<div on:click="{click}" bind:this={completionRow} class="row" class:selected>
-    <div class="row-number"> {rowNumber} </div>
-    <div class="row-content">{@html highlight}{tail}</div>
-    <div class="type-indicator {type}"> {@html typeIcon} </div>
-</div>
 
 
 <style>
