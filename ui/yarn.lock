@@ -139,10 +139,10 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@fortawesome/fontawesome-free@^5.9.0":
-  version "5.9.0"
-  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-5.9.0.tgz#1aa5c59efb1b8c6eb6277d1e3e8c8f31998b8c8e"
-  integrity sha512-g795BBEzM/Hq2SYNPm/NQTIp3IWd4eXSH0ds87Na2jnrAUFX3wkyZAI4Gwj9DOaWMuz2/01i8oWI7P7T/XLkhg==
+"@fortawesome/fontawesome-free@^5.10.0":
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-5.10.0.tgz#dbfb34093c87c9516f03ee1db3385adae3ae9461"
+  integrity sha512-XX16koDMY/tkJmec0VFfKF7RYZOze/203B1iyLnRaAySm3ZPhKaeyIpf73Yh8xhrMk3Fj4TeH3FC01qyFTyg8g==
 
 "@hapi/address@2.x.x":
   version "2.0.0"
@@ -6109,10 +6109,10 @@ supports-color@^6.1.0:
     svelte-1 "npm:svelte@1"
     svelte-2 "npm:svelte@2"
 
-svelte@^3.6.9:
-  version "3.6.9"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.6.9.tgz#949f4674329d04d3281f7cf340285ae3480f28da"
-  integrity sha512-k72cp0LYzennT7xgnQU0jB2HJEZ/fQamZbrHJO6JlvsNX+z6a1YJaLrtN4qQ1yfozUkeGw1TOvDxo8a5grOZMg==
+svelte@^3.6.10:
+  version "3.6.10"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.6.10.tgz#054f944a8c161b16748d7f2e00a383252cd14725"
+  integrity sha512-2N9kIbDal5z/aZloaRCOQ9dlCtuCE08NZITDlSdG7fOl4kFrE2qnXCq+lSFtI15ABWCXPc17cX5vJvdOgUsKqw==
 
 svg-tags@^1.0.0:
   version "1.0.0"

@@ -90,7 +90,7 @@ function onTabChangeFactory(tabBar, children) {
         if (detail.active) {
             for (const [name, view] of Object.entries(children)) {
                 if (name !== detail.id && view) {
-                    view.active = false
+                    view.$set({ active: false })
                 }
             }
         }

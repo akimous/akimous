@@ -163,7 +163,7 @@
             g.linter.clear()
             return
         }
-        editor.active = true
+        editor.$set({ active: true })
 //        const { isMakefile } = editor.get()
 //        g.cursorPosition.set({ isMakefile })
         schedule(() => {

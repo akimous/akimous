@@ -72,7 +72,7 @@
     
     export function updateTabIndicator({ id, active }) {
         nextFrame(() => {
-            tabs[id].active = active
+            tabs[id].$set({ active })
         })
     }
 
@@ -99,7 +99,7 @@
             const tab = _tabs[i]
             if ((paddingPerSide > 0) || (originalWidths[i] < equalTabWidth)) {
                 tab.autoWidth()
-                tab.padding = paddingPerSide
+                tab.$set({ padding: paddingPerSide })
             } else {
                 tab.forceSetWidth(newTabWidth)
             }

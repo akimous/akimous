@@ -28,7 +28,6 @@
 
     import g from './lib/Globals'
     import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
-    import { initializeTabView } from './lib/Utils'
     import { onTabChangeFactory } from './lib/UIUtils'
 
     export let focused = false;
@@ -62,7 +61,7 @@
 //            parent: this
 //        }, tabBar, fileTree, outline)
         schedule(() => {            
-            children[g.projectState.activePanels.left].active = true
+            children[g.projectState.activePanels.left].$set({ active: true })
         })
     });
 
