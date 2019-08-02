@@ -1,81 +1,3 @@
-<script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {};
-
-    export let panel;
-
-    import g from '../lib/Globals'
-    import { initializeTabView, highlightMatch, joinPath, Pos } from '../lib/Utils'
-    import { makeScrollable } from '../lib/UIUtils'
-    import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
-
-    function* withTitles(iterable) {
-        let title = ''
-        for (let i of iterable) {
-            const path = joinPath(i.path)
-            if (path !== title) {
-                title = path
-                yield {
-                    title: path
-                }
-            }
-            yield i
-        }
-    }
-    
-    function formatForDisplay(i) {
-        return highlightMatch(i.code, i.from, i.to).trim()
-    }
-    
-    export let definitions = [];
-    export let assignments = [];
-    export let usages = [];
-    export let active = false;
-
-    onMount(() => {
-        __this.name = 'references'
-        g.references = this
-        initializeTabView(this, 'References', 'fas fa-link l-ao')
-        makeScrollable(this, panel)
-    });
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-        if (changed.definitions) {
-            if (current.definitions.length === 1 && current.assignments.length + current.usages.length === 0) {
-                jumpTo(current.definitions[0])
-            }
-        }
-    });
-
-    export let definitionsWithTitles;
-    $: definitionsWithTitles = [...withTitles(definitions)];
-
-    export let assignmentsWithTitles;
-    $: assignmentsWithTitles = [...withTitles(assignments)];
-
-    export let usagesWithTitles;
-    $: usagesWithTitles = [...withTitles(usages)];
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function onFocus() {
-        g.setFocus([g.panelRight, this])
-    }
-
-    export function jumpTo(row) {
-        g.panelMiddle.openFile(row.path, () => {
-            const cm = setCursorAndScrollIntoView(row.line, row.from)
-            cm.extendSelection(Pos(row.line, row.from), Pos(row.line, row.to))
-        })
-    }
-</script>
-
 <div bind:this={panel} id="references" class="panel" class:gone="{!active}" on:click="{onFocus}">
     <div class="title">Definitions</div>
     <table id="table-definitions">
@@ -152,3 +74,91 @@
     }
     
 </style>
+
+<script>
+    import { beforeUpdate, onMount } from 'svelte';
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {};
+
+    export let panel;
+
+    import g from '../lib/Globals'
+    import { highlightMatch, joinPath, Pos } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
+    import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
+
+    import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    $: {
+        dispatch('active', {
+            id: 'References',
+            active
+        })
+    }
+    function* withTitles(iterable) {
+        let title = ''
+        for (let i of iterable) {
+            const path = joinPath(i.path)
+            if (path !== title) {
+                title = path
+                yield {
+                    title: path
+                }
+            }
+            yield i
+        }
+    }
+    
+    function formatForDisplay(i) {
+        return highlightMatch(i.code, i.from, i.to).trim()
+    }
+    
+    export let definitions = [];
+    export let assignments = [];
+    export let usages = [];
+    export let active = false;
+
+    onMount(() => {
+        __this.name = 'references'
+//        g.references = this
+//        initializeTabView(this, 'References', 'fas fa-link l-ao')
+//        makeScrollable(this, panel)
+    });
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+//        if (changed.definitions) {
+//            if (current.definitions.length === 1 && current.assignments.length + current.usages.length === 0) {
+//                jumpTo(current.definitions[0])
+//            }
+//        }
+    });
+
+    export let definitionsWithTitles;
+    $: definitionsWithTitles = [...withTitles(definitions)];
+
+    export let assignmentsWithTitles;
+    $: assignmentsWithTitles = [...withTitles(assignments)];
+
+    export let usagesWithTitles;
+    $: usagesWithTitles = [...withTitles(usages)];
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function onFocus() {
+        g.setFocus([g.panelRight, this])
+    }
+
+    export function jumpTo(row) {
+        g.panelMiddle.openFile(row.path, () => {
+            const cm = setCursorAndScrollIntoView(row.line, row.from)
+            cm.extendSelection(Pos(row.line, row.from), Pos(row.line, row.to))
+        })
+    }
+</script>
+
+

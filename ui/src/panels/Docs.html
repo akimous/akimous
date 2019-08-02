@@ -7,14 +7,12 @@
 
     export let panel;
     export let docContainer;
-    export let functionDoc;
     export let splitBar;
-    export let completionDoc;
 
     import throttle from 'lodash.throttle'
     import g from '../lib/Globals'
     import { makeScrollable } from '../lib/UIUtils'
-    import { initializeTabView, nextFrame, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
+    import { nextFrame, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
     import {
         scanInSameLevelOfBraces,
         needInsertCommaAfterParameter,
@@ -66,11 +64,18 @@
     export let completionDocType = 'html';
     export let functionDocTriggeredFile = '';
     export let functionDocTriggeredPos = null;
-
+import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    $: {
+        dispatch('active', {
+            id: 'Docs',
+            active
+        })
+    }
     onMount(() => {
         __this.name = 'docs'
-        g.docs = this
-        initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
+//        g.docs = this
+//        initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
         nextFrame(() => {
             splitBar.onmousedown = e => {
                 e.preventDefault()
@@ -83,7 +88,7 @@
             splitBar.onmouseup = () => {
                 document.onmousemove = null
             }
-            makeScrollable(this, docContainer)
+//            makeScrollable(this, docContainer)
         })
     });
 

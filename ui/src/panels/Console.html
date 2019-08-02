@@ -10,7 +10,7 @@
     export let terminal;
 
     import g from '../lib/Globals'
-    import { initializeTabView, nextFrame, schedule } from '../lib/Utils'
+    import { nextFrame, schedule } from '../lib/Utils'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
 
@@ -25,40 +25,47 @@
         //     }
         // }
     ];
-    export let displayInput = false;
-    export let ready = false;
+    export let displayInput = false
+    export let ready = false
 
-    import JupyterToolbar from './JupyterToolbar.html';
-    import JupyterCell from './JupyterCell.html';
-
+    import JupyterToolbar from './JupyterToolbar.html'
+    import JupyterCell from './JupyterCell.html'
+import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    $: {
+        dispatch('active', {
+            id: 'Console',
+            active
+        })
+    }
     onMount(() => {
         __this.name = 'console'
         __this.initializing = false
         g.console = this
-        initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
-    });
+//        initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
+    })
 
     onDestroy(() => {
         __this.session && __this.session.close()
-    });
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
     afterUpdate(() => {
-        if (changed.mode) {
-            stop()
-            close()
-            if (current.active) {
-                initialize()
-            }
-        }
-        if (changed.active) {
-            if (!current.ready && current.active) {
-                initialize()
-            }
-        }
-    });
+//        if (changed.mode) {
+//            stop()
+//            close()
+//            if (current.active) {
+//                initialize()
+//            }
+//        }
+//        if (changed.active) {
+//            if (!current.ready && current.active) {
+//                initialize()
+//            }
+//        }
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords

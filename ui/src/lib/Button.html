@@ -1,46 +1,3 @@
-<script>
-    import { onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ corner, title, active, flashing, callback })
-    };
-
-    export let button;
-
-    import g from './Globals'
-    import { schedule } from './Utils'
-    import { roundCorners } from './UIUtils'
-
-    export let corner = '0000';
-    export let title = '';
-    export let active = false;
-    export let flashing = false;
-    export let callback = null;
-
-    onMount(() => {
-        if (title) {
-            schedule(() => {
-                g.tooltip.register(button)
-            })
-        }
-    });
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function onClick() {
-        __this.get().callback()
-    }
-
-    export function flash() {
-        flashing = true
-        setTimeout(() => {
-            flashing = false
-        }, 128)
-    }
-</script>
-
 <div bind:this={button} class="non-selectable" class:active class:flashing style="{roundCorners(corner)}" class:coalesced="{corner.startsWith('00')}" on:click aria-label="{title}">
     <slot></slot>
 </div>
@@ -75,3 +32,46 @@
     }
 
 </style>
+
+<script>
+    import { onMount } from 'svelte';
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ corner, title, active, flashing, callback })
+    };
+
+    export let button;
+
+    import g from './Globals'
+    import { schedule } from './Utils'
+    import { roundCorners } from './UIUtils'
+
+    export let corner = '0000';
+    export let title = '';
+    export let active = false;
+    export let flashing = false;
+    export let callback = null;
+
+    onMount(() => {
+        if (title) {
+            schedule(() => {
+//                g.tooltip.register(button)
+            })
+        }
+    });
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function onClick() {
+        __this.get().callback()
+    }
+
+    export function flash() {
+        flashing = true
+        setTimeout(() => {
+            flashing = false
+        }, 128)
+    }
+</script>

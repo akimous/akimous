@@ -1,41 +1,3 @@
-<script>
-    import { onMount } from 'svelte';
-
-    export let toolbar;
-
-    import g from '../lib/Globals'
-
-    export let mode = 'interactive';
-    export let executionState = 'stopped';
-
-    onMount(() => {
-        g.jupyterToolbar = this
-    });
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function runSelected() {
-        g.console.runInJupyter()
-    }
-
-    export function runToActiveLine() {
-        
-    }
-
-    export function runToEnd() {
-        
-    }
-
-    export function interrupt() {
-        g.console.session.send('InterruptKernel', )
-    }
-
-    export function restartKernel() {
-        g.console.session.send('StartKernel', {
-            realtimeEvaluation: false
-        })
-    }
-</script>
 
 <div bind:this={toolbar} id="jupyter-toolbar" class="non-selectable" class:realtime="{mode==='realtime'}">
     {#if mode === 'interactive'}
@@ -65,13 +27,13 @@
     <div class="execution-state">
         {#if executionState === 'busy'}
         <i class="fas fa-hourglass-half l-yellow"></i>
-        {:elseif executionState === 'error'}
+        {:else if executionState === 'error'}
         <i class="fas fa-exclamation-triangle l-red"></i>
-        {:elseif executionState === 'idle'}
+        {:else if executionState === 'idle'}
         <i class="fas fa-check l-green"></i>
-        {:elseif executionState === 'stopped'}
+        {:else if executionState === 'stopped'}
         <i class="fas fa-stop-circle" style="color:gray"></i>
-        {:elseif executionState === 'starting'}
+        {:else if executionState === 'starting'}
         <i class="fas fa-spinner l-blue"></i>
         {/if}
     </div>
@@ -118,3 +80,42 @@
     }
 
 </style>
+
+<script>
+    import { onMount } from 'svelte';
+
+    export let toolbar;
+
+    import g from '../lib/Globals'
+
+    export let mode = 'interactive';
+    export let executionState = 'stopped';
+
+    onMount(() => {
+        g.jupyterToolbar = this
+    });
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function runSelected() {
+        g.console.runInJupyter()
+    }
+
+    export function runToActiveLine() {
+        
+    }
+
+    export function runToEnd() {
+        
+    }
+
+    export function interrupt() {
+        g.console.session.send('InterruptKernel', )
+    }
+
+    export function restartKernel() {
+        g.console.session.send('StartKernel', {
+            realtimeEvaluation: false
+        })
+    }
+</script>

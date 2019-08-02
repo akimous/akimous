@@ -8,7 +8,6 @@
     };
 
     export let panel;
-    export let macroFormatWithShift;
 
     import g from '../lib/Globals'
     import { initializeTabView, schedule } from '../lib/Utils'
@@ -22,11 +21,18 @@
     export let allowWhiteSpace = true;
 
     import TextInput from '../lib/TextInput.html';
-
+import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    $: {
+        dispatch('active', {
+            id: 'Macro',
+            active
+        })
+    }
     onMount(() => {
         __this.name = 'macro'
-        g.macro = this
-        initializeTabView(this, 'Macro', 'fas fa-magic l-orange')
+//        g.macro = this
+//        initializeTabView(this, 'Macro', 'fas fa-magic l-orange')
 
         // load config
         const { macroFormatWithShift } = config.macro
@@ -47,7 +53,7 @@
             })
         })
 
-        makeScrollable(this, panel)
+//        makeScrollable(this, panel)
     });
 
     // [svelte-upgrade suggestion]

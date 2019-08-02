@@ -2,9 +2,9 @@
 <Toolbar bind:this={toolbar}></Toolbar>
 <div bind:this={splitterLeft} id="split-bar-l" class="split-bar"></div>
 <div bind:this={splitterRight} id="split-bar-r" class="split-bar"></div>
-<PanelLeft></PanelLeft>
+<PanelLeft bind:this={panelLeft}></PanelLeft>
 <PanelMiddle bind:this={panelMiddle}></PanelMiddle>
-<!--<PanelRight bind:this={panelRight}></PanelRight>-->
+<PanelRight bind:this={panelRight}></PanelRight>
 <!--<Prompt bind:this={prompt}></Prompt>-->
 <!--<ContextMenu bind:this={contextMenu}></ContextMenu>-->
 <!--<KeyboardControlHint bind:this={keyboardControlHint}></KeyboardControlHint>-->
@@ -58,13 +58,13 @@
 
 
 <script>
-    import { onMount } from 'svelte';
+    import { onMount } from 'svelte'
     import throttle from 'lodash.throttle'
     
-    import Toolbar from './bars/Toolbar.html';
-    import PanelLeft from './PanelLeft.html';
-    import PanelMiddle from './PanelMiddle.html';
-//    import PanelRight from './PanelRight.html';
+    import Toolbar from './bars/Toolbar.html'
+    import PanelLeft from './PanelLeft.html'
+    import PanelMiddle from './PanelMiddle.html'
+    import PanelRight from './PanelRight.html'
 //    import Prompt from './popups/Prompt.html';
 //    import ContextMenu from './popups/ContextMenu.html';
 //    import KeyboardControlHint from './LayeredKeyboardControl/KeyboardControlHint.html';
@@ -79,6 +79,7 @@
     export let toolbar
     export let splitterLeft
     export let splitterRight
+    export let panelLeft
     export let panelMiddle
     export let panelRight
     export let prompt

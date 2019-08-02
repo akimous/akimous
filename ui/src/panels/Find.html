@@ -1,28 +1,28 @@
-<div ref:panel id="find" class="panel" class:gone="!active" on:click="onFocus()">
+<div bind:this={panel} id="find" class="panel" class:gone="{!active}" on:click="{onFocus}">
     <div class="label">Find...</div>
-    <TextInput ref:findText bind:value=findText coalesced="true" on:keydown="onKeyDown(event)"></TextInput>
+    <TextInput bind:this={findText} bind:value={findText} coalesced="true" on:keydown="{onKeyDown}"></TextInput>
     <div class="button-group">
-        <Button corner="0001" active={caseSensitive} on:click="set({ caseSensitive: !caseSensitive })" title="Case-Sensitive">Aa</Button>
-        <Button active={regex} on:click="set({ regex: !regex })" title="Regular Expression">.*</Button>
+        <Button corner="0001" active={caseSensitive} on:click="{() => caseSensitive = !caseSensitive}" title="Case-Sensitive">Aa</Button>
+        <Button active={regex} on:click="{() => regex = !regex}" title="Regular Expression">.*</Button>
         {#if findInDirectory}
-        <Button corner="0000" active={wholeWord} on:click="set({ wholeWord: !wholeWord })" title="Whole Word"><i class="far fa-square"></i></Button>
-        <Button corner="0010" active={subdirectory} on:click="set({ subdirectory: !subdirectory })" title="Search in Subdirectory"><i class="fas fa-sitemap"></i></Button>
+        <Button corner="0000" active={wholeWord} on:click="{() => wholeWord = !wholeWord}" title="Whole Word"><i class="far fa-square"></i></Button>
+        <Button corner="0010" active={subdirectory} on:click="{() => subdirectory = !subdirectory}" title="Search in Subdirectory"><i class="fas fa-sitemap"></i></Button>
         {:else}
-        <Button corner="0010" active={wholeWord} on:click="set({ wholeWord: !wholeWord })" title="Whole Word"><i class="far fa-square"></i></Button>
+        <Button corner="0010" active={wholeWord} on:click="{() => wholeWord = !wholeWord}" title="Whole Word"><i class="far fa-square"></i></Button>
         {/if}
         <span class="gap"></span>
-        <Button ref:findPrevious corner="0001" on:click="findNext(-1)" title="Find Previous"><i class="fas fa-caret-left"></i></Button>
-        <Button ref:findNext corner="0010" on:click="findNext(1)" title="Find Next"><i class="fas fa-caret-right"></i></Button>
+        <Button bind:this={findPrevious} corner="0001" on:click="{() => findNext(-1)}" title="Find Previous"><i class="fas fa-caret-left"></i></Button>
+        <Button bind:this={findNextButton} corner="0010" on:click="{() => findNext(1)}" title="Find Next"><i class="fas fa-caret-right"></i></Button>
     </div>
     {#if replaceMode}
     <div class="label">Replace with...</div>
-    <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
+    <TextInput bind:this={replaceText} bind:value={replaceText} coalesced="true"></TextInput>
     <div class="button-group">
-        <Button corner="0011" on:click="replaceAll()" title="Replace All Occurances">All</Button>
+        <Button corner="0011" on:click="{replaceAll}" title="Replace All Occurances">All</Button>
         <span class="gap"></span>
-        <Button corner="0001" on:click="replace(-1)" title="Replace and Select Previous Occurance"><i class="fas fa-caret-left"></i></Button>
-        <Button on:click="replace(0)" title="Replace Selected">Replace</Button>
-        <Button corner="0010" on:click="replace(1)" title="Replace and Select Next Occurance"><i class="fas fa-caret-right"></i></Button>
+        <Button corner="0001" on:click="{() => replace(-1)}" title="Replace and Select Previous Occurance"><i class="fas fa-caret-left"></i></Button>
+        <Button on:click="{() => replace(0)}" title="Replace Selected">Replace</Button>
+        <Button corner="0010" on:click="{() => replace(1)}" title="Replace and Select Next Occurance"><i class="fas fa-caret-right"></i></Button>
     </div>
     {/if}
 
@@ -30,16 +30,16 @@
     <div class="group-wrapper">
         {#if matches.length > 2999}
         <div class="message l-red"><i class="fas fa-exclamation-triangle"></i> Cannot display all results (too many matches)</div>
-        {:elseif overflow}
+        {:else if overflow}
         <div class="message l-orange"><i class="fas fa-exclamation-circle"></i> Search paused (too many matches)</div>
         <span class="gap"></span>
-        <Button corner="1111" on:click="findInDirectory(2999)">Continue</Button>
+        <Button corner="1111" on:click="{() => findInDirectory(2999)}">Continue</Button>
         {/if}
     </div>
     {/if}
 
     <div class="group-wrapper">
-        <div id="search-counter" class="message" class:hidden="selectedIndex < 0 && !findInDirectory">
+        <div id="search-counter" class="message" class:hidden="{selectedIndex < 0 && !findInDirectory}">
             {#if findInDirectory}
             {matches.length} matches in {nFiles} files
             {:else}
@@ -48,7 +48,7 @@
         </div>
         <span class="gap"></span>
         {#if !findInDirectory}
-        <Button corner="1111" on:click="selectAll()">Select All</Button>
+        <Button corner="1111" on:click="{selectAll}">Select All</Button>
         {/if}
     </div>
     <table id="found-matches">
@@ -59,9 +59,9 @@
             <td class="match">{joinPath(match)}</td>
         </tr>
         {:else}
-        <tr class:highlight="selectedMatches.size === 0 && currentLine === match.from.line && isEqual(currentFilePath, match.filePath)">
-            <td class="line-number" class:selected="selectedMatches.has(match)" on:click="toggleSelection(match)">{match.from.line + 1}</td>
-            <td class="match" on:click="jumpTo(match)">{@html match.display}</td>
+        <tr class:highlight="{selectedMatches.size === 0 && currentLine === match.from.line && isEqual(currentFilePath, match.filePath)}">
+            <td class="line-number" class:selected="{selectedMatches.has(match)}" on:click="{() => toggleSelection(match)}">{match.from.line + 1}</td>
+            <td class="match" on:click="{() => jumpTo(match)}">{@html match.display}</td>
         </tr>
         {/if}
         {:else}
@@ -125,10 +125,21 @@
 
 </style>
 
-
 <script>
+    import { beforeUpdate, onMount } from 'svelte';
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ active, findText, caseSensitive, regex, findInDirectory, wholeWord, subdirectory, replaceMode, replaceText, matches, overflow, selectedIndex, nFiles, selectedMatches, currentLine, currentFilePath, currentCh, cannotDisplay })
+    };
+
+    export let panel;
+    export let findPrevious;
+    export let findNextButton;
+
     import g from '../lib/Globals'
-    import { initializeTabView, nextFrame, Pos, joinPath, highlightMatch } from '../lib/Utils'
+    import { nextFrame, Pos, joinPath, highlightMatch } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
     import isEqual from 'lodash.isequal'
@@ -154,335 +165,310 @@
         }
     }
 
-    export default {
-        components: {
-            TextInput: '../lib/TextInput.html',
-            Button: '../lib/Button.html',
-        },
-        helpers: {
-            joinPath,
-            isEqual,
-        },
-        oncreate() {
-            this.name = 'find'
-            g.find = this
-            initializeTabView(this, 'Find', 'fas fa-search l-blue')
-            makeScrollable(this, this.refs.panel)
-            this.jobAnimationFrameId = 0
-            g.projectSession.handlers['FoundInDirectory'] = ({ result, overflow, nFiles }) => {
-                const m = []
-                for (const { file, matches } of result) {
-                    m.push(file)
-                    for (const [line, from, to, text] of matches) {
-                        m.push({
-                            from: Pos(line, from),
-                            to: Pos(line, to),
-                            filePath: file,
-                            display: highlightMatch(text, from, to),
-                        })
-                    }
-                }
-                this.set({
-                    matches: m,
-                    nFiles,
-                    overflow
-                })
-            }
-            g.projectSession.handlers['ReplacedInDirectory'] = ({ count }) => {
-                g.notificationBar.show('success', `${count} matches replaced.`)
-            }
-        },
-        data() {
-            return {
-                active: false,
-                replaceMode: false,
+    export let active = false;
+    export let findText = '';
+    export let caseSensitive = false;
+    export let regex = false;
+//    export let findInDirectory = null;
+    export let wholeWord = false;
+    export let subdirectory = true;
+    export let replaceMode = false;
+    export let replaceText = '';
+    export let matches = [];
+    export let overflow = false;
+    export let selectedIndex = -1;
+    export let nFiles = 0;
+    export let selectedMatches = new Set();
+    export let currentLine = 0;
+    export let currentFilePath = [];
+    export let currentCh = 0;
+    export let cannotDisplay = false;
 
-                findText: '',
-                replaceText: '',
-
-                caseSensitive: false,
-                regex: false,
-                wholeWord: false,
-
-                matches: [],
-                selectedIndex: -1,
-                selectedMatches: new Set(),
-
-                currentFilePath: [],
-                currentLine: 0,
-                currentCh: 0,
-
-                findInDirectory: null,
-                subdirectory: true,
-
-                nFiles: 0,
-                overflow: false,
-                cannotDisplay: false,
-            }
-        },
-        onstate({ changed, previous, current }) {
-            if (!previous) return
-            const editor = g.activeEditor
-            if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord || changed.subdirectory) {
-                if (current.findInDirectory)
-                    this.findInDirectory()
-                else if (editor)
-                    this.findInFile(editor)
-                this.set({ selectedIndex: -1 })
-            }
-            if (changed.selectedMatches && editor) {
-                const { cm } = editor
-                const { filePath } = editor.get()
-                if (!cm)  {
-                    // do nothing
-                } else if (current.selectedMatches.size) {
-                    const selections = []
-                    for (const s of current.selectedMatches) {
-                        if (isEqual(s.filePath, filePath))
-                            selections.push({
-                                anchor: s.from,
-                                head: s.to
-                            })
-                    }
-                    cm.setSelections(selections)
-                    editor.set({ highlightOverlay: null })
-                    this.set({ selectedIndex: -1 })
-                } else if (current.selectedIndex === -1) {
-                    cm.setCursor(cm.getCursor()) // clear selections if nothing selected
-                }
-            }
-        },
-        methods: {
-            onFocus() {
-                g.setFocus([g.panelRight, this])
-            },
-            onKeyDown(event) {
-                if (event.key === 'Enter') {
-                    this.findNext(1)
-                    this.refs.findNext.flash()
-                }
-                return true
-            },
-            getQuery() {
-                const { findText, caseSensitive, regex, wholeWord } = this.get()
-                if (!findText.length) return
-                let regexString = findText
-                if (!regex) regexString = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
-                if (wholeWord) regexString = `\\b${regexString}\\b`
-                return new RegExp(regexString, caseSensitive ? 'g' : 'gi')
-            },
-            findNext(direction) {
-                let { findInDirectory, selectedIndex, matches } = this.get()
-                if (findInDirectory) {
-                    const { length } = matches
-                    selectedIndex = (selectedIndex + length + direction) % length
-                    if (selectedIndex < 0) selectedIndex = length - 1
-                    let match = matches[selectedIndex]
-                    if (Array.isArray(match)) {
-                        selectedIndex = (selectedIndex + length + direction) % length
-                        selectedIndex += selectedIndex ? 0 : direction
-                        match = matches[selectedIndex]
-                    }
-                    if (match)
-                        this.jumpTo(match)
-                    return
-                }
-                const editor = g.activeEditor
-                if (!editor) return
-                const cm = editor.cm
-                const query = this.getQuery()
-                let searchCursor = cm.getSearchCursor(query,
-                    direction > 0 ? cm.getCursor('to') : cm.getCursor('from'))
-                const action = direction > 0 ? 'findNext' : 'findPrevious'
-                let found = searchCursor[action]()
-
-                if (!found) { // wrap around
-                    searchCursor = cm.getSearchCursor(query,
-                        direction > 0 ? Pos(cm.firstLine(), 0) : Pos(cm.lastLine()))
-                    found = searchCursor[action]()
-                }
-                if (!found) {
-                    g.notificationBar.show('warning', 'Not found.')
-                    this.set({ selectedIndex: -1 })
-                    return
-                }
-
-                let from = searchCursor.from()
-                let to = searchCursor.to()
-                const pos = { from, to }
-
-                nextFrame(() => {
-                    const { matches } = this.get()
-                    const selectedIndex = matches.findIndex(x => x.from.line === from.line && x.from.ch === from.ch)
-                    this.set({ selectedIndex })
-                    this.clearSelections()
-                })
-
-                cm.operation(() => {
-                    const changeObject = { textMark: cm.markText(from, to, textMarkOption) }
-                    if (editor.get().highlightOverlay !== this.highlightOverlay) {
-                        changeObject.highlightOverlay = this.highlightOverlay
-                    }
-                    editor.set(changeObject)
-                    cm.setSelection(from, to)
-                    cm.scrollIntoView(pos, 20)
-                })
-                return searchCursor
-            },
-            replace(direction) {
-                const editor = g.activeEditor
-                if (!editor) return
-                const cm = editor.cm
-                const { replaceText } = this.get()
-                if (cm.somethingSelected()) {
-                    cm.replaceSelection(replaceText)
-                } else if (direction === 0) {
-                    g.notificationBar.show('warning', 'Nothing selected to be replaced.')
-                    return
-                } else {
-                    const searchCursor = this.findNext(direction)
-                    if (!searchCursor) {
-                        g.notificationBar.show('warning', 'No result found to be replaced.')
-                        return
-                    }
-                    searchCursor.replace(replaceText)
-                }
-                if (!direction)
-                    return
-                const searchCursor = this.findNext(direction)
-                if (!searchCursor)
-                    g.notificationBar.show('warning', 'No result found.')
-            },
-            replaceAll() {
-                const { findText, replaceText, findInDirectory, caseSensitive, subdirectory } = this.get()
-                if (findInDirectory) {
-                    g.projectSession.send('ReplaceAllInDirectory', {
-                        path: findInDirectory,
-                        findText,
-                        replaceText,
-                        caseSensitive,
-                        subdirectory,
+    import TextInput from '../lib/TextInput.html';
+    import Button from '../lib/Button.html';
+import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    $: {
+        dispatch('active', {
+            id: 'Find',
+            active
+        })
+    }
+    onMount(() => {
+        __this.name = 'find'
+//        g.find = this
+//        initializeTabView(this, 'Find', 'fas fa-search l-blue')
+//        makeScrollable(this, panel)
+        __this.jobAnimationFrameId = 0
+        g.projectSession.handlers['FoundInDirectory'] = ({ result, overflow, nFiles }) => {
+            const m = []
+            for (const { file, matches } of result) {
+                m.push(file)
+                for (const [line, from, to, text] of matches) {
+                    m.push({
+                        from: Pos(line, from),
+                        to: Pos(line, to),
+                        filePath: file,
+                        display: highlightMatch(text, from, to),
                     })
-                    return
-                } else {
-                    this.selectAll()
-                    this.replace()
-                    g.notificationBar.show('success', `${this.get().matches.length} matches replaced.`)
                 }
-            },
-            jumpTo(match) {
-                g.panelMiddle.openFile(match.filePath, editor => {
-                    const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
-                    cm.extendSelection(match.from, match.to)
-                    editor.set({ highlightOverlay: null })
-                })
-                const { matches } = this.get()
-                this.set({ selectedIndex: matches.indexOf(match) })
-            },
-            toggleSelection(match) {
-                if (!g.activeEditor) return
+            }
+//            matches = m, nFiles = nFiles, overflow = overflow
+        }
+        g.projectSession.handlers['ReplacedInDirectory'] = ({ count }) => {
+            g.notificationBar.show('success', `${count} matches replaced.`)
+        }
+    });
 
-                const { selectedMatches } = this.get()
-                if (selectedMatches.has(match)) {
-                    selectedMatches.delete(match)
-                } else {
-                    selectedMatches.add(match)
-                }
-                this.set({ selectedMatches })
-            },
-            reset() {
-                this.set({
-                    matches: [],
-                    selectedIndex: -1,
-                    selectedMatches: new Set(),
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+//        if (!previous) return
+//        const editor = g.activeEditor
+//        if (changed.findText || changed.caseSensitive || changed.regex || changed.wholeWord || changed.subdirectory) {
+//            if (current.findInDirectory)
+//                findInDirectory()
+//            else if (editor)
+//                findInFile(editor)
+//            selectedIndex = -1
+//        }
+//        if (changed.selectedMatches && editor) {
+//            const { cm } = editor
+//            const { filePath } = editor.get()
+//            if (!cm)  {
+//                // do nothing
+//            } else if (current.selectedMatches.size) {
+//                const selections = []
+//                for (const s of current.selectedMatches) {
+//                    if (isEqual(s.filePath, filePath))
+//                        selections.push({
+//                            anchor: s.from,
+//                            head: s.to
+//                        })
+//                }
+//                cm.setSelections(selections)
+//                editor.set({ highlightOverlay: null })
+//                selectedIndex = -1
+//            } else if (current.selectedIndex === -1) {
+//                cm.setCursor(cm.getCursor()) // clear selections if nothing selected
+//            }
+//        }
+    });
 
-                    currentFilePath: [],
-                    currentLine: 0,
-                    currentCh: 0,
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function onFocus() {
+        g.setFocus([g.panelRight, this])
+    }
 
-                    nFiles: 0,
-                    overflow: false,
-                    cannotDisplay: false,
-                })
-            },
-            clearSelections() {
-                const { selectedMatches } = this.get()
-                selectedMatches.clear()
-                this.set({ selectedMatches })
-            },
-            selectAll() {
-                if (!g.activeEditor) return
+    export function onKeyDown(event) {
+        if (event.key === 'Enter') {
+            findNext(1)
+            findNextButton.flash()
+        }
+        return true
+    }
 
-                let { selectedMatches, matches } = this.get()
-                if (selectedMatches.size === matches.length) {
-                    selectedMatches.clear()
-                } else {
-                    selectedMatches = new Set(matches)
-                }
-                this.set({ selectedMatches })
-            },
-            findInFile(editor) {
-                cancelAnimationFrame(this.jobAnimationFrameId)
-                const query = this.getQuery()
-                if (query) {
-                    const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
-                    const filePath = editor.get().filePath
-                    let found
-                    const { matches } = this.get()
-                    matches.length = 0
+    export function getQuery() {
+        if (!findText.length) return
+        let regexString = findText
+        if (!regex) regexString = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
+        if (wholeWord) regexString = `\\b${regexString}\\b`
+        return new RegExp(regexString, caseSensitive ? 'g' : 'gi')
+    }
 
-                    let limit = 30
-                    const job = () => {
-                        while (found = searchCursor.findNext()) {
-                            const match = found[0]
-                            const { length } = match
-                            const { input, index } = found
-                            const from = searchCursor.from()
-                            const to = searchCursor.to()                            
-                            const display = highlightMatch(input, index, index + length)
-                            matches.push({ display, from, to, filePath })
-                            if (matches.length === limit) {
-                                limit += 100
-                                this.jobAnimationFrameId = requestAnimationFrame(job)
-                                break
-                            }
-                        }
-                        this.set({ matches })
-                    }
-                    job()
+    export function findNext(direction) {
+        if (findInDirectory) {
+            const { length } = matches
+            selectedIndex = (selectedIndex + length + direction) % length
+            if (selectedIndex < 0) selectedIndex = length - 1
+            let match = matches[selectedIndex]
+            if (Array.isArray(match)) {
+                selectedIndex = (selectedIndex + length + direction) % length
+                selectedIndex += selectedIndex ? 0 : direction
+                match = matches[selectedIndex]
+            }
+            if (match)
+                jumpTo(match)
+            return
+        }
+        const editor = g.activeEditor
+        if (!editor) return
+        const cm = editor.cm
+        const query = getQuery()
+        let searchCursor = cm.getSearchCursor(query,
+            direction > 0 ? cm.getCursor('to') : cm.getCursor('from'))
+        const action = direction > 0 ? 'findNext' : 'findPrevious'
+        let found = searchCursor[action]()
 
-                    this.highlightOverlay = searchOverlayGenerator(query)
-                    nextFrame(() => {
-                        editor.set({ highlightOverlay: this.highlightOverlay })
-                    })
-                } else {
-                    editor.set({ highlightOverlay: null })
-                }
-            },
-            findInDirectory(limit) {
-                const { findInDirectory, findText, caseSensitive, regex, wholeWord, subdirectory } = this.get()
-                if (!findText.length) {
-                    this.set({
-                        matches: [],
-                        nFiles: 0,
-                        overflow: false
-                    })
-                    return
-                }
-                if (!limit)
-                    limit = findText.length > 1 ? 299 : 99
-                let query = findText
-                if (!regex) query = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
-                if (wholeWord) query = `\\b${query}\\b`
-                g.projectSession.send('FindInDirectory', {
-                    path: findInDirectory,
-                    query,
-                    limit,
-                    caseSensitive,
-                    subdirectory
-                })
-            },
+        if (!found) { // wrap around
+            searchCursor = cm.getSearchCursor(query,
+                direction > 0 ? Pos(cm.firstLine(), 0) : Pos(cm.lastLine()))
+            found = searchCursor[action]()
+        }
+        if (!found) {
+            g.notificationBar.show('warning', 'Not found.')
+            selectedIndex = -1
+            return
+        }
+
+        let from = searchCursor.from()
+        let to = searchCursor.to()
+        const pos = { from, to }
+
+        nextFrame(() => {
+            const selectedIndex = matches.findIndex(x => x.from.line === from.line && x.from.ch === from.ch)
+            selectedIndex = selectedIndex
+            clearSelections()
+        })
+
+        cm.operation(() => {
+            const changeObject = { textMark: cm.markText(from, to, textMarkOption) }
+            if (editor.get().highlightOverlay !== __this.highlightOverlay) {
+                changeObject.highlightOverlay = __this.highlightOverlay
+            }
+            editor.set(changeObject)
+            cm.setSelection(from, to)
+            cm.scrollIntoView(pos, 20)
+        })
+        return searchCursor
+    }
+
+    export function replace(direction) {
+        const editor = g.activeEditor
+        if (!editor) return
+        const cm = editor.cm
+        if (cm.somethingSelected()) {
+            cm.replaceSelection(replaceText)
+        } else if (direction === 0) {
+            g.notificationBar.show('warning', 'Nothing selected to be replaced.')
+            return
+        } else {
+            const searchCursor = findNext(direction)
+            if (!searchCursor) {
+                g.notificationBar.show('warning', 'No result found to be replaced.')
+                return
+            }
+            searchCursor.replace(replaceText)
+        }
+        if (!direction)
+            return
+        const searchCursor = findNext(direction)
+        if (!searchCursor)
+            g.notificationBar.show('warning', 'No result found.')
+    }
+
+    export function replaceAll() {
+        if (findInDirectory) {
+            g.projectSession.send('ReplaceAllInDirectory', {
+                path: findInDirectory,
+                findText,
+                replaceText,
+                caseSensitive,
+                subdirectory,
+            })
+            return
+        } else {
+            selectAll()
+            replace()
+            g.notificationBar.show('success', `${__this.get().matches.length} matches replaced.`)
         }
     }
 
+    export function jumpTo(match) {
+        g.panelMiddle.openFile(match.filePath, editor => {
+            const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
+            cm.extendSelection(match.from, match.to)
+            editor.set({ highlightOverlay: null })
+        })
+        selectedIndex = matches.indexOf(match)
+    }
+
+    export function toggleSelection(match) {
+        if (!g.activeEditor) return
+        if (selectedMatches.has(match)) {
+            selectedMatches.delete(match)
+        } else {
+            selectedMatches.add(match)
+        }
+        selectedMatches = selectedMatches
+    }
+
+    export function reset() {
+        matches = [], selectedIndex = -1, selectedMatches = new Set(), currentFilePath = [], currentLine = 0, currentCh = 0, nFiles = 0, overflow = false, cannotDisplay = false
+    }
+
+    export function clearSelections() {
+        selectedMatches.clear()
+        selectedMatches = selectedMatches
+    }
+
+    export function selectAll() {
+        if (!g.activeEditor) return
+        if (selectedMatches.size === matches.length) {
+            selectedMatches.clear()
+        } else {
+            selectedMatches = new Set(matches)
+        }
+        selectedMatches = selectedMatches
+    }
+
+    export function findInFile(editor) {
+        cancelAnimationFrame(__this.jobAnimationFrameId)
+        const query = getQuery()
+        if (query) {
+            const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
+            const filePath = editor.get().filePath
+            let found
+            matches.length = 0
+
+            let limit = 30
+            const job = () => {
+                while (found = searchCursor.findNext()) {
+                    const match = found[0]
+                    const { length } = match
+                    const { input, index } = found
+                    const from = searchCursor.from()
+                    const to = searchCursor.to()                            
+                    const display = highlightMatch(input, index, index + length)
+                    matches.push({ display, from, to, filePath })
+                    if (matches.length === limit) {
+                        limit += 100
+                        __this.jobAnimationFrameId = requestAnimationFrame(job)
+                        break
+                    }
+                }
+                matches = matches
+            }
+            job()
+
+            __this.highlightOverlay = searchOverlayGenerator(query)
+            nextFrame(() => {
+                editor.set({ highlightOverlay: __this.highlightOverlay })
+            })
+        } else {
+            editor.set({ highlightOverlay: null })
+        }
+    }
+
+    export function findInDirectory(limit) {
+        if (!findText.length) {
+            matches = [], nFiles = 0, overflow = false
+            return
+        }
+        if (!limit)
+            limit = findText.length > 1 ? 299 : 99
+        let query = findText
+        if (!regex) query = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
+        if (wholeWord) query = `\\b${query}\\b`
+        g.projectSession.send('FindInDirectory', {
+            path: findInDirectory,
+            query,
+            limit,
+            caseSensitive,
+            subdirectory
+        })
+    }
 </script>
+

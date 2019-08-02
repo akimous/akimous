@@ -1,11 +1,11 @@
-<div ref:panelRight id="panel-right" class:indicator-on="focused" class:gone="hidden" class:auto-hide="autoHide">
-    <TabBar ref:tabBar></TabBar>
-    <Console ref:console></Console>
-    <Find ref:find></Find>
-    <Linter ref:linter></Linter>
-    <Macro ref:macro></Macro>
-    <Docs ref:docs></Docs>
-    <References ref:references></References>
+<div bind:this={panelRight} id="panel-right" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
+    <TabBar bind:this={tabBar} id="tab-bar-right"></TabBar>
+    <Console bind:this={children.Console} on:active="{(e) => onTabChange(e)}"></Console>
+    <Find bind:this={children.Find} on:active="{(e) => onTabChange(e)}"></Find>
+    <Linter bind:this={children.Linter} on:active="{(e) => onTabChange(e)}"></Linter>
+    <Macro bind:this={children.Macro} on:active="{(e) => onTabChange(e)}"></Macro>
+    <Docs bind:this={children.Docs} on:active="{(e) => onTabChange(e)}"></Docs>
+    <References bind:this={children.References} on:active="{(e) => onTabChange(e)}"></References>
 </div>
 
 
@@ -24,64 +24,80 @@
 
 </style>
 
-
 <script>
+    import { beforeUpdate, onMount } from 'svelte'
+
+    export let panelRight
+    export let children = {}
+    export let tabBar
+    export let find
+    export let linter
+    export let macro
+    export let docs
+    export let references
+
     import g from './lib/Globals'
-    import { setAttributeForMultipleComponent, activateView, schedule } from './lib/Utils'
+    import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
+    import { onTabChangeFactory } from './lib/UIUtils'
 
-    export default {
-        components: {
-            TabBar: './bars/TabBar.html',
-            Console: './panels/Console.html',
-            Macro: './panels/Macro.html',
-            Docs: './panels/Docs.html',
-            Find: './panels/Find.html',
-            Linter: './panels/Linter.html',
-            References: './panels/References.html',
-        },
-        oncreate() {
-            g.panelRight = this
-            this.tabBar = this.refs.tabBar
-            setAttributeForMultipleComponent({
-                parent: this
-            }, this.refs.tabBar, this.refs.console, this.refs.macro, this.refs.docs, this.refs.find, this.refs.linter, this.refs.references)
+    export let focused = false
+    export let hidden = false
+    export let autoHide = false
+    export let width = 0
+    export let allowWhiteSpace = true
 
-            // we must activate console upon initialization, or xterm will break
-            schedule(() => {
-                this.activateView(this.refs[g.projectState.activePanels.right])
-            })
-        },
-        onstate({ changed, current }) {
-            if (changed.hidden) {
-                if (current.hidden) {
-                    this.originalWidth = this.refs.panelRight.getBoundingClientRect().width
-                    document.documentElement.style.setProperty('--panel-right-width', '0px')
-                } else if (this.originalWidth)
-                    document.documentElement.style.setProperty('--panel-right-width', this.originalWidth + 'px')
-            }
-            if (changed.width && this.refs.linter) {
-                this.refs.linter.set({ width: current.width })
-            }
-        },
-        data() {
-            return {
-                focused: false,
-                hidden: false,
-                autoHide: false,
-                width: 0,
-                allowWhiteSpace: true,
-            }
-        },
-        methods: {
-            activateView(view) {
-                activateView(this, view)
-                const { width } = this.refs.panelRight.getBoundingClientRect()
-                view.set({ width })
-            },
-            closeView( /*view*/ ) {
-                // not allowed to close view for now
-            }
-        }
+    import TabBar from './bars/TabBar.html'
+    import Console from './panels/Console.html'
+    import Macro from './panels/Macro.html'
+    import Docs from './panels/Docs.html'
+    import Find from './panels/Find.html'
+    import Linter from './panels/Linter.html'
+    import References from './panels/References.html'
+
+    let onTabChange
+    onMount(() => {
+        onTabChange = onTabChangeFactory(tabBar, children)
+        tabBar.openTab('Console', 'Console', children.Console, 'fas fa-desktop l-purple', false)
+        tabBar.openTab('Find', 'Find', children.Find, 'fas fa-search l-blue', false)
+        tabBar.openTab('Linter', 'Linter', children.Linter, 'fas fa-check-circle l-green', false)
+        tabBar.openTab('Macro', 'Macro', children.Macro, 'fas fa-magic l-orange', false)
+        tabBar.openTab('Docs', 'Documentation', children.Docs, 'fas fa-book-open l-red', false)
+        tabBar.openTab('References', 'References', children.References, 'fas fa-link l-ao', false)
+
+        // we must activate console upon initialization, or xterm will break
+        schedule(() => {
+//            children[g.projectState.activePanels.left].$set({ active: true })
+            children.Console.$set({ active: true })
+        })
+    })
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+//        if (changed.hidden) {
+//            if (current.hidden) {
+//                __this.originalWidth = panelRight.getBoundingClientRect().width
+//                document.documentElement.style.setProperty('--panel-right-width', '0px')
+//            } else if (__this.originalWidth)
+//                document.documentElement.style.setProperty('--panel-right-width', __this.originalWidth + 'px')
+//        }
+//        if (changed.width && linter) {
+//            linter.set({ width: current.width })
+//        }
+    })
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function activateView_(view) {
+//        activateView(this, view)
+        const { width } = panelRight.getBoundingClientRect()
+//        view.set({ width })
     }
 
+    export function closeView() {
+        // not allowed to close view for now
+    }
 </script>
+
+

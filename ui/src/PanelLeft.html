@@ -1,5 +1,5 @@
 <div bind:this={self} id="panel-left" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
-    <TabBar bind:this={tabBar} id="tab-bar"></TabBar>
+    <TabBar bind:this={tabBar} id="tab-bar-left"></TabBar>
     <FileTree bind:this={children.FileTree} on:active="{(e) => onTabChange(e)}"></FileTree>
     <Outline bind:this={children.Outline} on:active="{(e) => onTabChange(e)}"></Outline>
 </div>
@@ -39,16 +39,6 @@
     import Outline from './panels/Outline.html';
 
     let onTabChange
-//    function onTabChange({ detail }) {
-//        if (detail.active === true) {
-//            for (const [name, view] of Object.entries(children)) {
-//                if (name !== detail.name && view) {
-//                    view.active = false
-//                }
-//            }
-//        }
-//        tabBar.updateTabIndicator(detail)
-//    }
     
     onMount(() => {
         onTabChange = onTabChangeFactory(tabBar, children)

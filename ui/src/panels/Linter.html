@@ -11,7 +11,6 @@
 
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
-    import { initializeTabView } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
@@ -28,42 +27,49 @@
     export let realtimeLints = [];
     export let currentLine = 0;
     export let spellingErrors = [];
-
+import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    $: {
+        dispatch('active', {
+            id: 'Linter',
+            active
+        })
+    }
     onMount(() => {
         __this.name = 'linter'
-        g.linter = this
-        initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
+//        g.linter = this
+//        initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
 
         // fill in enabled types from config
-        const { offlineLintType } = config
-        const set = __this.get().offlineLintType
+//        const { offlineLintType } = config
+        const set = config.offlineLintType
         for (const k in offlineLintType)
             if (offlineLintType[k])
                 set.add(k)
         offlineLintType = set
 
-        makeScrollable(this, panel)
+//        makeScrollable(this, panel)
     });
 
     export let typeStrings;
-    $: {
-        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-        if (width > 24 * rem)
-            typeStrings = {
-                informational: 'Info',
-                refactor: 'Refactor',
-                convention: 'Convention',
-                warning: 'Warning',
-                error: 'Error',
-            }
-        return {
-            informational: 'I',
-            refactor: 'R',
-            convention: 'C',
-            warning: 'W',
-            error: 'E',
-        }
-    }
+//    $: {
+//        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+//        if (width > 24 * rem)
+//            typeStrings = {
+//                informational: 'Info',
+//                refactor: 'Refactor',
+//                convention: 'Convention',
+//                warning: 'Warning',
+//                error: 'Error',
+//            }
+//        return {
+//            informational: 'I',
+//            refactor: 'R',
+//            convention: 'C',
+//            warning: 'W',
+//            error: 'E',
+//        }
+//    }
 
     export let offlineLintCounts;
     $: {
