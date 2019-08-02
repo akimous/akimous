@@ -4,44 +4,6 @@
     <div class="type-indicator {type}"> {@html typeIcon} </div>
 </div>
 
-<script>
-    export let completionRow;
-
-    const typeIcons = {
-        'instruction': '<i class="fas fa-info-circle"></i>',
-        'full-statement': '<i class="fas fa-crosshairs"></i>',
-        'word-segment': '<i class="fas fa-ellipsis-h"></i>',
-        'word': '<i class="fas fa-book"></i>',
-        'token': '<i class="fas fa-signature"></i>',
-    }
-    export let type = '';
-    export let rowNumber = 0;
-    export let highlight = '';
-    export let tail = '';
-    export let text = '';
-    export let selected = false;
-    export let index = 0;
-    export let parent;
-
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function click() {
-        parent.set({ selectedCompletionRow: this })
-        parent.enter()
-    }
-
-    export let typeIcon;
-    function _getTypeIcon(type) {
-        const icon = typeIcons[type]
-        if (icon)
-            return icon
-        return type.substring(0, 1).toUpperCase()
-    }
-    $: typeIcon = _getTypeIcon(type)
-</script>
-
-
 <style>
     .row {
         height: 2rem;
@@ -191,3 +153,41 @@
     }
 
 </style>
+
+
+<script>
+    const typeIcons = {
+        'instruction': '<i class="fas fa-info-circle"></i>',
+        'full-statement': '<i class="fas fa-crosshairs"></i>',
+        'word-segment': '<i class="fas fa-ellipsis-h"></i>',
+        'word': '<i class="fas fa-book"></i>',
+        'token': '<i class="fas fa-signature"></i>',
+    }
+    
+    export let completionRow,
+        type = '',
+        rowNumber = 0,
+        highlight = '',
+        tail = '',
+        text = '',
+        selected = false,
+        index = 0,
+        parent,
+        typeIcon
+
+    $: typeIcon = _getTypeIcon(type)
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function click() {
+        parent.set({ selectedCompletionRow: this })
+        parent.enter()
+    }
+
+    function _getTypeIcon(type) {
+        const icon = typeIcons[type]
+        if (icon)
+            return icon
+        return type.substring(0, 1).toUpperCase()
+    }
+</script>

@@ -10,16 +10,7 @@
 </style>
 
 <script>
-    import { beforeUpdate, onDestroy, onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ fileName, highlightOverlay, active, filePath, clean, textMark })
-    };
-
-    export let codeEditor;
-    export let completion;
+    import { beforeUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte'
 
     import g from '../lib/Globals'
     import CMEventDispatcher from './CMEventDispatcher'
@@ -28,6 +19,8 @@
     import { CompletionProvider } from './completion/CompletionProvider'
     import { getIconByFileName } from '../lib/FileTypeToIcon'
     import { schedule, nextFrame, joinPath } from '../lib/Utils'
+    
+    import Completion from './completion/Completion.html'
 
     /* eslint-disable */
     import CodeMirror from 'codemirror'
@@ -60,7 +53,6 @@
     import xml from 'codemirror/mode/xml/xml'
     import yaml from 'codemirror/mode/yaml/yaml'
 
-
     // CM addons
     import meta from 'codemirror/mode/meta'
     import matchbrackets from 'codemirror/addon/edit/matchbrackets'
@@ -77,10 +69,26 @@
     import matchhighlighter from './match-highlighter'
     /* eslint-enable */
 
-    g.CodeMirror = CodeMirror
-    
-    import { createEventDispatcher } from 'svelte'
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ fileName, highlightOverlay, active, filePath, clean, textMark })
+    }
     const dispatch = createEventDispatcher()
+    
+    g.CodeMirror = CodeMirror
+        
+    export let codeEditor,
+        completion,
+        fileName = '',
+        highlightOverlay = null,
+        active = false,
+        filePath = null,
+        clean = true,
+        textMark = null,
+        cm, 
+        mtime
+    
     $: {
         dispatch('active', {
             id: joinPath(filePath),
@@ -93,16 +101,6 @@
         opaque: true,
         priority: 0,
     }
-
-    export let fileName = '';
-    export let highlightOverlay = null;
-    export let active = false;
-    export let filePath = null;
-    export let clean = true;
-    export let textMark = null;
-    export let cm, mtime
-
-    import Completion from './completion/Completion.html';
 
     onMount(() => {
         __this.parent = __this.get().parent
@@ -323,7 +321,7 @@
 //                    g.outline.set({ outlineItems: __this.outline })
             })
         }))
-    });
+    })
 
     onDestroy(() => {
 //        __this.tab.destroy()
@@ -331,7 +329,7 @@
 //        delete g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)]
         __this.session.send('Close')
         __this.session.close()
-    });
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
@@ -383,10 +381,10 @@
 //        if (changed.textMark && previous.textMark) {
 //            previous.textMark.clear()
 //        }
-    });
+    })
 
-    export let isMakefile;
-    $: isMakefile = fileName.toLowerCase() === 'makefile';
+    export let isMakefile
+    $: isMakefile = fileName.toLowerCase() === 'makefile'
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords

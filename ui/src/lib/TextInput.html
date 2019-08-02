@@ -1,24 +1,3 @@
-<script>
-    import { onMount } from 'svelte';
-
-    export let input;
-
-    export let theme = 'dark';
-    export let value = '';
-    export let placeholder = '';
-    export let allowWhiteSpace = true;
-    export let coalesced = false;
-    export let padded = true;
-
-    onMount(() => {});
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function focus() {
-        input.focus()
-    }
-</script>
-
 <div class="text-input {theme}" class:coalesced class:padded>
     <span class="label">
         <slot></slot>
@@ -83,3 +62,19 @@
     }
 
 </style>
+
+<script>
+    export let input,
+        theme = 'dark',
+        value = '',
+        placeholder = '',
+        allowWhiteSpace = true,
+        coalesced = false,
+        padded = true
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function focus() {
+        input.focus()
+    }
+</script>

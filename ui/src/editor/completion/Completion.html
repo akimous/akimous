@@ -1,32 +1,30 @@
 <script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ open, passive, rows, selectedCompletionRow, closable })
-    };
-
-    export let container;
-    export let passivePlaceholder;
-    export let completion;
-
+    import { beforeUpdate, onMount } from 'svelte'
+    
     import g from '../../lib/Globals'
     import CompletionRow from './CompletionRow.html'
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
     import { CLOSED, NORMAL } from './CompletionProvider'
 
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ open, passive, rows, selectedCompletionRow, closable })
+    }
     const EXTRA_PREDICTIONS = new Set([
         'word-segment',
         'word',
         'full-statement'
     ])
 
-    export let open = false;
-    export let passive = false;
-    export let rows = [];
-    export let selectedCompletionRow = null;
-    export let closable = true;
+    export let container,
+        passivePlaceholder,
+        completion,
+        open = false,
+        passive = false,
+        rows = [],
+        selectedCompletionRow = null,
+        closable = true
 
     onMount(() => {
         __this.completionRows = []
@@ -109,7 +107,7 @@
             if (PASSTHROUGH_COMMANDS.has(command)) return true
             oldCommandHandler(command)
         }
-    });
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
@@ -134,7 +132,7 @@
 //        }
 //        if (changed.open && !current.open)
 //            __this.completionProvider.state = CLOSED
-    });
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords

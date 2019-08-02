@@ -34,25 +34,24 @@
 </style>
 
 <script>
-    import { onMount } from 'svelte';
+    import { onMount } from 'svelte'
+    
+    import g from './Globals'
+    import { schedule } from './Utils'
+    import { roundCorners } from './UIUtils'
 
     // [svelte-upgrade suggestion]
     // manually refactor all references to __this
     const __this = {
         get: () => ({ corner, title, active, flashing, callback })
-    };
+    }
 
-    export let button;
-
-    import g from './Globals'
-    import { schedule } from './Utils'
-    import { roundCorners } from './UIUtils'
-
-    export let corner = '0000';
-    export let title = '';
-    export let active = false;
-    export let flashing = false;
-    export let callback = null;
+    export let button,
+        corner = '0000',
+        title = '',
+        active = false,
+        flashing = false,
+        callback = null
 
     onMount(() => {
         if (title) {
@@ -60,7 +59,7 @@
 //                g.tooltip.register(button)
             })
         }
-    });
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
