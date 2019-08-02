@@ -1,38 +1,27 @@
 <script>
-    import { afterUpdate, onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ active, message, callback })
-    };
-
-    export let input;
-
+    import { afterUpdate, onMount } from 'svelte'
+    
     import g from '../lib/Globals'
 
-    export let active = false;
-    export let message = '';
-    export let callback = null;
+    export let input = '',
+        active = false,
+        message = '',
+        callback = null
 
     onMount(() => {
         g.commandPalette = this
-    });
+    })
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
     afterUpdate(() => {
 //        if (changed.active && current.active) {
 //            g.setFocus([this])
 //            input.focus()
 //        }
-    });
+    })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function show() {
-        active = true, message = 'Command:'
+        active = true
+        message = 'Command:'
     }
 
     export function promptForInput(message, callback) {
@@ -41,8 +30,8 @@
 
     export function onKeyDown() {
         if (event.key === 'Enter') {
-            const input = input.value
-            __this.get().callback(input)
+            const { value } = input
+            callback(value)
             active = false
         }
     }

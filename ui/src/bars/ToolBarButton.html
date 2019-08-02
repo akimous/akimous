@@ -1,22 +1,3 @@
-<script>
-    import { onMount } from 'svelte';
-
-    export let button;
-
-    import g from '../lib/Globals'
-    import { schedule } from '../lib/Utils'
-
-    export let active = false;
-    export let title;
-    export let iconClass;
-
-    onMount(() => {
-        schedule(() => {
-//            g.tooltip.register(button)
-        })
-    });
-</script>
-
 <div bind:this={button} class="toolbar-button" class:active="{active}" on:click aria-label="{title}">
     <slot></slot><i class="{iconClass}"></i>
 </div>
@@ -40,3 +21,21 @@
     }
 
 </style>
+
+<script>
+    import { onMount } from 'svelte'
+
+    import g from '../lib/Globals'
+    import { schedule } from '../lib/Utils'
+
+    export let button,
+        active = false,
+        title,
+        iconClass
+
+    onMount(() => {
+        schedule(() => {
+//            g.tooltip.register(button)
+        })
+    })
+</script>

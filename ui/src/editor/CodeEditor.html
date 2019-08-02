@@ -114,7 +114,6 @@
 //        g.linter.clear()
 //        __this.tab = __this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
 //        g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)] = this
-
         const mode = CodeMirror.findModeByFileName(fileName)
 
         // Step 1: Connect to websocket and read file
@@ -327,9 +326,9 @@
     });
 
     onDestroy(() => {
-        __this.tab.destroy()
-        g.linter.clear()
-        delete g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)]
+//        __this.tab.destroy()
+//        g.linter.clear()
+//        delete g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)]
         __this.session.send('Close')
         __this.session.close()
     });

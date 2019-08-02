@@ -1,68 +1,3 @@
-<script>
-    import { onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {};
-
-    export let notificationBar;
-
-    import g from '../lib/Globals'
-
-    export let level = 'question';
-    export let active = false;
-    export let message = '';
-    export let actions = [];
-
-    onMount(() => {
-        __this.queue = []
-        g.notificationBar = this
-    });
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function doAction(action) {
-        action.callback()
-        showNext()
-    }
-
-    export function show(level, message, actions) {
-        const item = {
-            level,
-            message,
-            actions
-        }
-        __this.queue.push(item)
-        const { items, active } = g.notificationHistory.get()
-        items.unshift(item)
-        if (items.length > 10)
-            items.pop()
-        g.notificationHistory.set({
-            items
-        })
-        if (!active)
-            showNext()
-    }
-
-    export function showNext() {
-        if (!__this.queue.length) {
-            active = false
-            return
-        }
-        const notification = __this.queue.shift()
-        let timeout = undefined
-        if (notification.level === 'success') timeout = 1200
-        else if (notification.level === 'warning') timeout = 1800
-        if (timeout) {
-            __this.timer = setTimeout(() => showNext(), timeout)
-        }
-
-        notification.actions = notification.actions || []
-        notification.active = true
-//                this.set(notification)
-    }
-</script>
-
 <div bind:this={notificationBar} id="notification-bar" class="{level} non-selectable" class:gone="{!active}">
     {@html message} {#each actions as action}
     <span class="action" on:click="{() => doAction(action)}">
@@ -129,3 +64,59 @@
     }
 
 </style>
+
+<script>
+    import g from '../lib/Globals'
+
+    export let notificationBar,
+        level = 'question',
+        active = false,
+        message = '',
+        actions = []
+    
+    let queue = [],
+        timer = 0
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function doAction(action) {
+        action.callback()
+        showNext()
+    }
+
+    export function show(level, message, actions) {
+        const item = {
+            level,
+            message,
+            actions
+        }
+        queue.push(item)
+        const { items, active } = g.notificationHistory.get()
+        items.unshift(item)
+        if (items.length > 10)
+            items.pop()
+        g.notificationHistory.set({
+            items
+        })
+        if (!active)
+            showNext()
+    }
+
+    export function showNext() {
+        if (!queue.length) {
+            active = false
+            return
+        }
+        const notification = __this.queue.shift()
+        let timeout = undefined
+        if (notification.level === 'success') timeout = 1200
+        else if (notification.level === 'warning') timeout = 1800
+        if (timeout) {
+            timer = setTimeout(() => showNext(), timeout)
+        }
+
+        notification.actions = notification.actions || []
+        notification.active = true
+//                this.set(notification)
+    }
+</script>

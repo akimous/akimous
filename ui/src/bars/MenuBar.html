@@ -1,18 +1,12 @@
 <script>
-    import { onMount } from 'svelte';
-
-    export let MenuBar;
-
     import g from '../lib/Globals'
-
-    import MenuItem from './MenuItem.html';
-
-    onMount(() => {
-        g.menuBar = this
-    });
+    import MenuItem from './MenuItem.html'
+    
+    export let container
 </script>
 
-<div bind:this={MenuBar} id="menu-bar">
+
+<div bind:this={container} id="menu-bar">
     <MenuItem name="File"></MenuItem>
     <MenuItem name="Edit"></MenuItem>
     <MenuItem name="Select"></MenuItem>

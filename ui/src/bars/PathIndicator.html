@@ -1,16 +1,34 @@
-<script>
-    import { beforeUpdate, onMount } from 'svelte';
+<div bind:this={pathIndicator} id="path-indicator">
+    {display}
+</div>
 
-    export let pathIndicator;
+<style>
+    #path-indicator {
+        display: inline-block;
+        text-align: center;
+        font-size: var(--ui-font-size-small);
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 0;
+        min-width: 0;
+        overflow: hidden;
+        user-select: text;
+        color: var(--primary7);
+    }
+
+</style>
+
+<script>
+    import { beforeUpdate, onMount } from 'svelte'
+    import throttle from 'lodash.throttle'
 
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
-    import throttle from 'lodash.throttle'
-
-
-    export let display = '';
-    export let path = [];
-    export let availableWidth = 0;
+    
+    export let pathIndicator,
+        display = '',
+        path = [],
+        availableWidth = 0
 
     onMount(() => {
         g.pathIndicator = this
@@ -19,7 +37,7 @@
         }
         window.addEventListener('resize', throttle(setAvailableWidth))
         setAvailableWidth()
-    });
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
@@ -30,7 +48,7 @@
                 display = this.fitWidth()
             })
         }
-    });
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
@@ -59,22 +77,3 @@
     }
 </script>
 
-<div bind:this={pathIndicator} id="path-indicator">
-    {display}
-</div>
-
-<style>
-    #path-indicator {
-        display: inline-block;
-        text-align: center;
-        font-size: var(--ui-font-size-small);
-        flex-grow: 1;
-        flex-shrink: 1;
-        flex-basis: 0;
-        min-width: 0;
-        overflow: hidden;
-        user-select: text;
-        color: var(--primary7);
-    }
-
-</style>

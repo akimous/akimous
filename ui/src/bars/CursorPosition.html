@@ -34,21 +34,23 @@
    
 
 <script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    export let indentSwitch;
-    export let indentSizeInput;
-    export let cursorPosition;
-
+    import { beforeUpdate, onMount } from 'svelte'
+    
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
 
-    export let indentWithTabs = false;
-    export let isMakefile = false;
-    export let editingIndentSize = false;
-    export let indentSize = 4;
-    export let line = 0;
-    export let ch = 0;
+    export let indentSwitch,
+        indentSizeInput,
+        indentDisplay,
+        cursorPosition,
+        indentWithTabs = false,
+        isMakefile = false,
+        editingIndentSize = false,
+        indentSize = 4,
+        line = 0,
+        ch = 0
+    
+    $: indentDisplay = indentWithTabs ? 'Tab Size' : 'Spaces'
 
     onMount(() => {
 //        g.cursorPosition = this
@@ -59,9 +61,6 @@
 //            ])
 //        })
     })
-
-    export let indentDisplay;
-    $: indentDisplay = indentWithTabs ? 'Tab Size' : 'Spaces';
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
@@ -102,5 +101,3 @@
         }
     }
 </script>
-
-

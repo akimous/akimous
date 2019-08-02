@@ -1,11 +1,29 @@
-<script>
-    import { onMount } from 'svelte';
+<div bind:this={menuItem} on:mousedown="{event => click(event, name)}" class="menu-item non-selectable">{name}</div>
 
-    export let menuItem;
+
+<style>
+    .menu-item {
+        display: inline-block;
+        font-size: var(--ui-font-size-small);
+        padding: 0 .5rem;
+    }
+
+    .menu-item:hover {
+        color: white;
+    }
+
+</style>
+
+
+<script>
+    import { onMount } from 'svelte'
 
     import g from '../lib/Globals'
     import { getRem } from '../lib/Utils'
 
+    export let menuItem,
+        name
+    
     /* eslint-disable */
     /* Note: following Sublime commands not included in menu
     "Cmd-Left": "goLineStartSmart",
@@ -229,10 +247,6 @@
         }, ]
     }
 
-    export let name;
-
-    onMount(() => {});
-
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function click(e, name) {
@@ -252,19 +266,3 @@
         e.stopPropagation()
     }
 </script>
-
-<div bind:this={menuItem} on:mousedown="{event => click(event, name)}" class="menu-item non-selectable">{name}</div>
-
-
-<style>
-    .menu-item {
-        display: inline-block;
-        font-size: var(--ui-font-size-small);
-        padding: 0 .5rem;
-    }
-
-    .menu-item:hover {
-        color: white;
-    }
-
-</style>

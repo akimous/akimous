@@ -1,5 +1,5 @@
 <div id="toolbar">
-    <MenuBar />
+    <MenuBar bind:this={children.menuBar} />
 <!--    <PathIndicator />-->
     <ToolbarButton on:click="{() => togglePopup('linterOptions')}" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
     <ToolbarButton on:click="{() => togglePopup('keymapSettings')}" iconClass="fas fa-fw fa-keyboard" title="Keymap Settings" />
@@ -13,8 +13,8 @@
     <CursorPosition bind:this={cursorPosition} />
 </div>
 <CommandPalette />
-<NotificationBar />
-<TabNumber />
+<NotificationBar bind:this={children.notificationBar} />
+<TabNumber bind:this={children.tabNumber} />
 <NotificationHistory />
 <LinterOptions bind:this={linterOptions} />
 <RunConfiguration />
@@ -47,33 +47,34 @@
 
 <script>
     import { onMount } from 'svelte'
-    import NotificationBar from './NotificationBar.html';
-    import NotificationHistory from '../popups/NotificationHistory.html';
-    import LinterOptions from '../popups/LinterOptions.html';
-    import RunConfiguration from '../popups/RunConfiguration.html';
-    import KeymapSettings from '../popups/KeymapSettings.html';
-    import TabNumber from './TabNumber.html';
-    import ToolbarButton from './ToolbarButton.html';
-    import MenuBar from './MenuBar.html'
-    import CursorPosition from './CursorPosition.html'
-    import CommandPalette from './CommandPalette.html';
-//    import PathIndicator from './PathIndicator.html';
+    
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
+    import NotificationBar from './NotificationBar.html'
+    import NotificationHistory from '../popups/NotificationHistory.html'
+    import LinterOptions from '../popups/LinterOptions.html'
+    import RunConfiguration from '../popups/RunConfiguration.html'
+    import KeymapSettings from '../popups/KeymapSettings.html'
+    import TabNumber from './TabNumber.html'
+    import ToolbarButton from './ToolbarButton.html'
+    import MenuBar from './MenuBar.html'
+    import CursorPosition from './CursorPosition.html'
+    import CommandPalette from './CommandPalette.html'
+//    import PathIndicator from './PathIndicator.html'
 
-    export let linterOptionButton;
-    export let linterOptions;
-    export let runConfiguration;
-    export let runButton;
-    export let stopButton;
-    export let cursorPosition;
+    export let linterOptionButton,
+        linterOptions,
+        runConfiguration,
+        runButton,
+        stopButton,
+        cursorPosition
 
-
-    export let runConfigurationDisplay = '';
-
+    export let runConfigurationDisplay = '',
+        children = {}
 
     onMount(() => {
-        g.linterOptions = linterOptions
+        Object.assign(g, children)
+//        g.linterOptions = linterOptions
 //        g.toolbar = this
 //        schedule(() => {
 //            g.tooltip.register(run.refs.button)

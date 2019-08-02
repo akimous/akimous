@@ -127,13 +127,7 @@
         }
     }
 
-
-    
-
-
-
     onMount(() => {
-        g.app = this
         schedule(() => {
             if (!initialized) return
             
@@ -178,7 +172,7 @@
 //            g.layeredKeyboardControl = new LayeredKeyboardControl()
 
             schedule(() => {
-//                g.ready = true
+                g.ready = true
 //                g.runConfiguration.setConsoleMode()
             })
         })

@@ -1,6 +1,6 @@
 <div bind:this={tabBar} class="tab-bar">
     {#each tabData as t}
-    <Tab {...t} bind:this={tabs[t.id]}></Tab>
+    <Tab {...t} bind:this={tabs[t.id]} on:requestTabClose></Tab>
     {/each}
 </div>
 
@@ -18,38 +18,28 @@
 
 </style>
 
-   
 
 <script>
-    import { onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ parent })
-    };
-
-    export let tabBar;
-
-    import Tab from './Tab.html'
+    import { onMount } from 'svelte'
     import Sortable from 'sortablejs'
     import elementQueries from 'css-element-queries'
+    
+    import Tab from './Tab.html'
     import { nextFrame } from '../lib/Utils.js'
 
-    export let parent = null
-    export let tabData = []
-    export let tabs = {}
-    let tabFittingTask = -1
+    export let tabBar,
+        tabData = [],
+        tabs = {}
+
+    let tabFittingTask = -1,
+        sortable
 
     onMount(() => {
-        __this.tabs = new Set()
-        __this.sortable = Sortable.create(tabBar, {
-            animation: 0,
-        })
+        sortable = Sortable.create(tabBar, { animation: 0 })
 //        new elementQueries.ResizeSensor(tabBar, () => {
 //            fitTabWidth()
 //        })
-    });
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
@@ -62,7 +52,7 @@
 
     export function switchToTab(index) {
         index += 1 // resizeSensor counts 1
-        for (const tab of __this.tabs) {
+        for (const tab of tabs) {
             if (tab.getIndex() === index) {
                 tab.activate()
                 return

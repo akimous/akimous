@@ -26,7 +26,7 @@ const socket = new Socket(() => {
         if (g.config.lastOpenedFolder) {
             g.projectSession.send('OpenProject', { path: g.config.lastOpenedFolder })
         } else {
-            app = new App({
+            g.app = app = new App({
                 target: document.body,
                 data: {
                     initialized: false,
@@ -40,7 +40,7 @@ const socket = new Socket(() => {
         g.projectRoot = root
         Object.assign(projectState, data.projectState)
         if (app) app.destroy()
-        app = new App({
+        g.app = app = new App({
             target: document.body,
         })
 //        g.runConfiguration.set(g.projectState.runConfiguration)

@@ -10,7 +10,7 @@
     export let panel;
 
     import g from '../lib/Globals'
-    import { initializeTabView, schedule } from '../lib/Utils'
+    import { schedule } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { config, setConfig } from '../lib/ConfigManager'
 
@@ -21,7 +21,7 @@
     export let allowWhiteSpace = true;
 
     import TextInput from '../lib/TextInput.html';
-import { createEventDispatcher } from 'svelte'
+    import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher()
     $: {
         dispatch('active', {
