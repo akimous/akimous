@@ -1,15 +1,7 @@
 <script>
-    import { onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {};
-
-    export let panel;
-    export let docContainer;
-    export let splitBar;
-
+    import { onMount, createEventDispatcher } from 'svelte'
     import throttle from 'lodash.throttle'
+    
     import g from '../lib/Globals'
     import { makeScrollable } from '../lib/UIUtils'
     import { nextFrame, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
@@ -22,6 +14,29 @@
         moveCursorToParameterInsertionPoint,
         moveCursorToParameter,
     } from '../editor/EditorFunctions'
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {}
+    const dispatch = createEventDispatcher()
+    
+    export let panel,
+        docContainer,
+        splitBar,
+        active = false,
+        completionDoc = null,
+        functionDocType = 'html',
+        functionDoc = null,
+        completionDocType = 'html',
+        functionDocTriggeredFile = '',
+        functionDocTriggeredPos = null
+    
+    $: {
+        dispatch('active', {
+            id: 'Docs',
+            active
+        })
+    }
 
     let lastTokenStart = { line: 0, ch: 0 }
 
@@ -57,21 +72,8 @@
         }
     }
 
-    export let active = false;
-    export let completionDoc = null;
-    export let functionDocType = 'html';
-    export let functionDoc = null;
-    export let completionDocType = 'html';
-    export let functionDocTriggeredFile = '';
-    export let functionDocTriggeredPos = null;
-import { createEventDispatcher } from 'svelte'
-    const dispatch = createEventDispatcher()
-    $: {
-        dispatch('active', {
-            id: 'Docs',
-            active
-        })
-    }
+    
+    
     onMount(() => {
         __this.name = 'docs'
 //        g.docs = this
@@ -90,7 +92,7 @@ import { createEventDispatcher } from 'svelte'
             }
 //            makeScrollable(this, docContainer)
         })
-    });
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords

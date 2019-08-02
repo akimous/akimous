@@ -82,18 +82,15 @@
 </style>
 
 <script>
-    import { onMount } from 'svelte';
-
-    export let toolbar;
-
     import g from '../lib/Globals'
+    
+    export let toolbar,
+        mode = 'interactive',
+        executionState = 'stopped'
 
-    export let mode = 'interactive';
-    export let executionState = 'stopped';
-
-    onMount(() => {
-        g.jupyterToolbar = this
-    });
+//    onMount(() => {
+//        g.jupyterToolbar = this
+//    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords

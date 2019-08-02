@@ -1,37 +1,36 @@
 <script>
-    import { afterUpdate, onDestroy, onMount } from 'svelte';
+    import { afterUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte'
+    import Terminal from 'xterm/dist/xterm'
+    import fit from 'xterm/lib/addons/fit/fit'
+    
+    import g from '../lib/Globals'
+    import { nextFrame, schedule } from '../lib/Utils'
+    
+    import JupyterToolbar from './JupyterToolbar.html'
+    import JupyterCell from './JupyterCell.html'
 
     // [svelte-upgrade suggestion]
     // manually refactor all references to __this
-    const __this = {};
-
-    export let jupyter;
-    export let jupyterToolbar;
-    export let terminal;
-
-    import g from '../lib/Globals'
-    import { nextFrame, schedule } from '../lib/Utils'
-    import Terminal from 'xterm/dist/xterm'
-    import fit from 'xterm/lib/addons/fit/fit'
-
+    const __this = {}
+    const dispatch = createEventDispatcher()
     Terminal.applyAddon(fit)
 
-    export let active = false;
-    export let mode = '';
-    export let cells = [
-        // {
-        //     output: {
-        //         'text/plain': 'text',
-        //     }
-        // }
-    ];
-    export let displayInput = false
-    export let ready = false
+    export let jupyter,
+        jupyterToolbar,
+        terminal,
+        active = false,
+        mode = '',
+        cells = [
+            // {
+            //     output: {
+            //         'text/plain': 'text',
+            //     }
+            // }
+        ],
+        displayInput = false,
+        ready = false
 
-    import JupyterToolbar from './JupyterToolbar.html'
-    import JupyterCell from './JupyterCell.html'
-import { createEventDispatcher } from 'svelte'
-    const dispatch = createEventDispatcher()
+
     $: {
         dispatch('active', {
             id: 'Console',

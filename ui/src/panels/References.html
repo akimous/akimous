@@ -76,21 +76,24 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {};
-
-    export let panel;
-
+    import { beforeUpdate, onMount, createEventDispatcher } from 'svelte'
+    
     import g from '../lib/Globals'
     import { highlightMatch, joinPath, Pos } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
-    import { createEventDispatcher } from 'svelte'
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {}
     const dispatch = createEventDispatcher()
+
+    export let panel,
+        definitions = [],
+        assignments = [],
+        usages = [],
+        active = false
+
     $: {
         dispatch('active', {
             id: 'References',
@@ -114,18 +117,13 @@
     function formatForDisplay(i) {
         return highlightMatch(i.code, i.from, i.to).trim()
     }
-    
-    export let definitions = [];
-    export let assignments = [];
-    export let usages = [];
-    export let active = false;
 
     onMount(() => {
         __this.name = 'references'
 //        g.references = this
 //        initializeTabView(this, 'References', 'fas fa-link l-ao')
 //        makeScrollable(this, panel)
-    });
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
@@ -136,7 +134,7 @@
 //                jumpTo(current.definitions[0])
 //            }
 //        }
-    });
+    })
 
     export let definitionsWithTitles;
     $: definitionsWithTitles = [...withTitles(definitions)];

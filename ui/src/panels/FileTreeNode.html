@@ -72,25 +72,38 @@
 </style>
 
 <script>
-    import { beforeUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte';
+    import { beforeUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte'
+    import pressure from 'pressure'
+    
+    import g from '../lib/Globals'
+    import { binarySearch, schedule } from '../lib/Utils'
+    import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
 
+    export let renaming = false,
+        name = '',
+        level = 0,
+        newNode = null,
+        isDir = false,
+        dirs = [],
+        files = [],
+        parent,
+        open = false,
+        selected = false,
+        placeholderMode = false,
+        row = null,
+        input = '',
+        placeholderNode = null,
+        children = {}
+    
+    export let icon = ''
+    $: icon = isDir ? fileTypeToIcon['folder'] : getIconByFileName(name)
+    
     // [svelte-upgrade suggestion]
     // manually refactor all references to __this
     const __this = {
         get: () => ({ renaming, name, level, icon, newNode, isDir, self, dirs, files, parent, open, selected, placeholderMode })
     };
-
     const dispatch = createEventDispatcher()
-    export let row = null
-    export let input = ''
-    export let placeholderNode = null
-    export let children = {}
-
-    import g from '../lib/Globals'
-    import { binarySearch, schedule } from '../lib/Utils'
-
-    import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
-    import pressure from 'pressure'
 
     const copyPath = {
         text: 'Copy Path',
@@ -170,21 +183,7 @@
         }
     }
 
-    export let renaming = false;
-    export let name = '';
-    export let level = 0;
-//    export let icon = '';
-    export let newNode = null;
-    export let isDir = false;
-    export let dirs = [];
-    export let files = [];
-    export let parent;
-    export let open = false;
-    export let selected = false;
-    export let placeholderMode = false;
     
-    export let icon
-    $: icon = isDir ? fileTypeToIcon['folder'] : getIconByFileName(name)
 
     const methods = {
         

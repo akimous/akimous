@@ -26,26 +26,11 @@
 
 <script>
     import { beforeUpdate, onMount } from 'svelte'
-
-    export let panelRight
-    export let children = {}
-    export let tabBar
-    export let find
-    export let linter
-    export let macro
-    export let docs
-    export let references
-
+    
     import g from './lib/Globals'
     import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
     import { onTabChangeFactory } from './lib/UIUtils'
-
-    export let focused = false
-    export let hidden = false
-    export let autoHide = false
-    export let width = 0
-    export let allowWhiteSpace = true
-
+    
     import TabBar from './bars/TabBar.html'
     import Console from './panels/Console.html'
     import Macro from './panels/Macro.html'
@@ -53,6 +38,16 @@
     import Find from './panels/Find.html'
     import Linter from './panels/Linter.html'
     import References from './panels/References.html'
+    
+
+    export let panelRight,
+        children = {},
+        tabBar,
+        focused = false,
+        hidden = false,
+        autoHide = false,
+        width = 0,
+        allowWhiteSpace = true
 
     let onTabChange
     onMount(() => {

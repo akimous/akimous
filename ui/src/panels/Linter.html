@@ -1,40 +1,39 @@
 <script>
-    import { onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ width, offlineLints, offlineLintType, active, pyflakes, spellChecker, pylint, realtimeLints, currentLine, spellingErrors, OFFLINE_LINT_TYPES })
-    };
-
-    export let panel;
+    import { onMount, createEventDispatcher } from 'svelte'
 
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
-
+    
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ width, offlineLints, offlineLintType, active, pyflakes, spellChecker, pylint, realtimeLints, currentLine, spellingErrors, OFFLINE_LINT_TYPES })
+    }
     const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
     const domParser = new DOMParser()
-
-    export let width = 100;
-    export let offlineLints = [];
-    export let offlineLintType = new Set();
-    export let active = false;
-    export let pyflakes = config.linter.pyflakes;
-    export let spellChecker = config.linter.spellChecker;
-    export let pylint = config.linter.pylint;
-    export let realtimeLints = [];
-    export let currentLine = 0;
-    export let spellingErrors = [];
-import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher()
+
+    export let panel,
+        width = 100,
+        offlineLints = [],
+        offlineLintType = new Set(),
+        active = false,
+        pyflakes = config.linter.pyflakes,
+        spellChecker = config.linter.spellChecker,
+        pylint = config.linter.pylint,
+        realtimeLints = [],
+        currentLine = 0,
+        spellingErrors = []
+    
     $: {
         dispatch('active', {
             id: 'Linter',
             active
         })
     }
+    
     onMount(() => {
         __this.name = 'linter'
 //        g.linter = this
@@ -49,7 +48,7 @@ import { createEventDispatcher } from 'svelte'
         offlineLintType = set
 
 //        makeScrollable(this, panel)
-    });
+    })
 
     export let typeStrings;
 //    $: {

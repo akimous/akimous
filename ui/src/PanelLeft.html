@@ -20,23 +20,22 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    export let self
-    export let children = {}
-    export let tabBar
-
+    import { beforeUpdate, onMount } from 'svelte'
+    
     import g from './lib/Globals'
     import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
     import { onTabChangeFactory } from './lib/UIUtils'
 
-    export let focused = false;
-    export let hidden = false;
-    export let autoHide = false;
-
-    import TabBar from './bars/TabBar.html';
-    import FileTree from './panels/FileTree.html';
-    import Outline from './panels/Outline.html';
+    import TabBar from './bars/TabBar.html'
+    import FileTree from './panels/FileTree.html'
+    import Outline from './panels/Outline.html'
+    
+    export let self,
+        children = {},
+        tabBar,
+        focused = false,
+        hidden = false,
+        autoHide = false
 
     let onTabChange
     
@@ -53,7 +52,7 @@
         schedule(() => {            
             children[g.projectState.activePanels.left].$set({ active: true })
         })
-    });
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave

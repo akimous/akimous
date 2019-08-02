@@ -55,27 +55,25 @@
    
 
 <script>
-    import { onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {};
-
-    export let panel;
-    export let outline;
-    export let row;
-
+    import { onMount, createEventDispatcher } from 'svelte'
+    
     import g from '../lib/Globals'
     import { Pos } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
-    export let active = false;
-    export let outlineItems = [];
-    export let currentLine = 0;
-
-    import { createEventDispatcher } from 'svelte'
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {}
     const dispatch = createEventDispatcher()
+
+    export let panel,
+        outline,
+        row,
+        active = false,
+        outlineItems = [],
+        currentLine = 0
+
     $: {
         dispatch('active', {
             id: 'Outline',
@@ -89,7 +87,7 @@
         g.currentHighlight = null
 //        initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')
 //        makeScrollable(this, panel)
-    });
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords

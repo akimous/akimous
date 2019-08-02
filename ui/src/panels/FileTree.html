@@ -25,21 +25,36 @@
 </style>
 
 <script>
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount, createEventDispatcher } from 'svelte'
+    
+    import g from '../lib/Globals'
+    import { binarySearch, schedule } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
+    
+    import FileTreeNode from './FileTreeNode.html'
 
     // [svelte-upgrade suggestion]
     // manually refactor all references to __this
     const __this = {
         get: () => ({ active, dirs, self, files, root })
-    };
+    }
+    const dispatch = createEventDispatcher()
 
-    export let fileTree;
-    export let children = {}
-    export let container
+    export let fileTree,
+        children = {},
+        container,
+        active = false,
+        dirs = [],
+        self = null,
+        files = [],
+        root = []
 
-    import g from '../lib/Globals'
-    import { binarySearch, schedule } from '../lib/Utils'
-    import { makeScrollable } from '../lib/UIUtils'
+    $: {
+        dispatch('active', {
+            id: 'FileTree',
+            active
+        })
+    }
 
     function onChildNodeCreation() {
 //        console.log('meow')
@@ -57,22 +72,6 @@
     function sortChildren(node, type) {
         node.set({
             type: node.get()[type].sort((a, b) => a.name > b.name)
-        })
-    }
-
-    export let active = false
-    export let dirs = []
-    export let self = null
-    export let files = []
-    export let root = []
-
-    import FileTreeNode from './FileTreeNode.html'
-    import { createEventDispatcher } from 'svelte'
-    const dispatch = createEventDispatcher()
-    $: {
-        dispatch('active', {
-            id: 'FileTree',
-            active
         })
     }
 
@@ -258,11 +257,11 @@
             }
         }
 //        makeScrollable(this, fileTree)
-    });
+    })
 
     onDestroy(() => {
         __this.session && __this.session.close()
-    });
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords

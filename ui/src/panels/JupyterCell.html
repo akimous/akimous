@@ -58,12 +58,17 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    export let cell;
-    export let tex;
-
+    import { beforeUpdate } from 'svelte'
+    
     import { nextFrame } from '../lib/Utils'
+
+    export let cell,
+        tex,
+        executionCount = '',
+        code = null,
+        stdout = null,
+        stderr = null,
+        output = {}
 
     let _katex = null
 
@@ -82,16 +87,6 @@
         })
     }
 
-    export let executionCount = '';
-    export let code = null;
-    export let stdout = null;
-    export let stderr = null;
-    export let output = {};
-
-    onMount(() => {
-
-    });
-
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
@@ -106,6 +101,6 @@
                 })
             }
         }
-    });
+    })
 </script>
 

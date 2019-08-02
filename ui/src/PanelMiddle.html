@@ -35,31 +35,29 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount, tick } from 'svelte';
+    import { beforeUpdate, onMount, tick } from 'svelte'
+    import isEqual from 'lodash.isequal'
 
+    import g from './lib/Globals'
+    import { schedule, nextFrame, joinPath } from './lib/Utils'
+    import { onTabChangeFactory } from './lib/UIUtils'
+    import { getIconByFileName } from './lib/FileTypeToIcon'
+    
+    import TabBar from './bars/TabBar.html'
+    import CodeEditor from './editor/CodeEditor.html'
+    
     // [svelte-upgrade suggestion]
     // manually refactor all references to __this
     const __this = {
         get: () => ({ focused, focus })
-    };
-
-    export let panelMiddle;
-    export let tabBar;
-
-    import g from './lib/Globals'
-    import CodeEditor from './editor/CodeEditor.html'
-    import { schedule, nextFrame, joinPath } from './lib/Utils'
-    import { onTabChangeFactory } from './lib/UIUtils'
-    import { getIconByFileName } from './lib/FileTypeToIcon'
-    import isEqual from 'lodash.isequal'
-
+    }
     const MAX_ACTIVATION_HISTORY = 32
 
-    export let focused = false
-    export let focus = null
-    export let pathToEditor = {}
-
-    import TabBar from './bars/TabBar.html'
+    export let panelMiddle,
+        tabBar,
+        focused = false,
+        focus = null,
+        pathToEditor = {}
     
     let onTabChange
 
@@ -82,7 +80,7 @@
             if (!activated)
                 activateFile(g.projectState.openedFiles[0])
         })
-    });
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
@@ -104,7 +102,7 @@
 //            } else
 //                editor && editor.cm && editor.cm.getInputField().blur()
 //        }
-    });
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
