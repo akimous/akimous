@@ -1,38 +1,58 @@
+{#if open}
+<div bind:this={contextMenu} id="context-menu" class="popup" style="top:{y}px; left:{x}px;">
+</div>
+{/if}
+
+
+<style>
+    #context-menu {
+        z-index: 910;
+        min-height: 2rem;
+        min-width: 3rem;
+        overflow-x: hidden;
+        padding: .2rem 0;
+        vertical-align: middle;
+        margin-left: .1rem;
+        margin-top: -.5rem;
+    }
+
+</style>
+
 <script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ open, y, x, items, selectedRow, caller, closable })
-    };
-
-    export let contextMenu;
+    import { beforeUpdate, onMount } from 'svelte'
 
     import g from '../lib/Globals'
     import ContextMenuRow from './ContextMenuRow.html'
     import ContextMenuDivider from './ContextMenuDivider.html'
     import EventDispatcherFactory from '../LayeredKeyboardControl/EventDispatcherFactory'
+    
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ open, y, x, items, selectedRow, caller, closable })
+    }
 
-    export let open = false;
-    export let y = 0;
-    export let x = 0;
-    export let items = [{
-        text: '',
-        callback: () => {}
-    }];
-    export let selectedRow = null;
-    export let caller = null;
-    export let closable = true;
+    export let contextMenu,
+        open = false,
+        x = 0,
+        y = 0,
+        items = [
+            // {
+            //     text: '',
+            //     callback: () => {}
+            // }
+        ],
+        selectedRow = null,
+        caller = null,
+        closable = true
 
     onMount(() => {
-        g.contextMenu = this
         __this.rows = []
         __this.dividers = []
         __this.keyEventHandler = EventDispatcherFactory({
             target: this,
         })
-    });
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
@@ -87,7 +107,7 @@
                 selected: true
             })
         }
-    });
+    })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
@@ -110,23 +130,3 @@
         else open = false
     }
 </script>
-
-{#if open}
-<div bind:this={contextMenu} id="context-menu" class="popup" style="top:{y}px; left:{x}px;">
-</div>
-{/if}
-
-
-<style>
-    #context-menu {
-        z-index: 910;
-        min-height: 2rem;
-        min-width: 3rem;
-        overflow-x: hidden;
-        padding: .2rem 0;
-        vertical-align: middle;
-        margin-left: .1rem;
-        margin-top: -.5rem;
-    }
-
-</style>

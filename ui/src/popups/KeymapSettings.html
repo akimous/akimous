@@ -1,57 +1,3 @@
-<script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ open, left, layeredKeyboardControl, keymapHint })
-    };
-
-    export let keymapSettings;
-
-    import g from '../lib/Globals'
-    import { config, setConfig } from '../lib/ConfigManager'
-
-    export let open = false;
-    export let left = 0;
-    export let layeredKeyboardControl = config.keymap.layeredKeyboardControl;
-    export let keymapHint = config.keymap.keymapHint;
-
-    onMount(() => {
-        g.keymapSettings = this
-    });
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-        if (!g.toolbar) return
-        if (changed.open) {
-            g.app.set({
-                popup: current.open ? this : null
-            })
-        }
-        if (changed.layeredKeyboardControl && !current.layeredKeyboardControl && current.keymapHint) {
-            requestAnimationFrame(() => keymapHint = false)
-        }
-        if (changed.layeredKeyboardControl) {
-            g.layeredKeyboardControl.enabled = current.layeredKeyboardControl
-        }
-        if (changed.keymapHint) {
-            g.keyboardControlHint.set({ open: current.keymapHint })
-        }
-    });
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function toggle(name) {
-        const value = __this.get()[name]
-        const updated = { [name]: !value }
-//                this.set(updated)
-        setConfig('keymap', updated)
-    }
-</script>
-
 {#if open}
 <div bind:this={keymapSettings} id="keymap-settings" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
@@ -69,3 +15,57 @@
     </div>
 </div>
 {/if}
+   
+<script>
+    import { beforeUpdate } from 'svelte'
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ open, left, layeredKeyboardControl, keymapHint })
+    }
+
+    export let keymapSettings
+
+    import g from '../lib/Globals'
+    import { config, setConfig } from '../lib/ConfigManager'
+
+    export let open = false
+    export let left = 0
+    export let layeredKeyboardControl = config.keymap.layeredKeyboardControl
+    export let keymapHint = config.keymap.keymapHint
+
+//    onMount(() => {
+//        g.keymapSettings = this
+//    })
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+//        if (!g.toolbar) return
+//        if (changed.open) {
+//            g.app.set({
+//                popup: current.open ? this : null
+//            })
+//        }
+//        if (changed.layeredKeyboardControl && !current.layeredKeyboardControl && current.keymapHint) {
+//            requestAnimationFrame(() => keymapHint = false)
+//        }
+//        if (changed.layeredKeyboardControl) {
+//            g.layeredKeyboardControl.enabled = current.layeredKeyboardControl
+//        }
+//        if (changed.keymapHint) {
+//            g.keyboardControlHint.set({ open: current.keymapHint })
+//        }
+    })
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function toggle(name) {
+        const value = __this.get()[name]
+        const updated = { [name]: !value }
+//                this.set(updated)
+        setConfig('keymap', updated)
+    }
+</script>

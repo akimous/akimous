@@ -1,39 +1,3 @@
-<script>
-    import { onMount } from 'svelte';
-
-    export let popup;
-
-    import g from '../lib/Globals'
-
-    export let open = false;
-    export let content = '';
-
-    onMount(() => {
-        g.popup = this
-    });
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function reposition(x, y) {
-        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-        const { height } = popup.getBoundingClientRect()
-        let yAdjusted = y - height / 2
-        if (y + height / 2 > document.documentElement.clientHeight)
-            yAdjusted = document.documentElement.clientHeight - height
-        if (yAdjusted < 0)
-            yAdjusted = 0
-        popup.style.left = `${x - 36 * rem}px`
-        popup.style.top = `${yAdjusted}px`
-        const el = document.querySelector('#popup-arrow')
-        el.style.top = `${y - yAdjusted}px`
-    }
-
-    export function closeIfNotHovered(event) {
-        if (event.relatedTarget && event.relatedTarget.id === 'panel-popup') return
-        open = false
-    }
-</script>
-
 <div id="panel-popup" class="popup" bind:this={popup} class:gone="{!open}" on:mouseleave="{() => open = false}">{@html content} <div id="popup-arrow"></div></div>
 
 
@@ -91,3 +55,36 @@
     }
 
 </style>
+
+<script>
+    import g from '../lib/Globals'
+    
+    export let popup,
+        open = false,
+        content = ''
+
+//    onMount(() => {
+//        g.popup = this
+//    })
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function reposition(x, y) {
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+        const { height } = popup.getBoundingClientRect()
+        let yAdjusted = y - height / 2
+        if (y + height / 2 > document.documentElement.clientHeight)
+            yAdjusted = document.documentElement.clientHeight - height
+        if (yAdjusted < 0)
+            yAdjusted = 0
+        popup.style.left = `${x - 36 * rem}px`
+        popup.style.top = `${yAdjusted}px`
+        const el = document.querySelector('#popup-arrow')
+        el.style.top = `${y - yAdjusted}px`
+    }
+
+    export function closeIfNotHovered(event) {
+        if (event.relatedTarget && event.relatedTarget.id === 'panel-popup') return
+        open = false
+    }
+</script>

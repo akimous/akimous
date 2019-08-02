@@ -118,7 +118,6 @@
     export let editors = {}
     
     export async function openFile(filePath, cmReadyCallback, activate = true) {
-        console.log('openFile', filePath)
         let editor = getEditor(filePath)
         if (!editor) {
             const fileName = filePath[filePath.length - 1]

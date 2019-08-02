@@ -1,104 +1,3 @@
-<script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ open, left, cwd, args, mode, editing, shellCommands, shellCommandIndex, allowWhiteSpace })
-    };
-
-    export let runConfiguration;
-    export let edit;
-
-    import g from '../lib/Globals'
-    import { setProjectState } from '../lib/ConfigManager'
-    import { capitalize, nextFrame } from '../lib/Utils'
-
-    export let open = false;
-    export let left = 0;
-    export let cwd = '';
-    export let args = 'args';
-    export let mode = 'script';
-    export let editing = false;
-    export let shellCommands = [
-        'python',
-        ''
-    ];
-    export let shellCommandIndex = 0;
-    export let allowWhiteSpace = true;
-
-    import RunConfigShellCommand from './RunConfigShellCommand.html';
-    import ToggleButton from '../lib/ToggleButton.html';
-    import TextInput from '../lib/TextInput.html';
-
-    onMount(() => {
-        g.runConfiguration = this
-    });
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (changed.mode) {
-//            nextFrame(() => {
-//                g.toolbar.set({
-//                    runConfigurationDisplay: capitalize(current.mode)
-//                })
-//            })
-//        }
-//        if (!g.ready) return
-//        if (changed.open && g.toolbar) {
-//            g.app.set({
-//                popup: current.open ? this : null
-//            })
-//        }
-//        if (changed.editing && edit) {
-//            edit.set({
-//                active: current.editing
-//            })
-//        }
-//        if (changed.open && !current.open) {
-//            editing = false
-//        }
-//        if (changed.mode || changed.shellCommandIndex) {
-//            saveChanges()
-//        }
-//        if (changed.mode) {
-//            setConsoleMode()
-//        }
-    });
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function setConsoleMode() {
-        if (['script', 'module', 'shell'].includes(mode)) {
-            g.console.set({ mode: 'terminal' })
-        } else if (['interactive', 'realtime'].includes(mode)) {
-            g.console.set({ mode: 'jupyter' })
-            g.jupyterToolbar.set({ mode })
-        }
-        g.console.stop()
-    }
-
-    export function onClickEdit() {
-        editing = !editing
-    }
-
-    export function saveChanges(what) {
-        if (what) {
-            setProjectState('runConfiguration', {
-                [what]: __this.get()[what]
-            })
-        } else {
-            setProjectState('runConfiguration', {
-                mode,
-                shellCommands,
-                shellCommandIndex
-            })
-        }
-    }
-</script>
-
 {#if open}
 <div bind:this={runConfiguration} id="run-configuration" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
@@ -166,3 +65,104 @@
     }
 
 </style>
+
+   
+<script>
+    import { beforeUpdate } from 'svelte'
+
+    import g from '../lib/Globals'
+    import { setProjectState } from '../lib/ConfigManager'
+    import { capitalize, nextFrame } from '../lib/Utils'
+    
+    import RunConfigShellCommand from './RunConfigShellCommand.html'
+    import ToggleButton from '../lib/ToggleButton.html'
+    import TextInput from '../lib/TextInput.html'
+    
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ open, left, cwd, args, mode, editing, shellCommands, shellCommandIndex, allowWhiteSpace })
+    }
+
+    export let runConfiguration,
+        edit,
+        open = false,
+        left = 0,
+        cwd = '',
+        args = 'args',
+        mode = 'script',
+        editing = false,
+        shellCommands = [
+            'python',
+            ''
+        ],
+        shellCommandIndex = 0,
+        allowWhiteSpace = true
+
+//    onMount(() => {
+//        g.runConfiguration = this
+//    })
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+//        if (changed.mode) {
+//            nextFrame(() => {
+//                g.toolbar.set({
+//                    runConfigurationDisplay: capitalize(current.mode)
+//                })
+//            })
+//        }
+//        if (!g.ready) return
+//        if (changed.open && g.toolbar) {
+//            g.app.set({
+//                popup: current.open ? this : null
+//            })
+//        }
+//        if (changed.editing && edit) {
+//            edit.set({
+//                active: current.editing
+//            })
+//        }
+//        if (changed.open && !current.open) {
+//            editing = false
+//        }
+//        if (changed.mode || changed.shellCommandIndex) {
+//            saveChanges()
+//        }
+//        if (changed.mode) {
+//            setConsoleMode()
+//        }
+    })
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export function setConsoleMode() {
+        if (['script', 'module', 'shell'].includes(mode)) {
+            g.console.set({ mode: 'terminal' })
+        } else if (['interactive', 'realtime'].includes(mode)) {
+            g.console.set({ mode: 'jupyter' })
+            g.jupyterToolbar.set({ mode })
+        }
+        g.console.stop()
+    }
+
+    export function onClickEdit() {
+        editing = !editing
+    }
+
+    export function saveChanges(what) {
+        if (what) {
+            setProjectState('runConfiguration', {
+                [what]: __this.get()[what]
+            })
+        } else {
+            setProjectState('runConfiguration', {
+                mode,
+                shellCommands,
+                shellCommandIndex
+            })
+        }
+    }
+</script>

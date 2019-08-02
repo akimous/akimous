@@ -1,35 +1,3 @@
-<script>
-    import { beforeUpdate, onMount } from 'svelte';
-
-    export let notificationHistory;
-
-    import g from '../lib/Globals'
-
-    export let open = false;
-    export let left = 0;
-    export let items = [
-        // {
-        //     level: 'success',
-        //     message: 'looking good'
-        // }
-    ];
-
-    onMount(() => {
-//        g.notificationHistory = this
-    });
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (changed.open && g.toolbar) {
-//            g.app.set({
-//                popup: current.open ? this : null
-//            })
-//        }
-    });
-</script>
-
 {#if open}
 <div bind:this={notificationHistory} id="notification-history" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
@@ -97,3 +65,34 @@
     }
 
 </style>
+
+<script>
+    import { beforeUpdate } from 'svelte'
+
+    import g from '../lib/Globals'
+    
+    export let notificationHistory,
+        open = false,
+        left = 0,
+        items = [
+            // {
+            //     level: 'success',
+            //     message: 'looking good'
+            // }
+        ]
+
+//    onMount(() => {
+//        g.notificationHistory = this
+//    })
+
+    // [svelte-upgrade warning]
+    // beforeUpdate and afterUpdate handlers behave
+    // differently to their v2 counterparts
+    beforeUpdate(() => {
+//        if (changed.open && g.toolbar) {
+//            g.app.set({
+//                popup: current.open ? this : null
+//            })
+//        }
+    })
+</script>

@@ -35,7 +35,7 @@
         "pluralize": "^8.0.0",
         "popper.js": "^1.14.7",
         "pressure": "^2.1.2",
-        "rollup": "1.17.0",
+        "rollup": "1.18.0",
         "rollup-plugin-commonjs": "^10.0.1",
         "rollup-plugin-livereload": "^1.0.1",
         "rollup-plugin-node-resolve": "^5.2.0",
