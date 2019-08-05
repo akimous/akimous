@@ -33,7 +33,7 @@
     
     $: {
         dispatch('active', {
-            id: 'Docs',
+            id: 'docs',
             active
         })
     }
@@ -76,7 +76,6 @@
     
     onMount(() => {
         __this.name = 'docs'
-//        g.docs = this
 //        initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
         nextFrame(() => {
             splitBar.onmousedown = e => {

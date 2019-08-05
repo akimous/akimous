@@ -1,11 +1,11 @@
 <div bind:this={panelRight} id="panel-right" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
     <TabBar bind:this={tabBar} id="tab-bar-right"></TabBar>
-    <Console bind:this={children.Console} on:active="{(e) => onTabChange(e)}"></Console>
-    <Find bind:this={children.Find} on:active="{(e) => onTabChange(e)}"></Find>
-    <Linter bind:this={children.Linter} on:active="{(e) => onTabChange(e)}"></Linter>
-    <Macro bind:this={children.Macro} on:active="{(e) => onTabChange(e)}"></Macro>
-    <Docs bind:this={children.Docs} on:active="{(e) => onTabChange(e)}"></Docs>
-    <References bind:this={children.References} on:active="{(e) => onTabChange(e)}"></References>
+    <Console bind:this={children.console} on:active="{(e) => onTabChange(e)}"></Console>
+    <Find bind:this={children.find} on:active="{(e) => onTabChange(e)}"></Find>
+    <Linter bind:this={children.linter} on:active="{(e) => onTabChange(e)}"></Linter>
+    <Macro bind:this={children.macro} on:active="{(e) => onTabChange(e)}"></Macro>
+    <Docs bind:this={children.docs} on:active="{(e) => onTabChange(e)}"></Docs>
+    <References bind:this={children.references} on:active="{(e) => onTabChange(e)}"></References>
 </div>
 
 
@@ -52,17 +52,18 @@
     let onTabChange
     onMount(() => {
         onTabChange = onTabChangeFactory(tabBar, children)
-        tabBar.openTab('Console', 'Console', children.Console, 'fas fa-desktop l-purple', false)
-        tabBar.openTab('Find', 'Find', children.Find, 'fas fa-search l-blue', false)
-        tabBar.openTab('Linter', 'Linter', children.Linter, 'fas fa-check-circle l-green', false)
-        tabBar.openTab('Macro', 'Macro', children.Macro, 'fas fa-magic l-orange', false)
-        tabBar.openTab('Docs', 'Documentation', children.Docs, 'fas fa-book-open l-red', false)
-        tabBar.openTab('References', 'References', children.References, 'fas fa-link l-ao', false)
+        tabBar.openTab('console', 'Console', children.console, 'fas fa-desktop l-purple')
+        tabBar.openTab('find', 'Find', children.find, 'fas fa-search l-blue')
+        tabBar.openTab('linter', 'Linter', children.linter, 'fas fa-check-circle l-green')
+        tabBar.openTab('macro', 'Macro', children.macro, 'fas fa-magic l-orange')
+        tabBar.openTab('docs', 'Documentation', children.docs, 'fas fa-book-open l-red')
+        tabBar.openTab('references', 'References', children.references, 'fas fa-link l-ao')
+        Object.assign(g, children)
 
         // we must activate console upon initialization, or xterm will break
         schedule(() => {
 //            children[g.projectState.activePanels.left].$set({ active: true })
-            children.Console.$set({ active: true })
+            children.console.$set({ active: true })
         })
     })
 

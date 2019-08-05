@@ -58,55 +58,55 @@
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
     beforeUpdate(() => {
-        if (!previous) return
-        if (changed.open) {
-            selectedRow = undefined
-            if (current.open) {
-                try {
-                    g.activeEditor.completion.set({ open: false })
-                } catch (e) { /* do nothing */ }
-                g.pushFocus(this)
-            } else {
-                g.popFocus(this)
-            }
-            g.app.set({
-                popup: current.open ? this : null
-            })
-        }
-        if (changed.items) {
-            for (const i of __this.rows)
-                i.destroy()
-            for (const i of __this.dividers)
-                i.destroy()
-            __this.rows.length = 0
-            __this.dividers.length = 0
-            if (!current.items) return
-            requestAnimationFrame(() => { // this.refs.contextMenu might be null if referenced immediately
-                for (const i of current.items) {
-                    if (i.divider) {
-                        const child = new ContextMenuDivider({
-                            target: contextMenu,
-                        })
-                        __this.dividers.push(child)
-                    } else {
-                        const child = new ContextMenuRow({
-                            target: contextMenu,
-                            data: i
-                        })
-                        child.parent = this
-                        __this.rows.push(child)
-                    }
-                }
-            })
-        }
-        if (changed.selectedRow) {
-            if (previous.selectedRow) previous.selectedRow.set({
-                selected: false
-            })
-            if (current.selectedRow) current.selectedRow.set({
-                selected: true
-            })
-        }
+//        if (!previous) return
+//        if (changed.open) {
+//            selectedRow = undefined
+//            if (current.open) {
+//                try {
+//                    g.activeEditor.completion.set({ open: false })
+//                } catch (e) { /* do nothing */ }
+//                g.pushFocus(this)
+//            } else {
+//                g.popFocus(this)
+//            }
+//            g.app.set({
+//                popup: current.open ? this : null
+//            })
+//        }
+//        if (changed.items) {
+//            for (const i of __this.rows)
+//                i.destroy()
+//            for (const i of __this.dividers)
+//                i.destroy()
+//            __this.rows.length = 0
+//            __this.dividers.length = 0
+//            if (!current.items) return
+//            requestAnimationFrame(() => { // this.refs.contextMenu might be null if referenced immediately
+//                for (const i of current.items) {
+//                    if (i.divider) {
+//                        const child = new ContextMenuDivider({
+//                            target: contextMenu,
+//                        })
+//                        __this.dividers.push(child)
+//                    } else {
+//                        const child = new ContextMenuRow({
+//                            target: contextMenu,
+//                            data: i
+//                        })
+//                        child.parent = this
+//                        __this.rows.push(child)
+//                    }
+//                }
+//            })
+//        }
+//        if (changed.selectedRow) {
+//            if (previous.selectedRow) previous.selectedRow.set({
+//                selected: false
+//            })
+//            if (current.selectedRow) current.selectedRow.set({
+//                selected: true
+//            })
+//        }
     })
 
     // [svelte-upgrade suggestion]

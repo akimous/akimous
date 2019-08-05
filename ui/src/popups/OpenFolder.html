@@ -4,7 +4,8 @@
         <div class="button" on:click="{home}"><i class="fas fa-home"></i></div>
         <div class="button" on:click="{up}"><i class="fas fa-arrow-up"></i></div>
         <div class="path">
-            <TextInput theme="bright" bind:value="{path}" on:click="{focusPathInput}" on:keydown|capture="{pathKeyDown}"></TextInput>
+            <TextInput theme="bright" bind:value="{path}" on:click="{focusPathInput}" on:keydown="{pathKeyDown}"></TextInput>
+<!--            <TextInput theme="bright" bind:value="{path}" on:click="{focusPathInput}" on:keydown|capture="{pathKeyDown}"></TextInput>-->
         </div>
     </div>
     <div class="list">

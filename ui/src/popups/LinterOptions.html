@@ -41,7 +41,7 @@
 {/if}
    
 <script>
-    import { beforeUpdate, onMount } from 'svelte'
+    import { beforeUpdate } from 'svelte'
 
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
@@ -62,10 +62,6 @@
     const __this = {
         get: () => ({ open, left, realtime, pyflakes, spellChecker, isort, yapf, pylint })
     }
-
-    onMount(() => {
-//        g.linterOptions = this
-    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave

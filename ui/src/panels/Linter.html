@@ -29,23 +29,22 @@
     
     $: {
         dispatch('active', {
-            id: 'Linter',
+            id: 'linter',
             active
         })
     }
     
     onMount(() => {
         __this.name = 'linter'
-//        g.linter = this
 //        initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
 
         // fill in enabled types from config
 //        const { offlineLintType } = config
-        const set = config.offlineLintType
-        for (const k in offlineLintType)
-            if (offlineLintType[k])
-                set.add(k)
-        offlineLintType = set
+//        const set = config.offlineLintType
+//        for (const k in offlineLintType)
+//            if (offlineLintType[k])
+//                set.add(k)
+//        offlineLintType = set
 
 //        makeScrollable(this, panel)
     })

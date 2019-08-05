@@ -1,5 +1,5 @@
 <script>
-    import { afterUpdate, onMount } from 'svelte'
+    import { afterUpdate } from 'svelte'
     
     import g from '../lib/Globals'
 
@@ -7,10 +7,6 @@
         active = false,
         message = '',
         callback = null
-
-    onMount(() => {
-        g.commandPalette = this
-    })
 
     afterUpdate(() => {
 //        if (changed.active && current.active) {

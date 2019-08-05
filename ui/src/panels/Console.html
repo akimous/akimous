@@ -1,3 +1,35 @@
+<div id="console" class="panel" class:gone="{!active}">
+    {#if mode === 'jupyter'}
+    <div bind:this={jupyter} class="upper-half">
+        <JupyterToolbar bind:this={g.jupyterToolbar}></JupyterToolbar>
+        <table id="jupyter-cells">
+            {#each cells as cell}
+            {#if displayInput || !cell.code }
+            <JupyterCell {...cell}></JupyterCell>
+            {/if}
+            {/each}
+        </table>
+    </div>
+    {/if}
+    <div id="terminal" bind:this={terminal} class="{mode === 'jupyter' ? 'lower-half' : 'full-height'}"></div>
+</div>
+
+
+<style>
+    .upper-half {
+        height: 70%;
+    }
+	
+    .lower-half {
+    	height: 30%;
+    }
+
+    :global(#terminal.full-height) {
+        height: 100%;
+    }
+
+</style>
+
 <script>
     import { afterUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte'
     import Terminal from 'xterm/dist/xterm'
@@ -33,14 +65,13 @@
 
     $: {
         dispatch('active', {
-            id: 'Console',
+            id: 'console',
             active
         })
     }
     onMount(() => {
         __this.name = 'console'
         __this.initializing = false
-        g.console = this
 //        initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
     })
 
@@ -303,35 +334,3 @@
         })
     }
 </script>
-
-<div id="console" class="panel" class:gone="{!active}">
-    {#if mode === 'jupyter'}
-    <div bind:this={jupyter} class="upper-half">
-        <JupyterToolbar bind:this={jupyterToolbar}></JupyterToolbar>
-        <table id="jupyter-cells">
-            {#each cells as cell}
-            {#if displayInput || !cell.code }
-            <JupyterCell {...cell}></JupyterCell>
-            {/if}
-            {/each}
-        </table>
-    </div>
-    {/if}
-    <div id="terminal" bind:this={terminal} class="{mode === 'jupyter' ? 'lower-half' : 'full-height'}"></div>
-</div>
-
-
-<style>
-    .upper-half {
-        height: 70%;
-    }
-	
-    .lower-half {
-    	height: 30%;
-    }
-
-    :global(#terminal.full-height) {
-        height: 100%;
-    }
-
-</style>

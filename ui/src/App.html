@@ -1,21 +1,21 @@
 <!--{#if initialized}-->
-<Toolbar bind:this={toolbar}></Toolbar>
+<Toolbar bind:this={g.toolbar}></Toolbar>
 <div bind:this={splitterLeft} id="split-bar-l" class="split-bar"></div>
 <div bind:this={splitterRight} id="split-bar-r" class="split-bar"></div>
-<PanelLeft bind:this={panelLeft}></PanelLeft>
-<PanelMiddle bind:this={panelMiddle}></PanelMiddle>
-<PanelRight bind:this={panelRight}></PanelRight>
-<!--<Prompt bind:this={prompt}></Prompt>-->
-<!--<ContextMenu bind:this={contextMenu}></ContextMenu>-->
-<!--<KeyboardControlHint bind:this={keyboardControlHint}></KeyboardControlHint>-->
-<!--<PanelPopup></PanelPopup>-->
-<!--<Tooltip></Tooltip>-->
+<PanelLeft bind:this={g.panelLeft}></PanelLeft>
+<PanelMiddle bind:this={g.panelMiddle}></PanelMiddle>
+<PanelRight bind:this={g.panelRight}></PanelRight>
+<Prompt bind:this={g.prompt}></Prompt>
+<ContextMenu bind:this={g.contextMenu}></ContextMenu>
+<KeyboardControlHint bind:this={g.keyboardControlHint}></KeyboardControlHint>
+<PanelPopup bind:this={g.panelPopup}></PanelPopup>
+<Tooltip bind:this={g.tooltip}></Tooltip>
 <!--{/if}-->
 {#if openFolder}
-<!--<OpenFolder></OpenFolder>-->
+<OpenFolder></OpenFolder>
 {/if}
 {#if popup}
-<!--<div id="dismiss-popup" on:mousedown="{dismissPopups}"></div>-->
+<div id="dismiss-popup" on:mousedown="{dismissPopups}"></div>
 {/if}
 
 <style>
@@ -65,14 +65,14 @@
     import PanelLeft from './PanelLeft.html'
     import PanelMiddle from './PanelMiddle.html'
     import PanelRight from './PanelRight.html'
-//    import Prompt from './popups/Prompt.html';
-//    import ContextMenu from './popups/ContextMenu.html';
-//    import KeyboardControlHint from './LayeredKeyboardControl/KeyboardControlHint.html';
-//    import PanelPopup from './popups/PanelPopup.html';
-//    import Tooltip from './lib/tooltip.html';
-//    import OpenFolder from './popups/OpenFolder.html';
-//    import Hotkeys from './LayeredKeyboardControl/Hotkeys'
-//    import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
+    import Prompt from './popups/Prompt.html'
+    import ContextMenu from './popups/ContextMenu.html'
+    import KeyboardControlHint from './LayeredKeyboardControl/KeyboardControlHint.html'
+    import PanelPopup from './popups/PanelPopup.html'
+    import Tooltip from './lib/tooltip.html'
+    import OpenFolder from './popups/OpenFolder.html'
+    import Hotkeys from './LayeredKeyboardControl/Hotkeys'
+    import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
     import g from './lib/Globals'
     import { schedule } from './lib/Utils'
 

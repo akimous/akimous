@@ -374,19 +374,18 @@
     }
 
     onMount(() => {
-        g.keyboardControlHint = this
-        description = this.get().descriptions.normal.Space
+//        description = this.get().descriptions.normal.Space
     })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
     afterUpdate(() => {
-        if (changed.open && g.toolbar) {
-            if (current.open) {
-                dragElement(self)
-            }
-        }
+//        if (changed.open && g.toolbar) {
+//            if (current.open) {
+//                dragElement(self)
+//            }
+//        }
     })
 
     // [svelte-upgrade suggestion]

@@ -10,15 +10,15 @@
     </ToolbarButton>
     <ToolbarButton on:click="{run}" iconClass="fas fa-play" title="Run" />
     <ToolbarButton on:click="{stop}" iconClass="fas fa-square" title="Stop" />
-    <CursorPosition bind:this={cursorPosition} />
+    <CursorPosition bind:this={g.cursorPosition} />
 </div>
-<CommandPalette />
+<CommandPalette bind:this={g.commandPalette} />
 <NotificationBar bind:this={children.notificationBar} />
 <TabNumber bind:this={children.tabNumber} />
-<NotificationHistory />
-<LinterOptions bind:this={linterOptions} />
-<RunConfiguration />
-<KeymapSettings />
+<NotificationHistory bind:this={g.notificationHistory} />
+<LinterOptions bind:this={g.linterOptions} />
+<RunConfiguration bind:this={g.runConfiguration} />
+<KeymapSettings bind:this={g.keymapSettings} />
 
 <style>
     #toolbar {
@@ -75,7 +75,6 @@
     onMount(() => {
         Object.assign(g, children)
 //        g.linterOptions = linterOptions
-//        g.toolbar = this
 //        schedule(() => {
 //            g.tooltip.register(run.refs.button)
 //        })
