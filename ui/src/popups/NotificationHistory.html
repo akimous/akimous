@@ -1,5 +1,5 @@
 {#if open}
-<div bind:this={notificationHistory} id="notification-history" class="popup from-top" style="left: calc({left}px - 12.5rem);">
+<div id="notification-history" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
         {#each items as {level, message}}
         <div class="item {level}">{@html message}</div>
@@ -71,8 +71,7 @@
 
     import g from '../lib/Globals'
     
-    export let notificationHistory,
-        open = false,
+    export let open = false,
         left = 0,
         items = [
             // {

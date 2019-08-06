@@ -1,4 +1,4 @@
-<div bind:this={menuItem} on:mousedown="{event => click(event, name)}" class="menu-item non-selectable">{name}</div>
+<div bind:this={self} on:mousedown="{event => click(event, name)}" class="menu-item non-selectable">{name}</div>
 
 
 <style>
@@ -21,8 +21,8 @@
     import g from '../lib/Globals'
     import { getRem } from '../lib/Utils'
 
-    export let menuItem,
-        name
+    let self
+    export let name
     
     /* eslint-disable */
     /* Note: following Sublime commands not included in menu
@@ -250,7 +250,7 @@
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function click(e, name) {
-        const { left, bottom } = menuItem.getBoundingClientRect()
+        const { left, bottom } = self.getBoundingClientRect()
         const { items, open } = g.contextMenu.get()
         if (items === menus[name] && open)
             g.contextMenu.set({ open: false })

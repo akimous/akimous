@@ -15,9 +15,6 @@
         moveCursorToParameter,
     } from '../editor/EditorFunctions'
 
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {}
     const dispatch = createEventDispatcher()
     
     export let panel,
@@ -72,11 +69,7 @@
         }
     }
 
-    
-    
     onMount(() => {
-        __this.name = 'docs'
-//        initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
         nextFrame(() => {
             splitBar.onmousedown = e => {
                 e.preventDefault()

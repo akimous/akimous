@@ -1,5 +1,5 @@
 {#if open}
-<div bind:this={linterOptions} id="linter-options" class="popup from-top" style="left: calc({left}px - 12.5rem);">
+<div id="linter-options" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
         <div class="title">Real-Time Formatter</div>
         <div class="message">Format code as you type.</div>
@@ -53,9 +53,7 @@
         spellChecker = config.linter.spellChecker,
         isort = config.formatter.isort,
         yapf = config.formatter.yapf,
-        pylint = config.linter.pylint,
-        linterOptions
-    
+        pylint = config.linter.pylint    
     
     // [svelte-upgrade suggestion]
     // manually refactor all references to __this

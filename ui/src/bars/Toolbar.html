@@ -62,13 +62,6 @@
     import CommandPalette from './CommandPalette.html'
 //    import PathIndicator from './PathIndicator.html'
 
-    export let linterOptionButton,
-        linterOptions,
-        runConfiguration,
-        runButton,
-        stopButton,
-        cursorPosition
-
     export let runConfigurationDisplay = '',
         children = {}
 
@@ -80,9 +73,7 @@
 //        })
     })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function togglePopup(name) {
+    function togglePopup(name) {
         const popup = g[name]
         const { left, right } = event.target.getBoundingClientRect()
         popup.open = !popup.open
@@ -92,7 +83,7 @@
 //        name].set({ active: !open })
     }
 
-    export function run() {
+    function run() {
         const { mode } = g.runConfiguration.get()
         if (!g.activeEditor && mode !== 'shell') {
             g.notificationBar.show('warning', 'Please open a Python file to run.')
@@ -115,7 +106,7 @@
         }
     }
 
-    export function stop() {
+    function stop() {
         g.console.stop()
     }
 </script>

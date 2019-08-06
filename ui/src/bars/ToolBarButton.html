@@ -1,4 +1,4 @@
-<div bind:this={button} class="toolbar-button" class:active="{active}" on:click aria-label="{title}">
+<div bind:this={self} class="toolbar-button" class:active="{active}" on:click aria-label="{title}">
     <slot></slot><i class="{iconClass}"></i>
 </div>
 
@@ -28,14 +28,14 @@
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
 
-    export let button,
-        active = false,
+    let self
+    export let active = false,
         title,
         iconClass
 
     onMount(() => {
         schedule(() => {
-//            g.tooltip.register(button)
+//            g.tooltip.register(self)
         })
     })
 </script>

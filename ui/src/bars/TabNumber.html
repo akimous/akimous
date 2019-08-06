@@ -1,5 +1,5 @@
 {#if active}
-<div bind:this={tabNumberHint} id="tab-number-hint">
+<div id="tab-number-hint">
     {#each numberOffsets as offset, i} {#if i < 9} 
        <span class="number l-orange" style="left:{offset}px">{i + 1}</span>
     {/if} {/each}
@@ -30,8 +30,7 @@
 
     import g from '../lib/Globals'
     
-    export let tabNumberHint,
-        active = false,
+    export let active = false,
         numberOffsets = []
 
     // [svelte-upgrade warning]

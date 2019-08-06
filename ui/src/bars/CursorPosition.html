@@ -39,11 +39,7 @@
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
 
-    export let indentSwitch,
-        indentSizeInput,
-        indentDisplay,
-        cursorPosition,
-        indentWithTabs = false,
+    export let indentWithTabs = false,
         isMakefile = false,
         editingIndentSize = false,
         indentSize = 4,
@@ -51,6 +47,10 @@
         ch = 0
     
     $: indentDisplay = indentWithTabs ? 'Tab Size' : 'Spaces'
+    
+    let indentSwitch,
+        indentSizeInput,
+        cursorPosition
 
     onMount(() => {
 //        schedule(() => {

@@ -1,5 +1,5 @@
 <div bind:this={self} id="panel-left" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
-    <TabBar bind:this={tabBar} id="tab-bar-left"></TabBar>
+    <TabBar bind:this={tabBar}></TabBar>
     <FileTree bind:this={children.fileTree} on:active="{(e) => onTabChange(e)}"></FileTree>
     <Outline bind:this={children.outline} on:active="{(e) => onTabChange(e)}"></Outline>
 </div>

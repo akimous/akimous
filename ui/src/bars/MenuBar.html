@@ -1,12 +1,4 @@
-<script>
-    import g from '../lib/Globals'
-    import MenuItem from './MenuItem.html'
-    
-    export let container
-</script>
-
-
-<div bind:this={container} id="menu-bar">
+<div id="menu-bar">
     <MenuItem name="File"></MenuItem>
     <MenuItem name="Edit"></MenuItem>
     <MenuItem name="Select"></MenuItem>
@@ -24,3 +16,10 @@
     }
 
 </style>
+
+
+<script>
+    import g from '../lib/Globals'
+    import MenuItem from './MenuItem.html'
+    
+</script>

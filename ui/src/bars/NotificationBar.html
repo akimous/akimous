@@ -1,4 +1,4 @@
-<div bind:this={notificationBar} id="notification-bar" class="{level} non-selectable" class:gone="{!active}">
+<div id="notification-bar" class="{level} non-selectable" class:gone="{!active}">
     {@html message} {#each actions as action}
     <span class="action" on:click="{() => doAction(action)}">
         {action.name}
@@ -68,8 +68,7 @@
 <script>
     import g from '../lib/Globals'
 
-    export let notificationBar,
-        level = 'question',
+    export let level = 'question',
         active = false,
         message = '',
         actions = []

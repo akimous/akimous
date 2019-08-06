@@ -1,5 +1,5 @@
 {#if open}
-<div bind:this={runConfiguration} id="run-configuration" class="popup from-top" style="left: calc({left}px - 12.5rem);">
+<div id="run-configuration" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
         <div class="title">Run Configuration</div>
         <div class="message">Choose a way to run your program.</div>
@@ -20,7 +20,7 @@
         </div>
         <div class="title with-button">
             Shell
-            <ToggleButton bind:this={edit} on:click="{onClickEdit}">{ editing ? 'Done' : 'Edit' }</ToggleButton>
+            <ToggleButton on:click="{onClickEdit}">{ editing ? 'Done' : 'Edit' }</ToggleButton>
         </div>
 
         {#each shellCommands as command, i}
@@ -84,9 +84,7 @@
         get: () => ({ open, left, cwd, args, mode, editing, shellCommands, shellCommandIndex, allowWhiteSpace })
     }
 
-    export let runConfiguration,
-        edit,
-        open = false,
+    export let open = false,
         left = 0,
         cwd = '',
         args = 'args',

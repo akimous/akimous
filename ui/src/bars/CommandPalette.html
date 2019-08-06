@@ -1,38 +1,3 @@
-<script>
-    import { afterUpdate } from 'svelte'
-    
-    import g from '../lib/Globals'
-
-    export let input = '',
-        active = false,
-        message = '',
-        callback = null
-
-    afterUpdate(() => {
-//        if (changed.active && current.active) {
-//            g.setFocus([this])
-//            input.focus()
-//        }
-    })
-
-    export function show() {
-        active = true
-        message = 'Command:'
-    }
-
-    export function promptForInput(message, callback) {
-//        active = true, message = message, callback = callback
-    }
-
-    export function onKeyDown() {
-        if (event.key === 'Enter') {
-            const { value } = input
-            callback(value)
-            active = false
-        }
-    }
-</script>
-
 <div id="command-palette" class="non-selectable" class:gone="{!active}">
     <span class="message">{message}</span>
     <input bind:this={input} type="text" spellcheck="false" on:keydown="{onKeyDown}" />
@@ -71,3 +36,38 @@
     }
 
 </style>
+
+<script>
+    import { afterUpdate } from 'svelte'
+    
+    import g from '../lib/Globals'
+
+    export let input = '',
+        active = false,
+        message = '',
+        callback = null
+
+    afterUpdate(() => {
+//        if (changed.active && current.active) {
+//            g.setFocus([this])
+//            input.focus()
+//        }
+    })
+
+    export function show() {
+        active = true
+        message = 'Command:'
+    }
+
+//    export function promptForInput(message, callback) {
+//        active = true, message = message, callback = callback
+//    }
+
+    export function onKeyDown() {
+        if (event.key === 'Enter') {
+            const { value } = input
+            callback(value)
+            active = false
+        }
+    }
+</script>

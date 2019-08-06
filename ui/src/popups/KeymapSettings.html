@@ -1,5 +1,5 @@
 {#if open}
-<div bind:this={keymapSettings} id="keymap-settings" class="popup from-top" style="left: calc({left}px - 12.5rem);">
+<div id="keymap-settings" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
         <div class="title">Keymap Settings</div>
         <div class="option" class:checked="{layeredKeyboardControl}" on:click="{() => toggle('layeredKeyboardControl')}">
@@ -24,8 +24,6 @@
     const __this = {
         get: () => ({ open, left, layeredKeyboardControl, keymapHint })
     }
-
-    export let keymapSettings
 
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'

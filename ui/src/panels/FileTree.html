@@ -1,4 +1,4 @@
-<div bind:this={fileTree} class="file-tree non-selectable tab-view" class:gone="{!active}">
+<div bind:this={self} class="file-tree non-selectable tab-view" class:gone="{!active}">
     <div class="container" bind:this={container}>
         {#each dirs as i (i.uid)}
         <FileTreeNode bind:this={children[i.name]} name={i.name} parent={self} isDir on:created={onChildNodeCreation}></FileTreeNode>
@@ -33,19 +33,12 @@
     
     import FileTreeNode from './FileTreeNode.html'
 
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ active, dirs, self, files, root })
-    }
     const dispatch = createEventDispatcher()
-
-    export let fileTree,
-        children = {},
-        container,
+    const nodeCreatedCallbacks = {}
+    let session, keyEventHandler, self, container
+    export let children = {},
         active = false,
         dirs = [],
-        self = null,
         files = [],
         root = []
 
@@ -76,12 +69,8 @@
     }
 
     onMount(() => {
-        __this.name = 'fileTree'
-        __this.nodeCreatedCallbacks = {}
-//        initializeTabView(this, 'FileTree', 'fas fa-tree l-green')
-
-        __this.session = g.socket.createSession('fileTree')
-        const { handlers } = __this.session
+        session = g.socket.createSession('fileTree')
+        const { handlers } = session
         
         const moveToFirstChildWhenReady = () => {
             if (!g.ready) {
@@ -107,8 +96,8 @@
         handlers['Failed'] = message => {
             g.notificationBar.show('error', message)
         }
-        __this.session.send('OpenDir', {
-            path: __this.get().root,
+        session.send('OpenDir', {
+            path: root,
         })
 
         const renamingEventHandler = ({ path, newName }, event) => {
@@ -148,9 +137,9 @@
                     })
                     // select newly created file or folder
                     const stringifiedPath = JSON.stringify(path)
-                    const callback = __this.nodeCreatedCallbacks[stringifiedPath]
+                    const callback = nodeCreatedCallbacks[stringifiedPath]
                     if (callback) {
-                        delete __this.nodeCreatedCallbacks[stringifiedPath]
+                        delete nodeCreatedCallbacks[stringifiedPath]
                         setTimeout(() => {
                             callback(getNode(path))
                         })
@@ -183,7 +172,7 @@
             }
         })
 
-        __this.keyEventHandler = {
+        keyEventHandler = {
             handleKeyEvent(event, target) {
                 if (g.focus.constructor.name === 'FileTreeNode' && g.focus.get().renaming)
                     return true
@@ -259,7 +248,7 @@
     })
 
     onDestroy(() => {
-        __this.session && __this.session.close()
+        session && session.close()
     })
 
     // [svelte-upgrade suggestion]
@@ -319,7 +308,7 @@
         parent.refs.row.scrollIntoViewIfNeeded(false)
     }
 
-    export function enter() {
+    export const enter = () => {
         const node = g.focus
         if (node.constructor.name !== 'FileTreeNode') return
         node.onDoubleClick()
@@ -329,7 +318,7 @@
         const focus = g.focus
         if (focus.constructor.name !== 'FileTreeNode') return
 
-        const x = fileTree.getBoundingClientRect().right
+        const x = self.getBoundingClientRect().right
         const y = focus.refs.row.getBoundingClientRect().top
         focus.onContextMenu({
             clientX: x - 10,
@@ -352,12 +341,12 @@
     }
 
     export function bottom() {
-        const anyNode = Object.values(__this.children)[0]
+        const anyNode = Object.values(children)[0]
         if (!anyNode) return
         anyNode.lastChild.bind(this)().onClick()
     }
 
     export function addNodeCreatedCallback(path, callback) {
-        __this.nodeCreatedCallbacks[JSON.stringify(path)] = callback
+        nodeCreatedCallbacks[JSON.stringify(path)] = callback
     }
 </script>

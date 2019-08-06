@@ -27,12 +27,12 @@
     import Tab from './Tab.html'
     import { nextFrame } from '../lib/Utils.js'
 
-    export let tabBar,
-        tabData = [],
+    export let tabData = [],
         tabs = {}
 
     let tabFittingTask = -1,
-        sortable
+        sortable,
+        tabBar
 
     onMount(() => {
         sortable = Sortable.create(tabBar, { animation: 0 })

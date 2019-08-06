@@ -67,12 +67,13 @@
     const __this = {}
     const dispatch = createEventDispatcher()
 
-    export let panel,
-        outline,
-        row,
-        active = false,
+    export let active = false,
         outlineItems = [],
         currentLine = 0
+    
+    let panel,
+        outline,
+        row
 
     $: {
         dispatch('active', {
@@ -88,13 +89,11 @@
 //        makeScrollable(this, panel)
     })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function onFocus() {
+    function onFocus() {
         g.setFocus([g.panelLeft, this])
     }
 
-    export function generateOutline(cm) {
+    export const generateOutline = (cm) => {
         const lineCount = cm.lineCount()
         const indentUnit = cm.getOption('indentUnit')
         const result = []
@@ -149,7 +148,7 @@
         return result
     }
 
-    export function jumpTo(line, name) {
+    function jumpTo(line, name) {
         let ch = 0
         const lineContent = g.activeEditor.cm.getLine(line)
         ch = lineContent.indexOf(name)
