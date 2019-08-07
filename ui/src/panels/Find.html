@@ -11,7 +11,7 @@
         <Button corner="0010" active={wholeWord} on:click="{() => wholeWord = !wholeWord}" title="Whole Word"><i class="far fa-square"></i></Button>
         {/if}
         <span class="gap"></span>
-        <Button bind:this={findPrevious} corner="0001" on:click="{() => findNext(-1)}" title="Find Previous"><i class="fas fa-caret-left"></i></Button>
+        <Button bind:this={findPreviousButton} corner="0001" on:click="{() => findNext(-1)}" title="Find Previous"><i class="fas fa-caret-left"></i></Button>
         <Button bind:this={findNextButton} corner="0010" on:click="{() => findNext(1)}" title="Find Next"><i class="fas fa-caret-right"></i></Button>
     </div>
     {#if replaceMode}
@@ -147,10 +147,7 @@
         className: 'cm-searching-marked'
     }
 
-    export let panel,
-        findPrevious,
-        findNextButton,
-        active = false,
+    export let active = false,
         findText = '',
         caseSensitive = false,
         regex = false,
@@ -168,6 +165,8 @@
         currentFilePath = [],
         currentCh = 0,
         cannotDisplay = false
+    
+    let panel, findPreviousButton, findNextButton
     
     $: {
         dispatch('active', {
@@ -258,7 +257,7 @@
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
-    export function onFocus() {
+    export const onFocus = () => {
         g.setFocus([g.panelRight, this])
     }
 

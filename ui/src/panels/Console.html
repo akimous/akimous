@@ -46,10 +46,7 @@
     const dispatch = createEventDispatcher()
     Terminal.applyAddon(fit)
 
-    export let jupyter,
-        jupyterToolbar,
-        terminal,
-        active = false,
+    export let active = false,
         mode = '',
         cells = [
             // {
@@ -61,6 +58,7 @@
         displayInput = false,
         ready = false
 
+    let jupyter, jupyterToolBar, terminal
 
     $: {
         dispatch('active', {

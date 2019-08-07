@@ -88,11 +88,12 @@
     const __this = {}
     const dispatch = createEventDispatcher()
 
-    export let panel,
-        definitions = [],
+    export let definitions = [],
         assignments = [],
         usages = [],
         active = false
+    
+    let panel
 
     $: {
         dispatch('active', {
@@ -119,8 +120,6 @@
     }
 
     onMount(() => {
-        __this.name = 'references'
-//        initializeTabView(this, 'References', 'fas fa-link l-ao')
 //        makeScrollable(this, panel)
     })
 
@@ -146,11 +145,11 @@
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
-    export function onFocus() {
+    export const onFocus = () => {
         g.setFocus([g.panelRight, this])
     }
 
-    export function jumpTo(row) {
+    export const jumpTo = (row) => {
         g.panelMiddle.openFile(row.path, () => {
             const cm = setCursorAndScrollIntoView(row.line, row.from)
             cm.extendSelection(Pos(row.line, row.from), Pos(row.line, row.to))

@@ -1,5 +1,5 @@
-<div bind:this={panelMiddle} id="panel-middle" class="{focused?'indicator-on':''}">
-    <TabBar bind:this={tabBar} id="tab-bar" on:requestTabClose="{(e) => closeView(e.detail.view)}"></TabBar>
+<div bind:this={self} id="panel-middle" class="{focused?'indicator-on':''}">
+    <TabBar bind:this={tabBar} on:requestTabClose="{(e) => closeView(e.detail.view)}"></TabBar>
     {#if !focus}
     <div class="placeholder non-selectable">Double click on a file on the file tree to open.</div>
     {/if}
@@ -53,13 +53,11 @@
     }
     const MAX_ACTIVATION_HISTORY = 32
 
-    export let panelMiddle,
-        tabBar,
-        focused = false,
+    export let focused = false,
         focus = null,
         pathToEditor = {}
     
-    let onTabChange
+    let onTabChange, self, tabBar
 
     onMount(() => {
         onTabChange = onTabChangeFactory(tabBar, editors)

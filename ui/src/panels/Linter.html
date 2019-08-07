@@ -1,177 +1,3 @@
-<script>
-    import { onMount, createEventDispatcher } from 'svelte'
-
-    import g from '../lib/Globals'
-    import { config, setConfig } from '../lib/ConfigManager'
-    import { makeScrollable } from '../lib/UIUtils'
-    import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
-    
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ width, offlineLints, offlineLintType, active, pyflakes, spellChecker, pylint, realtimeLints, currentLine, spellingErrors, OFFLINE_LINT_TYPES })
-    }
-    const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
-    const domParser = new DOMParser()
-    const dispatch = createEventDispatcher()
-
-    export let panel,
-        width = 100,
-        offlineLints = [],
-        offlineLintType = new Set(),
-        active = false,
-        pyflakes = config.linter.pyflakes,
-        spellChecker = config.linter.spellChecker,
-        pylint = config.linter.pylint,
-        realtimeLints = [],
-        currentLine = 0,
-        spellingErrors = []
-    
-    $: {
-        dispatch('active', {
-            id: 'linter',
-            active
-        })
-    }
-    
-    onMount(() => {
-        __this.name = 'linter'
-//        initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
-
-        // fill in enabled types from config
-//        const { offlineLintType } = config
-//        const set = config.offlineLintType
-//        for (const k in offlineLintType)
-//            if (offlineLintType[k])
-//                set.add(k)
-//        offlineLintType = set
-
-//        makeScrollable(this, panel)
-    })
-
-    export let typeStrings;
-//    $: {
-//        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-//        if (width > 24 * rem)
-//            typeStrings = {
-//                informational: 'Info',
-//                refactor: 'Refactor',
-//                convention: 'Convention',
-//                warning: 'Warning',
-//                error: 'Error',
-//            }
-//        return {
-//            informational: 'I',
-//            refactor: 'R',
-//            convention: 'C',
-//            warning: 'W',
-//            error: 'E',
-//        }
-//    }
-
-    export let offlineLintCounts;
-    $: {
-        const result = {
-            informational: 0,
-            refactor: 0,
-            convention: 0,
-            warning: 0,
-            error: 0
-        }
-        for (const x of offlineLints) {
-            if (result[x.type] === undefined) continue
-            result[x.type] += 1
-        }
-        offlineLintCounts = result
-    }
-
-    export let filteredOfflineLints;
-    $: {
-        filteredOfflineLints = offlineLints.filter(x => {
-            return offlineLintType.has(x.type)
-        })
-    }
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function onFocus() {
-        g.setFocus([g.panelRight, this])
-    }
-
-    export function clear() {
-        offlineLints = [], realtimeLints = [], spellingErrors = []
-    }
-
-    export function jumpTo(line, ch) {
-        setCursorAndScrollIntoView(line - 1, ch)
-    }
-
-    export function showPopup(i, event) {
-        const { x, y, height } = event.currentTarget.getBoundingClientRect()
-        const message = __this.get().offlineLints[i]
-        g.popup.set({
-            open: true,
-            content: `<table>
-                    <tr>
-				                <td class="key">Location</td>
-				                <td class="value">
-                            Line ${message.line}, column ${message.column}
-                            <div class="code">${message.message1}</div>
-                        </td>
-			                </tr>
-                    <tr>
-				                <td class="key">Problem</td>
-				                <td class="value">${message['message-id']}: ${message.symbol}</td>
-			                </tr>
-                    <tr>
-				                <td class="key">Message</td>
-				                <td class="value">${message.message0}</td>
-			                </tr>
-                </table>`
-        })
-        g.popup.reposition(x, y + height / 2)
-    }
-
-    export function closePopup(event) {
-        g.popup.closeIfNotHovered(event)
-    }
-
-    export function toggle(setName, item) {
-        const set = __this.get()[setName]
-        if (set.has(item))
-            set.delete(item)
-        else
-            set.add(item)
-        setName = set
-        setConfig(setName, {
-            [item]: set.has(item)
-        })
-    }
-
-    export function addToDictionary(wordHighlight) {
-        const parsedDocument = domParser.parseFromString(wordHighlight, 'text/html')
-        const words = []
-        for (const i of parsedDocument.querySelectorAll('em'))
-            words.push(i.innerText)
-        event.stopPropagation()
-        g.projectSession.send('AddToProjectDictionary', words)
-        requestAnimationFrame(() => {
-            const editor = g.activeEditor
-            const { line } = editor.cm.getCursor()
-            const lineContent = editor.cm.getLine(line)
-            editor.syncChanges(line, lineContent)
-        })
-    }
-
-    export function mouseEnter() {
-        g.tooltip.mouseEnterListener(event)
-    }
-
-    export function mouseLeave() {
-        g.tooltip.mouseLeaveListener(event)
-    }
-</script>
-
 <div bind:this={panel} id="linter" class="panel" class:gone="{!active}" on:click="{onFocus}">
     {#if !pyflakes && !spellChecker && !pylint}
     <table>
@@ -325,3 +151,178 @@
     }
 
 </style>
+
+<script>
+    import { onMount, createEventDispatcher } from 'svelte'
+
+    import g from '../lib/Globals'
+    import { config, setConfig } from '../lib/ConfigManager'
+    import { makeScrollable } from '../lib/UIUtils'
+    import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
+    
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ width, offlineLints, offlineLintType, active, pyflakes, spellChecker, pylint, realtimeLints, currentLine, spellingErrors, OFFLINE_LINT_TYPES })
+    }
+    const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
+    const domParser = new DOMParser()
+    const dispatch = createEventDispatcher()
+
+    export let width = 100,
+        offlineLints = [],
+        offlineLintType = new Set(),
+        active = false,
+        pyflakes = config.linter.pyflakes,
+        spellChecker = config.linter.spellChecker,
+        pylint = config.linter.pylint,
+        realtimeLints = [],
+        currentLine = 0,
+        spellingErrors = []
+    
+    let panel
+    
+    $: {
+        dispatch('active', {
+            id: 'linter',
+            active
+        })
+    }
+    
+    onMount(() => {
+        __this.name = 'linter'
+//        initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
+
+        // fill in enabled types from config
+//        const { offlineLintType } = config
+//        const set = config.offlineLintType
+//        for (const k in offlineLintType)
+//            if (offlineLintType[k])
+//                set.add(k)
+//        offlineLintType = set
+
+//        makeScrollable(this, panel)
+    })
+
+    let typeStrings
+//    $: {
+//        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+//        if (width > 24 * rem)
+//            typeStrings = {
+//                informational: 'Info',
+//                refactor: 'Refactor',
+//                convention: 'Convention',
+//                warning: 'Warning',
+//                error: 'Error',
+//            }
+//        return {
+//            informational: 'I',
+//            refactor: 'R',
+//            convention: 'C',
+//            warning: 'W',
+//            error: 'E',
+//        }
+//    }
+
+    let offlineLintCounts
+    $: {
+        const result = {
+            informational: 0,
+            refactor: 0,
+            convention: 0,
+            warning: 0,
+            error: 0
+        }
+        for (const x of offlineLints) {
+            if (result[x.type] === undefined) continue
+            result[x.type] += 1
+        }
+        offlineLintCounts = result
+    }
+
+    let filteredOfflineLints
+    $: {
+        filteredOfflineLints = offlineLints.filter(x => {
+            return offlineLintType.has(x.type)
+        })
+    }
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export const onFocus = () => {
+        g.setFocus([g.panelRight, this])
+    }
+
+    export function clear() {
+        offlineLints = [], realtimeLints = [], spellingErrors = []
+    }
+
+    export const jumpTo = (line, ch) => {
+        setCursorAndScrollIntoView(line - 1, ch)
+    }
+
+    export function showPopup(i, event) {
+        const { x, y, height } = event.currentTarget.getBoundingClientRect()
+        const message = __this.get().offlineLints[i]
+        g.popup.set({
+            open: true,
+            content: `<table>
+                    <tr>
+				                <td class="key">Location</td>
+				                <td class="value">
+                            Line ${message.line}, column ${message.column}
+                            <div class="code">${message.message1}</div>
+                        </td>
+			                </tr>
+                    <tr>
+				                <td class="key">Problem</td>
+				                <td class="value">${message['message-id']}: ${message.symbol}</td>
+			                </tr>
+                    <tr>
+				                <td class="key">Message</td>
+				                <td class="value">${message.message0}</td>
+			                </tr>
+                </table>`
+        })
+        g.popup.reposition(x, y + height / 2)
+    }
+
+    export const closePopup = (event) => {
+        g.popup.closeIfNotHovered(event)
+    }
+
+    export function toggle(setName, item) {
+        const set = __this.get()[setName]
+        if (set.has(item))
+            set.delete(item)
+        else
+            set.add(item)
+        setName = set
+        setConfig(setName, {
+            [item]: set.has(item)
+        })
+    }
+
+    export function addToDictionary(wordHighlight) {
+        const parsedDocument = domParser.parseFromString(wordHighlight, 'text/html')
+        const words = []
+        for (const i of parsedDocument.querySelectorAll('em'))
+            words.push(i.innerText)
+        event.stopPropagation()
+        g.projectSession.send('AddToProjectDictionary', words)
+        requestAnimationFrame(() => {
+            const editor = g.activeEditor
+            const { line } = editor.cm.getCursor()
+            const lineContent = editor.cm.getLine(line)
+            editor.syncChanges(line, lineContent)
+        })
+    }
+
+    export const mouseEnter = () => {
+        g.tooltip.mouseEnterListener(event)
+    }
+
+    export const mouseLeave = () => {
+        g.tooltip.mouseLeaveListener(event)
+    }
+</script>

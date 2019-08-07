@@ -1,6 +1,6 @@
 <div id="toolbar">
     <MenuBar bind:this={children.menuBar} />
-<!--    <PathIndicator />-->
+    <PathIndicator bind:this={children.pathIndicator} />
     <ToolbarButton on:click="{() => togglePopup('linterOptions')}" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
     <ToolbarButton on:click="{() => togglePopup('keymapSettings')}" iconClass="fas fa-fw fa-keyboard" title="Keymap Settings" />
     <ToolbarButton on:click="{() => togglePopup('notificationHistory')}" iconClass="fas fa-fw fa-bell" title="Notification History" />
@@ -60,7 +60,7 @@
     import MenuBar from './MenuBar.html'
     import CursorPosition from './CursorPosition.html'
     import CommandPalette from './CommandPalette.html'
-//    import PathIndicator from './PathIndicator.html'
+    import PathIndicator from './PathIndicator.html'
 
     export let runConfigurationDisplay = '',
         children = {}

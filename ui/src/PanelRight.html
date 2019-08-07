@@ -1,5 +1,5 @@
 <div id="panel-right" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
-    <TabBar bind:this={tabBar} id="tab-bar-right"></TabBar>
+    <TabBar bind:this={tabBar}></TabBar>
     <Console bind:this={children.console} on:active="{(e) => onTabChange(e)}"></Console>
     <Find bind:this={children.find} on:active="{(e) => onTabChange(e)}"></Find>
     <Linter bind:this={children.linter} on:active="{(e) => onTabChange(e)}"></Linter>

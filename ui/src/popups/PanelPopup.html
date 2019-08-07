@@ -1,4 +1,4 @@
-<div id="panel-popup" class="popup" bind:this={popup} class:gone="{!open}" on:mouseleave="{() => open = false}">{@html content} <div id="popup-arrow"></div></div>
+<div id="panel-popup" class="popup" bind:this={self} class:gone="{!open}" on:mouseleave="{() => open = false}">{@html content} <div id="popup-arrow"></div></div>
 
 
 <style>
@@ -57,22 +57,22 @@
 </style>
 
 <script>    
-    export let popup,
-        open = false,
+    export let open = false,
         content = ''
+    let self
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function reposition(x, y) {
         const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-        const { height } = popup.getBoundingClientRect()
+        const { height } = self.getBoundingClientRect()
         let yAdjusted = y - height / 2
         if (y + height / 2 > document.documentElement.clientHeight)
             yAdjusted = document.documentElement.clientHeight - height
         if (yAdjusted < 0)
             yAdjusted = 0
-        popup.style.left = `${x - 36 * rem}px`
-        popup.style.top = `${yAdjusted}px`
+        self.style.left = `${x - 36 * rem}px`
+        self.style.top = `${yAdjusted}px`
         const el = document.querySelector('#popup-arrow')
         el.style.top = `${y - yAdjusted}px`
     }

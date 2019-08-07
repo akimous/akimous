@@ -1,4 +1,4 @@
-<div bind:this={pathIndicator} id="path-indicator">
+<div bind:this={self} id="path-indicator">
     {display}
 </div>
 
@@ -25,14 +25,15 @@
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
     
-    export let pathIndicator,
-        display = '',
+    export let display = '',
         path = [],
         availableWidth = 0
+    
+    let self
 
     onMount(() => {
         const setAvailableWidth = () => {
-            availableWidth = this.refs.pathIndicator.getBoundingClientRect().width
+            availableWidth = self.getBoundingClientRect().width
         }
         window.addEventListener('resize', throttle(setAvailableWidth))
         setAvailableWidth()
@@ -42,11 +43,11 @@
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
     beforeUpdate(() => {
-        if (changed.path || changed.availableWidth) {
-            schedule(() => {
-                display = this.fitWidth()
-            })
-        }
+//        if (changed.path || changed.availableWidth) {
+//            schedule(() => {
+//                display = this.fitWidth()
+//            })
+//        }
     })
 
     // [svelte-upgrade suggestion]

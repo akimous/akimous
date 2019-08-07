@@ -1,3 +1,93 @@
+<!--Don't set it to panel class, or CSS will break-->
+<div bind:this={panel} id="docs" class:gone="{!active}" on:click="{onFocus}">
+    <div bind:this={docContainer} id="function-doc-container" class:expand="{!completionDoc}">
+        <div bind:this={functionDoc} on:click="{onClickFunctionDoc}" id="function-doc" class:text-docstring="{functionDocType!=='html'}">
+            {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
+            <h2>Function Documentation</h2>
+            <p>Move the cursor inside function parentheses to show its docstring.</p>
+            {/if}
+        </div>
+    </div>
+    <div bind:this={splitBar} id="doc-split-bar" class:gone="{!completionDoc}"></div>
+    {#if completionDoc}
+    <div id="doc-mask" class="mask"></div>
+    <div id="completion-doc-container">
+        <div bind:this={completionDoc} id="completion-doc" class:text-docstring="{functionDocType!=='html'}">
+            {#if completionDocType==='html'} {@html completionDoc} {:else} {completionDoc} {/if} </div>
+    </div>
+    {/if}
+</div>
+
+<style>
+    #doc-split-bar {
+        position: absolute;
+        top: calc(var(--function-doc-height) + var(--toolbar-height) - .4rem);
+        left: 0;
+        height: .9rem;
+        width: 100%;
+        cursor: row-resize;
+        z-index: 120;
+    }
+
+    #doc-mask {
+        position: absolute;
+        top: calc(var(--function-doc-height) + var(--toolbar-height) - .4rem);
+        z-index: 110;
+        width: 100%;
+        background: linear-gradient(transparent 0%, var(--panel-color) 45%, var(--gray6) 45%, var(--gray6) 55%, var(--panel-color) 55%, transparent 100%);
+        height: .9rem;
+    }
+
+    #doc-split-bar:hover {
+        background: var(--accent4);
+        background: linear-gradient(to bottom,
+            transparent 30%, var(--accent4) 30%,
+            var(--accent4) 70%,
+            transparent 70%);
+    }
+
+    #function-doc-container {
+        position: absolute;
+        height: var(--function-doc-height);
+        width: 100%;
+        border-bottom: var(--panel-border);
+        overflow-y: scroll;
+    }
+
+    #function-doc-container.expand {
+        height: calc(100% - var(--toolbar-height) - var(--indicator-height));
+        border-bottom: none;
+    }
+
+    #completion-doc-container {
+        position: absolute;
+        top: calc(var(--function-doc-height) + var(--toolbar-height));
+        height: calc(100% - var(--function-doc-height));
+        width: 100%;
+        overflow-y: scroll;
+    }
+
+    #function-doc {
+        margin: .5rem;
+        margin-bottom: 1rem;
+    }
+
+    #completion-doc {
+        margin: .5rem;
+        margin-bottom: 1rem;
+    }
+
+    .text-docstring {
+        white-space: pre-wrap;
+        font-family: var(--monospace-font-family);
+    }
+
+    :global(.highlight-parameter) {
+        background: var(--gray9);
+    }
+
+</style>
+
 <script>
     import { onMount, createEventDispatcher } from 'svelte'
     import throttle from 'lodash.throttle'
@@ -17,16 +107,15 @@
 
     const dispatch = createEventDispatcher()
     
-    export let panel,
-        docContainer,
-        splitBar,
-        active = false,
+    export let active = false,
         completionDoc = null,
         functionDocType = 'html',
         functionDoc = null,
         completionDocType = 'html',
         functionDocTriggeredFile = '',
         functionDocTriggeredPos = null
+    
+    let panel, docContainer, splitBar
     
     $: {
         dispatch('active', {
@@ -88,7 +177,7 @@
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
-    export function onFocus() {
+    export const onFocus = () => {
         g.setFocus([g.panelRight, this])
     }
 
@@ -146,7 +235,7 @@
         }
     }
 
-    export function getParameterNameFromFunctionSignature(signature, index) {
+    export const getParameterNameFromFunctionSignature = (signature, index) => {
         const parameterList = getParameterListFromFunctionSignature(signature)
         if (parameterList.length <= index) {
             return // index out of bound
@@ -158,7 +247,7 @@
         return parameter
     }
 
-    export function getParameterListFromFunctionSignature(signature) {
+    export const getParameterListFromFunctionSignature = (signature) => {
         const stack = []
         const result = []
         const length = signature.length
@@ -191,7 +280,7 @@
         return result
     }
 
-    export function getActiveParameter(cm, cursor) {
+    export const getActiveParameter = (cm, cursor) => {
         const pos = { line: cursor.line, ch: cursor.ch }
         // backward search
         let kwarg = scanInSameLevelOfBraces(cm, cursor, findParameterName)
@@ -299,93 +388,3 @@
         }
     }
 </script>
-
-<!--Don't set it to panel class, CSS will break-->
-<div bind:this={panel} id="docs" class:gone="{!active}" on:click="{onFocus}">
-    <div bind:this={docContainer} id="function-doc-container" class:expand="{!completionDoc}">
-        <div bind:this={functionDoc} on:click="{onClickFunctionDoc}" id="function-doc" class:text-docstring="{functionDocType!=='html'}">
-            {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
-            <h2>Function Documentation</h2>
-            <p>Move the cursor inside function parentheses to show its docstring.</p>
-            {/if}
-        </div>
-    </div>
-    <div bind:this={splitBar} id="doc-split-bar" class:gone="{!completionDoc}"></div>
-    {#if completionDoc}
-    <div id="doc-mask" class="mask"></div>
-    <div id="completion-doc-container">
-        <div bind:this={completionDoc} id="completion-doc" class:text-docstring="{functionDocType!=='html'}">
-            {#if completionDocType==='html'} {@html completionDoc} {:else} {completionDoc} {/if} </div>
-    </div>
-    {/if}
-</div>
-
-<style>
-    #doc-split-bar {
-        position: absolute;
-        top: calc(var(--function-doc-height) + var(--toolbar-height) - .4rem);
-        left: 0;
-        height: .9rem;
-        width: 100%;
-        cursor: row-resize;
-        z-index: 120;
-    }
-
-    #doc-mask {
-        position: absolute;
-        top: calc(var(--function-doc-height) + var(--toolbar-height) - .4rem);
-        z-index: 110;
-        width: 100%;
-        background: linear-gradient(transparent 0%, var(--panel-color) 45%, var(--gray6) 45%, var(--gray6) 55%, var(--panel-color) 55%, transparent 100%);
-        height: .9rem;
-    }
-
-    #doc-split-bar:hover {
-        background: var(--accent4);
-        background: linear-gradient(to bottom,
-            transparent 30%, var(--accent4) 30%,
-            var(--accent4) 70%,
-            transparent 70%);
-    }
-
-    #function-doc-container {
-        position: absolute;
-        height: var(--function-doc-height);
-        width: 100%;
-        border-bottom: var(--panel-border);
-        overflow-y: scroll;
-    }
-
-    #function-doc-container.expand {
-        height: calc(100% - var(--toolbar-height) - var(--indicator-height));
-        border-bottom: none;
-    }
-
-    #completion-doc-container {
-        position: absolute;
-        top: calc(var(--function-doc-height) + var(--toolbar-height));
-        height: calc(100% - var(--function-doc-height));
-        width: 100%;
-        overflow-y: scroll;
-    }
-
-    #function-doc {
-        margin: .5rem;
-        margin-bottom: 1rem;
-    }
-
-    #completion-doc {
-        margin: .5rem;
-        margin-bottom: 1rem;
-    }
-
-    .text-docstring {
-        white-space: pre-wrap;
-        font-family: var(--monospace-font-family);
-    }
-
-    :global(.highlight-parameter) {
-        background: var(--gray9);
-    }
-
-</style>

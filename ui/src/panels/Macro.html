@@ -1,122 +1,3 @@
-<script>
-    import { onMount, createEventDispatcher } from 'svelte'
-    
-    import g from '../lib/Globals'
-    import { schedule } from '../lib/Utils'
-    import { makeScrollable } from '../lib/UIUtils'
-    import { config, setConfig } from '../lib/ConfigManager'
-    
-    import TextInput from '../lib/TextInput.html'
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ active, clipboard, macroFormatWithShift, macros, allowWhiteSpace })
-    }
-    const dispatch = createEventDispatcher()
-
-    export let panel,
-        active = false,
-        clipboard = [],
-        macroFormatWithShift = '${NAME} =',
-        macros = {},
-        allowWhiteSpace = true
-    
-    $: {
-        dispatch('active', {
-            id: 'macro',
-            active
-        })
-    }
-    
-    onMount(() => {
-        __this.name = 'macro'
-//        initializeTabView(this, 'Macro', 'fas fa-magic l-orange')
-
-        // load config
-        const { macroFormatWithShift } = config.macro
-        macroFormatWithShift = macroFormatWithShift
-
-        // load macros
-        const macros = {}
-        import('/macro.js').then(({ default: defaultMacros }) => {
-            for (const macro of defaultMacros) {
-                macros[macro.hotkey] = macro
-            }
-            import('/user/macro.js').then(({ default: userMacros }) => {
-                for (const macro of userMacros) {
-                    macros[macro.hotkey] = macro
-                }
-            }).finally(() => {
-                macros = macros
-            })
-        })
-
-//        makeScrollable(this, panel)
-    })
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function onFocus() {
-        g.setFocus([g.panelRight, this])
-    }
-
-    export function addClipboardItem(text) {
-        if (clipboard.length >= 10) clipboard.pop()
-        clipboard.unshift(text)
-        clipboard = clipboard
-    }
-
-    export function paste(text) {
-        const editor = g.activeEditor
-        if (!editor) return
-        editor.cm.replaceSelection(text)
-        editor.cm.focus()
-    }
-
-    export function dispatchMacro(event) {
-        const key = event.key
-        let number = +key
-        if (Number.isInteger(number)) {
-            if (number === 0) number = 10
-            paste(__this.get().clipboard[number - 1])
-        } else {
-            const f = __this.get().macros[key.toLowerCase()]
-            if (f)
-                f.callback(g.activeEditor.cm, event, this)
-        }
-    }
-
-    export function showPopup(i, event) {
-        const { x, y, height } = event.currentTarget.getBoundingClientRect()
-        const content = __this.get().clipboard[i]
-        g.popup.set({
-            open: true,
-            content: `<div class="code">${content}</div>`
-        })
-        g.popup.reposition(x, y + height / 2)
-    }
-
-    export function closePopup(event) {
-        g.popup.closeIfNotHovered(event)
-    }
-
-    export function executeMacro(macro) {
-        macro.callback(g.activeEditor.cm, event, this)
-    }
-
-    export function onChangeMacroFormat() {
-        setConfig('macro', {
-            macroFormatWithShift: __this.get().macroFormatWithShift
-        })
-    }
-
-    export function editMacro() {
-        const path = config.macro.userMacroFile
-        g.panelMiddle.openFile(path)
-    }
-</script>
-
 <div bind:this={panel} id="macro" class="panel" class:gone="{!active}" on:click="{onFocus}">
     <div class="title">Clipboard</div>
     <table id="clipboard" class="non-selectable">
@@ -202,3 +83,121 @@
     }
 
 </style>
+
+
+<script>
+    import { onMount, createEventDispatcher } from 'svelte'
+    
+    import g from '../lib/Globals'
+    import { schedule } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
+    import { config, setConfig } from '../lib/ConfigManager'
+    
+    import TextInput from '../lib/TextInput.html'
+
+    // [svelte-upgrade suggestion]
+    // manually refactor all references to __this
+    const __this = {
+        get: () => ({ active, clipboard, macroFormatWithShift, macros, allowWhiteSpace })
+    }
+    const dispatch = createEventDispatcher()
+
+    export let active = false,
+        clipboard = [],
+        macroFormatWithShift = '${NAME} =',
+        macros = {},
+        allowWhiteSpace = true
+    
+    let panel
+    
+    $: {
+        dispatch('active', {
+            id: 'macro',
+            active
+        })
+    }
+    
+    onMount(() => {
+        // load config
+        const { macroFormatWithShift } = config.macro
+        macroFormatWithShift = macroFormatWithShift
+
+        // load macros
+        const macros = {}
+        import('/macro.js').then(({ default: defaultMacros }) => {
+            for (const macro of defaultMacros) {
+                macros[macro.hotkey] = macro
+            }
+            import('/user/macro.js').then(({ default: userMacros }) => {
+                for (const macro of userMacros) {
+                    macros[macro.hotkey] = macro
+                }
+            }).finally(() => {
+                macros = macros
+            })
+        })
+
+//        makeScrollable(this, panel)
+    })
+
+    // [svelte-upgrade suggestion]
+    // review these functions and remove unnecessary 'export' keywords
+    export const onFocus = () => {
+        g.setFocus([g.panelRight, this])
+    }
+
+    export function addClipboardItem(text) {
+        if (clipboard.length >= 10) clipboard.pop()
+        clipboard.unshift(text)
+        clipboard = clipboard
+    }
+
+    export const paste = (text) => {
+        const editor = g.activeEditor
+        if (!editor) return
+        editor.cm.replaceSelection(text)
+        editor.cm.focus()
+    }
+
+    export function dispatchMacro(event) {
+        const key = event.key
+        let number = +key
+        if (Number.isInteger(number)) {
+            if (number === 0) number = 10
+            paste(__this.get().clipboard[number - 1])
+        } else {
+            const f = __this.get().macros[key.toLowerCase()]
+            if (f)
+                f.callback(g.activeEditor.cm, event, this)
+        }
+    }
+
+    export function showPopup(i, event) {
+        const { x, y, height } = event.currentTarget.getBoundingClientRect()
+        const content = __this.get().clipboard[i]
+        g.popup.set({
+            open: true,
+            content: `<div class="code">${content}</div>`
+        })
+        g.popup.reposition(x, y + height / 2)
+    }
+
+    export const closePopup = (event) => {
+        g.popup.closeIfNotHovered(event)
+    }
+
+    export const executeMacro = (macro) => {
+        macro.callback(g.activeEditor.cm, event, this)
+    }
+
+    export function onChangeMacroFormat() {
+        setConfig('macro', {
+            macroFormatWithShift: __this.get().macroFormatWithShift
+        })
+    }
+
+    export const editMacro = () => {
+        const path = config.macro.userMacroFile
+        g.panelMiddle.openFile(path)
+    }
+</script>

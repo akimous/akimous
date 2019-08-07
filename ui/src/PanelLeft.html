@@ -30,14 +30,12 @@
     import FileTree from './panels/FileTree.html'
     import Outline from './panels/Outline.html'
     
-    export let self,
-        children = {},
-        tabBar,
+    export let children = {},
         focused = false,
         hidden = false,
         autoHide = false
 
-    let onTabChange
+    let onTabChange, self, tabBar
     
     onMount(() => {
         onTabChange = onTabChangeFactory(tabBar, children)
@@ -68,7 +66,7 @@
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
-    export function closeView() {
+    export const closeView = () => {
         // not allowed to close view for now
     }
 </script>

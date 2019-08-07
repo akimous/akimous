@@ -261,10 +261,11 @@
     import { dragElement } from '../lib/UIUtils'
     import { config } from '../lib/ConfigManager'
     
-    export let self,
-        open = config.keymap.keymapHint,
+    export let open = config.keymap.keymapHint,
         description = '',
         mode = 'normal'
+    
+    let self
     
     export let keys = {
         normal: {
