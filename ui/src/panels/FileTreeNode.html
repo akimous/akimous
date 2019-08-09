@@ -71,40 +71,7 @@
 
 </style>
 
-<script>
-    import { beforeUpdate, onDestroy, onMount, createEventDispatcher, setContext, getContext } from 'svelte'
-    import pressure from 'pressure'
-    
-    import g from '../lib/Globals'
-    import { binarySearch, schedule } from '../lib/Utils'
-    import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
-
-    export let renaming = false,
-        name = '',
-        level = 0,
-        newNode = null,
-        isDir = false,
-        dirs = [],
-        files = [],
-//        parent,
-        open = false,
-        selected = false,
-        placeholderMode = false,
-        row = null,
-        input = '',
-        placeholderNode = null,
-        children = {}
-    
-    export let icon = ''
-    $: icon = isDir ? fileTypeToIcon['folder'] : getIconByFileName(name)
-    
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ renaming, name, level, icon, newNode, isDir, self, dirs, files, parent, open, selected, placeholderMode })
-    };
-    const dispatch = createEventDispatcher()
-
+<script context="module">
     const copyPath = {
         text: 'Copy Path',
         icon: 'fas fa-link',
@@ -162,7 +129,39 @@
             target.openInFileManager()
         }
     }, copyPath]
+</script>
+
+<script>
+    import { beforeUpdate, onDestroy, onMount, createEventDispatcher, setContext, getContext, tick } from 'svelte'
+    import pressure from 'pressure'
     
+    import g from '../lib/Globals'
+    import { binarySearch, schedule } from '../lib/Utils'
+    import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
+    
+    const dispatch = createEventDispatcher()
+    export const parent = getContext('parent')
+    setContext('parent', () => parent().children[name])
+
+    export let 
+        children = {},
+        dirs = [],
+        files = [],
+        icon = '',
+        input = '',
+        isDir = false,
+        level = 0,
+        name = '',
+        newNode = null,
+        open = false,
+        placeholderMode = false,
+        placeholderNode = null,
+        selected = false,
+        renaming = false,
+        row = null
+    
+    $: icon = isDir ? fileTypeToIcon[open ? 'folder-open' : 'folder'] : getIconByFileName(name)
+
     const keyEventHandler = {
         handleKeyEvent(e, target) {
             if (!target.get().renaming) return true
@@ -182,36 +181,75 @@
             return true
         }
     }
-
-    export const parent = getContext('parent')
-    setContext('parent', () => parent().children[name])
     
-
-    const methods = {
-        
+    export const methods = {
+        newFile: async () => {
+            newNode = 'file'
+            await tick()
+            placeholderNode.methods.rename()
+            placeholderNode.renamingCommittedCallback = path => {
+                g.fileTree.session.send('CreateFile', { path })
+                // select newly created node after file tree updated
+                g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
+            }
+        },
+        newFolder: async () => {
+            newNode = 'dir'
+            await tick()
+            placeholderNode.methods.rename()
+            placeholderNode.renamingCommittedCallback = path => {
+                g.fileTree.session.send('CreateDir', { path })
+                g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
+            }
+        },
+        newModule: async () => {
+            newNode = 'dir'
+            await tick()
+            placeholderNode.methods.rename()
+            placeholderNode.renamingCommittedCallback = path => {
+                g.fileTree.session.send('CreateDir', { path })
+                g.fileTree.session.send('CreateFile', { path: [...path, '__init__.py'] })
+                g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
+            }
+        },
+        findIn() {
+            const path = getPath()
+            if (!__this.get().isDir) path.pop()
+            g.find.reset()
+            g.find.set({ 
+                findInDirectory: path,
+                replaceMode: false,
+            })
+            g.panelRight.activateView(g.panelRight.refs.find)
+            g.setFocus([g.panelRight, g.find])
+            g.find.refs.findText.focus()
+            g.find.findInDirectory()
+        },
+        replaceIn() {
+            findIn()
+            g.find.set({ replaceMode: true })
+        },
+        rename: async () => {
+            renaming = true
+            await tick()
+            input.focus()
+        },
+        del() {
+            g.fileTree.session.send('Delete', {
+                path: getPath(),
+            })
+        }
     }
     let cancelAllSelectionListener
     onMount(() => {
-        __this.children = {}
-        __this.renamingCommittedCallback = null
-        
-//        if (!self)
-//            self = getContext('children')[name]
-//        console.log('meow', getContext('parent')())
-        
         schedule(() => {
-//            cancelAllSelectionListener = g.fileTree.$on('cancelAllSelection', () => {
-//                console.log('meow')
-//                selected = false
-//            })
-//            pressure.set(row, {
-//                startDeepPress: () => { rename() }
-//            })
+            pressure.set(row, {
+                startDeepPress: () => { methods.rename() }
+            })
         })
 
         if (placeholderMode)
             onClick() // select this node if it is a placeholder
-
         dispatch('created', { name, methods })
     })
 
@@ -232,22 +270,6 @@
         }
         g.popFocus(this)
     })
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (changed.name) {
-//            if (previous && previous.name) delete parent.children[previous.name]
-//            parent.children[current.name] = this
-//        } else if (changed.open && current.isDir) {
-//            if (current.open) {
-//                icon = fileTypeToIcon['folder-open']
-//            } else {
-//                icon = fileTypeToIcon['folder']
-//            }
-//        }
-    });
 
     export let allowWhiteSpace
     $: allowWhiteSpace = renaming
@@ -275,35 +297,31 @@
     }
 
     export function onDoubleClick() {
-        if (__this.get().isDir) {
+        const path = getPath()
+        if (isDir) {
             open = !open
-            open = open
             if (open) {
-                g.fileTree.session.send('OpenDir', {
-                    path: getPath(),
-                })
+                g.fileTree.session.send('OpenDir', { path })
             } else {
-                files = [], dirs = []
-                g.fileTree.session.send('CloseDir', {
-                    path: getPath()
-                })
+                files = []
+                dirs = []
+                g.fileTree.session.send('CloseDir', { path: getPath() })
             }
         } else {
-            g.panelMiddle.openFile(getPath())
+            g.panelMiddle.openFile(path)
         }
-
     }
 
     export function onContextMenu(e) {
-        g.fileTree.fire('cancelAllSelection')
+        dispatch('nodeSelected', getPath())
         selected = true
         copyPath.clipboardText = getAbsolutePath()
-        g.contextMenu.set({
+        g.contextMenu.$set({
             open: true,
             x: e.clientX,
             y: e.clientY,
             items: contextMenu,
-            caller: this
+            target: methods
         })
         e.preventDefault()
     }
@@ -314,11 +332,6 @@
 
     export function removeChildren() {
         dirs = [], files = []
-    }
-
-    export function rename() {
-        renaming = true
-        input.focus()
     }
 
     export function commitRename() {
@@ -348,41 +361,6 @@
         } else {
             renaming = false
         }
-    }
-
-    export function newFile() {
-        newNode = 'file'
-        placeholderNode.rename()
-        placeholderNode.renamingCommittedCallback = path => {
-            g.fileTree.session.send('CreateFile', { path })
-            // select newly created node after file tree updated
-            g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
-        }
-    }
-
-    export function newFolder() {
-        newNode = 'dir'
-        placeholderNode.rename()
-        placeholderNode.renamingCommittedCallback = path => {
-            g.fileTree.session.send('CreateDir', { path })
-            g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
-        }
-    }
-
-    export function newModule() {
-        newNode = 'dir'
-        placeholderNode.rename()
-        placeholderNode.renamingCommittedCallback = path => {
-            g.fileTree.session.send('CreateDir', { path })
-            g.fileTree.session.send('CreateFile', { path: [...path, '__init__.py'] })
-            g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
-        }
-    }
-
-    export function del() {
-        g.fileTree.session.send('Delete', {
-            path: getPath(),
-        })
     }
 
     export function sibling(direction) {
@@ -442,25 +420,6 @@
         }
     }
 
-    export function findIn() {
-        const path = getPath()
-        if (!__this.get().isDir) path.pop()
-        g.find.reset()
-        g.find.set({ 
-            findInDirectory: path,
-            replaceMode: false,
-        })
-        g.panelRight.activateView(g.panelRight.refs.find)
-        g.setFocus([g.panelRight, g.find])
-        g.find.refs.findText.focus()
-        g.find.findInDirectory()
-    }
-
-    export function replaceIn() {
-        findIn()
-        g.find.set({ replaceMode: true })
-    }
-
     export function openInFileManager() {
         g.fileTree.session.send('OpenInFileManager', {
             path: getPath(),
@@ -474,4 +433,3 @@
         return pathString
     }
 </script>
-

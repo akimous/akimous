@@ -36,7 +36,7 @@
     const dispatch = createEventDispatcher()
     const nodeCreatedCallbacks = {}
     let keyEventHandler, self, container
-    export let session,
+    export let session = g.socket.createSession('fileTree'),
         children = {},
         active = false,
         dirs = [],
@@ -76,8 +76,6 @@
     setContext('parent', () => g.fileTree)
 
     onMount(async () => {
-        
-        session = g.socket.createSession('fileTree')
         const { handlers } = session
         
         const moveToFirstChildWhenReady = () => {

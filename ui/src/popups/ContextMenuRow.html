@@ -1,4 +1,4 @@
-<div bind:this={row} class="context-menu-row non-selectable" class:selected on:mouseover="{mouseover}" on:click="{click}">
+<div class="context-menu-row non-selectable" class:selected on:mouseover="{mouseover}" on:click="{click}">
     <span class="icon">
         <i class="{icon}" aria-hidden="true"></i>
     </span>
@@ -51,14 +51,7 @@
 </style>
    
 <script>
-    import { afterUpdate } from 'svelte'
-
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {}
-
-    export let row
-
+    import { afterUpdate, createEventDispatcher } from 'svelte'
     import ClipboardJS from 'clipboard'
 
     export let icon = ''
@@ -67,8 +60,10 @@
     export let selected = false
     export let callback = null
     export let clipboardText = null
+    export let id = 0
+    let self
 
-
+    const dispatch = createEventDispatcher()
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
@@ -90,18 +85,11 @@
 //        }
     })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function mouseover() {
-        __this.parent.set({
-            selectedRow: this
-        })
+    function mouseover() {
+        dispatch('rowSelected', { id })
     }
 
-    export function click() {
-        callback && callback(__this.parent.get().caller)
-        __this.parent.set({
-            open: false
-        })
+    function click() {
+        dispatch('click', { id })
     }
 </script>
