@@ -1,9 +1,9 @@
 <div bind:this={self} class="file-tree non-selectable tab-view" class:gone="{!active}">
     <div class="container" bind:this={container}>
         {#each dirs as i (i.uid)}
-        <FileTreeNode bind:this={children[i.name]} name={i.name} parent={self} isDir on:created={onChildNodeCreation}></FileTreeNode>
+        <FileTreeNode bind:this={children[i.name]} name={i.name} parent={self} isDir on:created={onChildNodeCreation} on:nodeSelected={onNodeSelected}></FileTreeNode>
         {/each} {#each files as i (i.uid)}
-        <FileTreeNode bind:this={children[i.name]} name={i.name} parent={self}></FileTreeNode>
+        <FileTreeNode bind:this={children[i.name]} name={i.name} parent={self} on:nodeSelected={onNodeSelected}></FileTreeNode>
         {/each}
     </div>
 </div>
@@ -41,6 +41,8 @@
         dirs = [],
         files = [],
         root = []
+    
+    let selectedNode = null
 
     $: {
         dispatch('active', {
@@ -52,6 +54,14 @@
     function onChildNodeCreation() {
 //        console.log('meow')
         
+    }
+    
+    function onNodeSelected(event) {
+        const path = event.detail
+        const node = getNode(path)
+        if (selectedNode)
+            selectedNode.$set({ selected: false })
+        selectedNode = node
     }
     function sortAndAddUid(arr) {
         return arr.sort().map(i => {
@@ -251,12 +261,8 @@
         session && session.close()
     })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function getNode(path) {
-        console.log(children)
-        let node = children.shift()
-        
+        let node = children[path.shift()]
         for (const i of path) {
             node = node.children[i]
         }

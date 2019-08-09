@@ -189,17 +189,20 @@
         
     }
     
+    let cancelAllSelectionListener
     onMount(() => {
         __this.children = {}
         __this.renamingCommittedCallback = null
-//        schedule(() => {
-//            __this.cancelAllSelectionListener = g.fileTree.on('cancelAllSelection', () => {
+        
+        schedule(() => {
+//            cancelAllSelectionListener = g.fileTree.$on('cancelAllSelection', () => {
+//                console.log('meow')
 //                selected = false
 //            })
 //            pressure.set(row, {
 //                startDeepPress: () => { rename() }
 //            })
-//        })
+        })
 
         if (placeholderMode)
             onClick() // select this node if it is a placeholder
@@ -247,19 +250,20 @@
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function getPath() {
-        const path = [__this.get().name]
-        let { name } = parent.get()
-        while (name) {
-            path.push(name)
-            parent = parent.get().parent
-            name = parent.get().name
+        const path = [name]
+        let name_ = parent.name
+        let parent_ = parent
+        while (name_) {
+            path.push(name_)
+            parent_ = parent.parent
+            name_ = parent_.name
         }
         return path.reverse()
     }
 
     export function onClick() {
         if (selected) return
-        g.fileTree.fire('cancelAllSelection')
+        dispatch('nodeSelected', getPath())
         selected = true
         if (event || g.focusStack[0] === g.panelLeft) // avoid focus being stolen on startup
             g.setFocus([g.panelLeft, g.fileTree, this])

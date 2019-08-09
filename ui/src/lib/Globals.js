@@ -64,7 +64,7 @@ const g = {
         const focusedPanel = this.focusStack[0]
         for (const panel of [g.panelLeft, g.panelMiddle, g.panelRight]) {
             if (!panel) break
-            panel.set({
+            panel.$set({
                 focused: panel === focusedPanel
             })
         }
