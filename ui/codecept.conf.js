@@ -4,7 +4,9 @@ exports.config = {
     helpers: {
         Puppeteer: {
             url: 'http://localhost:3179',
-            show: true
+            show: true,
+            restart: false,
+            keepBrowserState: true,
         }
     },
     include: {

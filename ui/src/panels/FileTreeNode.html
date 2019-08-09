@@ -10,15 +10,15 @@
 </div>
 
 {#if newNode}
-<svelte:self bind:this={placeholderNode} placeholderMode={true} level={level+isDir} parent={self} isDir="{ newNode==='dir' }" /> 
+<svelte:self bind:this={placeholderNode} placeholderMode={true} level={level+isDir} isDir="{ newNode==='dir' }" on:nodeSelected /> 
 {/if}
 
-<div bind:this={children}>
+<div>
     {#each dirs as i (i.uid)}
-    <svelte:self level={level+1} name={i.name} parent={self} isDir /> 
+    <svelte:self level={level+1} name={i.name} bind:this={children[i.name]} isDir on:nodeSelected /> 
     {/each} 
     {#each files as i (i.uid)}
-    <svelte:self level={level+1} name={i.name} parent={self} /> 
+    <svelte:self level={level+1} name={i.name} bind:this={children[i.name]} on:nodeSelected /> 
     {/each}
 </div>
 
@@ -72,7 +72,7 @@
 </style>
 
 <script>
-    import { beforeUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte'
+    import { beforeUpdate, onDestroy, onMount, createEventDispatcher, setContext, getContext } from 'svelte'
     import pressure from 'pressure'
     
     import g from '../lib/Globals'
@@ -86,7 +86,7 @@
         isDir = false,
         dirs = [],
         files = [],
-        parent,
+//        parent,
         open = false,
         selected = false,
         placeholderMode = false,
@@ -183,16 +183,21 @@
         }
     }
 
+    export const parent = getContext('parent')
+    setContext('parent', () => parent().children[name])
     
 
     const methods = {
         
     }
-    
     let cancelAllSelectionListener
     onMount(() => {
         __this.children = {}
         __this.renamingCommittedCallback = null
+        
+//        if (!self)
+//            self = getContext('children')[name]
+//        console.log('meow', getContext('parent')())
         
         schedule(() => {
 //            cancelAllSelectionListener = g.fileTree.$on('cancelAllSelection', () => {
@@ -208,7 +213,7 @@
             onClick() // select this node if it is a placeholder
 
         dispatch('created', { name, methods })
-    });
+    })
 
     onDestroy(() => {
         __this.cancelAllSelectionListener && __this.cancelAllSelectionListener.cancel()
@@ -226,7 +231,7 @@
             }
         }
         g.popFocus(this)
-    });
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
@@ -244,18 +249,18 @@
 //        }
     });
 
-    export let allowWhiteSpace;
-    $: allowWhiteSpace = renaming;
+    export let allowWhiteSpace
+    $: allowWhiteSpace = renaming
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function getPath() {
         const path = [name]
-        let name_ = parent.name
-        let parent_ = parent
+        let parent_ = parent()
+        let name_ = parent_.name
         while (name_) {
             path.push(name_)
-            parent_ = parent.parent
+            parent_ = parent_.parent()
             name_ = parent_.name
         }
         return path.reverse()
@@ -266,7 +271,7 @@
         dispatch('nodeSelected', getPath())
         selected = true
         if (event || g.focusStack[0] === g.panelLeft) // avoid focus being stolen on startup
-            g.setFocus([g.panelLeft, g.fileTree, this])
+            g.setFocus([g.panelLeft, g.fileTree])
     }
 
     export function onDoubleClick() {

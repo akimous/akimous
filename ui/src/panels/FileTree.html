@@ -1,9 +1,9 @@
 <div bind:this={self} class="file-tree non-selectable tab-view" class:gone="{!active}">
     <div class="container" bind:this={container}>
         {#each dirs as i (i.uid)}
-        <FileTreeNode bind:this={children[i.name]} name={i.name} parent={self} isDir on:created={onChildNodeCreation} on:nodeSelected={onNodeSelected}></FileTreeNode>
+        <FileTreeNode bind:this={children[i.name]} name={i.name} isDir on:nodeSelected={onNodeSelected}></FileTreeNode>
         {/each} {#each files as i (i.uid)}
-        <FileTreeNode bind:this={children[i.name]} name={i.name} parent={self} on:nodeSelected={onNodeSelected}></FileTreeNode>
+        <FileTreeNode bind:this={children[i.name]} name={i.name} on:nodeSelected={onNodeSelected}></FileTreeNode>
         {/each}
     </div>
 </div>
@@ -25,7 +25,7 @@
 </style>
 
 <script>
-    import { onDestroy, onMount, createEventDispatcher } from 'svelte'
+    import { onDestroy, onMount, createEventDispatcher, setContext, tick } from 'svelte'
     
     import g from '../lib/Globals'
     import { binarySearch, schedule } from '../lib/Utils'
@@ -35,15 +35,16 @@
 
     const dispatch = createEventDispatcher()
     const nodeCreatedCallbacks = {}
-    let session, keyEventHandler, self, container
-    export let children = {},
+    let keyEventHandler, self, container
+    export let session,
+        children = {},
         active = false,
         dirs = [],
         files = [],
         root = []
     
     let selectedNode = null
-
+    
     $: {
         dispatch('active', {
             id: 'fileTree',
@@ -51,11 +52,6 @@
         })
     }
 
-    function onChildNodeCreation() {
-//        console.log('meow')
-        
-    }
-    
     function onNodeSelected(event) {
         const path = event.detail
         const node = getNode(path)
@@ -77,8 +73,10 @@
             type: node.get()[type].sort((a, b) => a.name > b.name)
         })
     }
+    setContext('parent', () => g.fileTree)
 
-    onMount(() => {
+    onMount(async () => {
+        
         session = g.socket.createSession('fileTree')
         const { handlers } = session
         
@@ -262,8 +260,9 @@
     })
 
     export function getNode(path) {
-        let node = children[path.shift()]
-        for (const i of path) {
+        const [first, ...rest] = path
+        let node = children[first]
+        for (const i of rest) {
             node = node.children[i]
         }
         return node

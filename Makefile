@@ -46,10 +46,7 @@ pytest:
 	poetry run python -m pytest -sx
     
 jstest:
-	cd ui && yarn run jest --runInBand
-    
-headful:
-	cd ui && HEADLESS=false yarn run jest --runInBand
+	cd ui && yarn run codeceptjs run --steps
 
 jsdev: | clean static
 	cp ui/node_modules/codemirror/mode/python/python.js ui/src/editor/
