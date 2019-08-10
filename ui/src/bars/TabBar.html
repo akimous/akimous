@@ -36,9 +36,7 @@
 
     onMount(() => {
         sortable = Sortable.create(tabBar, { animation: 0 })
-//        new elementQueries.ResizeSensor(tabBar, () => {
-//            fitTabWidth()
-//        })
+        new elementQueries.ResizeSensor(tabBar, fitTabWidth)
     })
 
     // [svelte-upgrade suggestion]

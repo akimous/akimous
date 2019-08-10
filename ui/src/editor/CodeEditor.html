@@ -78,15 +78,18 @@
     
     g.CodeMirror = CodeMirror
         
-    export let codeEditor,
-        completion,
-        fileName = '',
+    export let fileName = '',
         highlightOverlay = null,
         active = false,
         filePath = null,
         clean = true,
         textMark = null,
-        cm, 
+        pathString,
+        uid
+    
+    let codeEditor,
+        completion,
+        cm,
         mtime
     
     $: {

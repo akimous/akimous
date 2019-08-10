@@ -254,9 +254,9 @@
     })
 
     onDestroy(() => {
-        __this.cancelAllSelectionListener && __this.cancelAllSelectionListener.cancel()
+        cancelAllSelectionListener && cancelAllSelectionListener.cancel()
         removeChildren()
-        if (__this.get().selected) {
+        if (selected) {
             try {
                 let node = sibling(-1)
                 if (node && node !== this) return node.onClick()
@@ -268,7 +268,7 @@
                 // swallow exception
             }
         }
-        g.popFocus(this)
+//        g.popFocus(this)
     })
 
     export let allowWhiteSpace

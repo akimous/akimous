@@ -27,7 +27,8 @@ class Socket {
         this.webSocket = new WebSocket(`ws://${location.host}/ws/`)
         this.webSocket.binaryType = 'arraybuffer'
         this.webSocket.onopen = onopen
-        this.webSocket.onclose = () => {
+        this.webSocket.onclose = event => {
+            console.warn('WebSocket closing', event)
             if (!g.app) return
             g.app.$destroy()
             g.app = null
