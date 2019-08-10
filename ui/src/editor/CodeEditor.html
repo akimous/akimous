@@ -69,11 +69,7 @@
     import matchhighlighter from './match-highlighter'
     /* eslint-enable */
 
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ fileName, highlightOverlay, active, filePath, clean, textMark })
-    }
+
     const dispatch = createEventDispatcher()
     
     g.CodeMirror = CodeMirror
@@ -90,7 +86,16 @@
     let codeEditor,
         completion,
         cm,
-        mtime
+        mtime,
+        saving,
+        offlineLints,
+        realtimeLints,
+        spellingErrors,
+        outline,
+        shouldClose,
+        highlightSelectionMatches,
+        session,
+        cmReadyCallback
     
     $: {
         dispatch('active', {
@@ -106,12 +111,11 @@
     }
 
     onMount(() => {
-        __this.parent = __this.get().parent
-        __this.saving = false
-        __this.offlineLints = []
-        __this.realtimeLints = []
-        __this.spellingErrors = []
-        __this.outline = []
+        saving = false
+        offlineLints = []
+        realtimeLints = []
+        spellingErrors = []
+        outline = []
 //        g.linter.clear()
 //        __this.tab = __this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
 //        g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)] = this
@@ -120,71 +124,70 @@
         // Step 1: Connect to websocket and read file
         const readFile = new Promise(resolve => {
             let startTime = performance.now()
-            __this.shouldClose = false
-            __this.completion = completion
+            shouldClose = false
 
-            __this.session = g.socket.createSession('editor', {
-                filePath: __this.get().filePath
+            session = g.socket.createSession('editor', {
+                filePath
             })
-            Object.assign(__this.session.handlers, {
+            Object.assign(session.handlers, {
                 FileOpened: data => {
                     console.debug('transmission took', performance.now() - startTime)
                     resolve(data) // <-- exit here
                 },
                 FailedToOpen: reason => {
                     g.notificationBar.show('warning', reason)
-                    g.panelMiddle.closeFile(__this.get().filePath)
+                    g.panelMiddle.closeFile(filePath)
                 },
                 RealTimeLints: ({ result }) => {
-                    __this.realtimeLints = result
+                    realtimeLints = result
 //                    if (g.activeEditor === this)
 //                        g.linter.set({ realtimeLints: __this.realtimeLints })
                 },
                 FileSaved: data => {
-                    __this.mtime = data.mtime
-                    __this.saving = false
-                    if (__this.shouldClose)
-                        g.panelMiddle.closeFile(__this.get().filePath)
+                    mtime = data.mtime
+                    saving = false
+                    if (shouldClose)
+                        g.panelMiddle.closeFile(filePath)
                     else if (data.content) {
-                        __this.cm.setValue(data.content)
-                        if (__this.cursorBeforeSaving) {
+                        cm.setValue(data.content)
+                        if (cursorBeforeSaving) {
                             // restore cursor and viewport position in case formatter changes the content
-                            __this.cm.setCursor(__this.cursorBeforeSaving)
-                            __this.cm.scrollTo(__this.scrollInfoBeforeSaving.left, __this.scrollInfoBeforeSaving.top)
+                            cm.setCursor(cursorBeforeSaving)
+                            cm.scrollTo(scrollInfoBeforeSaving.left, scrollInfoBeforeSaving.top)
                         }
                     }
-                    if (!__this.shouldClose)
+                    if (!shouldClose)
                         markClean()
-                    let message = `"<b>${__this.get().fileName}</b>"`
+                    let message = `"<b>${fileName}</b>"`
                     message += data.content ? ' formatted and saved.' : ' saved.'
                     g.notificationBar.show('success', message)
                 },
                 Reloaded: data => {
                     // prompt to reload if modified by another program
-                    __this.cm.setValue(data.content)
+                    cm.setValue(data.content)
                     markClean()
                 },
                 Mtime: data => {
-                    if (__this.mtime === data.mtime || __this.saving) return
-                    __this.mtime = data.mtime
+                    if (mtime === data.mtime || saving) return
+                    mtime = data.mtime
                     g.notificationBar.show(
                         'question',
-                        `The file "<b>${__this.get().fileName}</b>" has been modified by another program. Do you want to reload it?`, [{
+                        `The file "<b>${fileName}</b>" has been modified by another program. Do you want to reload it?`, [{
                             name: 'Reload',
-                            callback: () => __this.session.send('Reload', {})
+                            callback: () => session.send('Reload', {})
                         }]
                     )
                 },
                 FileDeleted: () => {
-                    if (__this.saving) return
+                    if (saving) return
                     // prompt to close if deleted or moved
                     g.notificationBar.show(
                         'question',
-                        `The file "<b>${__this.get().fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
+                        `The file "<b>${fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
                             name: 'Close',
                             callback: () => {
                                 markClean()
-                                g.panelMiddle.closeFile(__this.get().filePath)
+                                g.panelMiddle.closeFile(filePath)
                             }
                         }]
                     )
@@ -196,12 +199,12 @@
                 FunctionDocumentation: ({ doc, type }) => {
                     if (doc.length === 0) doc = null
                     g.docs.set({ functionDoc: doc, functionDocType: type })
-                    g.docs.highlightActiveParameter(__this.cm)
+                    g.docs.highlightActiveParameter(cm)
                 },
                 OfflineLints: data => {
-                    __this.offlineLints = data.result
-                    __this.offlineLints.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
-                    __this.offlineLints.forEach(x => {
+                    offlineLints = data.result
+                    offlineLints.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
+                    offlineLints.forEach(x => {
                         const { message } = x
                         const index = message.indexOf('\n')
                         if (index <= 0) {
@@ -213,10 +216,10 @@
                         }
                     })
                     if (g.activeEditor === this)
-                        g.linter.set({ offlineLints: __this.offlineLints })
+                        g.linter.set({ offlineLints: offlineLints })
                 },
                 SpellingErrors: data => {
-                    __this.spellingErrors = data.result
+                    spellingErrors = data.result
 //                    if (g.activeEditor === this)
 //                        g.linter.set({ spellingErrors: __this.spellingErrors })
                 },
@@ -225,14 +228,14 @@
                     g.panelRight.activateView(g.references)
                 },
                 RequestFullSync: () => {
-                    __this.session.send('SyncRange', [0, __this.cm.lineCount(), false, 
+                    session.send('SyncRange', [0, cm.lineCount(), false, 
                         ...g.activeEditor.cm.getValue().split('\n')])
                 }
             })
         })
 
         // Step 2: Open editor
-        __this.highlightSelectionMatches = { // search/match-highlighter
+        highlightSelectionMatches = { // search/match-highlighter
             style: 'match-highlight',
             minChars: 1,
             delay: 50,
@@ -256,7 +259,7 @@
                 // addons
                 matchBrackets: true, // edit/matchbrackets
                 autoCloseBrackets: true, // edit/closebrackets
-                highlightSelectionMatches: __this.highlightSelectionMatches,
+                highlightSelectionMatches,
                 styleActiveLine: true, // selection/active-line
 
                 foldGutter: true, // fold/foldgutter
@@ -308,14 +311,14 @@
             const scroller = codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
             scroller.onwheel = e => {
                 if (e.deltaY <= 0) return
-                const scrollInfo = __this.cm.getScrollInfo()
+                const scrollInfo = cm.getScrollInfo()
                 if (scrollInfo.top + scrollInfo.clientHeight >= scrollInfo.height) {
                     e.preventDefault()
                 }
             }
-            if (__this.cmReadyCallback) {
-                __this.cmReadyCallback(this)
-                __this.cmReadyCallback = null
+            if (cmReadyCallback) {
+//                cmReadyCallback(this)
+                cmReadyCallback = null
             }
 
             schedule(() => {
@@ -330,8 +333,8 @@
 //        __this.tab.destroy()
 //        g.linter.clear()
 //        delete g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)]
-        __this.session.send('Close')
-        __this.session.close()
+        session.send('Close')
+        session.close()
     })
 
     // [svelte-upgrade warning]
@@ -392,26 +395,26 @@
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function save() {
-        __this.saving = true
-        __this.session.send('SaveFile', { content: __this.cm.getValue() })
+        saving = true
+        session.send('SaveFile', { content: cm.getValue() })
         // preserve cursor and viewport position in case formatter changes the content
-        __this.cursorBeforeSaving = __this.cm.getCursor()
-        __this.scrollInfoBeforeSaving = __this.cm.getScrollInfo()
+        cursorBeforeSaving = cm.getCursor()
+        scrollInfoBeforeSaving = cm.getScrollInfo()
     }
 
     export function insertText(text) {
         g.activeEditor && g.activeEditor.cm.hasFocus()
-        if (g.activeEditor != this || !__this.cm.hasFocus()) return
-        __this.cm.doc.replaceRange(text, __this.cm.doc.getCursor('from'), __this.cm.doc.getCursor('to'), '+input')
+        if (g.activeEditor != this || !cm.hasFocus()) return
+        cm.doc.replaceRange(text, cm.doc.getCursor('from'), cm.doc.getCursor('to'), '+input')
     }
 
     export function markClean() {
         clean = true
-        __this.cm.doc.markClean()
+        cm.doc.markClean()
     }
 
     export function syncChanges(changes, lineContent) {
-        if (!__this.completionProvider.enabled) return
+        if (!completionProvider.enabled) return
         const { cm } = this
         if (!lineContent)
             for (let c = 0; c < changes.length; c++) {
@@ -427,17 +430,17 @@
                 if (to != from && to - from === text.length - 1)
                     text[text.length - 1] = cm.getLine(to)
 
-                __this.session.send('SyncRange', [from, to + 1, lint, ...text])
+                session.send('SyncRange', [from, to + 1, lint, ...text])
             }
         else {
-            __this.session.send('SyncRange', [changes, changes + 1, true, lineContent])
+            session.send('SyncRange', [changes, changes + 1, true, lineContent])
         }
         schedule(() => {
-            __this.outline = g.outline.generateOutline(__this.cm)
+            outline = g.outline.generateOutline(cm)
             if (g.activeEditor === this)
                 g.outline.set({
-                    outlineItems: __this.outline,
-                    currentLine: __this.cm.getCursor().line
+                    outlineItems: outline,
+                    currentLine: cm.getCursor().line
                 })
         })
     }
