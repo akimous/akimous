@@ -1,3 +1,32 @@
+<div bind:this={container} class="completion non-selectable" class:gone="{!open}">
+    {#if passive}
+    <CompletionRow bind:this={passivePlaceholder} parent={null} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
+    {/if}
+    <div bind:this={completion}></div>
+</div>
+
+<style>
+    .completion {
+        position: absolute;
+        height: 14rem;
+        width: 28rem;
+        z-index: 170;
+        background: var(--main-bg-color);
+
+        color: var(--monospace-font-color);
+        white-space: nowrap;
+        font-family: var(--monospace-font-family);
+        font-size: var(--monospace-font-size);
+        line-height: 2rem;
+
+        overflow-x: scroll;
+        border-radius: var(--default-radius);
+        box-shadow: var(--default-shadow);
+    }
+
+</style>
+
+
 <script>
     import { beforeUpdate, onMount } from 'svelte'
     
@@ -17,14 +46,15 @@
         'full-statement'
     ])
 
-    export let container,
-        passivePlaceholder,
-        completion,
-        open = false,
+    export let open = false,
         passive = false,
         rows = [],
         selectedCompletionRow = null,
         closable = true
+    
+    let container,
+        passivePlaceholder,
+        completion
 
     onMount(() => {
         __this.completionRows = []
@@ -234,31 +264,3 @@
         targetRow.refs.completionRow.scrollIntoViewIfNeeded(false)
     }
 </script>
-
-<div bind:this={container} class="completion non-selectable" class:gone="{!open}">
-    {#if passive}
-    <CompletionRow bind:this={passivePlaceholder} parent={null} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
-    {/if}
-    <div bind:this={completion}></div>
-</div>
-
-<style>
-    .completion {
-        position: absolute;
-        height: 14rem;
-        width: 28rem;
-        z-index: 170;
-        background: var(--main-bg-color);
-
-        color: var(--monospace-font-color);
-        white-space: nowrap;
-        font-family: var(--monospace-font-family);
-        font-size: var(--monospace-font-size);
-        line-height: 2rem;
-
-        overflow-x: scroll;
-        border-radius: var(--default-radius);
-        box-shadow: var(--default-shadow);
-    }
-
-</style>

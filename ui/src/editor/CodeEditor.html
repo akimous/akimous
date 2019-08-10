@@ -1,5 +1,5 @@
 <div bind:this={codeEditor} class="tab-view" class:hideTextSelection="{highlightOverlay}" class:gone="{!active}" />
-<!--<Completion bind:this={completion}></Completion>-->
+<Completion bind:this={completion}></Completion>
 
 
 <style>
@@ -9,12 +9,23 @@
 
 </style>
 
+<script context="module">
+    import g from '../lib/Globals'
+    import registerCMCommands from './CMCommands'
+    
+    g.CodeMirror = CodeMirror
+    registerCMCommands(CodeMirror)
+    const overlayOption = {
+        opaque: true,
+        priority: 0,
+    }
+    
+</script>
+
 <script>
     import { beforeUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte'
 
-    import g from '../lib/Globals'
     import CMEventDispatcher from './CMEventDispatcher'
-    import registerCMCommands from './CMCommands'
     import RealtimeFormatter from './RealtimeFormatter'
     import { CompletionProvider } from './completion/CompletionProvider'
     import { getIconByFileName } from '../lib/FileTypeToIcon'
@@ -71,8 +82,6 @@
 
 
     const dispatch = createEventDispatcher()
-    
-    g.CodeMirror = CodeMirror
         
     export let fileName = '',
         highlightOverlay = null,
@@ -81,21 +90,26 @@
         clean = true,
         textMark = null,
         pathString,
-        uid
+        uid,
+        session = g.socket.createSession('editor', { filePath }),
+        cm = null,
+        completion = null,
+        tab = null
     
     let codeEditor,
-        completion,
-        cm,
         mtime,
-        saving,
-        offlineLints,
-        realtimeLints,
-        spellingErrors,
-        outline,
-        shouldClose,
+        saving = false,
+        offlineLints = [],
+        realtimeLints = [],
+        spellingErrors = [],
+        outline = [],
+        self,
+        shouldClose = false,
         highlightSelectionMatches,
-        session,
-        cmReadyCallback
+        cmReadyCallback,
+        completionProvider,
+        realtimeFormatter,
+        cmEventDispatcher
     
     $: {
         dispatch('active', {
@@ -104,31 +118,15 @@
         })
     }
 
-    registerCMCommands(CodeMirror)
-    const overlayOption = {
-        opaque: true,
-        priority: 0,
-    }
-
     onMount(() => {
-        saving = false
-        offlineLints = []
-        realtimeLints = []
-        spellingErrors = []
-        outline = []
-//        g.linter.clear()
-//        __this.tab = __this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
-//        g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)] = this
+        self = g.panelMiddle.editors[pathString]
+        g.linter.clear()
         const mode = CodeMirror.findModeByFileName(fileName)
 
         // Step 1: Connect to websocket and read file
         const readFile = new Promise(resolve => {
             let startTime = performance.now()
-            shouldClose = false
 
-            session = g.socket.createSession('editor', {
-                filePath
-            })
             Object.assign(session.handlers, {
                 FileOpened: data => {
                     console.debug('transmission took', performance.now() - startTime)
@@ -140,8 +138,8 @@
                 },
                 RealTimeLints: ({ result }) => {
                     realtimeLints = result
-//                    if (g.activeEditor === this)
-//                        g.linter.set({ realtimeLints: __this.realtimeLints })
+                    if (g.activeEditor === self)
+                        g.linter.$set({ realtimeLints })
                 },
                 FileSaved: data => {
                     mtime = data.mtime
@@ -215,13 +213,13 @@
                             x.message1 = message.substring(index + 1)
                         }
                     })
-                    if (g.activeEditor === this)
+                    if (g.activeEditor === self)
                         g.linter.set({ offlineLints: offlineLints })
                 },
                 SpellingErrors: data => {
                     spellingErrors = data.result
-//                    if (g.activeEditor === this)
-//                        g.linter.set({ spellingErrors: __this.spellingErrors })
+                    if (g.activeEditor === self)
+                        g.linter.$set({ spellingErrors })
                 },
                 ReferencesFound: data => {
                     g.references.set(data)
@@ -245,13 +243,13 @@
             trim: false
         }
         const initializeCM = readFile.then(data => {
-//            const { indentWithTabs, indentSize } = g.cursorPosition.get()
+            const { indentWithTabs, indentSize } = g.cursorPosition
             cm = CodeMirror(codeEditor, {
                 value: data.content,
                 mode: mode ? mode.mime : undefined,
                 theme: 'akimous',
-//                indentUnit: indentSize,
-//                indentWithTabs: indentWithTabs,
+                indentUnit: indentSize,
+                indentWithTabs: indentWithTabs,
                 lineNumbers: true,
                 autofocus: true,
                 viewportMargin: 20,
@@ -298,14 +296,14 @@
         // Step 3: Do the rest of things (about 20 ms)
         initializeCM.then(() => schedule(() => {
             cm.refresh() // prevent CM occasionally shifts to the right
-//            __this.completionProvider = new CompletionProvider(this)
+            completionProvider = new CompletionProvider(self)
             // only enable completionProvider when the document is a Python file
-//            if (mode && mode.mode !== 'python') {
-//                __this.completionProvider.enabled = false
-//            }
-//            __this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
-//            __this.cmEventDispatcher = new CMEventDispatcher(this)
-//            __this.completion.bindReferences(this)
+            if (mode && mode.mode !== 'python') {
+                completionProvider.enabled = false
+            }
+            realtimeFormatter = RealtimeFormatter(self, CodeMirror)
+            cmEventDispatcher = new CMEventDispatcher(self)
+            completion.bindReferences(self)
 
             // resolve Safari over-scroll jitter issue
             const scroller = codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
@@ -317,22 +315,21 @@
                 }
             }
             if (cmReadyCallback) {
-//                cmReadyCallback(this)
+                cmReadyCallback(self)
                 cmReadyCallback = null
             }
 
             schedule(() => {
-//                __this.outline = g.outline.generateOutline(__this.cm)
-//                if (g.activeEditor === this)
-//                    g.outline.set({ outlineItems: __this.outline })
+                outline = g.outline.generateOutline(cm)
+                if (g.activeEditor === self)
+                    g.outline.$set({ outlineItems: outline })
             })
         }))
     })
 
     onDestroy(() => {
-//        __this.tab.destroy()
-//        g.linter.clear()
-//        delete g.panelMiddle.pathToEditor[joinPath(__this.get().filePath)]
+        tab.$destroy()
+        g.linter.clear()
         session.send('Close')
         session.close()
     })
@@ -350,8 +347,6 @@
 //                __this.session.send('Mtime', { newPath })
 //            }
 //        }
-//        const tab = __this.tab
-//        if (!tab) return
 //
 //        if (changed.fileName) {
 //            tab.set({ name: current.fileName })
@@ -415,7 +410,6 @@
 
     export function syncChanges(changes, lineContent) {
         if (!completionProvider.enabled) return
-        const { cm } = this
         if (!lineContent)
             for (let c = 0; c < changes.length; c++) {
                 const change = changes[c]
@@ -437,7 +431,7 @@
         }
         schedule(() => {
             outline = g.outline.generateOutline(cm)
-            if (g.activeEditor === this)
+            if (g.activeEditor === self)
                 g.outline.set({
                     outlineItems: outline,
                     currentLine: cm.getCursor().line

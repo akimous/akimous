@@ -20,7 +20,7 @@
 
 
 <script>
-    import { onMount } from 'svelte'
+    import { onMount, tick } from 'svelte'
     import Sortable from 'sortablejs'
     import elementQueries from 'css-element-queries'
     
@@ -41,10 +41,11 @@
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
-    export function openTab(id, name, view, icon, labeled = false) {
+    export async function openTab(id, name, view, icon, labeled = false) {
         tabData.push({ id, name, view, icon, labeled })
         tabData = tabData
         fitTabWidth()
+        await tick()
         view.tab = tabs[id]
     }
 
@@ -58,10 +59,9 @@
         }
     }
     
-    export function updateTabIndicator({ id, active }) {
-        nextFrame(() => {
-            tabs[id].$set({ active })
-        })
+    export async function updateTabIndicator({ id, active }) {
+        await tick()
+        tabs[id].$set({ active })
     }
 
     function _fitTabWidth() {

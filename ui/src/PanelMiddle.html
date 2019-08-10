@@ -46,24 +46,18 @@
     import TabBar from './bars/TabBar.html'
     import CodeEditor from './editor/CodeEditor.html'
     
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ focused, focus })
-    }
     const MAX_ACTIVATION_HISTORY = 32
 
     export let focused = false,
-        focus = null,
-        pathToEditor = {}
+        focus = null
     
-    let onTabChange, self, tabBar
+    let onTabChange, self, tabBar, openedFiles, activationHistory, activationHistoryIndex
 
     onMount(() => {
         onTabChange = onTabChangeFactory(tabBar, editors)
-        __this.openedFiles = new Set()
-        __this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
-        __this.activationHistoryIndex = 0
+        openedFiles = new Set()
+        activationHistory = new Array(MAX_ACTIVATION_HISTORY)
+        activationHistoryIndex = 0
         
         nextFrame(() => {
             const activePath = g.projectState.activePanels.middle
@@ -143,9 +137,9 @@
         }
         
         // write to activation history
-        if (__this.activationHistory[__this.activationHistoryIndex] != filePath) {
-            __this.activationHistoryIndex = (__this.activationHistoryIndex + 1) % MAX_ACTIVATION_HISTORY
-            __this.activationHistory[__this.activationHistoryIndex] = filePath
+        if (activationHistory[activationHistoryIndex] != filePath) {
+            activationHistoryIndex = (activationHistoryIndex + 1) % MAX_ACTIVATION_HISTORY
+            activationHistory[activationHistoryIndex] = filePath
         }
         // activate editor
         g.activeEditor && (g.activeEditor.set({ active: false }))
@@ -155,10 +149,11 @@
             return
         }
         editor.$set({ active: true })
-//        const { isMakefile } = editor.get()
-//        g.cursorPosition.set({ isMakefile })
+        g.activeEditor = editor
+        
+        g.cursorPosition.$set({ isMakefile: editor.isMakefile })
         schedule(() => {
-//            g.find.set({ currentFilePath: filePath })
+            g.find.$set({ currentFilePath: filePath })
         })
         
         const cm = editor.cm
@@ -177,9 +172,9 @@
 
     export function renameDir(newDirPath, oldDirPath) {
         const oldDirPathString = joinPath(oldDirPath)
-        for (const oldPathString in pathToEditor) {
+        for (const oldPathString in editors) {
             if (oldPathString.indexOf(oldDirPathString) !== 0) continue
-            const editor = pathToEditor[oldPathString]
+            const editor = editors[oldPathString]
             editor.set({
                 filePath: [...newDirPath, ...editor.get().filePath.slice(newDirPath.length)]
             })
@@ -187,7 +182,6 @@
     }
 
     export function closeView(editor) {
-        console.warn('closeView', {editor})
         closeFile(editor.filePath)
     }
 
@@ -221,18 +215,18 @@
             })
             return
         }
-        __this.openedFiles.delete(filePath)
+        openedFiles.delete(filePath)
         const pathString = joinPath(filePath)
         delete editorProps[pathString]
 //        editor.destroy()
 
         // clear activation history
         for (let i = 0; i < MAX_ACTIVATION_HISTORY; i++)
-            if (__this.activationHistory[i] === filePath)
-                __this.activationHistory[i] = null
+            if (activationHistory[i] === filePath)
+                activationHistory[i] = null
         // activate previous file
-        for (let i = __this.activationHistoryIndex; i > __this.activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
-            const previouslyActivatedFilePath = __this.activationHistory[i % MAX_ACTIVATION_HISTORY]
+        for (let i = activationHistoryIndex; i > activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
+            const previouslyActivatedFilePath = activationHistory[i % MAX_ACTIVATION_HISTORY]
             if (previouslyActivatedFilePath && getEditor(previouslyActivatedFilePath)) {
                 activateFile(previouslyActivatedFilePath)
                 return
@@ -240,7 +234,7 @@
         }
         // if history is exhausted, select last opened file
         let lastFile = null
-        for (lastFile of __this.openedFiles) ;
+        for (lastFile of openedFiles) ;
         if (lastFile) {
             activateFile(lastFile)
         }

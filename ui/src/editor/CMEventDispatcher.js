@@ -63,11 +63,11 @@ class CMEventDispatcher {
             let selection = cm.getSelection()
             if (!selection) selection = cm.getLine(cm.getCursor().line) + '\n'
             g.macro.addClipboardItem(selection)
-            completion.set({ open: false })
+            completion.$set({ open: false })
         })
 
         cm.on('scroll', () => {
-            completion.set({ open: false })
+            completion.$set({ open: false })
         })
 
         cm.on('focus', () => {
@@ -75,17 +75,17 @@ class CMEventDispatcher {
             nextFrame(() => {
                 editor.session.send('Mtime', {})
                 g.setFocus([g.panelMiddle, editor])
-                if (g.find.get().active)
+                if (g.find.active)
                     g.find.clearSelections()
             })
-            editor.set({
+            editor.$set({
                 highlightOverlay: null,
                 textMark: null,
             })
         })
 
         cm.on('blur', () => {
-            editor.completion.set({ open: false })
+            editor.completion.$set({ open: false })
         })
 
         cm.on('gutterClick', (cm, line, gutter /*, event*/ ) => {
@@ -97,7 +97,7 @@ class CMEventDispatcher {
         cm.on('cursorActivity', cm => {
             if (shouldDismissCompletionOnCursorActivity) {
                 completionProvider.state = CLOSED
-                completion.set({ open: false })
+                completion.$set({ open: false })
             }
             shouldDismissCompletionOnCursorActivity = true
             const cursor = cm.getCursor()
@@ -107,12 +107,12 @@ class CMEventDispatcher {
                 syncIfNeeded(dirtyLine)
 
             schedule(() => {
-                g.cursorPosition.set(cursor)
+                g.cursorPosition.$set(cursor)
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
                 const pos = { currentLine: cursor.line }
-                g.outline.set(pos)
-                g.linter.set(pos)
-                g.find.set(pos)
+                g.outline.$set(pos)
+                g.linter.$set(pos)
+                g.find.$set(pos)
             })
 
             if (this.realtimeEvaluation)
@@ -122,7 +122,7 @@ class CMEventDispatcher {
         doc.on('change', (doc /*, changeObj*/ ) => {
             const { clean } = editor.get() // 0.02 ms
             if (clean === doc.isClean()) return
-            editor.set({ clean: !clean }) // 0.25 ms
+            editor.$set({ clean: !clean }) // 0.25 ms
         })
 
         cm.on('changes', (cm, changes) => {
