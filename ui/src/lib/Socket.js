@@ -29,7 +29,7 @@ class Socket {
         this.webSocket.onopen = onopen
         this.webSocket.onclose = () => {
             if (!g.app) return
-            g.app.destroy()
+            g.app.$destroy()
             g.app = null
         }
         this.webSocket.onerror = event => {

@@ -125,30 +125,30 @@
         schedule(() => {
             if (!initialized) return
             
-//            splitterLeft.onmousedown = e => {
-//                e.preventDefault()
-//                document.onmousemove = throttle(e => {
-//                    const width = e.pageX
-//                    if (width < 100) return
-//                    document.documentElement.style.setProperty('--panel-left-width', `${e.pageX}px`)
-//                }, 16)
-//            }
-//            splitterRight.onmousedown = e => {
-//                e.preventDefault()
-//                document.onmousemove = throttle(e => {
-//                    const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-//                    const width = viewportWidth - e.pageX
-//                    if (width < 200) return
-//                    document.documentElement.style.setProperty('--panel-right-width', `${width}px`)
-//                    panelRight.set({ width })
-//                }, 16)
-//            }
-//            splitterRight.onmouseup = () => {
-//                g.console.terminal && g.console.terminal.fit()
-//            }
-//            document.onmouseup = () => {
-//                document.onmousemove = null
-//            }
+            splitterLeft.onmousedown = e => {
+                e.preventDefault()
+                document.onmousemove = throttle(e => {
+                    const width = e.pageX
+                    if (width < 100) return
+                    document.documentElement.style.setProperty('--panel-left-width', `${e.pageX}px`)
+                }, 16)
+            }
+            splitterRight.onmousedown = e => {
+                e.preventDefault()
+                document.onmousemove = throttle(e => {
+                    const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+                    const width = viewportWidth - e.pageX
+                    if (width < 200) return
+                    document.documentElement.style.setProperty('--panel-right-width', `${width}px`)
+                    g.panelRight.$set({ width })
+                }, 16)
+            }
+            splitterRight.onmouseup = () => {
+                g.console.terminal && g.console.terminal.fit()
+            }
+            document.onmouseup = () => {
+                document.onmousemove = null
+            }
 
             if (!g.dev)
                 window.addEventListener('beforeunload', e => {

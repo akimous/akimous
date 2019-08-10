@@ -1,4 +1,4 @@
-<div bind:this={self} on:mousedown="{event => click(event, name)}" class="menu-item non-selectable">{name}</div>
+<div bind:this={self} on:mousedown={click} class="menu-item non-selectable">{name}</div>
 
 
 <style>
@@ -246,7 +246,7 @@
     export let name
     let self
     
-    function click(e, name) {
+    function click(e) {
         const { left, bottom } = self.getBoundingClientRect()
         const { items, open } = g.contextMenu
         if (items === menus[name] && open)
