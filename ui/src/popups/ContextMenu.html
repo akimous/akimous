@@ -47,6 +47,14 @@
         closable = true,
         selectedID = -1
     
+    $: {
+        g.app && g.app.$set({ popup: open ? g.contextMenu : null })
+    }
+    
+    $: {
+        if (open) selectedID = -1
+    }
+    
     onMount(() => {
 //        __this.keyEventHandler = EventDispatcherFactory({
 //            target: this,
@@ -68,9 +76,7 @@
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
     beforeUpdate(() => {
-//        if (!previous) return
 //        if (changed.open) {
-//            selectedRow = undefined
 //            if (current.open) {
 //                try {
 //                    g.activeEditor.completion.set({ open: false })
@@ -79,17 +85,6 @@
 //            } else {
 //                g.popFocus(this)
 //            }
-//            g.app.set({
-//                popup: current.open ? this : null
-//            })
-//        }
-//        if (changed.selectedRow) {
-//            if (previous.selectedRow) previous.selectedRow.set({
-//                selected: false
-//            })
-//            if (current.selectedRow) current.selectedRow.set({
-//                selected: true
-//            })
 //        }
     })
 

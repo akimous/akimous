@@ -14,16 +14,7 @@
 
 </style>
 
-
-<script>
-    import { onMount } from 'svelte'
-
-    import g from '../lib/Globals'
-    import { getRem } from '../lib/Utils'
-
-    let self
-    export let name
-    
+<script context="module">
     /* eslint-disable */
     /* Note: following Sublime commands not included in menu
     "Cmd-Left": "goLineStartSmart",
@@ -36,7 +27,7 @@
     "Ctrl-Right": "goSubwordRight",
     */
     /* eslint-enable */
-    const menus = {
+    export const menus = {
         File: [{
             text: 'Open Folder...',
             hotkey: '⌘O',
@@ -246,21 +237,26 @@
             callback: () => window.open('https://akimous.com/doc', '_blank'),
         }, ]
     }
+</script>
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function click(e, name) {
+<script>
+    import g from '../lib/Globals'
+    import { getRem } from '../lib/Utils'
+
+    export let name
+    let self
+    
+    function click(e, name) {
         const { left, bottom } = self.getBoundingClientRect()
-        const { items, open } = g.contextMenu.get()
+        const { items, open } = g.contextMenu
         if (items === menus[name] && open)
-            g.contextMenu.set({ open: false })
+            g.contextMenu.$set({ open: false })
         else {
-            g.contextMenu.set({
+            g.contextMenu.$set({
                 open: true,
                 x: left,
                 y: bottom + .5 * getRem(),
                 items: menus[name],
-                caller: this
             })
         }
         e.stopPropagation()

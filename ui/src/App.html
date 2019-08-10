@@ -175,11 +175,11 @@
     export function dismissPopups() {
         let { name } = popup.constructor
         name = name.charAt(0).toLowerCase() + name.slice(1)
-        const toolbarButton = g.toolbar.refs[name]
+        const toolbarButton = g.toolbar[name]
         if (toolbarButton) {
             g.toolbar.togglePopup(name) // also deactivate button shade
         } else if (popup) {   
-            popup.set({ open: false })
+            popup.$set({ open: false })
         }
         popup = null
     }
