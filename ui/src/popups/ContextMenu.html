@@ -91,7 +91,7 @@
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function move(nRows) {
-        const currentIndex = rows.indexOf(__this.get().selectedRow)
+        const currentIndex = rows.indexOf(selectedRow)
         const length = rows.length
 
         let targetIndex = currentIndex + nRows

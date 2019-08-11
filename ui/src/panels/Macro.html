@@ -170,7 +170,7 @@
     export function showPopup(i, event) {
         const { x, y, height } = event.currentTarget.getBoundingClientRect()
         const content = clipboard[i]
-        g.popup.set({
+        g.popup.$set({
             open: true,
             content: `<div class="code">${content}</div>`
         })

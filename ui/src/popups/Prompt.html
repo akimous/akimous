@@ -113,9 +113,7 @@
 //                    this.set(data)
         }
         active = true
-        g.activeEditor && g.activeEditor.completion.set({
-            open: false
-        })
+        g.activeEditor && g.activeEditor.completion.$set({ open: false })
     }
 
     export function onClickButton(button) {

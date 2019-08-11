@@ -79,7 +79,7 @@
         indentWithTabs = !indentWithTabs
         for (const path in g.panelMiddle.pathToEditor) {
             const editor = g.panelMiddle.pathToEditor[path]
-            if (!editor.get().isMakefile)
+            if (!editor.isMakefile)
                 editor.cm.setOption('indentWithTabs', indentWithTabs)
         }
     }

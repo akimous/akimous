@@ -62,9 +62,7 @@
             if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key)) {
                 target.enter(null, key)
             } else if (/[=[\](){}]/.test(key)) {
-                target.set({
-                    open: false
-                })
+                target.$set({ open: false })
                 target.completionProvider.state = CLOSED
             } else if (key === 'Escape') {
                 target.completionProvider.state = CLOSED
@@ -90,7 +88,7 @@
                 lastVisibleIndex = completionRows.length
             for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
                 const rowNumber = i - firstVisibleIndex + 1
-                completionRows[i].set({ rowNumber })
+                completionRows[i].$set({ rowNumber })
                 completionRowShortcuts[rowNumber] = completionRows[i]
             }
             lastFVI = firstVisibleIndex
@@ -217,7 +215,7 @@
         if (!row) return console.error('no selected completion')
 
         completionProvider.state = CLOSED
-        let { text, tail } = row.get()
+        let { text, tail } = row
         text = text + tail
         open = false
 
@@ -250,7 +248,7 @@
         else if (targetIndex < 0) targetIndex = 0
 
         const targetRow = completionRows[targetIndex]
-        requestCompletionDocstringIfNeeded(targetRow.get())
+        requestCompletionDocstringIfNeeded(targetRow)
         selectedCompletionRow = targetRow
         targetRow.refs.completionRow.scrollIntoViewIfNeeded(false)
     }

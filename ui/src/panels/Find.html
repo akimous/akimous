@@ -318,10 +318,10 @@
 
         cm.operation(() => {
             const changeObject = { textMark: cm.markText(from, to, textMarkOption) }
-            if (editor.get().highlightOverlay !== highlightOverlay) {
+            if (editor.highlightOverlay !== highlightOverlay) {
                 changeObject.highlightOverlay = highlightOverlay
             }
-            editor.set(changeObject)
+            editor.$set(changeObject)
             cm.setSelection(from, to)
             cm.scrollIntoView(pos, 20)
         })
@@ -373,7 +373,7 @@
         g.panelMiddle.openFile(match.filePath, editor => {
             const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
             cm.extendSelection(match.from, match.to)
-            editor.set({ highlightOverlay: null })
+            editor.$set({ highlightOverlay: null })
         })
         selectedIndex = matches.indexOf(match)
     }
@@ -412,7 +412,7 @@
         const query = getQuery()
         if (query) {
             const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
-            const filePath = editor.get().filePath
+            const filePath = editor.filePath
             let found
             matches.length = 0
 
@@ -438,10 +438,10 @@
 
             highlightOverlay = searchOverlayGenerator(query)
             nextFrame(() => {
-                editor.set({ highlightOverlay: highlightOverlay })
+                editor.$set({ highlightOverlay: highlightOverlay })
             })
         } else {
-            editor.set({ highlightOverlay: null })
+            editor.$set({ highlightOverlay: null })
         }
     }
 

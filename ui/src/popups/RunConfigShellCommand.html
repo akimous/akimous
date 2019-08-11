@@ -77,7 +77,7 @@
     export function commitChange() {
         if (!value.length) {
             shellCommands.splice(index, 1)
-            g.runConfiguration.set({ shellCommands })
+            g.runConfiguration.$set({ shellCommands })
         }
         g.runConfiguration.saveChanges()
     }

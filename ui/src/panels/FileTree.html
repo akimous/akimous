@@ -69,8 +69,8 @@
     }
 
     function sortChildren(node, type) {
-        node.set({
-            type: node.get()[type].sort((a, b) => a.name > b.name)
+        node.$set({
+            type: node[type].sort((a, b) => a.name > b.name)
         })
     }
     setContext('parent', () => g.fileTree)
@@ -109,20 +109,20 @@
         const renamingEventHandler = ({ path, newName }, event) => {
             // change file tree names
             const node = getNode(path)
-            const { parent } = node.get()
+            const { parent } = node
             const oldName = path[path.length - 1]
             const target = event === 'FileRenamed' ? 'files' : 'dirs'
             const newPath = [...path]
             newPath[newPath.length - 1] = newName
-            node.set({
+            node.$set({
                 name: newName
             })
             // change paths of opened files
-            parent.get()[target].find(x => x.name == oldName).name = newName
+            parent[target].find(x => x.name == oldName).name = newName
             sortChildren(parent, target)
             if (target === 'files') {
                 const editor = g.panelMiddle.getEditor(path)
-                editor && editor.set({
+                editor && editor.$set({
                     fileName: newName
                 })
             }
@@ -133,7 +133,7 @@
             // return true if handled
             return ({ path }) => {
                 const node = getNode(path.slice(0, -1))
-                const arr = node.get()[target]
+                const arr = node[target]
                 const name = path[path.length - 1]
                 const position = binarySearch(arr, name)
                 if (eventType === 'created') {
@@ -155,7 +155,7 @@
                         arr.splice(position, 1)
                     else return false
                 }
-                node.set({
+                node.$set({
                     [target]: arr
                 })
                 return true
@@ -180,7 +180,7 @@
 
         keyEventHandler = {
             handleKeyEvent(event, target) {
-                if (g.focus.constructor.name === 'FileTreeNode' && g.focus.get().renaming)
+                if (g.focus.constructor.name === 'FileTreeNode' && g.focus.renaming)
                     return true
                 switch (event.key) {
                     case 'ArrowDown':
@@ -276,7 +276,7 @@
             node = sibling
         }
         if (!node && node === currentFocus) return
-        if (!node.get().selected) node.onClick()
+        if (!node.selected) node.onClick()
         node.refs.row.scrollIntoViewIfNeeded(false)
     }
 
@@ -290,8 +290,8 @@
     export function moveToFirstChild() {
         const node = g.focus
         if (moveToTopIfNothingSelected()) return
-        if (!node.get().isDir) return
-        if (node.get().open) {
+        if (!node.isDir) return
+        if (node.open) {
             const firstChild = node.firstChild()
             if (firstChild) {
                 firstChild.onClick()
@@ -305,7 +305,7 @@
     export function moveToParent() {
         const node = g.focus
         if (moveToTopIfNothingSelected()) return
-        const { parent } = node.get()
+        const { parent } = node
         if (!parent) return
         parent.onClick()
         parent.refs.row.scrollIntoViewIfNeeded(false)
@@ -331,7 +331,7 @@
     }
 
     export function moveToTopIfNothingSelected() {
-        if (!g.focus || g.focus.constructor.name !== 'FileTreeNode' || !g.focus.get().parent) {
+        if (!g.focus || g.focus.constructor.name !== 'FileTreeNode' || !g.focus.parent) {
             top()
             return true
         }

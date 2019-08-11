@@ -221,17 +221,13 @@
         
         Object.assign(handlers, {
             KernelStarted: () => {
-                g.jupyterToolbar.set({
-                    executionState: 'idle'
-                })
+                g.jupyterToolbar.$set({ executionState: 'idle' })
                 ready = true
             },
             IOPub: e => {
                 const { execution_state } = e
                 if (execution_state) {
-                    g.jupyterToolbar.set({
-                        executionState: execution_state
-                    })
+                    g.jupyterToolbar.$set({ executionState: execution_state })
                 }
                 if (e.code) {
                     cells.push({
@@ -261,9 +257,7 @@
                 terminal.clear()
             },
             KernelStopped: () => {
-                g.jupyterToolbar.set({
-                    executionState: 'stopped'
-                })
+                g.jupyterToolbar.$set({ executionState: 'stopped' })
             },
         })
     }
@@ -287,9 +281,7 @@
     let realtimeEvaluationEditor
     export function startKernel(realtimeEvaluation) {
         if (!g.activeEditor) return
-        g.jupyterToolbar.set({
-            executionState: 'starting',
-        })
+        g.jupyterToolbar.$set({ executionState: 'starting' })
         session.send('StartKernel', { realtimeEvaluation })
         realtimeEvaluationEditor = g.activeEditor
         g.activeEditor.cmEventDispatcher.realtimeEvaluation = realtimeEvaluation

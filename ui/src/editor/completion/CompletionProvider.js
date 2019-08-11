@@ -93,7 +93,7 @@ class CompletionProvider {
             this.currentCompletions = data.result
             if (data.result.length < 1) {
                 this.state = CLOSED
-                this.completion.set({ open: false })
+                this.completion.$set({ open: false })
                 // do not return here, or 
                 // def some|
                 // will not work
@@ -175,7 +175,7 @@ class CompletionProvider {
             return
         }
         if (this.firstTriggeredCharPos.ch === ch) {
-            this.completion.set({ open: false })
+            this.completion.$set({ open: false })
             this.state = CLOSED
             return
         }
@@ -217,7 +217,7 @@ class CompletionProvider {
         completions.sort((a, b) => b.sortScore - a.sortScore + b.score - a.score)
         if (debug) console.log('CompletionProvider.sort', completions)
 
-        const { type } = this.completion.get()
+        const { type } = this.completion
         const filteredCompletions = completions.filter(row => {
             if (type !== NORMAL && row.text.length < 2) return false
             return row.sortScore > 0

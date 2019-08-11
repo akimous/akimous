@@ -84,7 +84,7 @@
     }
 
     function run() {
-        const { mode } = g.runConfiguration.get()
+        const { mode } = g.runConfiguration
         if (!g.activeEditor && mode !== 'shell') {
             g.notificationBar.show('warning', 'Please open a Python file to run.')
             return

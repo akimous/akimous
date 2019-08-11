@@ -4,7 +4,7 @@ import KeyMap from './KeyMap'
 import CodeEditor from '../editor/CodeEditor.html'
 
 function togglePanelAutoHide(panel) {
-    const autoHide = !panel.get().autoHide
+    const autoHide = !panel.autoHide
     panel.set({
         autoHide,
         hidden: autoHide
@@ -84,7 +84,7 @@ class LayeredKeyboardControl {
     set macroMode(x) {
         this._macroMode = x
         if (x) {
-            this._previousPanelRightView = g.panelRight.get().focus
+            this._previousPanelRightView = g.panelRight.focus
             g.panelRight.activateView(g.panelRight.refs.macro)
         } else {
             this._previousPanelRightView && g.panelRight.activateView(this._previousPanelRightView)
@@ -110,7 +110,7 @@ class LayeredKeyboardControl {
                     return true
                     // break // this will interfere with hotkey
                 case ' ':
-                    if (g.focus.get().allowWhiteSpace) return true
+                    if (g.focus.allowWhiteSpace) return true
                     spacePressed = true
                     this.commandSent = false
                     g.keyboardControlHint.highlightModifier('Space')
@@ -136,7 +136,7 @@ class LayeredKeyboardControl {
                     return true // let it propagate
                 case 'Tab':
                     // When completion window is open, commit selection instead of increasing indent
-                    if (g.activeEditor.completion.get().open) {
+                    if (g.activeEditor.completion.open) {
                         g.activeEditor.completion.enter(null, e.key)
                         return this.stopPropagation(e)
                     }
@@ -193,7 +193,7 @@ class LayeredKeyboardControl {
                     // break // this will interfere with hotkey
                 case ' ':
                     spacePressed = false
-                    if (g.focus.get().allowWhiteSpace) return true
+                    if (g.focus.allowWhiteSpace) return true
                     if (!this.commandSent && this.sendCommand(e) &&
                         e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
                         g.activeEditor.insertText(' ')

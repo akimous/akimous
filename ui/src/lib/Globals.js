@@ -36,7 +36,7 @@ const g = {
         this.focusStack = x
         // restore focus stack
         if (x.length === 1) {
-            const originalFocusStack = x[0].get().focusStack
+            const originalFocusStack = x[0].focusStack
             originalFocusStack && this.focusStack.push(...originalFocusStack)
         }
         this.onFocusChanged()

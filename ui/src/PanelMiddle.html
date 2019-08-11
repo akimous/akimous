@@ -127,7 +127,7 @@
     }
 
     export function activateView(editor) {
-        activateFile(editor.get().filePath)
+        activateFile(editor.filePath)
     }
 
     export function activateFile(filePath) {
@@ -163,11 +163,11 @@
 
         schedule(() => { // ~5 ms
             const cursor = cm.getCursor()
-            g.cursorPosition.set(cursor)
+            g.cursorPosition.$set(cursor)
             g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
             const { offlineLints, realtimeLints, spellingErrors, outline } = editor
-            g.linter.set({ offlineLints, realtimeLints, spellingErrors })
-            g.outline.set({ outlineItems: outline })
+            g.linter.$set({ offlineLints, realtimeLints, spellingErrors })
+            g.outline.$set({ outlineItems: outline })
         })
     }
 
@@ -176,8 +176,8 @@
         for (const oldPathString in editors) {
             if (oldPathString.indexOf(oldDirPathString) !== 0) continue
             const editor = editors[oldPathString]
-            editor.set({
-                filePath: [...newDirPath, ...editor.get().filePath.slice(newDirPath.length)]
+            editor.$set({
+                filePath: [...newDirPath, ...editor.filePath.slice(newDirPath.length)]
             })
         }
     }
@@ -192,14 +192,12 @@
         if (!editor.clean) {
             g.prompt.open({
                 icon: 'far fa-hdd',
-                content: `Do you want to save the changes you made in <em>${editor.get().fileName}</em> ?`,
+                content: `Do you want to save the changes you made in <em>${editor.fileName}</em> ?`,
                 buttons: [{
                     text: 'Don\'t Save',
                     style: 'danger',
                     action: () => {
-                        editor.set({
-                            clean: true
-                        })
+                        editor.$set({ clean: true })
                         closeFile(filePath)
                     }
                 }, {

@@ -192,11 +192,11 @@
                 },
                 CompletionDocstring: ({ doc, type }) => {
                     if (doc.length === 0) doc = null
-                    g.docs.set({ completionDoc: doc, completionDocType: type })
+                    g.docs.$set({ completionDoc: doc, completionDocType: type })
                 },
                 FunctionDocumentation: ({ doc, type }) => {
                     if (doc.length === 0) doc = null
-                    g.docs.set({ functionDoc: doc, functionDocType: type })
+                    g.docs.$set({ functionDoc: doc, functionDocType: type })
                     g.docs.highlightActiveParameter(cm)
                 },
                 OfflineLints: data => {
@@ -214,7 +214,7 @@
                         }
                     })
                     if (g.activeEditor === self)
-                        g.linter.set({ offlineLints: offlineLints })
+                        g.linter.$set({ offlineLints: offlineLints })
                 },
                 SpellingErrors: data => {
                     spellingErrors = data.result
@@ -222,7 +222,7 @@
                         g.linter.$set({ spellingErrors })
                 },
                 ReferencesFound: data => {
-                    g.references.set(data)
+                    g.references.$set(data)
                     g.panelRight.activateView(g.references)
                 },
                 RequestFullSync: () => {
@@ -419,7 +419,7 @@
         schedule(() => {
             outline = g.outline.generateOutline(cm)
             if (g.activeEditor === self)
-                g.outline.set({
+                g.outline.$set({
                     outlineItems: outline,
                     currentLine: cm.getCursor().line
                 })

@@ -164,7 +164,7 @@
 
     const keyEventHandler = {
         handleKeyEvent(e, target) {
-            if (!target.get().renaming) return true
+            if (!target.renaming) return true
             switch (e.key) {
                 case 'Enter':
                     target.commitRename()
@@ -216,7 +216,7 @@
             const path = getPath()
             if (!isDir) path.pop()
             g.find.reset()
-            g.find.set({ 
+            g.find.$set({ 
                 findInDirectory: path,
                 replaceMode: false,
             })
@@ -227,7 +227,7 @@
         },
         replaceIn() {
             findIn()
-            g.find.set({ replaceMode: true })
+            g.find.$set({ replaceMode: true })
         },
         rename: async () => {
             renaming = true
@@ -340,7 +340,7 @@
             if (placeholderMode) {
                 name = this.refs.input.value
                 const path = getPath()
-                const { isDir } = parent.get()
+                const { isDir } = parent
                 if (!isDir)
                     path.splice(-2, 1) // remove if its parent is a file, not the real parent
                 if (renamingCommittedCallback)
@@ -364,7 +364,7 @@
     }
 
     export function sibling(direction) {
-        const { files, dirs } = parent.get()
+        const { files, dirs } = parent
         const list = isDir ? dirs : files
         const currentIndex = binarySearch(list, name)
 

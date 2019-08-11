@@ -128,10 +128,10 @@
     // review these functions and remove unnecessary 'export' keywords
     export function setConsoleMode() {
         if (['script', 'module', 'shell'].includes(mode)) {
-            g.console.set({ mode: 'terminal' })
+            g.console.$set({ mode: 'terminal' })
         } else if (['interactive', 'realtime'].includes(mode)) {
-            g.console.set({ mode: 'jupyter' })
-            g.jupyterToolbar.set({ mode })
+            g.console.$set({ mode: 'jupyter' })
+            g.jupyterToolbar.$set({ mode })
         }
         g.console.stop()
     }

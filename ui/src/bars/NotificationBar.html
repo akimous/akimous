@@ -90,13 +90,11 @@
             actions
         }
         queue.push(item)
-        const { items, active } = g.notificationHistory.get()
+        const { items, active } = g.notificationHistory
         items.unshift(item)
         if (items.length > 10)
             items.pop()
-        g.notificationHistory.set({
-            items
-        })
+        g.notificationHistory.$set({ items })
         if (!active)
             showNext()
     }
