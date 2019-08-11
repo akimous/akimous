@@ -15,22 +15,20 @@ const g = {
         // if focused panel is changed
         if (oldRoot && oldRoot !== x[0]) {
             // hide panel if autoHide is true and losing focus
-            if (oldRoot.get().autoHide)
-                oldRoot.set({
+            if (oldRoot.autoHide)
+                oldRoot.$set({
                     hidden: true
                 })
-            newRoot.set({
+            newRoot.$set({
                 hidden: false
             })
             // store focus stack if needed
             if (focusStack.length > 1) {
                 if (this.focus.constructor.name === 'Completion' ||
                     this.focus.constructor.name === 'ContextMenu') {
-                    this.focus.set({
-                        open: false
-                    })
+                    this.focus.$set({ open: false })
                 }
-                oldRoot.set({
+                oldRoot.$set({
                     focusStack: focusStack.slice(1)
                 })
             }

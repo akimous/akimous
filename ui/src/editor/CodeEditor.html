@@ -334,39 +334,26 @@
         session.close()
     })
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
+    $: {
+        if (pathString && cm && tab) {
+            session.send('Mtime', pathString)
+            tab.$set({ name: fileName })
+        }
+    }
+    
+    $: {
+        tab && tab.$set({ clean })
+    }
+    
+    $: {
+        if (active && session && cm) {
+            nextFrame(() => {
+                cm.refresh()
+                session.send('ActivateEditor')
+            })
+        }
+    }
     beforeUpdate(() => {
-//        if (!previous) return
-//        if (changed.filePath) {
-//            const newPath = current.filePath
-//            g.panelMiddle.pathToEditor[joinPath(newPath)] = this
-//            if (previous.filePath) {
-//                delete g.panelMiddle.pathToEditor[joinPath(previous.filePath)]
-//                __this.session.send('Mtime', { newPath })
-//            }
-//        }
-//
-//        if (changed.fileName) {
-//            tab.set({ name: current.fileName })
-//        }
-//        if (changed.clean) {
-//            tab.set({ clean: current.clean })
-//        }
-//        if (changed.active) {
-//            const { active } = current
-//            const { cm } = this
-//            tab.set({ active: active })
-//            if (active && __this.session && cm) {
-//                nextFrame(() => {
-//                    // content may not show for background editors if multiple editors are opened during startup
-//                    cm.refresh()
-//                    __this.session.send('ActivateEditor')
-//                })
-//
-//            }
-//        }
 //        if (changed.highlightOverlay) {
 //            const { cm } = this
 //            cm.removeOverlay(previous.highlightOverlay)

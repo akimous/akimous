@@ -33,9 +33,10 @@
     export let children = {},
         focused = false,
         hidden = false,
-        autoHide = false
+        autoHide = false,
+        tabBar = null
 
-    let onTabChange, self, tabBar
+    let onTabChange, self
     
     onMount(() => {
         onTabChange = onTabChangeFactory(tabBar, children)

@@ -79,10 +79,9 @@
 
     const dispatch = createEventDispatcher()
 
-//    onDestroy(() => {
-//        parent.tabs.delete(this)
-//        parent.fitTabWidth()
-//    })
+    onDestroy(() => {
+        dispatch('tabDestroyed', { id })
+    })
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave

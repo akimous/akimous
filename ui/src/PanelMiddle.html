@@ -49,9 +49,10 @@
     const MAX_ACTIVATION_HISTORY = 32
 
     export let focused = false,
-        focus = null
+        focus = null,
+        tabBar = null
     
-    let onTabChange, self, tabBar, openedFiles, activationHistory, activationHistoryIndex
+    let onTabChange, self, openedFiles, activationHistory, activationHistoryIndex
 
     onMount(() => {
         onTabChange = onTabChangeFactory(tabBar, editors)
@@ -142,7 +143,7 @@
             activationHistory[activationHistoryIndex] = filePath
         }
         // activate editor
-        g.activeEditor && (g.activeEditor.set({ active: false }))
+        g.activeEditor && (g.activeEditor.$set({ active: false }))
         focus = editor
         if (!editor) {
             g.linter.clear()

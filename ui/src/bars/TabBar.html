@@ -1,6 +1,6 @@
 <div bind:this={tabBar} class="tab-bar">
     {#each tabData as t}
-    <Tab {...t} bind:this={tabs[t.id]} on:requestTabClose></Tab>
+    <Tab {...t} bind:this={tabs[t.id]} on:requestTabClose on:tabDestroyed={tabDestroyed}></Tab>
     {/each}
 </div>
 
@@ -38,6 +38,12 @@
         sortable = Sortable.create(tabBar, { animation: 0 })
         new elementQueries.ResizeSensor(tabBar, fitTabWidth)
     })
+    
+    function tabDestroyed({ detail }) {
+        const { id } = detail
+        delete tabs[id]
+        fitTabWidth()
+    }
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
