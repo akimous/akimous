@@ -25,11 +25,12 @@
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
     
-    export let display = '',
-        path = [],
+    export let path = [],
         availableWidth = 0
     
     let self
+    
+    $: display = fitWidth(path, availableWidth)
 
     onMount(() => {
         const setAvailableWidth = () => {
@@ -39,25 +40,12 @@
         setAvailableWidth()
     })
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (changed.path || changed.availableWidth) {
-//            schedule(() => {
-//                display = this.fitWidth()
-//            })
-//        }
-    })
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function fitWidth() {
+    function fitWidth(path, availableWidth) {
         if (!path || path.length === 0) return ''
         
         if (!g.hiddenCanvas) g.hiddenCanvas = document.createElement('canvas')
         const context = g.hiddenCanvas.getContext('2d')
-        const style = window.getComputedStyle(pathIndicator, null)
+        const style = window.getComputedStyle(self, null)
         context.font = `${style.getPropertyValue('font-weight')} ${style.getPropertyValue('font-size')} ${style.getPropertyValue('font-family')}`
 
         if (path[0] === g.pathSeparator) { // remove duplicated /

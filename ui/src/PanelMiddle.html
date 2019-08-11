@@ -94,6 +94,10 @@
 //                editor && editor.cm && editor.cm.getInputField().blur()
 //        }
     })
+    
+    $: {
+        g.pathIndicator && g.pathIndicator.$set({ path: focus ? focus.filePath : null })
+    }
 
     export function getEditor(filePath) {
         return editors[joinPath(filePath)]
