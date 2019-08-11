@@ -2,12 +2,12 @@
 <div id="keymap-settings" class="popup from-top" style="left: calc({left}px - 12.5rem);">
     <div class="container">
         <div class="title">Keymap Settings</div>
-        <div class="option" class:checked="{layeredKeyboardControl}" on:click="{() => toggle('layeredKeyboardControl')}">
+        <div class="option" class:checked="{layeredKeyboardControl}" on:click="{() => layeredKeyboardControl = !layeredKeyboardControl}">
             <i class="checkbox fas"/>
             <span class="description">Enable layered keyboard control</span>
         </div>
         {#if layeredKeyboardControl}
-        <div class="option" class:checked="{keymapHint}" on:click="{() => toggle('keymapHint')}">
+        <div class="option" class:checked="{keymapHint}" on:click="{() => keymapHint = !keymapHint}">
             <i class="checkbox fas"/>
             <span class="description">Show keymap hint</span>
         </div>
@@ -22,38 +22,18 @@
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
 
-    export let open = false
-    export let left = 0
-    export let layeredKeyboardControl = config.keymap.layeredKeyboardControl
-    export let keymapHint = config.keymap.keymapHint
+    export let open = false,
+        left = 0
+    
+    let { layeredKeyboardControl, keymapHint } = config.keymap
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (!g.toolbar) return
-//        if (changed.open) {
-//            g.app.set({
-//                popup: current.open ? this : null
-//            })
-//        }
-//        if (changed.layeredKeyboardControl && !current.layeredKeyboardControl && current.keymapHint) {
-//            requestAnimationFrame(() => keymapHint = false)
-//        }
-//        if (changed.layeredKeyboardControl) {
-//            g.layeredKeyboardControl.enabled = current.layeredKeyboardControl
-//        }
-//        if (changed.keymapHint) {
-//            g.keyboardControlHint.set({ open: current.keymapHint })
-//        }
-    })
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function toggle(name) {
-//        const value = __this.get()[name]
-        const updated = { [name]: !value }
-//                this.set(updated)
-        setConfig('keymap', updated)
+    $: g.app && g.app.$set({ popup: open ? g.keymapSettings : null })
+    $: g.app && (g.layeredKeyboardControl.enabled = layeredKeyboardControl)
+    $: g.app && g.keyboardControlHint.$set({ open: keymapHint })
+    $: setConfig('keymap', { layeredKeyboardControl, keymapHint })
+    
+    $: {
+        if (!layeredKeyboardControl && keymapHint)
+            keymapHint = false
     }
 </script>

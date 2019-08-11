@@ -105,30 +105,27 @@
     
     let panel
     
-    $: {
-        dispatch('active', {
-            id: 'macro',
-            active
-        })
-    }
+    $: dispatch('active', {
+        id: 'macro',
+        active
+    })
     
     onMount(() => {
         // load config
         const { macroFormatWithShift } = config.macro
-        macroFormatWithShift = macroFormatWithShift
 
         // load macros
-        const macros = {}
+        const macros_ = {}
         import('/macro.js').then(({ default: defaultMacros }) => {
             for (const macro of defaultMacros) {
-                macros[macro.hotkey] = macro
+                macros_[macro.hotkey] = macro
             }
             import('/user/macro.js').then(({ default: userMacros }) => {
                 for (const macro of userMacros) {
-                    macros[macro.hotkey] = macro
+                    macros_[macro.hotkey] = macro
                 }
             }).finally(() => {
-                macros = macros
+                macros = macros_
             })
         })
 
@@ -185,14 +182,12 @@
         macro.callback(g.activeEditor.cm, event, this)
     }
 
-    export function onChangeMacroFormat() {
-        setConfig('macro', {
-            macroFormatWithShift: macroFormatWithShift
-        })
+    function onChangeMacroFormat() {
+        setConfig('macro', { macroFormatWithShift })
     }
 
-    export const editMacro = () => {
-        const path = config.macro.userMacroFile
-        g.panelMiddle.openFile(path)
+    const editMacro = () => {
+//        const path = config.macro.userMacroFile
+//        g.panelMiddle.openFile(path)
     }
 </script>
