@@ -111,12 +111,10 @@
         cmReadyCallback,
         cmEventDispatcher
     
-    $: {
-        dispatch('active', {
-            id: joinPath(filePath),
-            active
-        })
-    }
+    $: dispatch('active', {
+        id: joinPath(filePath),
+        active
+    })
 
     onMount(() => {
         self = g.panelMiddle.editors[pathString]
@@ -341,9 +339,7 @@
         }
     }
     
-    $: {
-        tab && tab.$set({ clean })
-    }
+    $: tab && tab.$set({ clean })
     
     $: {
         if (active && session && cm) {

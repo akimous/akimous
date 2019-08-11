@@ -60,12 +60,11 @@
 
     let jupyter, jupyterToolBar, terminal
 
-    $: {
-        dispatch('active', {
-            id: 'console',
-            active
-        })
-    }
+    $: dispatch('active', {
+        id: 'console',
+        active
+    })
+    
     onMount(() => {
         initializing = false
     })

@@ -92,12 +92,11 @@
     
     let panel
 
-    $: {
-        dispatch('active', {
-            id: 'references',
-            active
-        })
-    }
+    $: dispatch('active', {
+        id: 'references',
+        active
+    })
+
     function* withTitles(iterable) {
         let title = ''
         for (let i of iterable) {

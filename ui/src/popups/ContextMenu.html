@@ -47,9 +47,7 @@
         closable = true,
         selectedID = -1
     
-    $: {
-        g.app && g.app.$set({ popup: open ? g.contextMenu : null })
-    }
+    $: g.app && g.app.$set({ popup: open ? g.contextMenu : null })
     
     $: {
         if (open) selectedID = -1

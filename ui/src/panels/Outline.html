@@ -72,12 +72,10 @@
         outline,
         row
 
-    $: {
-        dispatch('active', {
-            id: 'outline',
-            active
-        })
-    }
+    $: dispatch('active', {
+        id: 'outline',
+        active
+    })
     
     onMount(() => {
         g.currentHighlight = null

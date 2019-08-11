@@ -245,22 +245,22 @@
         g.panelPopup.$set({
             open: true,
             content: `<table>
-                    <tr>
-				                <td class="key">Location</td>
-				                <td class="value">
-                            Line ${message.line}, column ${message.column}
-                            <div class="code">${message.message1}</div>
-                        </td>
-			                </tr>
-                    <tr>
-				                <td class="key">Problem</td>
-				                <td class="value">${message['message-id']}: ${message.symbol}</td>
-			                </tr>
-                    <tr>
-				                <td class="key">Message</td>
-				                <td class="value">${message.message0}</td>
-			                </tr>
-                </table>`
+                <tr>
+				    <td class="key">Location</td>
+				    <td class="value">
+                        Line ${message.line}, column ${message.column}
+                        <div class="code">${message.message1}</div>
+                    </td>
+			    </tr>
+                <tr>
+				    <td class="key">Problem</td>
+				    <td class="value">${message['message-id']}: ${message.symbol}</td>
+			    </tr>
+                <tr>
+				    <td class="key">Message</td>
+				    <td class="value">${message.message0}</td>
+			    </tr>
+            </table>`
         })
         g.panelPopup.reposition(x, y + height / 2)
     }

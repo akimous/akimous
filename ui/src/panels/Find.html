@@ -163,12 +163,10 @@
     
     let panel, findPreviousButton, findNextButton, jobAnimationFrameId
     
-    $: {
-        dispatch('active', {
-            id: 'find',
-            active
-        })
-    }
+    $: dispatch('active', {
+        id: 'find',
+        active
+    })
 
     function searchOverlayGenerator(query) {
         return {

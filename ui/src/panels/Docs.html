@@ -117,12 +117,10 @@
     
     let panel, docContainer, splitBar
     
-    $: {
-        dispatch('active', {
-            id: 'docs',
-            active
-        })
-    }
+    $: dispatch('active', {
+        id: 'docs',
+        active
+    })
 
     let lastTokenStart = { line: 0, ch: 0 }
 

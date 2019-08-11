@@ -45,12 +45,10 @@
     
     let selectedNode = null
     
-    $: {
-        dispatch('active', {
-            id: 'fileTree',
-            active
-        })
-    }
+    $: dispatch('active', {
+        id: 'fileTree',
+        active
+    })
 
     function onNodeSelected(event) {
         const path = event.detail
