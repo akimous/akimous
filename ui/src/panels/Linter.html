@@ -42,7 +42,7 @@
     <div class="title">Offline Lints</div>
     <div id="offline-linter-filter">
         {#each OFFLINE_LINT_TYPES as type}
-        <div class="type-filter non-selectable" class:active="{offlineLintType.has(type)}" on:click="{() => toggle('offlineLintType', type)}">
+        <div class="type-filter non-selectable" class:active="{offlineLintType[type]}" on:click="{() => toggle(type)}">
             <div class="type {type}">{typeStrings[type]}</div>
             <div class="count {type}">{offlineLintCounts[type]}</div>
         </div>
@@ -166,7 +166,7 @@
 
     export let width = 100,
         offlineLints = [],
-        offlineLintType = new Set(),
+        offlineLintType = {...config.offlineLintType},
         active = false,
         pyflakes = config.linter.pyflakes,
         spellChecker = config.linter.spellChecker,
@@ -177,46 +177,35 @@
     
     let panel
     
-    $: {
-        dispatch('active', {
-            id: 'linter',
-            active
-        })
-    }
+    $: dispatch('active', {
+        id: 'linter',
+        active,
+    })
     
     onMount(() => {
-//        initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
-
-        // fill in enabled types from config
-//        const { offlineLintType } = config
-//        const set = config.offlineLintType
-//        for (const k in offlineLintType)
-//            if (offlineLintType[k])
-//                set.add(k)
-//        offlineLintType = set
-
 //        makeScrollable(this, panel)
     })
 
-    let typeStrings
-//    $: {
-//        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-//        if (width > 24 * rem)
-//            typeStrings = {
-//                informational: 'Info',
-//                refactor: 'Refactor',
-//                convention: 'Convention',
-//                warning: 'Warning',
-//                error: 'Error',
-//            }
-//        return {
-//            informational: 'I',
-//            refactor: 'R',
-//            convention: 'C',
-//            warning: 'W',
-//            error: 'E',
-//        }
-//    }
+    let typeStrings = getTypeStrings()
+    
+    function getTypeStrings() {
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+        if (width > 24 * rem)
+            return {
+                informational: 'Info',
+                refactor: 'Refactor',
+                convention: 'Convention',
+                warning: 'Warning',
+                error: 'Error',
+            }
+        return {
+            informational: 'I',
+            refactor: 'R',
+            convention: 'C',
+            warning: 'W',
+            error: 'E',
+        }
+    }
 
     let offlineLintCounts
     $: {
@@ -234,12 +223,7 @@
         offlineLintCounts = result
     }
 
-    let filteredOfflineLints
-    $: {
-        filteredOfflineLints = offlineLints.filter(x => {
-            return offlineLintType.has(x.type)
-        })
-    }
+    $: filteredOfflineLints = offlineLints.filter(x => offlineLintType[x.type])
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
@@ -255,10 +239,10 @@
         setCursorAndScrollIntoView(line - 1, ch)
     }
 
-    export function showPopup(i, event) {
+    function showPopup(i, event) {
         const { x, y, height } = event.currentTarget.getBoundingClientRect()
         const message = offlineLints[i]
-        g.popup.$set({
+        g.panelPopup.$set({
             open: true,
             content: `<table>
                     <tr>
@@ -278,23 +262,16 @@
 			                </tr>
                 </table>`
         })
-        g.popup.reposition(x, y + height / 2)
+        g.panelPopup.reposition(x, y + height / 2)
     }
 
-    export const closePopup = (event) => {
-        g.popup.closeIfNotHovered(event)
+    const closePopup = (event) => {
+        g.panelPopup.closeIfNotHovered(event)
     }
 
-    export function toggle(setName, item) {
-        const set = offlineLintType
-        if (set.has(item))
-            set.delete(item)
-        else
-            set.add(item)
-        setName = set
-        setConfig(setName, {
-            [item]: set.has(item)
-        })
+    function toggle(item) {
+        offlineLintType[item] = !offlineLintType[item]
+        setConfig('offlineLintType', offlineLintType)
     }
 
     export function addToDictionary(wordHighlight) {
