@@ -31,7 +31,7 @@
 </style>
 
 <script>
-    import { afterUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte'
+    import { afterUpdate, onDestroy, onMount, createEventDispatcher, tick } from 'svelte'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
     
@@ -68,7 +68,6 @@
     }
     onMount(() => {
         initializing = false
-//        initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
     })
 
     onDestroy(() => {
@@ -95,12 +94,12 @@
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
-    export function initialize() {
+    export async function initialize() {
         if (initializing) return
         initializing = true
-        
-//        __this.tab.set({ active: false })
-//        __this.tab.set({ active: true })
+        tab.active = false
+        await tick()
+        tab.active = true
         
         document.fonts.ready.then(() => { 
             // make sure the font is already loaded 

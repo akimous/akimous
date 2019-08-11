@@ -77,12 +77,6 @@
     import RunConfigShellCommand from './RunConfigShellCommand.html'
     import ToggleButton from '../lib/ToggleButton.html'
     import TextInput from '../lib/TextInput.html'
-    
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ open, left, cwd, args, mode, editing, shellCommands, shellCommandIndex, allowWhiteSpace })
-    }
 
     export let open = false,
         left = 0,

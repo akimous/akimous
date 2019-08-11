@@ -91,20 +91,20 @@
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function move(nRows) {
-        const currentIndex = __this.rows.indexOf(__this.get().selectedRow)
-        const length = __this.rows.length
+        const currentIndex = rows.indexOf(__this.get().selectedRow)
+        const length = rows.length
 
         let targetIndex = currentIndex + nRows
         if (currentIndex === -1 && nRows < 0) targetIndex = length - 1
         else if (targetIndex >= length) targetIndex = length - 1
         else if (targetIndex < 0) targetIndex = 0
 
-        const targetRow = __this.rows[targetIndex]
+        const targetRow = rows[targetIndex]
         selectedRow = targetRow
     }
 
     export function enter(rowNumber) {
-        const row = rowNumber ? __this.rows[rowNumber - 1] : __this.get().selectedRow
+        const row = rowNumber ? rows[rowNumber - 1] : selectedRow
         if (row) row.click()
         else open = false
     }

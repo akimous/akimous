@@ -62,9 +62,6 @@
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {}
     const dispatch = createEventDispatcher()
 
     export let active = false,
@@ -83,7 +80,6 @@
     }
     
     onMount(() => {
-//        __this.name = 'outline'
         g.currentHighlight = null
 //        initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')
 //        makeScrollable(this, panel)

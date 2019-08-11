@@ -35,11 +35,6 @@
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
     import { CLOSED, NORMAL } from './CompletionProvider'
 
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ open, passive, rows, selectedCompletionRow, closable })
-    }
     const EXTRA_PREDICTIONS = new Set([
         'word-segment',
         'word',
@@ -54,38 +49,53 @@
     
     let container,
         passivePlaceholder,
-        completion
+        completion,
+        completionRows = [],
+        completionRowShortcuts = new Array(9),
+        cm,
+        completionProvider
+    
+    let keyEventHandler = EventDispatcherFactory({
+        // target: this,
+        extraKeyHandler(event, target) {
+            const { key } = event
+            if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key)) {
+                target.enter(null, key)
+            } else if (/[=[\](){}]/.test(key)) {
+                target.set({
+                    open: false
+                })
+                target.completionProvider.state = CLOSED
+            } else if (key === 'Escape') {
+                target.completionProvider.state = CLOSED
+            }
+            return true
+        },
+    })
 
     onMount(() => {
-        __this.completionRows = []
-        __this.completionRowShortcuts = new Array(9)
-
         // keep row number of visible rows 1 to 7
         let lastFVI = 999
         const scrollHandler = () => {
-            const rowHeight = __this.completionRows[0].refs.completionRow.clientHeight
+            const rowHeight = completionRows[0].refs.completionRow.clientHeight
             let firstVisibleIndex = Math.floor(container.scrollTop / rowHeight) - passive
             if (firstVisibleIndex < 0)
                 firstVisibleIndex = 0
-            if (firstVisibleIndex > __this.completionRows.length)
-                firstVisibleIndex = __this.completionRows.length - 1
+            if (firstVisibleIndex > completionRows.length)
+                firstVisibleIndex = completionRows.length - 1
             if (lastFVI === firstVisibleIndex) return
 
             let lastVisibleIndex = firstVisibleIndex + 8
-            if (lastVisibleIndex > __this.completionRows.length)
-                lastVisibleIndex = __this.completionRows.length
+            if (lastVisibleIndex > completionRows.length)
+                lastVisibleIndex = completionRows.length
             for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
                 const rowNumber = i - firstVisibleIndex + 1
-                __this.completionRows[i].set({
-                    rowNumber
-                })
-                __this.completionRowShortcuts[rowNumber] = __this.completionRows[i]
+                completionRows[i].set({ rowNumber })
+                completionRowShortcuts[rowNumber] = completionRows[i]
             }
             lastFVI = firstVisibleIndex
         }
-        container.addEventListener('scroll', scrollHandler, {
-            passive: true
-        })
+        container.addEventListener('scroll', scrollHandler, { passive: true })
 
 //        __this.on('state', ({ changed, current }) => {
 //            // Don't merge this with onstate, or the completion selection will break
@@ -110,30 +120,12 @@
 //                selectedCompletionRow = this.completionRows[0]
 //            }
 //        })
-
-        __this.keyEventHandler = EventDispatcherFactory({
-            target: this,
-            extraKeyHandler(event, target) {
-                const { key } = event
-                if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key)) {
-                    target.enter(null, key)
-                } else if (/[=[\](){}]/.test(key)) {
-                    target.set({
-                        open: false
-                    })
-                    target.completionProvider.state = CLOSED
-                } else if (key === 'Escape') {
-                    target.completionProvider.state = CLOSED
-                }
-                return true
-            },
-        })
         
-        const oldCommandHandler = __this.keyEventHandler.handleCommand
+        const oldCommandHandler = keyEventHandler.handleCommand
         const PASSTHROUGH_COMMANDS = new Set([
             'home', 'left', 'right', 'end', 'delGroupBefore', 'delGroupAfter',
         ])
-        __this.keyEventHandler.handleCommand = command => {
+        keyEventHandler.handleCommand = command => {
             if (PASSTHROUGH_COMMANDS.has(command)) return true
             oldCommandHandler(command)
         }
@@ -167,14 +159,13 @@
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function bindReferences(editor) {
-        __this.editor = editor
-        __this.cm = editor.cm
-        __this.completionProvider = editor.completionProvider
+        cm = editor.cm
+        completionProvider = editor.completionProvider
     }
 
     export function requestCompletionDocstringIfNeeded(completion) {
         let name = completion.completion
-        if (name === __this.lastRequestedCompletionForDocstring) return
+        if (name === lastRequestedCompletionForDocstring) return
         if (EXTRA_PREDICTIONS.has(completion.type))
             return // don't request docstring if it is not actually a completion
 
@@ -182,8 +173,8 @@
         const match = name.match(/^[^\d\W]\w*/)
         if (match)
             name = match[0]
-        __this.lastRequestedCompletionForDocstring = name
-        __this.editor.session.send('GetCompletionDocstring', { name })
+        lastRequestedCompletionForDocstring = name
+        editor.session.send('GetCompletionDocstring', { name })
     }
 
     export function setCompletions(rows, firstTriggeredCharPos, type) {
@@ -198,13 +189,13 @@
     }
 
     export function repositionCompletionWindow(pos) {
-        if (!__this.get().open)
+        if (!open)
             return
-        const editorElement = __this.editor.refs.codeEditor
+        const editorElement = editor.refs.codeEditor
         const container = container
 
         const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-        const coords = __this.cm.charCoords(pos, 'window')
+        const coords = cm.charCoords(pos, 'window')
         const charHeight = coords.bottom - coords.top
 
         const editorArea = editorElement.getBoundingClientRect()
@@ -222,10 +213,10 @@
 
     export function enter(rowNumber, key) {
         if (!open) return console.error('closed')
-        const row = rowNumber ? __this.completionRowShortcuts[rowNumber] : __this.get().selectedCompletionRow
+        const row = rowNumber ? completionRowShortcuts[rowNumber] : selectedCompletionRow
         if (!row) return console.error('no selected completion')
 
-        __this.completionProvider.state = CLOSED
+        completionProvider.state = CLOSED
         let { text, tail } = row.get()
         text = text + tail
         open = false
@@ -233,32 +224,32 @@
         // Don't commit passive completions unless the key is Tab or a number.
         if (passive && !/\d/.test(key) && key !== 'Tab') {
             if (key === 'commit') {
-                const cursor = __this.cm.doc.getCursor()
-                __this.cm.replaceRange(' ', cursor, cursor, '+input')
+                const cursor = cm.doc.getCursor()
+                cm.replaceRange(' ', cursor, cursor, '+input')
             }
             return true // let it propagate
         }
 
-        __this.cm.replaceRange(
+        cm.replaceRange(
             text,
-            __this.completionProvider.firstTriggeredCharPos,
-            __this.cm.doc.getCursor(),
+            completionProvider.firstTriggeredCharPos,
+            cm.doc.getCursor(),
             '+completion'
         )
         if (tail === '()')
-            __this.cm.execCommand('goCharLeft')
-        __this.cm.focus()
+            cm.execCommand('goCharLeft')
+        cm.focus()
     }
 
     export function move(nRows) {
-        const currentIndex = __this.get().selectedCompletionRow.get().index
-        const length = __this.completionRows.length
+        const currentIndex = selectedCompletionRow.index
+        const length = completionRows.length
 
         let targetIndex = currentIndex + nRows
         if (targetIndex >= length) targetIndex = length - 1
         else if (targetIndex < 0) targetIndex = 0
 
-        const targetRow = __this.completionRows[targetIndex]
+        const targetRow = completionRows[targetIndex]
         requestCompletionDocstringIfNeeded(targetRow.get())
         selectedCompletionRow = targetRow
         targetRow.refs.completionRow.scrollIntoViewIfNeeded(false)

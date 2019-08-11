@@ -214,7 +214,7 @@
         },
         findIn() {
             const path = getPath()
-            if (!__this.get().isDir) path.pop()
+            if (!isDir) path.pop()
             g.find.reset()
             g.find.set({ 
                 findInDirectory: path,
@@ -336,15 +336,15 @@
 
     export function commitRename() {
         if (!renaming) return // prevent event being triggered twice (one from enter, one from blur)
-        if (input.value !== __this.get().name && input.value.length > 0) {
-            if (__this.get().placeholderMode) {
+        if (input.value !== name && input.value.length > 0) {
+            if (placeholderMode) {
                 name = this.refs.input.value
                 const path = getPath()
                 const { isDir } = parent.get()
                 if (!isDir)
                     path.splice(-2, 1) // remove if its parent is a file, not the real parent
-                if (__this.renamingCommittedCallback)
-                    __this.renamingCommittedCallback(path)
+                if (renamingCommittedCallback)
+                    renamingCommittedCallback(path)
             } else {
                 g.fileTree.session.send('Rename', {
                     path: getPath(),
@@ -356,8 +356,8 @@
     }
 
     export function endRenaming() {
-        if (__this.get().placeholderMode) {
-            __this.get().parent.set({ newNode: null })
+        if (placeholderMode) {
+            parent.$set({ newNode: null })
         } else {
             renaming = false
         }
@@ -366,7 +366,7 @@
     export function sibling(direction) {
         const { files, dirs } = parent.get()
         const list = isDir ? dirs : files
-        const currentIndex = binarySearch(list, __this.get().name)
+        const currentIndex = binarySearch(list, name)
 
         let newList = list
         let newIndex = currentIndex + (direction > 0 ? 1 : -1)
@@ -388,14 +388,14 @@
     }
 
     export function firstChild() {
-        if (dirs.length) return __this.children[dirs[0].name]
-        if (files.length) return __this.children[files[0].name]
+        if (dirs.length) return children[dirs[0].name]
+        if (files.length) return children[files[0].name]
         return null
     }
 
     export function lastChild() {
-        if (files.length) return __this.children[files[files.length - 1].name]
-        if (dirs.length) return __this.children[dirs[dirs.length - 1].name]
+        if (files.length) return children[files[files.length - 1].name]
+        if (dirs.length) return children[dirs[dirs.length - 1].name]
         return null
     }
 

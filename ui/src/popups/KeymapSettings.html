@@ -19,12 +19,6 @@
 <script>
     import { beforeUpdate } from 'svelte'
 
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ open, left, layeredKeyboardControl, keymapHint })
-    }
-
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
 
@@ -57,7 +51,7 @@
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function toggle(name) {
-        const value = __this.get()[name]
+//        const value = __this.get()[name]
         const updated = { [name]: !value }
 //                this.set(updated)
         setConfig('keymap', updated)

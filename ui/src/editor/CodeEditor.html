@@ -94,7 +94,9 @@
         session = g.socket.createSession('editor', { filePath }),
         cm = null,
         completion = null,
-        tab = null
+        tab = null,
+        completionProvider = null,
+        realtimeFormatter = null
     
     let codeEditor,
         mtime,
@@ -107,8 +109,6 @@
         shouldClose = false,
         highlightSelectionMatches,
         cmReadyCallback,
-        completionProvider,
-        realtimeFormatter,
         cmEventDispatcher
     
     $: {

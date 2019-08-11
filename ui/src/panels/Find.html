@@ -137,11 +137,6 @@
     import TextInput from '../lib/TextInput.html'
     import Button from '../lib/Button.html'
     
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ active, findText, caseSensitive, regex, findInDirectory, wholeWord, subdirectory, replaceMode, replaceText, matches, overflow, selectedIndex, nFiles, selectedMatches, currentLine, currentFilePath, currentCh, cannotDisplay })
-    }
     const dispatch = createEventDispatcher()
     const textMarkOption = {
         className: 'cm-searching-marked'
@@ -166,7 +161,7 @@
         currentCh = 0,
         cannotDisplay = false
     
-    let panel, findPreviousButton, findNextButton
+    let panel, findPreviousButton, findNextButton, jobAnimationFrameId
     
     $: {
         dispatch('active', {
@@ -195,10 +190,9 @@
     
     
     onMount(() => {
-        __this.name = 'find'
 //        initializeTabView(this, 'Find', 'fas fa-search l-blue')
 //        makeScrollable(this, panel)
-        __this.jobAnimationFrameId = 0
+        jobAnimationFrameId = 0
         g.projectSession.handlers['FoundInDirectory'] = ({ result, overflow, nFiles }) => {
             const m = []
             for (const { file, matches } of result) {
@@ -324,8 +318,8 @@
 
         cm.operation(() => {
             const changeObject = { textMark: cm.markText(from, to, textMarkOption) }
-            if (editor.get().highlightOverlay !== __this.highlightOverlay) {
-                changeObject.highlightOverlay = __this.highlightOverlay
+            if (editor.get().highlightOverlay !== highlightOverlay) {
+                changeObject.highlightOverlay = highlightOverlay
             }
             editor.set(changeObject)
             cm.setSelection(from, to)
@@ -371,7 +365,7 @@
         } else {
             selectAll()
             replace()
-            g.notificationBar.show('success', `${__this.get().matches.length} matches replaced.`)
+            g.notificationBar.show('success', `${matches.length} matches replaced.`)
         }
     }
 
@@ -414,7 +408,7 @@
     }
 
     export function findInFile(editor) {
-        cancelAnimationFrame(__this.jobAnimationFrameId)
+        cancelAnimationFrame(jobAnimationFrameId)
         const query = getQuery()
         if (query) {
             const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
@@ -434,7 +428,7 @@
                     matches.push({ display, from, to, filePath })
                     if (matches.length === limit) {
                         limit += 100
-                        __this.jobAnimationFrameId = requestAnimationFrame(job)
+                        jobAnimationFrameId = requestAnimationFrame(job)
                         break
                     }
                 }
@@ -442,9 +436,9 @@
             }
             job()
 
-            __this.highlightOverlay = searchOverlayGenerator(query)
+            highlightOverlay = searchOverlayGenerator(query)
             nextFrame(() => {
-                editor.set({ highlightOverlay: __this.highlightOverlay })
+                editor.set({ highlightOverlay: highlightOverlay })
             })
         } else {
             editor.set({ highlightOverlay: null })

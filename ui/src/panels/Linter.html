@@ -160,11 +160,6 @@
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
     
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ width, offlineLints, offlineLintType, active, pyflakes, spellChecker, pylint, realtimeLints, currentLine, spellingErrors, OFFLINE_LINT_TYPES })
-    }
     const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
     const domParser = new DOMParser()
     const dispatch = createEventDispatcher()
@@ -190,7 +185,6 @@
     }
     
     onMount(() => {
-        __this.name = 'linter'
 //        initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
 
         // fill in enabled types from config
@@ -263,8 +257,8 @@
 
     export function showPopup(i, event) {
         const { x, y, height } = event.currentTarget.getBoundingClientRect()
-        const message = __this.get().offlineLints[i]
-        g.popup.set({
+        const message = offlineLints[i]
+        g.popup.$set({
             open: true,
             content: `<table>
                     <tr>
@@ -292,7 +286,7 @@
     }
 
     export function toggle(setName, item) {
-        const set = __this.get()[setName]
+        const set = offlineLintType
         if (set.has(item))
             set.delete(item)
         else

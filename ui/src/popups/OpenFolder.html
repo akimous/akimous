@@ -128,33 +128,28 @@
     export let path = '',
         list = []
     
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ path, list })
-    }
+    let session = g.socket.createSession('openFolder')
 
     onMount(() => {
-        __this.session = g.socket.createSession('openFolder')
-        __this.session.handlers['Listed'] = data => {
+        session.handlers['Listed'] = data => {
 //                this.set(data)
         }
-        __this.session.send('Open')
+        session.send('Open')
     })
 
     onDestroy(() => {
-        __this.session && __this.session.close()
+        session && session.close()
     })
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function folderClicked(folder) {
-        __this.session.send('Ls', [__this.get().path, folder])
+        session.send('Ls', [path, folder])
     }
 
     export function pathKeyDown() {
         if (event.key !== 'Enter') return
-        __this.session.send('Ls', [__this.get().path])
+        session.send('Ls', [path])
     }
 
     export function focusPathInput() {
@@ -162,11 +157,11 @@
     }
 
     export function home() {
-        __this.session.send('Home')
+        session.send('Home')
     }
 
     export function up() {
-        __this.session.send('Ls', [__this.get().path, '..'])
+        session.send('Ls', [path, '..'])
     }
 
     export function cancel() {

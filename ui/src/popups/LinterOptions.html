@@ -55,11 +55,6 @@
         yapf = config.formatter.yapf,
         pylint = config.linter.pylint    
     
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {
-        get: () => ({ open, left, realtime, pyflakes, spellChecker, isort, yapf, pylint })
-    }
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave

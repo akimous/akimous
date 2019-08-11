@@ -91,9 +91,6 @@
 <script>
     import g from '../lib/Globals'
 
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {}
 
     export let active = false,
         icon = 'far fa-question-circle',
@@ -105,16 +102,14 @@
             text: 'No',
             style: 'danger'
         }]
-
-//    onMount(() => {
-//        __this.queue = []
-//    })
+    
+    const queue = []
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export function open(data) {
-        __this.queue.push(data)
-        if (__this.queue.length == 1) {
+        queue.push(data)
+        if (queue.length == 1) {
 //                    this.set(data)
         }
         active = true
@@ -125,8 +120,8 @@
 
     export function onClickButton(button) {
         button.action && button.action()
-        __this.queue.shift()
-        if (__this.queue.length != 0) {
+        queue.shift()
+        if (queue.length != 0) {
 //                    this.set(this.queue[0])
             return
         }
