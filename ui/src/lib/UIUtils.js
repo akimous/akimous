@@ -1,5 +1,8 @@
 import throttle from 'lodash.throttle'
 
+import g from './Globals'
+import { setProjectState } from './ConfigManager'
+
 function dragElement(element) {
     let xDiff = 0,
         yDiff = 0,
@@ -85,7 +88,7 @@ function makeScrollable(component, target) {
     }
 }
 
-function onTabChangeFactory(tabBar, children) {
+function onTabChangeFactory(tabBar, children, panel) {
     function onTabChange({ detail }) {
         if (detail.active) {
             for (const [name, view] of Object.entries(children)) {
@@ -93,6 +96,9 @@ function onTabChangeFactory(tabBar, children) {
                     view.$set({ active: false })
                 }
             }
+            // no need to save panel middle, because it is already handled by ActivateEditor
+            if (g.ready && panel) 
+                setProjectState('activePanels', { [panel]: detail.id })
         }
         tabBar.updateTabIndicator(detail)
     }

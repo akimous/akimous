@@ -20,7 +20,7 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount } from 'svelte'
+    import { beforeUpdate, onMount, tick } from 'svelte'
     
     import g from './lib/Globals'
     import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
@@ -38,17 +38,14 @@
 
     let onTabChange, self
     
-    onMount(() => {
-        onTabChange = onTabChangeFactory(tabBar, children)
+    onMount(async () => {
+        onTabChange = onTabChangeFactory(tabBar, children, 'left')
         tabBar.openTab('fileTree', 'FileTree', children.fileTree, 'fas fa-tree l-green')
         tabBar.openTab('outline', 'Outline', children.outline, 'fas fa-align-left l-blue')
         Object.assign(g, children)
-//        setAttributeForMultipleComponent({
-//            parent: this
-//        }, tabBar, fileTree, outline)
-        schedule(() => {            
-            children[g.projectState.activePanels.left].$set({ active: true })
-        })
+        
+        await tick()
+        children[g.projectState.activePanels.left].$set({ active: true })
     })
 
     // [svelte-upgrade warning]
@@ -64,8 +61,6 @@
 //        }
 //    });
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export const closeView = () => {
         // not allowed to close view for now
     }

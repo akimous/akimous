@@ -25,7 +25,7 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount } from 'svelte'
+    import { beforeUpdate, onMount, tick } from 'svelte'
     
     import g from './lib/Globals'
     import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
@@ -49,8 +49,8 @@
         allowWhiteSpace = true
 
     let onTabChange, self
-    onMount(() => {
-        onTabChange = onTabChangeFactory(tabBar, children)
+    onMount(async () => {
+        onTabChange = onTabChangeFactory(tabBar, children, 'right')
         tabBar.openTab('console', 'Console', children.console, 'fas fa-desktop l-purple')
         tabBar.openTab('find', 'Find', children.find, 'fas fa-search l-blue')
         tabBar.openTab('linter', 'Linter', children.linter, 'fas fa-check-circle l-green')
@@ -58,12 +58,10 @@
         tabBar.openTab('docs', 'Documentation', children.docs, 'fas fa-book-open l-red')
         tabBar.openTab('references', 'References', children.references, 'fas fa-link l-ao')
         Object.assign(g, children)
-
+        
         // we must activate console upon initialization, or xterm will break
-        schedule(() => {
-//            children[g.projectState.activePanels.left].$set({ active: true })
-            children.console.$set({ active: true })
-        })
+        await tick()
+        children[g.projectState.activePanels.right].$set({ active: true })
     })
 
     // [svelte-upgrade warning]
