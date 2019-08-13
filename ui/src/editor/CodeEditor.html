@@ -335,7 +335,7 @@
 
     $: {
         if (pathString && cm && tab) {
-            session.send('Mtime', pathString)
+            session.send('Mtime', { newPath: pathString })
             tab.$set({ name: fileName })
         }
     }
