@@ -134,8 +134,8 @@
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
-    export const onFocus = () => {
-        g.setFocus([g.panelRight, this])
+    function onFocus() {
+        g.setFocus([g.panelRight, g.macro])
     }
 
     export function addClipboardItem(text) {

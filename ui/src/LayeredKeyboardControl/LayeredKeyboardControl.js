@@ -5,7 +5,7 @@ import CodeEditor from '../editor/CodeEditor.html'
 
 function togglePanelAutoHide(panel) {
     const autoHide = !panel.autoHide
-    panel.set({
+    panel.$set({
         autoHide,
         hidden: autoHide
     })
@@ -119,20 +119,14 @@ class LayeredKeyboardControl {
                     if (e.metaKey)
                         this.macroMode = true
                     else
-                        g.tabNumber.set({
-                            active: true
-                        })
+                        g.tabNumber.$set({ active: true })
                     return true // let it propagate
                 case 'Meta':
                     if (e.ctrlKey) {
                         this.macroMode = true
-                        g.tabNumber.set({
-                            active: false
-                        })
+                        g.tabNumber.$set({ active: false })
                     } else
-                        g.tabNumber.set({
-                            active: true
-                        })
+                        g.tabNumber.$set({ active: true })
                     return true // let it propagate
                 case 'Tab':
                     // When completion window is open, commit selection instead of increasing indent
@@ -201,15 +195,11 @@ class LayeredKeyboardControl {
                     g.keyboardControlHint.dimModifier('Space')
                     return this.stopPropagation(e)
                 case 'Control':
-                    g.tabNumber.set({
-                        active: false
-                    })
+                    g.tabNumber.$set({ active: false })
                     this.macroMode = false
                     return true // let it propagate
                 case 'Meta':
-                    g.tabNumber.set({
-                        active: false
-                    })
+                    g.tabNumber.$set({ active: false })
                     this.macroMode = false
                     return true // let it propagate
                 default:

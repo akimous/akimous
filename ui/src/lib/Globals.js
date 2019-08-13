@@ -4,9 +4,11 @@ const g = {
     focusStack: [],
     get focus() {
         const stack = this.focusStack
+        console.log('got focus', stack[stack.length - 1], stack)
         return stack[stack.length - 1]
     },
     setFocus(x) {
+        console.warn('set focus', x)
         const focusStack = this.focusStack
         // backup original focus stack
         const oldRoot = focusStack[0]
@@ -16,12 +18,8 @@ const g = {
         if (oldRoot && oldRoot !== x[0]) {
             // hide panel if autoHide is true and losing focus
             if (oldRoot.autoHide)
-                oldRoot.$set({
-                    hidden: true
-                })
-            newRoot.$set({
-                hidden: false
-            })
+                oldRoot.$set({ hidden: true })
+            newRoot.$set({ hidden: false })
             // store focus stack if needed
             if (focusStack.length > 1) {
                 if (this.focus.constructor.name === 'Completion' ||
@@ -42,6 +40,7 @@ const g = {
         this.onFocusChanged()
     },
     pushFocus(x) {
+        console.log('push focus', x)
         const focusStack = this.focusStack
         for (let i = 0; i < focusStack.length; i++) {
             if (focusStack[i] === x) return
@@ -50,6 +49,7 @@ const g = {
         this.onFocusChanged()
     },
     popFocus(x) {
+        console.log('pop focus', x)
         const focusStack = this.focusStack
         for (let i = focusStack.length - 1; i >= 0; i--) {
             if (focusStack[i] === x) {

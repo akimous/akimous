@@ -110,7 +110,6 @@
         if (!editor) {
             const fileName = filePath[filePath.length - 1]
             const pathString = joinPath(filePath)
-            console.log({pathString})
             editorProps[pathString] = {
                 fileName, 
                 filePath, 
@@ -181,7 +180,6 @@
     }
 
     export function closeView(editor) {
-        console.log('close view', editor.filePath)
         closeFile(editor.filePath)
     }
 

@@ -185,10 +185,7 @@
         }
     }
 
-    
-    
     onMount(() => {
-//        initializeTabView(this, 'Find', 'fas fa-search l-blue')
 //        makeScrollable(this, panel)
         jobAnimationFrameId = 0
         g.projectSession.handlers['FoundInDirectory'] = ({ result, overflow, nFiles }) => {
@@ -247,13 +244,11 @@
 //        }
     })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export const onFocus = () => {
-        g.setFocus([g.panelRight, this])
+    function onFocus() {
+        g.setFocus([g.panelRight, g.find])
     }
 
-    export function onKeyDown(event) {
+    function onKeyDown(event) {
         if (event.key === 'Enter') {
             findNext(1)
             findNextButton.flash()

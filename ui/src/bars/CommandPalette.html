@@ -1,6 +1,6 @@
 <div id="command-palette" class="non-selectable" class:gone="{!active}">
     <span class="message">{message}</span>
-    <input bind:this={input} type="text" spellcheck="false" on:keydown="{onKeyDown}" />
+    <input bind:this={input} bind:value type="text" spellcheck="false" on:keydown="{onKeyDown}" />
 </div>
 
 
@@ -42,26 +42,29 @@
     
     import g from '../lib/Globals'
 
-    export let input = '',
+    export let value = '',
         active = false,
         message = '',
-        callback = null
-
-    afterUpdate(() => {
-//        if (changed.active && current.active) {
-//            g.setFocus([this])
-//            input.focus()
-//        }
-    })
+        callback = null,
+        input = null
+    
+    $: active && onActivation(active)
+    
+    function onActivation(active_) {
+        g.setFocus([g.commandPalette])
+        input.focus()
+    }
 
     export function show() {
         active = true
         message = 'Command:'
     }
 
-//    export function promptForInput(message, callback) {
-//        active = true, message = message, callback = callback
-//    }
+    export function promptForInput(message_, callback_) {
+        active = true
+        message = message_
+        callback = callback_
+    }
 
     export function onKeyDown() {
         if (event.key === 'Enter') {

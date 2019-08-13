@@ -12,7 +12,7 @@
 <Tooltip bind:this={g.tooltip}></Tooltip>
 <!--{/if}-->
 {#if openFolder}
-<OpenFolder></OpenFolder>
+<OpenFolder bind:this={g.openFolder}></OpenFolder>
 {/if}
 {#if popup}
 <div id="dismiss-popup" on:mousedown="{dismissPopups}"></div>

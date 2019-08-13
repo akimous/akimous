@@ -119,7 +119,7 @@
                 terminal.open(terminal, false)
 
                 terminal.on('focus', () => {
-                    g.setFocus([g.panelRight, this])
+                    g.setFocus([g.panelRight, g.console])
                 })
                 terminal.addDisposableListener('data', data => {
                     session.send('Stdin', data)
