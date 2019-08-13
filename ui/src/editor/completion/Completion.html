@@ -2,7 +2,9 @@
     {#if passive}
     <CompletionRow bind:this={passivePlaceholder} parent={null} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
     {/if}
-    <div bind:this={completion}></div>
+    {#each rows as {text, type, highlight, tail}, i}
+    <CompletionRow bind:this={completionRows[i]} {text} {type} {highlight} tail={tail||''} index={i} selected={selectedIndex===i} on:completionRowClicked={onCompletionRowClicked}></CompletionRow>
+    {/each}
 </div>
 
 <style>
@@ -26,11 +28,18 @@
 
 </style>
 
+<script context="module">
+    const PASSTHROUGH_COMMANDS = new Set([
+        'home', 'left', 'right', 'end', 'delGroupBefore', 'delGroupAfter',
+    ])
+
+</script>
 
 <script>
     import { beforeUpdate, onMount } from 'svelte'
     
     import g from '../../lib/Globals'
+    import { nextFrame } from '../../lib/utils'
     import CompletionRow from './CompletionRow.html'
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
     import { CLOSED, NORMAL } from './CompletionProvider'
@@ -44,18 +53,29 @@
     export let open = false,
         passive = false,
         rows = [],
-        selectedCompletionRow = null,
+        selectedIndex = 0,
         closable = true
     
     let container,
         passivePlaceholder,
         completion,
-        completionRows = [],
+        completionRows = {},
         completionRowShortcuts = new Array(9),
         cm,
-        completionProvider
+        completionProvider,
+        editor,
+        lastRequestedCompletionForDocstring
     
-    let keyEventHandler = EventDispatcherFactory({
+    $: rowCount = rows.length + passive
+    $: {
+        if (rows.length) {
+            lastFVI = 999
+            selectedIndex = 0
+            nextFrame(scrollHandler)
+        }
+    }
+    
+    const keyEventHandler = EventDispatcherFactory({
         // target: this,
         extraKeyHandler(event, target) {
             const { key } = event
@@ -70,63 +90,42 @@
             return true
         },
     })
+    const oldCommandHandler = keyEventHandler.handleCommand
+    keyEventHandler.handleCommand = command => {
+        if (PASSTHROUGH_COMMANDS.has(command)) return true
+        oldCommandHandler(command)
+    }
 
-    onMount(() => {
-        // keep row number of visible rows 1 to 7
-        let lastFVI = 999
-        const scrollHandler = () => {
-            const rowHeight = completionRows[0].refs.completionRow.clientHeight
-            let firstVisibleIndex = Math.floor(container.scrollTop / rowHeight) - passive
-            if (firstVisibleIndex < 0)
-                firstVisibleIndex = 0
-            if (firstVisibleIndex > completionRows.length)
-                firstVisibleIndex = completionRows.length - 1
-            if (lastFVI === firstVisibleIndex) return
+    // keep row number of visible rows 1 to 7
+    let lastFVI = 999
+    const scrollHandler = () => {
+        const rowHeight = completionRows[0].row.clientHeight
+        let firstVisibleIndex = Math.floor(container.scrollTop / rowHeight) - passive
+        if (firstVisibleIndex < 0)
+            firstVisibleIndex = 0
+        if (firstVisibleIndex > rowCount)
+            firstVisibleIndex = rowCount - 1
+        if (lastFVI === firstVisibleIndex) return
 
-            let lastVisibleIndex = firstVisibleIndex + 8
-            if (lastVisibleIndex > completionRows.length)
-                lastVisibleIndex = completionRows.length
-            for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-                const rowNumber = i - firstVisibleIndex + 1
-                completionRows[i].$set({ rowNumber })
-                completionRowShortcuts[rowNumber] = completionRows[i]
-            }
-            lastFVI = firstVisibleIndex
+        let lastVisibleIndex = firstVisibleIndex + 8
+        if (lastVisibleIndex > rowCount)
+            lastVisibleIndex = rowCount
+        for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+            const rowNumber = i - firstVisibleIndex + 1
+            completionRows[i].$set({ rowNumber })
+            completionRowShortcuts[rowNumber] = completionRows[i]
         }
-        container.addEventListener('scroll', scrollHandler, { passive: true })
-
-//        __this.on('state', ({ changed, current }) => {
-//            // Don't merge this with onstate, or the completion selection will break
-//            if (changed.rows) {
-//                const rows = current.rows
-//                for (const row of __this.completionRows)
-//                    row.destroy()
-//                __this.completionRows.length = 0
-//                if (rows.length === 0) return
-//                for (const [i, row] of rows.entries()) {
-//                    row.index = i
-//                    row.rowNumber = i + 1
-//                    row.parent = this
-//                    const completionRow = new CompletionRow({
-//                        target: completion,
-//                        data: row
-//                    })
-//                    __this.completionRows.push(completionRow)
-//                    __this.completionRowShortcuts[row.rowNumber] = completionRow
-//                }
-//                lastFVI = 999
-//                selectedCompletionRow = this.completionRows[0]
-//            }
-//        })
+        lastFVI = firstVisibleIndex
+    }
+    
+    function onCompletionRowClicked({ detail }) {
+        console.log('onCompletionRowClicked', detail)
+        selectedIndex = detail.index
+        enter()
+    }
         
-        const oldCommandHandler = keyEventHandler.handleCommand
-        const PASSTHROUGH_COMMANDS = new Set([
-            'home', 'left', 'right', 'end', 'delGroupBefore', 'delGroupAfter',
-        ])
-        keyEventHandler.handleCommand = command => {
-            if (PASSTHROUGH_COMMANDS.has(command)) return true
-            oldCommandHandler(command)
-        }
+    onMount(() => {
+        container.addEventListener('scroll', scrollHandler, { passive: true })
     })
 
     // [svelte-upgrade warning]
@@ -154,9 +153,8 @@
 //            __this.completionProvider.state = CLOSED
     })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function bindReferences(editor) {
+    export function bindReferences(editor_) {
+        editor = editor_
         cm = editor.cm
         completionProvider = editor.completionProvider
     }
@@ -175,7 +173,9 @@
         editor.session.send('GetCompletionDocstring', { name })
     }
 
-    export function setCompletions(rows, firstTriggeredCharPos, type) {
+    export function setCompletions(rows_, firstTriggeredCharPos, type) {
+        console.warn('setCompletions', [...rows_])
+        rows = rows_
         const passive = type !== NORMAL
         if (!rows.length) {
             open = false
@@ -189,9 +189,7 @@
     export function repositionCompletionWindow(pos) {
         if (!open)
             return
-        const editorElement = editor.refs.codeEditor
-        const container = container
-
+        const editorElement = editor.codeEditor
         const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
         const coords = cm.charCoords(pos, 'window')
         const charHeight = coords.bottom - coords.top
@@ -211,12 +209,12 @@
 
     export function enter(rowNumber, key) {
         if (!open) return console.error('closed')
-        const row = rowNumber ? completionRowShortcuts[rowNumber] : selectedCompletionRow
+        const row = rowNumber ? completionRowShortcuts[rowNumber] : rows[selectedIndex]
         if (!row) return console.error('no selected completion')
 
         completionProvider.state = CLOSED
         let { text, tail } = row
-        text = text + tail
+        text = text + (tail || '')
         open = false
 
         // Don't commit passive completions unless the key is Tab or a number.

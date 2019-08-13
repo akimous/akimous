@@ -1,4 +1,4 @@
-<div on:click="{click}" bind:this={completionRow} class="row" class:selected>
+<div bind:this={row} on:click="{click}" class="row" class:selected>
     <div class="row-number"> {rowNumber} </div>
     <div class="row-content">{@html highlight}{tail}</div>
     <div class="type-indicator {type}"> {@html typeIcon} </div>
@@ -156,6 +156,8 @@
 
 
 <script>
+    import { createEventDispatcher } from 'svelte'
+    
     const typeIcons = {
         'instruction': '<i class="fas fa-info-circle"></i>',
         'full-statement': '<i class="fas fa-crosshairs"></i>',
@@ -164,24 +166,22 @@
         'token': '<i class="fas fa-signature"></i>',
     }
     
-    export let completionRow,
-        type = '',
+    export let type = '',
         rowNumber = 0,
         highlight = '',
         tail = '',
         text = '',
         selected = false,
         index = 0,
-        parent,
-        typeIcon
+        typeIcon,
+        row = null
 
     $: typeIcon = _getTypeIcon(type)
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function click() {
-//        parent.$set({ selectedCompletionRow: this })
-        parent.enter()
+    
+    const dispatch = createEventDispatcher()
+    
+    function click() {
+        dispatch('completionRowClicked', { index })
     }
 
     function _getTypeIcon(type) {

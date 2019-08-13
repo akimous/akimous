@@ -68,7 +68,7 @@ class CompletionProvider {
 
     constructor(editor) {
         this.editor = editor
-//        this.completion = editor.completion
+        this.completion = editor.completion
         this.sorter = new Sorter()
         this.context = { cm: this.editor.cm }
         this.ruleBasedPredictor = new RuleBasedPredictor(this.context)
@@ -112,11 +112,6 @@ class CompletionProvider {
                 sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
             }
             this.deduplicateAndSetCompletions(sortedCompletions)
-            this.completion.setCompletions(
-                sortedCompletions,
-                this.firstTriggeredCharPos,
-                this.mode
-            )
 
             const lastRetriggerJob = this.retriggerQueue.pop()
             this.retriggerQueue.length = 0
@@ -127,11 +122,6 @@ class CompletionProvider {
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             const sortedCompletions = this.sortAndFilter(this.input, result)
             this.deduplicateAndSetCompletions(sortedCompletions)
-            this.completion.setCompletions(
-                sortedCompletions,
-                this.firstTriggeredCharPos,
-                this.mode
-            )
         }
     }
 
@@ -195,7 +185,6 @@ class CompletionProvider {
             this.editor.session.send('PredictExtra', [line, ch, input])
         } else
             this.deduplicateAndSetCompletions(sortedCompletions)
-        this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.mode)
     }
 
     sortAndFilter(input, completions) {
@@ -241,7 +230,6 @@ class CompletionProvider {
                 else if (!/^\s*$/.test(head)) tail = null
             }
         }
-
         if (tail)
             completion.tail = tail
     }
