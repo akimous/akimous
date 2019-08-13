@@ -96,24 +96,24 @@
         completion = null,
         tab = null,
         completionProvider = null,
-        realtimeFormatter = null
+        realtimeFormatter = null,
+        offlineLints = [],
+        realtimeLints = [],
+        spellingErrors = [],
+        outline = []
     
     let codeEditor,
         mtime,
         saving = false,
-        offlineLints = [],
-        realtimeLints = [],
-        spellingErrors = [],
-        outline = [],
         self,
         shouldClose = false,
         highlightSelectionMatches,
         cmReadyCallback,
-        cmEventDispatcher
+        cmEventDispatcher,
+        oldPathString = ''
     
     $: dispatch('active', {
         id: joinPath(filePath),
-        filePath,
         active
     })
 
@@ -334,9 +334,10 @@
     })
 
     $: {
-        if (pathString && cm && tab) {
+        if (oldPathString && pathString && oldPathString !== pathString) {
             session.send('Mtime', { newPath: pathString })
             tab.$set({ name: fileName })
+            oldPathString = pathString
         }
     }
     

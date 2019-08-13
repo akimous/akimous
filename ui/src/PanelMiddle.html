@@ -8,7 +8,6 @@
     {/each}
 </div>
 
-
 <style>
     #panel-middle {
         position: fixed;
@@ -34,31 +33,35 @@
 
 </style>
 
+<script context="module">
+    const MAX_ACTIVATION_HISTORY = 32
+</script>
+
 <script>
     import { beforeUpdate, onMount, tick } from 'svelte'
     import isEqual from 'lodash.isequal'
 
     import g from './lib/Globals'
-    import { schedule, nextFrame, joinPath } from './lib/Utils'
+    import { schedule, nextFrame, joinPath, CircularBuffer } from './lib/Utils'
     import { onTabChangeFactory } from './lib/UIUtils'
     import { getIconByFileName } from './lib/FileTypeToIcon'
     
     import TabBar from './bars/TabBar.html'
     import CodeEditor from './editor/CodeEditor.html'
     
-    const MAX_ACTIVATION_HISTORY = 32
-
     export let focused = false,
         focus = null,
         tabBar = null
     
-    let onTabChange, self, openedFiles, activationHistory, activationHistoryIndex
-
+    export let editorProps = {}
+    export let editors = {}
+    let editorUid = 0
+    
+    let onTabChange, self
+    let activationHistory = new CircularBuffer(MAX_ACTIVATION_HISTORY)
+    
     onMount(() => {
         onTabChange = onTabChangeFactory(tabBar, editors)
-        openedFiles = new Set()
-        activationHistory = new Array(MAX_ACTIVATION_HISTORY)
-        activationHistoryIndex = 0
         
         nextFrame(() => {
             const activePath = g.projectState.activePanels.middle
@@ -101,15 +104,13 @@
         return editors[joinPath(filePath)]
     }
 
-    export let editorProps = {}
-    let editorUid = 0
-    export let editors = {}
     
     export async function openFile(filePath, cmReadyCallback, activate = true) {
         let editor = getEditor(filePath)
         if (!editor) {
             const fileName = filePath[filePath.length - 1]
             const pathString = joinPath(filePath)
+            console.log({pathString})
             editorProps[pathString] = {
                 fileName, 
                 filePath, 
@@ -119,7 +120,6 @@
             await tick()
             editor = editors[pathString]
             editor.cmReadyCallback = cmReadyCallback
-//            __this.openedFiles.add(filePath)
             tabBar.openTab(pathString, fileName, editor, getIconByFileName(fileName), true)
         }
         if (!activate) return
@@ -138,12 +138,8 @@
         if (g.activeEditor === editor) {
             return // already activated
         }
+        activationHistory.push(filePath)
         
-        // write to activation history
-        if (activationHistory[activationHistoryIndex] != filePath) {
-            activationHistoryIndex = (activationHistoryIndex + 1) % MAX_ACTIVATION_HISTORY
-            activationHistory[activationHistoryIndex] = filePath
-        }
         // activate editor
         g.activeEditor && (g.activeEditor.$set({ active: false }))
         focus = editor
@@ -185,6 +181,7 @@
     }
 
     export function closeView(editor) {
+        console.log('close view', editor.filePath)
         closeFile(editor.filePath)
     }
 
@@ -216,28 +213,26 @@
             })
             return
         }
-        openedFiles.delete(filePath)
         const pathString = joinPath(filePath)
+        delete editors[pathString]
         delete editorProps[pathString]
-//        editor.destroy()
-
+        editorProps = editorProps // forced update
+        
         // clear activation history
-        for (let i = 0; i < MAX_ACTIVATION_HISTORY; i++)
-            if (activationHistory[i] === filePath)
-                activationHistory[i] = null
+        activationHistory.remove(filePath)
+        // workaround of bind:this creating null values when components being removed
+        Object.keys(editors).forEach(key => !editors[key] && delete editors[key])
         // activate previous file
-        for (let i = activationHistoryIndex; i > activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
-            const previouslyActivatedFilePath = activationHistory[i % MAX_ACTIVATION_HISTORY]
-            if (previouslyActivatedFilePath && getEditor(previouslyActivatedFilePath)) {
-                activateFile(previouslyActivatedFilePath)
+        for (const i of activationHistory.iterate()) {
+            if (getEditor(i)) {
+                activateFile(i)
                 return
             }
         }
         // if history is exhausted, select last opened file
-        let lastFile = null
-        for (lastFile of openedFiles) ;
-        if (lastFile) {
-            activateFile(lastFile)
+        for (let i of Object.values(editors)) {
+            activateFile(i.filePath)
+            return
         }
         // if no files opened, clear focus
         focus = null

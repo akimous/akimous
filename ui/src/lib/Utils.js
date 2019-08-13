@@ -1,4 +1,6 @@
 import CodeMirror from 'codemirror'
+import isEqual from 'lodash.isequal'
+
 import g from './Globals'
 import { setProjectState } from './ConfigManager'
 
@@ -270,6 +272,39 @@ function highlightMatch(text, from, to) {
     return `${head}<em>${body}</em>${tail}`
 }
 
+class CircularBuffer {
+    constructor(size) {
+        this.size = size
+        this.buffer = new Array(size)
+        this.index = 0
+    }
+    
+    push(item) {
+        const lastItem = this.buffer[this.index]
+        if (isEqual(lastItem, item))
+            return
+        this.index = (this.index + 1) % this.size
+        this.buffer[this.index] = item
+    }
+    
+    remove(item) {
+        for (let i = 0; i < this.size; i++) {
+            if (isEqual(this.buffer[i], item))
+                this.buffer[i] = null
+        }
+    }
+    
+    *iterate() {
+        for (let i = 0; i < this.size; i++) {
+            const index = (this.index - i) % this.size
+            const item = this.buffer[index]
+            if (!item) continue
+            this.buffer[index] = null
+            yield item
+        }
+    }
+}
+
 export {
     binarySearch,
     schedule,
@@ -289,4 +324,5 @@ export {
     joinPath,
     capitalize,
     highlightMatch,
+    CircularBuffer,
 }

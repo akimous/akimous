@@ -39,6 +39,10 @@ model.n_jobs = 1
 logger.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
 
 
+def get_relative_path(context):
+    return tuple(context.path.relative_to(context.shared.project_root).parts)
+
+
 async def run_pylint(context, send):
     if not config['linter']['pylint']:
         return
@@ -160,7 +164,7 @@ async def connected(msg, send, context):
     })
     # update opened files
     opened_files = context.shared.project_config['openedFiles']
-    path_tuple = tuple(context.path.parts)
+    path_tuple = get_relative_path(context)
     if path_tuple not in opened_files:
         opened_files.append(path_tuple)
     await activate_editor(msg, send, context)
@@ -181,7 +185,7 @@ async def close(msg, send, context):
     Called when the editor is explicitly closed, not when it is disconnected
     """
     opened_files = context.shared.project_config['openedFiles']
-    opened_files.remove(tuple(context.path.parts))
+    opened_files.remove(get_relative_path(context))
     save_state(context)
 
 
@@ -197,7 +201,7 @@ async def reload(msg, send, context):
 @handles('ActivateEditor')
 async def activate_editor(msg, send, context):
     context.shared.doc = context.doc
-    context.shared.project_config['activePanels']['middle'] = context.path.parts
+    context.shared.project_config['activePanels']['middle'] = get_relative_path(context)
     save_state(context)
 
 
