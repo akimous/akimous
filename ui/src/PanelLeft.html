@@ -45,7 +45,9 @@
         Object.assign(g, children)
         
         await tick()
-        children[g.projectState.activePanels.left].$set({ active: true })
+        const activePanel = children[g.projectState.activePanels.left]
+        activePanel.$set({ active: true })
+        g.setFocus([g.panelLeft, activePanel])
     })
 
     // [svelte-upgrade warning]

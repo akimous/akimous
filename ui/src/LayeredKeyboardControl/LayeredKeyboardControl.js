@@ -110,6 +110,7 @@ class LayeredKeyboardControl {
                     return true
                     // break // this will interfere with hotkey
                 case ' ':
+                    if (spacePressed) break // ignore duplicated keydown events
                     if (g.focus.allowWhiteSpace) return true
                     spacePressed = true
                     this.commandSent = false
@@ -180,6 +181,10 @@ class LayeredKeyboardControl {
         document.addEventListener('keyup', e => {
             if (!this.enabled) return true
             if (e.isComposing) return true // do not interfere with IME
+            if (!g.focus) {
+                console.warn('no focus')
+                return true
+            }
             switch (e.key) {
                 case 'Shift':
                     g.activeEditor.cm.display.shift = false

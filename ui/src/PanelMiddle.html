@@ -148,6 +148,7 @@
         }
         editor.$set({ active: true })
         g.activeEditor = editor
+        g.setFocus([g.panelMiddle, editor])
         
         g.cursorPosition.$set({ isMakefile: editor.isMakefile })
         schedule(() => {
