@@ -68,7 +68,7 @@
 
    
 <script>
-    import { beforeUpdate } from 'svelte'
+    import { onMount } from 'svelte'
 
     import g from '../lib/Globals'
     import { setProjectState } from '../lib/ConfigManager'
@@ -90,24 +90,17 @@
         ],
         shellCommandIndex = 0,
         allowWhiteSpace = true
+    
+    $: g.app && g.app.$set({ popup: open ? g.runConfiguration : null })
+    $: setProjectState('runConfiguration', { mode, shellCommands, shellCommandIndex })
+    $: mode && nextFrame(setConsoleMode)
+    $: nextFrame(() => g.toolbar.$set({ runConfigurationDisplay: capitalize(mode) }))
+
 
     // [svelte-upgrade warning]
     // beforeUpdate and afterUpdate handlers behave
     // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (changed.mode) {
-//            nextFrame(() => {
-//                g.toolbar.set({
-//                    runConfigurationDisplay: capitalize(current.mode)
-//                })
-//            })
-//        }
-//        if (!g.ready) return
-//        if (changed.open && g.toolbar) {
-//            g.app.set({
-//                popup: current.open ? this : null
-//            })
-//        }
+//    beforeUpdate(() => {
 //        if (changed.editing && edit) {
 //            edit.set({
 //                active: current.editing
@@ -122,11 +115,9 @@
 //        if (changed.mode) {
 //            setConsoleMode()
 //        }
-    })
+//    })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function setConsoleMode() {
+    function setConsoleMode() {
         if (['script', 'module', 'shell'].includes(mode)) {
             g.console.$set({ mode: 'terminal' })
         } else if (['interactive', 'realtime'].includes(mode)) {
@@ -136,21 +127,8 @@
         g.console.stop()
     }
 
-    export function onClickEdit() {
+    function onClickEdit() {
         editing = !editing
     }
 
-    export function saveChanges(what) {
-        if (what) {
-            setProjectState('runConfiguration', {
-                [what]: __this.get()[what]
-            })
-        } else {
-            setProjectState('runConfiguration', {
-                mode,
-                shellCommands,
-                shellCommandIndex
-            })
-        }
-    }
 </script>

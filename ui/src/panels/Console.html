@@ -11,7 +11,7 @@
         </table>
     </div>
     {/if}
-    <div id="terminal" bind:this={terminal} class="{mode === 'jupyter' ? 'lower-half' : 'full-height'}"></div>
+    <div id="terminal" bind:this={terminalContainer} class="{mode === 'jupyter' ? 'lower-half' : 'full-height'}"></div>
 </div>
 
 
@@ -58,7 +58,7 @@
         displayInput = false,
         ready = false
 
-    let jupyter, jupyterToolBar, terminal
+    let jupyter, jupyterToolBar, terminalContainer, terminal
 
     $: dispatch('active', {
         id: 'console',
@@ -73,32 +73,23 @@
         session && session.close()
     })
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    afterUpdate(() => {
-//        if (changed.mode) {
-//            stop()
-//            close()
-//            if (current.active) {
-//                initialize()
-//            }
-//        }
-//        if (changed.active) {
-//            if (!current.ready && current.active) {
-//                initialize()
-//            }
-//        }
-    })
+    $: {
+        if (!ready && active) initialize()
+    }
+    
+    $: {
+        if (mode) {
+            stop()
+            close()
+        }
+    }
 
     // [svelte-upgrade suggestion]
     // review these functions and remove unnecessary 'export' keywords
     export async function initialize() {
         if (initializing) return
         initializing = true
-        tab.active = false
         await tick()
-        tab.active = true
         
         document.fonts.ready.then(() => { 
             // make sure the font is already loaded 
@@ -116,7 +107,7 @@
                     },
                     convertEol: true,
                 })
-                terminal.open(terminal, false)
+                terminal.open(terminalContainer, false)
 
                 terminal.on('focus', () => {
                     g.setFocus([g.panelRight, g.console])
@@ -131,6 +122,7 @@
                     connectJupyter()
                 }
                 initializing = false
+                ready = true
             })
         })
     }
@@ -156,8 +148,6 @@
     }
 
     export function connectTerminal() {
-        const { terminal } = this
-
         session = g.socket.createSession('terminal')
         const { handlers } = session
         handlers['Stdout'] = message => {
@@ -175,8 +165,8 @@
     }
 
     export function runInTerminal() {
-        g.panelRight.activateView(g.panelRight.refs.console)
-        const { mode, shellCommands, shellCommandIndex, args, cwd } = g.runConfiguration.get()
+//        g.panelRight.activateView(g.panelRight.refs.console)
+        const { mode, shellCommands, shellCommandIndex, args, cwd } = g.runConfiguration
 
         const run = () => {
             if (!ready) {
@@ -190,7 +180,7 @@
             if (mode === 'shell') {
                 configuration.command = shellCommands[shellCommandIndex]
             } else {
-                const { filePath } = g.activeEditor.get()
+                const { filePath } = g.activeEditor
                 configuration.filePath = filePath
             }
             if (mode === 'script' || mode === 'module') {
