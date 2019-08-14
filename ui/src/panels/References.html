@@ -116,8 +116,7 @@
     }
 
     onMount(async () => {
-        await tick()
-        makeScrollable(g.references, panel)
+        await makeScrollable('references', panel)
     })
 
     // [svelte-upgrade warning]

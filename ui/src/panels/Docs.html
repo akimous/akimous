@@ -157,21 +157,18 @@
     }
 
     onMount(async () => {
-        await tick()
-//        nextFrame(() => {
-            splitBar.onmousedown = e => {
-                e.preventDefault()
-                const containerTop = panel.getBoundingClientRect().y
-                const style = document.documentElement.style
-                document.onmousemove = throttle(e => {
-                    style.setProperty('--function-doc-height', `${e.pageY - containerTop}px`)
-                }, 16)
-            }
-            splitBar.onmouseup = () => {
-                document.onmousemove = null
-            }
-            makeScrollable(g.docs, docContainer)
-//        })
+        await makeScrollable('docs', docContainer)
+        splitBar.onmousedown = e => {
+            e.preventDefault()
+            const containerTop = panel.getBoundingClientRect().y
+            const style = document.documentElement.style
+            document.onmousemove = throttle(e => {
+                style.setProperty('--function-doc-height', `${e.pageY - containerTop}px`)
+            }, 16)
+        }
+        splitBar.onmouseup = () => {
+            document.onmousemove = null
+        }
     })
 
     // [svelte-upgrade suggestion]

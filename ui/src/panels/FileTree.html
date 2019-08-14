@@ -248,8 +248,7 @@
                 return false
             }
         }
-        await tick()
-        makeScrollable(g.fileTree, self)
+        await makeScrollable('fileTree', self)
     })
 
     onDestroy(() => {

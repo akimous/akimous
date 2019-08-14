@@ -1,4 +1,5 @@
 import throttle from 'lodash.throttle'
+import { tick } from 'svelte'
 
 import g from './Globals'
 import { setProjectState } from './ConfigManager'
@@ -50,7 +51,9 @@ function roundCorners(corners) {
     return `border-radius: ${c(0)} ${c(1)} ${c(2)} ${c(3)};`
 }
 
-function makeScrollable(component, target) {
+async function makeScrollable(componentName, target) {
+    await tick()
+    const component = g[componentName]
     if (!component.keyEventHandler)
         component.keyEventHandler = {
             handleKeyEvent() {

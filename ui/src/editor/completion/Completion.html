@@ -55,7 +55,8 @@
         rows = [],
         selectedIndex = 0,
         closable = true,
-        keyEventHandler = null
+        keyEventHandler = null,
+        completionProvider = null
     
     let container,
         passivePlaceholder,
@@ -63,7 +64,6 @@
         completionRows = {},
         completionRowShortcuts = new Array(9),
         cm,
-        completionProvider,
         editor,
         lastRequestedCompletionForDocstring
     

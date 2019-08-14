@@ -206,8 +206,7 @@
             g.notificationBar.show('success', `${count} matches replaced.`)
         }
         
-        await tick()
-        makeScrollable(g.find, panel)
+        await makeScrollable('find', panel)
     })
 
     // [svelte-upgrade warning]

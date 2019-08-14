@@ -78,9 +78,7 @@
     
     onMount(async () => {
         g.currentHighlight = null
-        
-        await tick()
-        makeScrollable(g.outline, panel)
+        await makeScrollable('outline', panel)
     })
 
     function onFocus() {
@@ -127,7 +125,7 @@
                 } catch (e) {
                     continue
                 }
-                if (asynchronous === true)
+                if (asynchronous)
                     type = 'async'
                 result.push({
                     level: indent / indentUnit,

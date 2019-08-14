@@ -183,8 +183,7 @@
     })
     
     onMount(async () => {
-        await tick()
-        makeScrollable(g.linter, panel)
+        await makeScrollable('linter', panel)
     })
 
     let typeStrings = getTypeStrings()
