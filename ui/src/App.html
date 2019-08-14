@@ -97,7 +97,7 @@
 </script>
 
 <script>
-    import { onMount } from 'svelte'
+    import { onMount, tick } from 'svelte'
     import throttle from 'lodash.throttle'
     
     import Toolbar from './bars/Toolbar.html'
@@ -113,64 +113,59 @@
     import Hotkeys from './LayeredKeyboardControl/Hotkeys'
     import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
     import g from './lib/Globals'
-    import { schedule } from './lib/Utils'
+
+    export let initialized = true,
+        openFolder = false,
+        popup = false
 
     let splitterLeft,
         splitterRight
+    
+    onMount(async () => {
+        if (!initialized) return
 
-    export let initialized = true
-    export let openFolder = false
-    export let popup = false
+        splitterLeft.onmousedown = e => {
+            e.preventDefault()
+            document.onmousemove = throttle(e => {
+                const width = e.pageX
+                if (width < 100) return
+                document.documentElement.style.setProperty('--panel-left-width', `${e.pageX}px`)
+            }, 16)
+        }
+        splitterRight.onmousedown = e => {
+            e.preventDefault()
+            document.onmousemove = throttle(e => {
+                const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+                const width = viewportWidth - e.pageX
+                if (width < 200) return
+                document.documentElement.style.setProperty('--panel-right-width', `${width}px`)
+                g.panelRight.$set({ width })
+            }, 16)
+        }
+        splitterRight.onmouseup = () => {
+            g.console.terminal && g.console.terminal.fit()
+        }
+        document.onmouseup = () => {
+            document.onmousemove = null
+        }
 
-    onMount(() => {
-        schedule(() => {
-            if (!initialized) return
-            
-            splitterLeft.onmousedown = e => {
-                e.preventDefault()
-                document.onmousemove = throttle(e => {
-                    const width = e.pageX
-                    if (width < 100) return
-                    document.documentElement.style.setProperty('--panel-left-width', `${e.pageX}px`)
-                }, 16)
-            }
-            splitterRight.onmousedown = e => {
-                e.preventDefault()
-                document.onmousemove = throttle(e => {
-                    const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-                    const width = viewportWidth - e.pageX
-                    if (width < 200) return
-                    document.documentElement.style.setProperty('--panel-right-width', `${width}px`)
-                    g.panelRight.$set({ width })
-                }, 16)
-            }
-            splitterRight.onmouseup = () => {
-                g.console.terminal && g.console.terminal.fit()
-            }
-            document.onmouseup = () => {
-                document.onmousemove = null
-            }
-
-            if (!g.dev)
-                window.addEventListener('beforeunload', e => {
-                    const message = 'You have unsaved changes. Do you really want to leave?'
-                    for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
-                        console.warn(`Leaving with ${filePath} unsaved.`)
-                        if (!editor.clean) {
-                            e.returnValue = message
-                            return message
-                        }
+        if (!g.dev)
+            window.addEventListener('beforeunload', e => {
+                const message = 'You have unsaved changes. Do you really want to leave?'
+                for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
+                    console.warn(`Leaving with ${filePath} unsaved.`)
+                    if (!editor.clean) {
+                        e.returnValue = message
+                        return message
                     }
-                })
-
-//            Hotkeys.bindHotkeys()
-            g.layeredKeyboardControl = new LayeredKeyboardControl()
-
-            schedule(() => {
-                g.ready = true
-//                g.runConfiguration.setConsoleMode()
+                }
             })
-        })
+
+        Hotkeys.bindHotkeys()
+        g.layeredKeyboardControl = new LayeredKeyboardControl()
+
+        await tick()
+        g.ready = true
     })
 
     export function dismissPopups() {
