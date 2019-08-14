@@ -153,7 +153,7 @@
 </style>
 
 <script>
-    import { onMount, createEventDispatcher } from 'svelte'
+    import { onMount, createEventDispatcher, tick } from 'svelte'
 
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
@@ -182,8 +182,9 @@
         active,
     })
     
-    onMount(() => {
-//        makeScrollable(this, panel)
+    onMount(async () => {
+        await tick()
+        makeScrollable(g.linter, panel)
     })
 
     let typeStrings = getTypeStrings()

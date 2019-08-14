@@ -2,7 +2,6 @@
     <table bind:this={outline} id="outline">
         {#each outlineItems as { line, display, type, level }, i }
         <tr bind:this={row} on:click="{() => jumpTo(line, display)}" class="outline-node" class:highlight="{line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)}">
-<!--            <td class="line-number" class:highlight>{line + 1}</td>-->
             <td class="line-number">{line + 1}</td>
             {#each Array(level) as indent}
             <td class="indent"></td>
@@ -55,7 +54,7 @@
    
 
 <script>
-    import { onMount, createEventDispatcher } from 'svelte'
+    import { onMount, createEventDispatcher, tick } from 'svelte'
     
     import g from '../lib/Globals'
     import { Pos } from '../lib/Utils'
@@ -77,10 +76,11 @@
         active
     })
     
-    onMount(() => {
+    onMount(async () => {
         g.currentHighlight = null
-//        initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')
-//        makeScrollable(this, panel)
+        
+        await tick()
+        makeScrollable(g.outline, panel)
     })
 
     function onFocus() {

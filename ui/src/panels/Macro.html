@@ -86,7 +86,7 @@
 
 
 <script>
-    import { onMount, createEventDispatcher } from 'svelte'
+    import { onMount, createEventDispatcher, tick } from 'svelte'
     
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
@@ -110,7 +110,7 @@
         active
     })
     
-    onMount(() => {
+    onMount(async () => {
         // load config
         const { macroFormatWithShift } = config.macro
 
@@ -129,7 +129,8 @@
             })
         })
 
-//        makeScrollable(this, panel)
+        await tick()
+        makeScrollable(g.macro, panel)
     })
 
     // [svelte-upgrade suggestion]

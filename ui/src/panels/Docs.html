@@ -89,7 +89,7 @@
 </style>
 
 <script>
-    import { onMount, createEventDispatcher } from 'svelte'
+    import { onMount, createEventDispatcher, tick } from 'svelte'
     import throttle from 'lodash.throttle'
     
     import g from '../lib/Globals'
@@ -156,8 +156,9 @@
         }
     }
 
-    onMount(() => {
-        nextFrame(() => {
+    onMount(async () => {
+        await tick()
+//        nextFrame(() => {
             splitBar.onmousedown = e => {
                 e.preventDefault()
                 const containerTop = panel.getBoundingClientRect().y
@@ -169,8 +170,8 @@
             splitBar.onmouseup = () => {
                 document.onmousemove = null
             }
-//            makeScrollable(this, docContainer)
-        })
+            makeScrollable(g.docs, docContainer)
+//        })
     })
 
     // [svelte-upgrade suggestion]

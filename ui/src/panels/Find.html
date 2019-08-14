@@ -126,7 +126,7 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount, createEventDispatcher } from 'svelte'
+    import { beforeUpdate, onMount, createEventDispatcher, tick } from 'svelte'
     import isEqual from 'lodash.isequal'
 
     import g from '../lib/Globals'
@@ -185,8 +185,7 @@
         }
     }
 
-    onMount(() => {
-//        makeScrollable(this, panel)
+    onMount(async () => {
         jobAnimationFrameId = 0
         g.projectSession.handlers['FoundInDirectory'] = ({ result, overflow, nFiles }) => {
             const m = []
@@ -206,6 +205,9 @@
         g.projectSession.handlers['ReplacedInDirectory'] = ({ count }) => {
             g.notificationBar.show('success', `${count} matches replaced.`)
         }
+        
+        await tick()
+        makeScrollable(g.find, panel)
     })
 
     // [svelte-upgrade warning]

@@ -76,7 +76,7 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount, createEventDispatcher } from 'svelte'
+    import { beforeUpdate, onMount, createEventDispatcher, tick } from 'svelte'
     
     import g from '../lib/Globals'
     import { highlightMatch, joinPath, Pos } from '../lib/Utils'
@@ -115,8 +115,9 @@
         return highlightMatch(i.code, i.from, i.to).trim()
     }
 
-    onMount(() => {
-//        makeScrollable(this, panel)
+    onMount(async () => {
+        await tick()
+        makeScrollable(g.references, panel)
     })
 
     // [svelte-upgrade warning]
