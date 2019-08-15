@@ -255,19 +255,12 @@
 </style>
 
 <script>
-    import { afterUpdate, onMount } from 'svelte'
-
     import g from '../lib/Globals'
     import { dragElement } from '../lib/UIUtils'
+    import { nextFrame } from '../lib/Utils'
     import { config } from '../lib/ConfigManager'
     
-    export let open = config.keymap.keymapHint,
-        description = '',
-        mode = 'normal'
-    
-    let self
-    
-    export let keys = {
+    export const keys = {
         normal: {
             Delete: '<div class="l-red">⌦</div>',
             Backspace: '<div class="l-red">⌫</div>',
@@ -319,7 +312,7 @@
             Slash: '',
         }
     }
-    export let descriptions = {
+    export const descriptions = {
         normal: {
             Delete: 'Delete word after cursor',
             Backspace: 'Delete word before cursor',
@@ -373,27 +366,18 @@
             Space: '<div class="small">Hold down the space bar and tap on one of the keys with colored icon to execute the command.</div>'
         }
     }
+    
+    export let open = config.keymap.keymapHint,
+        description = descriptions.normal.Space,
+        mode = 'normal'
+    
+    let self
+    
+    $: open && nextFrame(() => dragElement(self))
 
-    onMount(() => {
-//        description = this.get().descriptions.normal.Space
-    })
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    afterUpdate(() => {
-//        if (changed.open && g.toolbar) {
-//            if (current.open) {
-//                dragElement(self)
-//            }
-//        }
-    })
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function showDescription(key) {
         if (!open) return
-        const description = descriptions[mode][key]
+        description = descriptions[mode][key]
         for (const element of document.querySelectorAll('#keyboard-control-hint .active')) {
             element.classList.remove('active')
         }
@@ -401,7 +385,6 @@
             description = descriptions.normal.Space
             return
         }
-        description = description
         document.getElementById(`key-${key}`).classList.add('active')
     }
 
