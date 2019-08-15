@@ -61,8 +61,6 @@
         content = ''
     let self
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function reposition(x, y) {
         const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
         const { height } = self.getBoundingClientRect()

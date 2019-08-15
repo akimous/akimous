@@ -3,7 +3,7 @@
     {#if editingIndentSize}
     <input bind:this={indentSizeInput} id="indent-size-input" type="number" max=12 min=1 step=1 on:blur="{commitIndentSize}" value={indentSize}>
     {:else}
-    <span on:click="{editIndentSize}" class="tool-bar-button" aria-label="Click to edit indent size.">{indentSize}</span>
+    <span bind:this={indentSizeDisplay} on:click="{editIndentSize}" class="tool-bar-button" aria-label="Click to edit indent size.">{indentSize}</span>
     {/if}
 </div>
 <div bind:this={cursorPosition} id="cursor-position" class="non-selectable tool-bar-button" aria-label="Cursor Position (line : column)"> {line+1} : {ch} </div>
@@ -34,7 +34,7 @@
    
 
 <script>
-    import { beforeUpdate, onMount } from 'svelte'
+    import { onMount, tick } from 'svelte'
     
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
@@ -46,35 +46,23 @@
         line = 0,
         ch = 0
     
-    $: indentDisplay = indentWithTabs ? 'Tab Size' : 'Spaces'
-    
     let indentSwitch,
         indentSizeInput,
-        cursorPosition
+        cursorPosition,
+        indentSizeDisplay
 
-    onMount(() => {
-//        schedule(() => {
-//            g.tooltip.register([
-//                indentSwitch,
-//                cursorPosition,
-//            ])
-//        })
+    $: indentDisplay = indentWithTabs ? 'Tab Size' : 'Spaces'
+    $: indentSizeDisplay && g.tooltip.register(indentSizeDisplay)
+    
+    onMount(async () => {
+        await tick()
+        g.tooltip.register([
+            indentSwitch,
+            cursorPosition,
+        ])
     })
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-//    beforeUpdate(() => {
-//        if (changed.editingIndentSize && !current.editingIndentSize) {
-//            schedule(() => {
-//                g.tooltip.register(indentSize)
-//            })
-//        }
-//    });
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function switchIndent() {
+    function switchIndent() {
         if (isMakefile) return
         indentWithTabs = !indentWithTabs
         for (const path in g.panelMiddle.pathToEditor) {
@@ -84,14 +72,14 @@
         }
     }
 
-    export function editIndentSize() {
+    function editIndentSize() {
         editingIndentSize = true
         requestAnimationFrame(() => {
             indentSizeInput.focus()
         })
     }
 
-    export function commitIndentSize() {
+    function commitIndentSize() {
         const indentSize = indentSizeInput.value
         editingIndentSize = false
         for (const path in g.panelMiddle.pathToEditor) {

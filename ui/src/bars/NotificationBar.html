@@ -76,8 +76,6 @@
     let queue = [],
         timer = 0
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function doAction(action) {
         action.callback()
         showNext()
@@ -105,15 +103,15 @@
             return
         }
         const notification = queue.shift()
-        let timeout = undefined
+        let timeout
         if (notification.level === 'success') timeout = 1200
         else if (notification.level === 'warning') timeout = 1800
         if (timeout) {
             timer = setTimeout(() => showNext(), timeout)
         }
-
-        notification.actions = notification.actions || []
-        notification.active = true
-//                this.set(notification)
+        message = notification.message
+        level = notification.level
+        actions = notification.actions || []
+        active = true
     }
 </script>

@@ -34,33 +34,24 @@
 </style>
 
 <script>
-    import { onMount } from 'svelte'
+    import { onMount, tick } from 'svelte'
     
     import g from './Globals'
-    import { schedule } from './Utils'
     import { roundCorners } from './UIUtils'
 
     export let corner = '0000',
         title = '',
         active = false,
-        flashing = false,
-        callback = null
+        flashing = false
     
     let self
 
-    onMount(() => {
+    onMount(async () => {
+        await tick()
         if (title) {
-            schedule(() => {
-//                g.tooltip.register(button)
-            })
+            g.tooltip.register(self)
         }
     })
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function onClick() {
-        callback()
-    }
 
     export function flash() {
         flashing = true
