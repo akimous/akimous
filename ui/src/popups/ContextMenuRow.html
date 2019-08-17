@@ -1,4 +1,4 @@
-<div class="context-menu-row non-selectable" class:selected on:mouseover="{mouseover}" on:click="{click}">
+<div bind:this={self} class="context-menu-row non-selectable" class:selected on:mouseover="{mouseover}" on:click="{click}">
     <span class="icon">
         <i class="{icon}" aria-hidden="true"></i>
     </span>
@@ -51,39 +51,32 @@
 </style>
    
 <script>
-    import { afterUpdate, createEventDispatcher } from 'svelte'
+    import { createEventDispatcher } from 'svelte'
     import ClipboardJS from 'clipboard'
 
-    export let icon = ''
-    export let text = ''
-    export let hotkey = ''
-    export let selected = false
-    export let callback = null
-    export let clipboardText = null
-    export let id = 0
-    let self
+    export let icon = '',
+        text = '',
+        hotkey = '',
+        selected = false,
+        callback = null,
+        clipboardText = null,
+        id = 0
+    
+    let self,
+        clipboardHandler
 
     const dispatch = createEventDispatcher()
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    afterUpdate(() => {
-//        if (changed.clipboardText) {
-//            if (current.clipboardText) {
-//                // dirty hack to make copying text work, as browsers do not allow in allow async API on localhost
-//                __this.clipboardHandler = new ClipboardJS(row, {
-//                    text: () => {
-//                        return current.clipboardText
-//                    }
-//                })
-//            } else {
-//                if (__this.clipboardHandler) {
-//                    __this.clipboardHandler.destroy()
-//                    __this.clipboardHandler = null
-//                }
-//            }
-//        }
-    })
+    
+    $: {
+        clipboardHandler && clipboardHandler.destroy()
+        if (clipboardText && self) {
+            clipboardHandler = new ClipboardJS(self, {
+                text: () => clipboardText
+            })
+        } else {
+            clipboardHandler = null
+        }
+    }
 
     function mouseover() {
         dispatch('rowSelected', { id })

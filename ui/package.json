@@ -44,7 +44,7 @@
         "sortablejs": "^1.8.3",
         "stylelint": "^10.1.0",
         "stylelint-config-recommended": "^2.1.0",
-        "svelte": "^3.8.0",
+        "svelte": "^3.8.1",
         "terser": "^4.1.4",
         "xterm": "^3.14.5"
     },

@@ -166,14 +166,6 @@ version = "0.17.0"
 [[package]]
 category = "main"
 description = "Git Object Database"
-name = "gitdb"
-optional = false
-python-versions = "*"
-version = "0.6.4"
-
-[[package]]
-category = "main"
-description = "Git Object Database"
 name = "gitdb2"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
@@ -188,11 +180,10 @@ description = "Python Git Library"
 name = "gitpython"
 optional = false
 python-versions = ">=3.0, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.0.0"
+version = "3.0.1"
 
 [package.dependencies]
 ddt = ">=1.1.1"
-gitdb = ">=0.6.4"
 gitdb2 = ">=2.0.0"
 
 [[package]]
@@ -631,18 +622,21 @@ description = "pytest: simple powerful testing with Python"
 name = "pytest"
 optional = false
 python-versions = ">=3.5"
-version = "5.0.1"
+version = "5.1.0"
 
 [package.dependencies]
 atomicwrites = ">=1.0"
 attrs = ">=17.4.0"
 colorama = "*"
-importlib-metadata = ">=0.12"
 more-itertools = ">=4.0.0"
 packaging = "*"
 pluggy = ">=0.12,<1.0"
 py = ">=1.5.0"
 wcwidth = "*"
+
+[package.dependencies.importlib-metadata]
+python = "<3.8"
+version = ">=0.12"
 
 [[package]]
 category = "main"
@@ -1005,9 +999,8 @@ ddt = ["474546b4020ce8a2f9550ba8899c28aa2c284c7bbf175bddede98be949d1ca7c", "d13e
 decorator = ["86156361c50488b84a3f148056ea716ca587df2f0de1d34750d35c21312725de", "f069f3a01830ca754ba5258fde2278454a0b5b79e0d7f5c13b3b97e57d4acff6"]
 docutils = ["6c4f696463b79f1fb8ba0c594b63840ebd41f059e92b31957c46b74a4599b6d0", "9e4d7ecfc600058e07ba661411a2b7de2fd0fafa17d1a7f7361cd47b1175c827", "a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"]
 fuzzywuzzy = ["5ac7c0b3f4658d2743aa17da53a55598144edbc5bee3c6863840636e6926f254", "6f49de47db00e1c71d40ad16da42284ac357936fa9b66bea1df63fed07122d62"]
-gitdb = ["a3ebbc27be035a2e874ed904df516e35f4a29a778a764385de09de9e0f139658"]
 gitdb2 = ["83361131a1836661a155172932a13c08bda2db3674e4caa32368aa6eb02f38c2", "e3a0141c5f2a3f635c7209d56c496ebe1ad35da82fe4d3ec4aaa36278d70648a"]
-gitpython = ["556b64796c5e268b35e3b431a429e813ad54aa178e1baaec2a9ba82e8575a89e", "629867ebf609cef21bb9d849039e281e25963fb7d714a2f6bacc1ecce4800293"]
+gitpython = ["259a8b6d6a4a118738c4a65fa990f8c8c91525bb43970aed2868952ebb86ceb8", "73aa7b59e58dd3435121421c33c284e5ef51bc7b2f4373e1a1e4cc06e9c928ec"]
 icecream = ["2f47e967bb5d2cf67cdb68cfb02b2e4adbe44f3e77f234559db33a2f1b40a0e6", "859ae6679ef00b7bb9b3c3c0aded7970af487ebf91e306aa9ff98fbbaf8f2a47"]
 idna = ["c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407", "ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c"]
 imagesize = ["3f349de3eb99145973fefb7dbe38554414e5c30abd0c8e4b970a7c9d09f3a1d8", "f3832918bc3c66617f92e35f5d70729187676313caa60c187eb0f28b8fe5e3b5"]
@@ -1050,7 +1043,7 @@ pygments = ["71e430bc85c88a430f000ac1d9b331d2407f681d6f6aec95e8bcfbc3df5b0127", 
 pylint = ["5d77031694a5fb97ea95e828c8d10fc770a1df6eb3906067aaed42201a8a6a09", "723e3db49555abaf9bf79dc474c6b9e2935ad82230b10c1138a71ea41ac0fff1"]
 pyparsing = ["6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80", "d9338df12903bbf5d65a0e4e87c2161968b10d2e489652bb47001d82a9b028b4"]
 pyroma = ["54d332f540d4828bc5672b75ccf9e12d4b2f72a42a4f304bcec1c73565aecc26", "6b94feb609e1896579302f0836ef2fad3f17e0557e3ddcd0d76206cd3e366d27"]
-pytest = ["6ef6d06de77ce2961156013e9dff62f1b2688aa04d0dc244299fe7d67e09370d", "a736fed91c12681a7b34617c8fcefe39ea04599ca72c608751c31d89579a3f77"]
+pytest = ["3805d095f1ea279b9870c3eeae5dddf8a81b10952c8835cd628cf1875b0ef031", "abc562321c2d190dd63c2faadf70b86b7af21a553b61f0df5f5e1270717dc5a3"]
 python-dateutil = ["7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb", "c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"]
 python-levenshtein = ["033a11de5e3d19ea25c9302d11224e1a1898fe5abd23c61c7c360c25195e3eb1"]
 pytz = ["26c0b32e437e54a18161324a2fca3c4b9846b74a8dccddd843113109e1116b32", "c894d57500a4cd2d5c71114aaab77dbab5eabd9022308ce5ac9bb93a60a6f0c7"]

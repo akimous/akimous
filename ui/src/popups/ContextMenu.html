@@ -67,7 +67,8 @@
     function click({ detail }) {
         const { id } = detail
         open = false
-        items[id].callback(target)
+        const { callback } = items[id]
+        callback && callback(target)
     }
 
     // [svelte-upgrade warning]
