@@ -45,8 +45,6 @@
         fitTabWidth()
     }
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export async function openTab(id, name, view, icon, labeled = false) {
         tabData.push({ id, name, view, icon, labeled })
         tabData = tabData

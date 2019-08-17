@@ -18,11 +18,8 @@
     
     import g from './Globals'
 
-    // [svelte-upgrade suggestion]
-    // manually refactor all references to __this
-    const __this = {}
-
     let tooltip
+    g.Popper = Popper
 
     function mouseEnterListener(event) {
         const { target } = event
@@ -40,14 +37,6 @@
             tooltip.destroy()
     }
 
-    onMount(() => {
-        g.Popper = Popper
-        __this.mouseEnterListener = mouseEnterListener
-        __this.mouseLeaveListener = mouseLeaveListener
-    })
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function register(element) {
         // those listeners should be garbage collected when the element is destroyed
         if (!Array.isArray(element)) {
