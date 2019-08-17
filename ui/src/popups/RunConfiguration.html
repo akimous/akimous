@@ -4,10 +4,10 @@
         <div class="title">Run Configuration</div>
         <div class="message">Choose a way to run your program.</div>
         <div class="title">Python Script</div>
-        <TextInput bind:value={cwd} on:change="{() => saveChanges('cwd')}" theme="bright" padded={false}>
+        <TextInput bind:value={cwd} theme="bright" padded={false}>
             <span style="width: 8rem; display: inline-block;">Working directory: </span>
         </TextInput>
-        <TextInput bind:value={args} on:change="{() => saveChanges('args')}" theme="bright" padded={false}>
+        <TextInput bind:value={args} theme="bright" padded={false}>
             <span style="width: 8rem; display: inline-block;">Arguments: </span>
         </TextInput>
         <div class="option" class:checked="{mode==='script'}" on:click="{() => mode = 'script'}">
@@ -92,30 +92,11 @@
         allowWhiteSpace = true
     
     $: g.app && g.app.$set({ popup: open ? g.runConfiguration : null })
-    $: setProjectState('runConfiguration', { mode, shellCommands, shellCommandIndex })
+    $: g.app && setProjectState('runConfiguration', { mode, shellCommands, shellCommandIndex, cwd, args })
     $: mode && nextFrame(setConsoleMode)
     $: nextFrame(() => g.toolbar.$set({ runConfigurationDisplay: capitalize(mode) }))
+    $: if (!open) editing = false
 
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-//    beforeUpdate(() => {
-//        if (changed.editing && edit) {
-//            edit.set({
-//                active: current.editing
-//            })
-//        }
-//        if (changed.open && !current.open) {
-//            editing = false
-//        }
-//        if (changed.mode || changed.shellCommandIndex) {
-//            saveChanges()
-//        }
-//        if (changed.mode) {
-//            setConsoleMode()
-//        }
-//    })
 
     function setConsoleMode() {
         if (['script', 'module', 'shell'].includes(mode)) {
