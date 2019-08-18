@@ -1,8 +1,8 @@
 <div class="text-input" class:editing>
     {#if editing}
-    <input bind:this={input} type="text" spellcheck="false" bind:value on:change on:keydown on:blur="{commitChange}">
+    <input bind:this={input} type="text" spellcheck="false" bind:value={shellCommands[index]} on:change on:keydown on:blur="{commitChange}">
     {:else}
-    <span>{value}</span>
+    <span>{shellCommands[index]}</span>
     {/if}
 </div>
 
@@ -40,45 +40,29 @@
 
 
 <script>
-    import { beforeUpdate } from 'svelte'
-
     import g from '../lib/Globals'
     
     export let input = '',
         editing = false,
-        value = '',
         placeholder = '',
         allowWhiteSpace = true,
         index = 0,
         shellCommands = []
     
+    $: {
+        if (index === shellCommands.length - 1 && shellCommands[index]) {
+            shellCommands.push('')
+            g.runConfiguration.$set({ shellCommands })
+        } else if (index === shellCommands.length - 2 && !shellCommands[index]) {
+            shellCommands.pop()
+            g.runConfiguration.$set({ shellCommands })
+        }
+    }
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (changed.value) {
-//            const { shellCommands } = current
-//            shellCommands[current.index] = current.value
-//
-//            if (current.index === shellCommands.length - 1) {
-//                if (current.value.length) {
-//                    shellCommands.push('')
-//                    g.runConfiguration.set({
-//                        shellCommands
-//                    })
-//                }
-//            }
-//        }
-    })
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function commitChange() {
-        if (!value.length) {
+    function commitChange() {
+        if (!shellCommands[index].length) {
             shellCommands.splice(index, 1)
             g.runConfiguration.$set({ shellCommands })
         }
-        g.runConfiguration.saveChanges()
     }
 </script>
