@@ -129,6 +129,26 @@
             target.openInFileManager()
         }
     }, copyPath]
+    
+    const keyEventHandler = {
+        handleKeyEvent(e, target) {
+            if (!target.renaming) return true
+            switch (e.key) {
+                case 'Enter':
+                    target.commitRename()
+                    break
+                case 'Escape':
+                    target.endRenaming()
+                    break
+                default:
+                    return true // if not handled
+            }
+            return false
+        },
+        handleCommand( /*command, target*/ ) {
+            return true
+        }
+    }
 </script>
 
 <script>
@@ -158,29 +178,13 @@
         placeholderNode = null,
         selected = false,
         renaming = false,
-        row = null
+        row = null,
+        allowWhiteSpace
     
+    let cancelAllSelectionListener
+    
+    $: allowWhiteSpace = renaming
     $: icon = isDir ? fileTypeToIcon[open ? 'folder-open' : 'folder'] : getIconByFileName(name)
-
-    const keyEventHandler = {
-        handleKeyEvent(e, target) {
-            if (!target.renaming) return true
-            switch (e.key) {
-                case 'Enter':
-                    target.commitRename()
-                    break
-                case 'Escape':
-                    target.endRenaming()
-                    break
-                default:
-                    return true // if not handled
-            }
-            return false
-        },
-        handleCommand( /*command, target*/ ) {
-            return true
-        }
-    }
     
     export const methods = {
         newFile: async () => {
@@ -240,7 +244,7 @@
             })
         }
     }
-    let cancelAllSelectionListener
+    
     onMount(() => {
         schedule(() => {
             pressure.set(row, {
@@ -255,27 +259,20 @@
 
     onDestroy(() => {
         cancelAllSelectionListener && cancelAllSelectionListener.cancel()
-        removeChildren()
         if (selected) {
             try {
                 let node = sibling(-1)
-                if (node && node !== this) return node.onClick()
+                if (node && node.name !== name) return node.onClick()
                 node = sibling(1)
-                if (node && node !== this) return node.onClick()
-//                node = __this.get().parent
-//                if (node) return node.onClick()
+                if (node && node.name !== name) return node.onClick()
+                node = parent()
+                if (node) return node.onClick()
             } catch (e) {
                 // swallow exception
             }
         }
-//        g.popFocus(this)
     })
 
-    export let allowWhiteSpace
-    $: allowWhiteSpace = renaming
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function getPath() {
         const path = [name]
         let parent_ = parent()
