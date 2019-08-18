@@ -21,7 +21,8 @@
     let tooltip
     g.Popper = Popper
 
-    function mouseEnterListener(event) {
+    // listener are being called directly outside (e.g. in Tab)
+    export function mouseEnterListener(event) {
         const { target } = event
         const tooltipElement = document.getElementById('tooltip')
         const label = target.getAttribute('aria-label')
@@ -32,7 +33,7 @@
         })
     }
 
-    function mouseLeaveListener() {
+    export function mouseLeaveListener() {
         if (tooltip)
             tooltip.destroy()
     }

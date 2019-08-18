@@ -1,6 +1,6 @@
-<span bind:this={tab} class="tab non-selectable {active ? 'active' : ''} {clean ? '' : 'dirty'}" style="padding:0 {padding}px" on:click="{activate}" on:dblclick="{close}" on:mouseenter="{mouseEnter}" on:mouseleave="{mouseLeave}" aria-label="{name}">
+<span bind:this={tab} class="tab non-selectable" class:active class:dirty={!clean} style="padding:0 {padding}px" on:click={activate} on:dblclick={close} on:mouseenter={mouseEnter} on:mouseleave={mouseLeave} aria-label={name}>
     <!-- if the two spans sitting on different lines means there is a space in between-->
-    <span bind:this={iconSpan} class="icon {icon}" class:icon-height-adjustment="{name}"></span>{#if labeled}<span bind:this={text} class="text">{name}</span>{/if}
+    <span bind:this={iconSpan} class="icon {icon}" class:icon-height-adjustment={name}></span>{#if labeled}<span bind:this={text} class="text">{name}</span>{/if}
 </span>
 
 
@@ -72,7 +72,6 @@
         name = '',
         icon = 'l-python-icon',
         labeled = true,
-        parent = null,
         view = null,
         panel = null,
         tab = null
@@ -83,19 +82,6 @@
         dispatch('tabDestroyed', { id })
     })
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-//    beforeUpdate(() => {
-//        if (!previous) return
-//        if (changed.parent) {
-//            previous.parent && previous.parent.tabs.delete(this)
-//            current.parent && current.parent.tabs.add(this)
-//        }
-//    });
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function activate() {
         view.active = true
     }
@@ -104,14 +90,15 @@
         dispatch('requestTabClose', { view })
     }
 
-    export function mouseEnter() {
+    export function mouseEnter(event) {
+        console.log(event)
         if (padding && labeled)
             return
-//        g.tooltip.mouseEnterListener(event)
+        g.tooltip.mouseEnterListener(event)
     }
 
     export const mouseLeave = () => {
-//        g.tooltip.mouseLeaveListener(event)
+        g.tooltip.mouseLeaveListener(event)
     }
 
     export function getIndex() {
