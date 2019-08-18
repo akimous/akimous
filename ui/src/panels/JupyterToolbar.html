@@ -1,22 +1,21 @@
-
-<div bind:this={toolbar} id="jupyter-toolbar" class="non-selectable" class:realtime="{mode==='realtime'}">
+<div bind:this={self} id="jupyter-toolbar" class="non-selectable" class:realtime="{mode==='realtime'}">
     {#if mode === 'interactive'}
     {#if executionState === 'stopped'}
     <span class="gap">Click "Run" to start Jupyter kernel</span>
     {:else}
-    <div class="button" on:click="{runSelected}">
+    <div class="button" on:click={runSelected}>
         <i class="fas fa-play"></i>
     </div>
-    <div class="button" on:click="{runToActiveLine}">
+    <div class="button" on:click={runToActiveLine}>
         <i class="fas fa-step-forward"></i>
     </div>
-    <div class="button" on:click="{runToEnd}">
+    <div class="button" on:click={runToEnd}>
         <i class="fas fa-fast-forward"></i>
     </div>
-    <div class="button" on:click="{interrupt}">
+    <div class="button" on:click={interrupt}>
         <i class="fas fa-minus-circle"></i>
     </div>
-    <div class="button" on:click="{restartKernel}">
+    <div class="button" on:click={restartKernel}>
         <i class="fas fa-sync-alt"></i>
     </div>
     <span class="gap"></span>
@@ -84,29 +83,28 @@
 <script>
     import g from '../lib/Globals'
     
-    export let toolbar,
-        mode = 'interactive',
+    export let mode = 'interactive',
         executionState = 'stopped'
+    
+    let self
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function runSelected() {
+    function runSelected() {
         g.console.runInJupyter()
     }
 
-    export function runToActiveLine() {
-        
+    function runToActiveLine() {
+        // TODO: not implemented
     }
 
-    export function runToEnd() {
-        
+    function runToEnd() {
+        // TODO: not implemented
     }
 
-    export function interrupt() {
+    function interrupt() {
         g.console.session.send('InterruptKernel', )
     }
 
-    export function restartKernel() {
+    function restartKernel() {
         g.console.session.send('StartKernel', {
             realtimeEvaluation: false
         })

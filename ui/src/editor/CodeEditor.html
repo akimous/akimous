@@ -101,7 +101,8 @@
         realtimeLints = [],
         spellingErrors = [],
         outline = [],
-        codeEditor = null
+        codeEditor = null,
+        cmEventDispatcher = null
     
     let mtime,
         saving = false,
@@ -109,7 +110,6 @@
         shouldClose = false,
         highlightSelectionMatches,
         cmReadyCallback,
-        cmEventDispatcher,
         oldPathString = ''
     
     $: dispatch('active', {
