@@ -123,7 +123,7 @@
         }
         if (!activate) return
         activateFile(filePath)
-        if (cmReadyCallback && editor) cmReadyCallback(editor)
+        if (cmReadyCallback && editor.cm) cmReadyCallback(editor)
         return editor
     }
 

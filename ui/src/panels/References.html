@@ -79,7 +79,7 @@
     import { beforeUpdate, onMount, createEventDispatcher, tick } from 'svelte'
     
     import g from '../lib/Globals'
-    import { highlightMatch, joinPath, Pos } from '../lib/Utils'
+    import { highlightMatch, joinPath, Pos, nextFrame } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
@@ -96,6 +96,15 @@
         id: 'references',
         active
     })
+    
+    $: definitionsWithTitles = [...withTitles(definitions)]
+    $: assignmentsWithTitles = [...withTitles(assignments)]
+    $: usagesWithTitles = [...withTitles(usages)]
+    $: {
+        if (definitions.length === 1 && assignments.length + usages.length === 0) {
+            jumpTo(definitions[0])
+        }
+    }
 
     function* withTitles(iterable) {
         let title = ''
@@ -119,28 +128,6 @@
         await makeScrollable('references', panel)
     })
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (changed.definitions) {
-//            if (current.definitions.length === 1 && current.assignments.length + current.usages.length === 0) {
-//                jumpTo(current.definitions[0])
-//            }
-//        }
-    })
-
-    export let definitionsWithTitles;
-    $: definitionsWithTitles = [...withTitles(definitions)];
-
-    export let assignmentsWithTitles;
-    $: assignmentsWithTitles = [...withTitles(assignments)];
-
-    export let usagesWithTitles;
-    $: usagesWithTitles = [...withTitles(usages)];
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     function onFocus() {
         g.setFocus([g.panelRight, g.references])
     }
