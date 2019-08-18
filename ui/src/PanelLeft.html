@@ -20,7 +20,7 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount, tick } from 'svelte'
+    import { onMount, tick } from 'svelte'
     
     import g from './lib/Globals'
     import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
@@ -36,7 +36,18 @@
         autoHide = false,
         tabBar = null
 
-    let onTabChange, self
+    let onTabChange, 
+        originalWidth,
+        self
+    
+    $: {
+        if (g.app && hidden) {
+            originalWidth = self.getBoundingClientRect().width
+            document.documentElement.style.setProperty('--panel-left-width', '0px')
+        } else if (g.app) {
+            document.documentElement.style.setProperty('--panel-left-width', `${originalWidth}px`)
+        }
+    }
     
     onMount(async () => {
         onTabChange = onTabChangeFactory(tabBar, children, 'left')
@@ -49,19 +60,6 @@
         activePanel.$set({ active: true })
         g.setFocus([g.panelLeft, activePanel])
     })
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-//    beforeUpdate(() => {
-//        if (changed.hidden) {
-//            if (current.hidden) {
-//                __this.originalWidth = panelLeft.getBoundingClientRect().width
-//                document.documentElement.style.setProperty('--panel-left-width', '0px')
-//            } else if (__this.originalWidth)
-//                document.documentElement.style.setProperty('--panel-left-width', __this.originalWidth + 'px')
-//        }
-//    });
 
     export const closeView = () => {
         // not allowed to close view for now

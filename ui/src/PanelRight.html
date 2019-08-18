@@ -1,4 +1,4 @@
-<div id="panel-right" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
+<div bind:this={self} id="panel-right" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
     <TabBar bind:this={tabBar}></TabBar>
     <Console bind:this={children.console} on:active="{(e) => onTabChange(e)}"></Console>
     <Find bind:this={children.find} on:active="{(e) => onTabChange(e)}"></Find>
@@ -25,7 +25,7 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount, tick } from 'svelte'
+    import { onMount, tick } from 'svelte'
     
     import g from './lib/Globals'
     import { setAttributeForMultipleComponent, schedule } from './lib/Utils'
@@ -47,8 +47,20 @@
         autoHide = false,
         width = 0,
         allowWhiteSpace = true
-
-    let onTabChange, self
+    
+    let originalWidth,
+        onTabChange, 
+        self
+    
+    $: {
+        if (g.app && hidden) {
+            originalWidth = self.getBoundingClientRect().width
+            document.documentElement.style.setProperty('--panel-right-width', '0px')
+        } else if (g.app) {
+            document.documentElement.style.setProperty('--panel-right-width', `${originalWidth}px`)
+        }
+    }
+    
     onMount(async () => {
         onTabChange = onTabChangeFactory(tabBar, children, 'right')
         tabBar.openTab('console', 'Console', children.console, 'fas fa-desktop l-purple')
@@ -63,30 +75,6 @@
         await tick()
         children[g.projectState.activePanels.right].$set({ active: true })
     })
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (changed.hidden) {
-//            if (current.hidden) {
-//                __this.originalWidth = panelRight.getBoundingClientRect().width
-//                document.documentElement.style.setProperty('--panel-right-width', '0px')
-//            } else if (__this.originalWidth)
-//                document.documentElement.style.setProperty('--panel-right-width', __this.originalWidth + 'px')
-//        }
-//        if (changed.width && linter) {
-//            linter.set({ width: current.width })
-//        }
-    })
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function activateView_(view) {
-//        activateView(this, view)
-        const { width } = self.getBoundingClientRect()
-//        view.set({ width })
-    }
 
     export const closeView = () => {
         // not allowed to close view for now
