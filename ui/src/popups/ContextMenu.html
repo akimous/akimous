@@ -26,7 +26,7 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount } from 'svelte'
+    import { onMount, tick } from 'svelte'
 
     import g from '../lib/Globals'
     import ContextMenuRow from './ContextMenuRow.html'
@@ -47,16 +47,26 @@
         closable = true,
         selectedID = -1
     
+    let keyEventHandler
+    
     $: g.app && g.app.$set({ popup: open ? g.contextMenu : null })
-    
     $: {
-        if (open) selectedID = -1
+        if (open) {
+            selectedID = -1
+            try {
+                g.activeEditor.completion.$set({ open: false })
+            } catch (e) { /* do nothing */ }
+            g.pushFocus(g.contextMenu)
+        } else {
+            g.popFocus(g.contextMenu)
+        }
     }
-    
-    onMount(() => {
-//        __this.keyEventHandler = EventDispatcherFactory({
-//            target: this,
-//        })
+        
+    onMount(async () => {
+        await tick()
+        keyEventHandler = EventDispatcherFactory({
+            target: g.contextMenu,
+        })
     })
     
     function rowSelected({ detail }) {
@@ -71,24 +81,6 @@
         callback && callback(target)
     }
 
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-//        if (changed.open) {
-//            if (current.open) {
-//                try {
-//                    g.activeEditor.completion.set({ open: false })
-//                } catch (e) { /* do nothing */ }
-//                g.pushFocus(this)
-//            } else {
-//                g.popFocus(this)
-//            }
-//        }
-    })
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function move(nRows) {
         const currentIndex = rows.indexOf(selectedRow)
         const length = rows.length
