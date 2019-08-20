@@ -91,7 +91,6 @@
 <script>
     import g from '../lib/Globals'
 
-
     export let active = false,
         icon = 'far fa-question-circle',
         content = '',
@@ -105,12 +104,16 @@
     
     const queue = []
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export function open(data) {
-        queue.push(data)
+    function setProps(props) {
+        icon = props.icon
+        content = props.content
+        buttons = props.buttons
+    }
+
+    export function open(props) {
+        queue.push(props)
         if (queue.length == 1) {
-//                    this.set(data)
+            setProps(props)
         }
         active = true
         g.activeEditor && g.activeEditor.completion.$set({ open: false })
@@ -120,7 +123,7 @@
         button.action && button.action()
         queue.shift()
         if (queue.length != 0) {
-//                    this.set(this.queue[0])
+            setProps(queue[0])
             return
         }
         active = false
