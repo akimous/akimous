@@ -1,4 +1,7 @@
-<div id="panel-popup" class="popup" bind:this={self} class:gone="{!open}" on:mouseleave="{() => open = false}">{@html content} <div id="popup-arrow"></div></div>
+<div id="panel-popup" class="popup" bind:this={self} class:gone={!open} on:mouseleave="{() => open = false}">
+    {@html content} 
+    <div bind:this={arrow} id="popup-arrow"></div>
+</div>
 
 
 <style>
@@ -56,12 +59,16 @@
 
 </style>
 
-<script>    
+<script>
+    import { tick } from 'svelte'
+    
     export let open = false,
         content = ''
-    let self
+    let self,
+        arrow
 
-    export function reposition(x, y) {
+    export async function reposition(x, y) {
+        await tick() // wait for layout or height will be 0
         const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
         const { height } = self.getBoundingClientRect()
         let yAdjusted = y - height / 2
@@ -71,8 +78,7 @@
             yAdjusted = 0
         self.style.left = `${x - 36 * rem}px`
         self.style.top = `${yAdjusted}px`
-        const el = document.querySelector('#popup-arrow')
-        el.style.top = `${y - yAdjusted}px`
+        arrow.style.top = `${y - yAdjusted}px`
     }
 
     export function closeIfNotHovered(event) {

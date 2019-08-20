@@ -28,7 +28,7 @@
         <tr on:click="{() => jumpTo(line, ch)}" class:highlight="{currentLine + 1 === line}">
             <td class="line-number">{line}</td>
             <td class="row-body">{@html highlight}
-                <div class="add-to-dictionary" aria-label="Add to project dictionary" on:click="{() => addToDictionary(highlight)}" on:mouseenter="{mouseEnter}" on:mouseleave="{mouseLeave}"><i class="fas fa-book"></i></div>
+                <div class="add-to-dictionary" aria-label="Add to project dictionary" on:click="{() => addToDictionary(highlight)}" on:mouseenter="{g.tooltip.mouseEnterListener}" on:mouseleave="{g.tooltip.mouseLeaveListener}"><i class="fas fa-book"></i></div>
             </td>
         </tr>
         {:else}
@@ -175,18 +175,33 @@
         currentLine = 0,
         spellingErrors = []
     
-    let panel
+    let panel,
+        offlineLintCounts,
+        typeStrings = getTypeStrings()
     
     $: dispatch('active', {
         id: 'linter',
         active,
     })
+    $: {
+        const result = {
+            informational: 0,
+            refactor: 0,
+            convention: 0,
+            warning: 0,
+            error: 0
+        }
+        for (const x of offlineLints) {
+            if (result[x.type] === undefined) continue
+            result[x.type] += 1
+        }
+        offlineLintCounts = result
+    }
+    $: filteredOfflineLints = offlineLints.filter(x => offlineLintType[x.type])
     
     onMount(async () => {
         await makeScrollable('linter', panel)
     })
-
-    let typeStrings = getTypeStrings()
     
     function getTypeStrings() {
         const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
@@ -207,26 +222,6 @@
         }
     }
 
-    let offlineLintCounts
-    $: {
-        const result = {
-            informational: 0,
-            refactor: 0,
-            convention: 0,
-            warning: 0,
-            error: 0
-        }
-        for (const x of offlineLints) {
-            if (result[x.type] === undefined) continue
-            result[x.type] += 1
-        }
-        offlineLintCounts = result
-    }
-
-    $: filteredOfflineLints = offlineLints.filter(x => offlineLintType[x.type])
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     function onFocus() {
         g.setFocus([g.panelRight, g.linter])
     }
@@ -287,13 +282,5 @@
             const lineContent = editor.cm.getLine(line)
             editor.syncChanges(line, lineContent)
         })
-    }
-
-    export const mouseEnter = () => {
-        g.tooltip.mouseEnterListener(event)
-    }
-
-    export const mouseLeave = () => {
-        g.tooltip.mouseLeaveListener(event)
     }
 </script>
