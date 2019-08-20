@@ -132,8 +132,6 @@
         await makeScrollable('macro', panel)
     })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     function onFocus() {
         g.setFocus([g.panelRight, g.macro])
     }
@@ -179,7 +177,7 @@
     }
 
     export const executeMacro = (macro) => {
-        macro.callback(g.activeEditor.cm, event, this)
+        macro.callback(g.activeEditor.cm, event, g.macro)
     }
 
     function onChangeMacroFormat() {
@@ -187,7 +185,7 @@
     }
 
     const editMacro = () => {
-//        const path = config.macro.userMacroFile
-//        g.panelMiddle.openFile(path)
+        const path = config.macro.userMacroFile
+        g.panelMiddle.openFile(path)
     }
 </script>

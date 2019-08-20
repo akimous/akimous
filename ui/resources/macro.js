@@ -47,7 +47,7 @@ function printerFactory(f) {
 
         const lineContent = cm.getLine(cursor.line)
         const isEmptyLine = /^\s*$/.test(lineContent)
-        const { macroFormat } = macroPanel.get()
+        const { macroFormat } = macroPanel
         const insertion = f(event, macroFormat, target)
 
         cm.operation(() => {

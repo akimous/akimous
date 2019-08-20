@@ -21,6 +21,7 @@ if not macro_file.exists():
     template = resources.read_text('akimous.resources', 'macro.js')
     with open(macro_file, 'w') as f:
         f.write(template)
+config['macro']['userMacroFile'] = macro_file.resolve().parts
 
 
 @handles('_connected')
