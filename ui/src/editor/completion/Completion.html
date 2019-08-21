@@ -36,7 +36,7 @@
 </script>
 
 <script>
-    import { beforeUpdate, onMount } from 'svelte'
+    import { onMount } from 'svelte'
     
     import g from '../../lib/Globals'
     import { nextFrame } from '../../lib/utils'
@@ -81,9 +81,15 @@
             g.pushFocus(me)
         } else {
             g.popFocus(me)
+            g.docs.$set({ completionDoc: null })
+            completionProvider && (completionProvider.state = CLOSED)
         }
     }
 
+    onMount(() => {
+        container.addEventListener('scroll', scrollHandler, { passive: true })
+    })
+    
     // keep row number of visible rows 1 to 7
     let lastFVI = 999
     const scrollHandler = () => {
@@ -111,36 +117,7 @@
         selectedIndex = detail.index
         enter()
     }
-        
-    onMount(() => {
-        container.addEventListener('scroll', scrollHandler, { passive: true })
-    })
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-        // Don't merge this with on('stat), or the completion selection will break
-//        if (!previous) return
-//        if (changed.open) {
-//            if (current.open) g.pushFocus(this)
-//            else {
-//                g.popFocus(this)
-//                g.docs.set({ completionDoc: null })
-//            }
-//        }
-//        if (changed.selectedCompletionRow) {
-//            if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({
-//                selected: false
-//            })
-//            if (current.selectedCompletionRow) current.selectedCompletionRow.set({
-//                selected: true
-//            })
-//        }
-//        if (changed.open && !current.open)
-//            __this.completionProvider.state = CLOSED
-    })
-
+    
     export function bindReferences(editor_) {
         editor = editor_
         cm = editor.cm
