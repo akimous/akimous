@@ -20,10 +20,35 @@
         priority: 0,
     }
     
+    /* eslint-disable */
+    const extraKeys = {
+        'Tab': 'indentMore',
+        'Shift-Tab': 'indentLess',
+        'Cmd-/': 'toggleCommentIndented',
+        'Cmd-Backspace': 'deleteLineAndGoUp',
+        'Cmd-Delete': 'deleteLineAndGoDown',
+        'Cmd-D': 'duplicateLine',
+        'Cmd-J': 'joinLines',
+        'Cmd-B': 'selectNextOccurrence',
+
+        'Ctrl-Left': 'goSubwordLeft', // should implement on LKC
+        'Ctrl-Right': 'goSubwordRight', // should implement on LKC
+        'Cmd-L': 'splitSelectionByLine', // change not visible, need modification
+        'Esc': 'singleSelectionTop',
+        'Cmd-Enter': 'moveToLineEndAndInsertLineAfter',
+        'Shift-Cmd-Enter': 'insertLineBefore',
+        'Backspace': 'smartBackspace',
+
+        "Shift-Cmd-Backspace": "delLineLeft",
+        "Shift-Cmd-Delete": "delLineRight",
+        "Cmd-Alt-Up": "addCursorToPrevLine",
+        "Cmd-Alt-Down": "addCursorToNextLine",
+    }
+    /* eslint-enable */
 </script>
 
 <script>
-    import { beforeUpdate, onDestroy, onMount, createEventDispatcher } from 'svelte'
+    import { onDestroy, onMount, createEventDispatcher } from 'svelte'
 
     import CMEventDispatcher from './CMEventDispatcher'
     import RealtimeFormatter from './RealtimeFormatter'
@@ -103,19 +128,67 @@
         outline = [],
         codeEditor = null,
         cmEventDispatcher = null,
-        cmReadyCallback
+        cmReadyCallback,
+        isMakefile = false
     
     let mtime,
         saving = false,
         self,
         shouldClose = false,
-        highlightSelectionMatches,
-        oldPathString = ''
+        oldPathString = '',
+        previousHighlightOverlay = null,
+        previousTextMark = null
+    
+    let highlightSelectionMatches = { // search/match-highlighter
+        style: 'match-highlight',
+        minChars: 1,
+        delay: 50,
+        wordsOnly: false,
+        annotateScrollbar: false,
+        showToken: false,
+        trim: false
+    }
     
     $: dispatch('active', {
         id: joinPath(filePath),
         active
     })
+    
+    $: tab && tab.$set({ clean })
+    $: isMakefile = fileName.toLowerCase() === 'makefile'
+    $: {
+        if (oldPathString && pathString && oldPathString !== pathString) {
+            session.send('Mtime', { newPath: pathString })
+            tab.$set({ name: fileName })
+            oldPathString = pathString
+        }
+    }
+    $: {
+        if (active && session && cm) {
+            nextFrame(() => {
+                cm.refresh()
+                session.send('ActivateEditor')
+            })
+        }
+    }
+    $: {
+        previousHighlightOverlay && cm.removeOverlay(previousHighlightOverlay)
+        if (highlightOverlay && !cm.hasFocus()) {
+            cm.setOption('highlightSelectionMatches', false) // pause highlightSelectionMatches
+            cm.addOverlay(highlightOverlay, overlayOption)
+            previousHighlightOverlay = highlightOverlay
+        } else if (cm) { // resume highlightSelectionMatches
+            const currentOption = cm.getOption('highlightSelectionMatches')
+            if (highlightSelectionMatches !== currentOption)
+                cm.setOption('highlightSelectionMatches', highlightSelectionMatches)
+        }
+    }
+    $: {
+        if (textMark) {
+            previousTextMark && previousTextMark.clear()
+            previousTextMark = textMark
+        }
+    }
 
     onMount(() => {
         self = g.panelMiddle.editors[pathString]
@@ -234,15 +307,6 @@
         })
 
         // Step 2: Open editor
-        highlightSelectionMatches = { // search/match-highlighter
-            style: 'match-highlight',
-            minChars: 1,
-            delay: 50,
-            wordsOnly: false,
-            annotateScrollbar: false,
-            showToken: false,
-            trim: false
-        }
         const initializeCM = readFile.then(data => {
             const { indentWithTabs, indentSize } = g.cursorPosition
             cm = CodeMirror(codeEditor, {
@@ -263,33 +327,7 @@
 
                 foldGutter: true, // fold/foldgutter
                 gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
-
-                // keymap
-                /* eslint-disable */
-                extraKeys: {
-                    'Tab': 'indentMore',
-                    'Shift-Tab': 'indentLess',
-                    'Cmd-/': 'toggleCommentIndented',
-                    'Cmd-Backspace': 'deleteLineAndGoUp',
-                    'Cmd-Delete': 'deleteLineAndGoDown',
-                    'Cmd-D': 'duplicateLine',
-                    'Cmd-J': 'joinLines',
-                    'Cmd-B': 'selectNextOccurrence',
-
-                    'Ctrl-Left': 'goSubwordLeft', // should implement on LKC
-                    'Ctrl-Right': 'goSubwordRight', // should implement on LKC
-                    'Cmd-L': 'splitSelectionByLine', // change not visible, need modification
-                    'Esc': 'singleSelectionTop',
-                    'Cmd-Enter': 'moveToLineEndAndInsertLineAfter',
-                    'Shift-Cmd-Enter': 'insertLineBefore',
-                    'Backspace': 'smartBackspace',
-
-                    "Shift-Cmd-Backspace": "delLineLeft",
-                    "Shift-Cmd-Delete": "delLineRight",
-                    "Cmd-Alt-Up": "addCursorToPrevLine",
-                    "Cmd-Alt-Down": "addCursorToNextLine",
-                }
-                /* eslint-enable */
+                extraKeys // keymap
             })
             mtime = data.mtime
         })
@@ -333,49 +371,8 @@
         g.linter.clear()
         session.send('Close')
         session.close()
-    })
+    })    
 
-    $: {
-        if (oldPathString && pathString && oldPathString !== pathString) {
-            session.send('Mtime', { newPath: pathString })
-            tab.$set({ name: fileName })
-            oldPathString = pathString
-        }
-    }
-    
-    $: tab && tab.$set({ clean })
-    
-    $: {
-        if (active && session && cm) {
-            nextFrame(() => {
-                cm.refresh()
-                session.send('ActivateEditor')
-            })
-        }
-    }
-    beforeUpdate(() => {
-//        if (changed.highlightOverlay) {
-//            const { cm } = this
-//            cm.removeOverlay(previous.highlightOverlay)
-//            if (current.highlightOverlay && !cm.hasFocus()) {
-//                cm.setOption('highlightSelectionMatches', false) // pause highlightSelectionMatches
-//                cm.addOverlay(current.highlightOverlay, overlayOption)
-//            } else { // resume highlightSelectionMatches
-//                const currentOption = cm.getOption('highlightSelectionMatches')
-//                if (__this.highlightSelectionMatches !== currentOption)
-//                    cm.setOption('highlightSelectionMatches', __this.highlightSelectionMatches)
-//            }
-//        }
-//        if (changed.textMark && previous.textMark) {
-//            previous.textMark.clear()
-//        }
-    })
-
-    export let isMakefile
-    $: isMakefile = fileName.toLowerCase() === 'makefile'
-
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     export function save() {
         saving = true
         session.send('SaveFile', { content: cm.getValue() })
