@@ -62,23 +62,6 @@ function nextFrame(callback) {
     })
 }
 
-function initializeTabView(view, tabBar, title, icon) {
-//    view.self = view
-//    view.children = {}
-    schedule(() => {
-//        view.parent = view.parent
-        view.tab = tabBar.openTab(view, title, icon, false)
-//        view.tab.labeled = false
-//        view.on('state', ({ changed, current }) => {
-//            if (changed.active) {
-//                view.tab.set({
-//                    active: current.active
-//                })
-//            }
-//        })
-    })
-}
-
 function setAttributeForMultipleComponent(obj, ...targets) {
     for (const i of targets)
         i.set(obj)
@@ -309,9 +292,7 @@ export {
     binarySearch,
     schedule,
     nextFrame,
-//    initializeTabView,
     setAttributeForMultipleComponent,
-//    activateView,
     reformatDocstring,
     getRem,
     Pos,

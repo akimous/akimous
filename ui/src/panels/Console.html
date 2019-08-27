@@ -31,7 +31,7 @@
 </style>
 
 <script>
-    import { afterUpdate, onDestroy, onMount, createEventDispatcher, tick } from 'svelte'
+    import { onDestroy, createEventDispatcher, tick } from 'svelte'
     import Terminal from 'xterm/dist/xterm'
     import fit from 'xterm/lib/addons/fit/fit'
     
@@ -41,8 +41,6 @@
     import JupyterToolbar from './JupyterToolbar.html'
     import JupyterCell from './JupyterCell.html'
 
-    let initializing = true
-    let session
     const dispatch = createEventDispatcher()
     Terminal.applyAddon(fit)
 
@@ -58,25 +56,22 @@
         displayInput = false,
         ready = false
 
-    let jupyter, jupyterToolBar, terminalContainer, terminal
+    let jupyter, 
+        jupyterToolBar, 
+        terminalContainer, 
+        terminal,
+        lastPartALine,
+        session,
+        initializing = false,
+        realtimeEvaluationEditor
 
     $: dispatch('active', {
         id: 'console',
         active
     })
-    
-    onMount(() => {
-        initializing = false
-    })
-
-    onDestroy(() => {
-        session && session.close()
-    })
-
     $: {
         if (!ready && active) initialize()
     }
-    
     $: {
         if (mode) {
             stop()
@@ -84,14 +79,16 @@
         }
     }
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
-    export async function initialize() {
+    onDestroy(() => {
+        session && session.close()
+    })
+    
+    async function initialize() {
         if (initializing) return
         initializing = true
         await tick()
         
-        document.fonts.ready.then(() => { 
+        document.fonts.load('12px DejaVuSansMono').then(() => { 
             // make sure the font is already loaded 
             // (as it will not be replaced after terminal loads)
             schedule(() => {
@@ -157,7 +154,6 @@
             terminal.clear()
             terminal.reset()
         }
-
         nextFrame(() => {
             terminal.write('Click "Run" on toolbar to run current script.\n')
             ready = true
@@ -165,7 +161,7 @@
     }
 
     export function runInTerminal() {
-//        g.panelRight.activateView(g.panelRight.refs.console)
+        active = true
         const { mode, shellCommands, shellCommandIndex, args, cwd } = g.runConfiguration
 
         const run = () => {
@@ -253,7 +249,6 @@
 
     export function runInJupyter() {
         g.panelRight.activateView(g.panelRight.refs.console)
-
         const run = () => {
             if (!ready) {
                 nextFrame(run)
@@ -263,11 +258,9 @@
                 code: g.activeEditor.cm.getSelection()
             })
         }
-
         run()
     }
 
-    let realtimeEvaluationEditor
     export function startKernel(realtimeEvaluation) {
         if (!g.activeEditor) return
         g.jupyterToolbar.$set({ executionState: 'starting' })
@@ -289,7 +282,6 @@
         session.send('Evaluate', cursor)
     }
 
-    let lastPartALine
     export function evaluatePartA(line) {
         if (lastPartALine === line) {
             console.log('skipped evaluateA', line)
