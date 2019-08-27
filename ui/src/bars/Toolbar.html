@@ -67,10 +67,6 @@
 
     onMount(() => {
         Object.assign(g, children)
-//        g.linterOptions = linterOptions
-//        schedule(() => {
-//            g.tooltip.register(run.refs.button)
-//        })
     })
 
     function togglePopup(name) {
@@ -80,7 +76,6 @@
         if (popup.open) {
             popup.left = (left + right) / 2
         }
-//        name].set({ active: !open })
     }
 
     function run() {

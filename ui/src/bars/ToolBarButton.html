@@ -23,19 +23,17 @@
 </style>
 
 <script>
-    import { onMount } from 'svelte'
+    import { onMount, tick } from 'svelte'
 
     import g from '../lib/Globals'
-    import { schedule } from '../lib/Utils'
 
-    let self
     export let active = false,
         title,
         iconClass
+    let self
 
-    onMount(() => {
-        schedule(() => {
-//            g.tooltip.register(self)
-        })
+    onMount(async () => {
+        await tick()
+        g.tooltip.register(self)
     })
 </script>
