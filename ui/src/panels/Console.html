@@ -248,7 +248,7 @@
     }
 
     export function runInJupyter() {
-        g.panelRight.activateView(g.panelRight.refs.console)
+        g.console.active = true
         const run = () => {
             if (!ready) {
                 nextFrame(run)

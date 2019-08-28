@@ -57,9 +57,7 @@
 
 </style>
 
-<script>
-    import { beforeUpdate } from 'svelte'
-    
+<script>    
     import { nextFrame } from '../lib/Utils'
 
     export let cell,
@@ -71,6 +69,17 @@
         output = {}
 
     let _katex = null
+    
+    $: {
+        const source = output['text/latex']
+        if (source) {
+            nextFrame(() => {
+                katex(k => {
+                    k.render(source.replace(/(^\$)|(\$$)/g, ''), tex)
+                })
+            })
+        }
+    }
 
     function katex(callback) {
         if (_katex) return callback(_katex)
@@ -86,21 +95,5 @@
             callback(k)
         })
     }
-
-    // [svelte-upgrade warning]
-    // beforeUpdate and afterUpdate handlers behave
-    // differently to their v2 counterparts
-    beforeUpdate(() => {
-        if (changed.output) {
-            const source = current.output['text/latex']
-            if (source && (!previous || previous.output['text/latex'] !== source)) {
-                nextFrame(() => {
-                    katex(katex => {
-                        katex.render(source.replace(/(^\$)|(\$$)/g, ''), tex)
-                    })
-                })
-            }
-        }
-    })
 </script>
 
