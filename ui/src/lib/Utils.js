@@ -62,30 +62,6 @@ function nextFrame(callback) {
     })
 }
 
-function setAttributeForMultipleComponent(obj, ...targets) {
-    for (const i of targets)
-        i.set(obj)
-}
-
-//function activateView(parent, view) {
-//    const oldView = parent.get().focus
-//    if (view === oldView) return
-//    parent.set({ focus: view })
-//    if (!view) return
-//    if (g.focusStack.includes(parent))
-//        g.setFocus([parent, view])
-//    oldView && oldView.set({ active: false })
-//    view.set({ active: true })
-
-//    let panel
-//    if (parent === g.panelLeft) panel = 'left'
-//    else if (parent === g.panelRight) panel = 'right'
-//    if (panel)
-//        setProjectState('activePanels', {
-//            [panel]: view.name
-//        })
-//}
-
 function reformatDocstring(doc) {
     if (!doc) return doc
     const lines = doc.split(/\r?\n/).map(line => line.trim())
@@ -292,7 +268,6 @@ export {
     binarySearch,
     schedule,
     nextFrame,
-    setAttributeForMultipleComponent,
     reformatDocstring,
     getRem,
     Pos,
