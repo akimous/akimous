@@ -18,35 +18,35 @@ function bindHotkeys() {
     hotkey('mod + f', () => {
         g.panelRight.activateView(g.find)
         g.setFocus([g.panelRight, g.find])
-        g.find.set({ 
+        g.find.$set({ 
             replaceMode: false,
             findInDirectory: null,
             matches: [],
             selectedIndex: -1,
         })
-        g.find.refs.findText.focus()
+        g.find.findText.focus()
     })
 
     const replaceMode = () => {
         g.panelRight.activateView(g.find)
         g.setFocus([g.panelRight, g.find])
-        g.find.set({ 
+        g.find.$set({ 
             replaceMode: true,
             findInDirectory: null,
         })
-        g.find.refs.findText.focus()
+        g.find.findText.focus()
     }
     hotkey('mod + alt + f', replaceMode)
     hotkey('mod + h', replaceMode)
 
     hotkey('mod + g', () => {
         g.find.find(1)
-        g.find.refs.findNext.flash()
+        g.find.findNextButton.flash()
     })
 
     hotkey('mod + shift + g', () => {
         g.find.find(-1)
-        g.find.refs.findPrevious.flash()
+        g.find.findPreviousButton.flash()
     })
 
     hotkey('mod + `', () => {

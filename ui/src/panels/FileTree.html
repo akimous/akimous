@@ -275,7 +275,7 @@
         }
         if (!node && node === currentFocus) return
         if (!node.selected) node.onClick()
-        node.refs.row.scrollIntoViewIfNeeded(false)
+        node.row.scrollIntoViewIfNeeded(false)
     }
 
     export function moveToNeighbor(direction) {
@@ -293,7 +293,7 @@
             const firstChild = node.firstChild()
             if (firstChild) {
                 firstChild.onClick()
-                firstChild.refs.row.scrollIntoViewIfNeeded(false)
+                firstChild.row.scrollIntoViewIfNeeded(false)
             }
             return
         }
@@ -306,7 +306,7 @@
         const { parent } = node
         if (!parent) return
         parent.onClick()
-        parent.refs.row.scrollIntoViewIfNeeded(false)
+        parent.row.scrollIntoViewIfNeeded(false)
     }
 
     export const enter = () => {
@@ -320,7 +320,7 @@
         if (focus.constructor.name !== 'FileTreeNode') return
 
         const x = self.getBoundingClientRect().right
-        const y = focus.refs.row.getBoundingClientRect().top
+        const y = focus.row.getBoundingClientRect().top
         focus.onContextMenu({
             clientX: x - 10,
             clientY: y + 10,

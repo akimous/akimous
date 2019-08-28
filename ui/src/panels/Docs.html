@@ -171,8 +171,6 @@
         }
     })
 
-    // [svelte-upgrade suggestion]
-    // review these functions and remove unnecessary 'export' keywords
     function onFocus() {
         g.setFocus([g.panelRight, g.docs])
     }
@@ -310,7 +308,6 @@
                     index = 0
                 }
             }
-
         }
         let argIndex = scanInSameLevelOfBraces(cm, cursor, findParameterIndex)
         return argIndex

@@ -221,12 +221,12 @@
             if (!isDir) path.pop()
             g.find.reset()
             g.find.$set({ 
+                active: true,
                 findInDirectory: path,
                 replaceMode: false,
             })
-            g.panelRight.activateView(g.panelRight.refs.find)
             g.setFocus([g.panelRight, g.find])
-            g.find.refs.findText.focus()
+            g.find.findText.focus()
             g.find.findInDirectory()
         },
         replaceIn() {
@@ -335,7 +335,7 @@
         if (!renaming) return // prevent event being triggered twice (one from enter, one from blur)
         if (input.value !== name && input.value.length > 0) {
             if (placeholderMode) {
-                name = this.refs.input.value
+                name = input.value
                 const path = getPath()
                 const { isDir } = parent
                 if (!isDir)

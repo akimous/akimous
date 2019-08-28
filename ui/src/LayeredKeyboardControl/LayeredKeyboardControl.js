@@ -85,7 +85,7 @@ class LayeredKeyboardControl {
         this._macroMode = x
         if (x) {
             this._previousPanelRightView = g.panelRight.focus
-            g.panelRight.activateView(g.panelRight.refs.macro)
+            g.macro.active = true
         } else {
             this._previousPanelRightView && g.panelRight.activateView(this._previousPanelRightView)
         }
