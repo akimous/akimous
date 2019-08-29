@@ -161,7 +161,8 @@
         currentLine = 0,
         currentFilePath = [],
         currentCh = 0,
-        cannotDisplay = false
+        cannotDisplay = false,
+        highlightOverlay = null
     
     let panel, findPreviousButton, findNextButton, jobAnimationFrameId
     
@@ -303,8 +304,7 @@
         const pos = { from, to }
 
         nextFrame(() => {
-            const selectedIndex = matches.findIndex(x => x.from.line === from.line && x.from.ch === from.ch)
-            selectedIndex = selectedIndex
+            selectedIndex = matches.findIndex(x => x.from.line === from.line && x.from.ch === from.ch)
             clearSelections()
         })
 
@@ -428,9 +428,9 @@
             }
             job()
 
-            const highlightOverlay = searchOverlayGenerator(query)
+            highlightOverlay = searchOverlayGenerator(query)
             nextFrame(() => {
-                editor.$set({ highlightOverlay: highlightOverlay })
+                editor.$set({ highlightOverlay })
             })
         } else {
             editor.$set({ highlightOverlay: null })

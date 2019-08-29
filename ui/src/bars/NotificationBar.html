@@ -73,8 +73,7 @@
         message = '',
         actions = []
     
-    let queue = [],
-        timer = 0
+    let queue = []
 
     export function doAction(action) {
         action.callback()
@@ -107,7 +106,7 @@
         if (notification.level === 'success') timeout = 1200
         else if (notification.level === 'warning') timeout = 1800
         if (timeout) {
-            timer = setTimeout(() => showNext(), timeout)
+            setTimeout(showNext, timeout)
         }
         message = notification.message
         level = notification.level

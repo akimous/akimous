@@ -25,17 +25,16 @@
     import elementQueries from 'css-element-queries'
     
     import Tab from './Tab.html'
-    import { nextFrame } from '../lib/Utils.js'
 
     export let tabData = [],
         tabs = {}
 
     let tabFittingTask = -1,
-        sortable,
         tabBar
 
-    onMount(() => {
-        sortable = Sortable.create(tabBar, { animation: 0 })
+    onMount(async () => {
+        await tick()
+        Sortable.create(tabBar, { animation: 0 })
         new elementQueries.ResizeSensor(tabBar, fitTabWidth)
     })
     

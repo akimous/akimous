@@ -76,10 +76,10 @@
 </style>
 
 <script>
-    import { beforeUpdate, onMount, createEventDispatcher, tick } from 'svelte'
+    import { onMount, createEventDispatcher } from 'svelte'
     
     import g from '../lib/Globals'
-    import { highlightMatch, joinPath, Pos, nextFrame } from '../lib/Utils'
+    import { highlightMatch, joinPath, Pos } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 

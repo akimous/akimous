@@ -37,9 +37,7 @@
 
 </style>
 
-<script>
-    import { afterUpdate } from 'svelte'
-    
+<script>    
     import g from '../lib/Globals'
 
     export let value = '',
@@ -48,9 +46,9 @@
         callback = null,
         input = null
     
-    $: active && onActivation(active)
+    $: active && onActivation()
     
-    function onActivation(active_) {
+    function onActivation() {
         g.setFocus([g.commandPalette])
         input.focus()
     }

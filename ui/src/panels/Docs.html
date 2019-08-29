@@ -89,12 +89,12 @@
 </style>
 
 <script>
-    import { onMount, createEventDispatcher, tick } from 'svelte'
+    import { onMount, createEventDispatcher } from 'svelte'
     import throttle from 'lodash.throttle'
     
     import g from '../lib/Globals'
     import { makeScrollable } from '../lib/UIUtils'
-    import { nextFrame, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
+    import { Pos, isStringOrComment, inParentheses } from '../lib/Utils'
     import {
         scanInSameLevelOfBraces,
         needInsertCommaAfterParameter,

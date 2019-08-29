@@ -45,7 +45,7 @@
 
 
 <style>
-    .run-now {
+    /*.run-now {
         flex-grow: 1;
         text-align: right;
         color: var(--primary5);
@@ -55,10 +55,7 @@
     .option:hover .run-now {
         display: inline;
     }
-
-    .shell-commands {
-        padding: 0 1rem 0 2rem;
-    }
+    */
     
     .checked .checkbox:before {
         content: "\f111";
@@ -68,7 +65,7 @@
 
    
 <script>
-    import { onMount, tick } from 'svelte'
+    import { tick } from 'svelte'
 
     import g from '../lib/Globals'
     import { setProjectState } from '../lib/ConfigManager'

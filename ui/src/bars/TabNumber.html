@@ -33,11 +33,11 @@
     
     $: if (active) onUpdate(active)
     
-    function onUpdate(active_) {
+    function onUpdate() {
         const activePanel = g.focusStack[0]
         if (!activePanel || !activePanel.tabBar) return
         let children = Object.values(activePanel.tabBar.tabs)
-        if (children.length < 2) {
+        if (active && children.length < 2) {
             active = false
             return
         }

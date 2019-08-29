@@ -97,7 +97,7 @@
 </script>
 
 <script>
-    import { onMount, tick } from 'svelte'
+    import { onMount } from 'svelte'
     import throttle from 'lodash.throttle'
     
     import Toolbar from './bars/Toolbar.html'
@@ -112,6 +112,7 @@
     import OpenFolder from './popups/OpenFolder.html'
     import Hotkeys from './LayeredKeyboardControl/Hotkeys'
     import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
+    import { schedule } from './lib/Utils'
     import g from './lib/Globals'
 
     export let initialized = true,
@@ -164,8 +165,9 @@
         Hotkeys.bindHotkeys()
         g.layeredKeyboardControl = new LayeredKeyboardControl()
 
-        await tick()
-        g.ready = true
+        schedule(() => { 
+            g.ready = true
+        })
     })
 
     export function dismissPopups() {

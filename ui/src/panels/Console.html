@@ -57,13 +57,11 @@
         ready = false
 
     let jupyter, 
-        jupyterToolBar, 
         terminalContainer, 
         terminal,
         lastPartALine,
         session,
-        initializing = false,
-        realtimeEvaluationEditor
+        initializing = false
 
     $: dispatch('active', {
         id: 'console',
@@ -265,12 +263,10 @@
         if (!g.activeEditor) return
         g.jupyterToolbar.$set({ executionState: 'starting' })
         session.send('StartKernel', { realtimeEvaluation })
-        realtimeEvaluationEditor = g.activeEditor
         g.activeEditor.cmEventDispatcher.realtimeEvaluation = realtimeEvaluation
     }
 
     export function stopRealtimeEvaluation() {
-        realtimeEvaluationEditor = null
         if (!g.activeEditor) return
         g.activeEditor.cmEventDispatcher.realtimeEvaluation = false
         console.warn('stopping')

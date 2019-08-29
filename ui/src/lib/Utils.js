@@ -2,7 +2,6 @@ import CodeMirror from 'codemirror'
 import isEqual from 'lodash.isequal'
 
 import g from './Globals'
-import { setProjectState } from './ConfigManager'
 
 // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
 function binarySearch(array, target) {

@@ -163,7 +163,7 @@
     export function setCompletions(rows_, firstTriggeredCharPos, type) {
         console.warn('setCompletions', [...rows_])
         rows = rows_
-        const passive = type !== NORMAL
+        passive = type !== NORMAL
         if (!rows.length) {
             open = false
         } else {

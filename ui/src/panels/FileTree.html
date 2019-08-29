@@ -25,7 +25,7 @@
 </style>
 
 <script>
-    import { onDestroy, onMount, createEventDispatcher, setContext, tick } from 'svelte'
+    import { onDestroy, onMount, createEventDispatcher, setContext } from 'svelte'
     
     import g from '../lib/Globals'
     import { binarySearch, schedule } from '../lib/Utils'
@@ -35,13 +35,14 @@
 
     const dispatch = createEventDispatcher()
     const nodeCreatedCallbacks = {}
-    let keyEventHandler, self, container
+    let self, container
     export let session = g.socket.createSession('fileTree'),
         children = {},
         active = false,
         dirs = [],
         files = [],
-        root = []
+        root = [],
+        keyEventHandler = null
     
     let selectedNode = null
     
@@ -338,13 +339,15 @@
     export function top() {
         const anyNode = Object.values(children)[0]
         if (!anyNode) return
-//        anyNode.firstChild.bind(this)().onClick()
+        const child = anyNode.firstChild() // TODO: check it
+        child && child.onClick()
     }
 
     export function bottom() {
         const anyNode = Object.values(children)[0]
         if (!anyNode) return
-        anyNode.lastChild.bind(this)().onClick()
+        const child = anyNode.lastChild()
+        child && child.onClick()
     }
 
     export function addNodeCreatedCallback(path, callback) {
