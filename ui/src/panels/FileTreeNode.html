@@ -130,7 +130,7 @@
         }
     }, copyPath]
     
-    const keyEventHandler = {
+    export const keyEventHandler = {
         handleKeyEvent(e, target) {
             if (!target.renaming) return true
             switch (e.key) {
@@ -152,7 +152,7 @@
 </script>
 
 <script>
-    import { beforeUpdate, onDestroy, onMount, createEventDispatcher, setContext, getContext, tick } from 'svelte'
+    import { onDestroy, onMount, createEventDispatcher, setContext, getContext, tick } from 'svelte'
     import pressure from 'pressure'
     
     import g from '../lib/Globals'
@@ -161,7 +161,10 @@
     
     const dispatch = createEventDispatcher()
     export const parent = getContext('parent')
-    setContext('parent', () => parent().children[name])
+    function self() {
+        return parent().children[name]
+    }
+    setContext('parent', self)
 
     export let 
         children = {},
@@ -179,7 +182,8 @@
         selected = false,
         renaming = false,
         row = null,
-        allowWhiteSpace
+        allowWhiteSpace,
+        renamingCommittedCallback = null
     
     let cancelAllSelectionListener
     
@@ -230,7 +234,7 @@
             g.find.findInDirectory()
         },
         replaceIn() {
-            findIn()
+            this.findIn()
             g.find.$set({ replaceMode: true })
         },
         rename: async () => {
@@ -368,17 +372,17 @@
         let newList = list
         let newIndex = currentIndex + (direction > 0 ? 1 : -1)
         if (direction > 0 && newIndex >= list.length) {
-            if (!isDir) return this
+            if (!isDir) return self()
             if (files.length) {
                 newList = files
                 newIndex = 0
-            } else return this
+            } else return self()
         } else if (direction < 0 && newIndex < 0) {
-            if (isDir) return this
+            if (isDir) return self()
             if (dirs.length) {
                 newList = dirs
                 newIndex = dirs.length - 1
-            } else return this
+            } else return self()
         }
         const nextNodeName = newList[newIndex].name
         return parent.children[nextNodeName]
@@ -401,12 +405,12 @@
             const firstChild = firstChild()
             if (firstChild) return firstChild
             const sibling = sibling(1)
-            if (sibling && sibling !== this) return sibling
+            if (sibling && sibling !== self()) return sibling
             if (!parent.sibling) return null
             return parent.sibling(1)
         } else {
             const sibling = sibling(-1)
-            if (!sibling || sibling === this) return parent
+            if (!sibling || sibling === self()) return parent
             let node = sibling
             while (Object.keys(node.children).length) {
                 const lastChild = node.lastChild()

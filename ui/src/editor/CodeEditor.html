@@ -53,7 +53,6 @@
     import CMEventDispatcher from './CMEventDispatcher'
     import RealtimeFormatter from './RealtimeFormatter'
     import { CompletionProvider } from './completion/CompletionProvider'
-    import { getIconByFileName } from '../lib/FileTypeToIcon'
     import { schedule, nextFrame, joinPath } from '../lib/Utils'
     
     import Completion from './completion/Completion.html'
@@ -137,7 +136,9 @@
         shouldClose = false,
         oldPathString = '',
         previousHighlightOverlay = null,
-        previousTextMark = null
+        previousTextMark = null,
+        cursorBeforeSaving,
+        scrollInfoBeforeSaving
     
     let highlightSelectionMatches = { // search/match-highlighter
         style: 'match-highlight',
@@ -383,7 +384,7 @@
 
     export function insertText(text) {
         g.activeEditor && g.activeEditor.cm.hasFocus()
-        if (g.activeEditor != this || !cm.hasFocus()) return
+        if (!cm.hasFocus()) return
         cm.doc.replaceRange(text, cm.doc.getCursor('from'), cm.doc.getCursor('to'), '+input')
     }
 
