@@ -265,9 +265,9 @@
         cancelAllSelectionListener && cancelAllSelectionListener.cancel()
         if (selected) {
             try {
-                let node = sibling(-1)
+                let node = getSibling(-1)
                 if (node && node.name !== name) return node.onClick()
-                node = sibling(1)
+                node = getSibling(1)
                 if (node && node.name !== name) return node.onClick()
                 node = parent()
                 if (node) return node.onClick()
@@ -294,7 +294,7 @@
         dispatch('nodeSelected', getPath())
         selected = true
         if (event || g.focusStack[0] === g.panelLeft) // avoid focus being stolen on startup
-            g.setFocus([g.panelLeft, g.fileTree])
+            g.setFocus([g.panelLeft, g.fileTree, self()])
     }
 
     export function onDoubleClick() {
@@ -328,11 +328,13 @@
     }
 
     export function redraw() {
-        dirs = dirs.sort((a, b) => a.name > b.name), files = files.sort((a, b) => a.name > b.name)
+        dirs = dirs.sort((a, b) => a.name > b.name)
+        files = files.sort((a, b) => a.name > b.name)
     }
 
     export function removeChildren() {
-        dirs = [], files = []
+        dirs = []
+        files = []
     }
 
     export function commitRename() {
@@ -364,8 +366,9 @@
         }
     }
 
-    export function sibling(direction) {
-        const { files, dirs } = parent
+    export function getSibling(direction) {
+        const parent_ = parent()
+        const { files, dirs } = parent_
         const list = isDir ? dirs : files
         const currentIndex = binarySearch(list, name)
 
@@ -385,16 +388,16 @@
             } else return self()
         }
         const nextNodeName = newList[newIndex].name
-        return parent.children[nextNodeName]
+        return parent_.children[nextNodeName]
     }
 
-    export function firstChild() {
+    export function getFirstChild() {
         if (dirs.length) return children[dirs[0].name]
         if (files.length) return children[files[0].name]
         return null
     }
 
-    export function lastChild() {
+    export function getLastChild() {
         if (files.length) return children[files[files.length - 1].name]
         if (dirs.length) return children[dirs[dirs.length - 1].name]
         return null
@@ -402,18 +405,18 @@
 
     export function neighbor(direction) {
         if (direction > 0) {
-            const firstChild = firstChild()
+            const firstChild = getFirstChild()
             if (firstChild) return firstChild
-            const sibling = sibling(1)
+            const sibling = getSibling(1)
             if (sibling && sibling !== self()) return sibling
             if (!parent.sibling) return null
-            return parent.sibling(1)
+            return parent.getSibling(1)
         } else {
-            const sibling = sibling(-1)
-            if (!sibling || sibling === self()) return parent
+            const sibling = getSibling(-1)
+            if (!sibling || sibling === self()) return parent()
             let node = sibling
             while (Object.keys(node.children).length) {
-                const lastChild = node.lastChild()
+                const lastChild = node.getLastChild()
                 if (!lastChild) break
                 node = lastChild
             }

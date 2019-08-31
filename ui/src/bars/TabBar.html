@@ -46,6 +46,7 @@
 
     export async function openTab(id, name, view, icon, labeled = false) {
         tabData.push({ id, name, view, icon, labeled })
+        tabData = tabData // force update
         fitTabWidth()
         await tick()
         view.tab = tabs[id] // eslint-disable-line require-atomic-updates

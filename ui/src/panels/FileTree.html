@@ -270,7 +270,7 @@
         if (moveToTopIfNothingSelected()) return
         let node = currentFocus
         for (let i = Math.abs(n); i > 0; i--) {
-            const sibling = node.sibling(n)
+            const sibling = node.getSibling(n)
             if (!sibling) break
             node = sibling
         }
@@ -291,7 +291,7 @@
         if (moveToTopIfNothingSelected()) return
         if (!node.isDir) return
         if (node.open) {
-            const firstChild = node.firstChild()
+            const firstChild = node.getFirstChild()
             if (firstChild) {
                 firstChild.onClick()
                 firstChild.row.scrollIntoViewIfNeeded(false)
@@ -304,8 +304,9 @@
     export function moveToParent() {
         const node = g.focus
         if (moveToTopIfNothingSelected()) return
-        const { parent } = node
-        if (!parent) return
+        if (!node.parent) return
+        const parent = node.parent()
+        if (!parent.onClick) return
         parent.onClick()
         parent.row.scrollIntoViewIfNeeded(false)
     }
@@ -339,14 +340,14 @@
     export function top() {
         const anyNode = Object.values(children)[0]
         if (!anyNode) return
-        const child = anyNode.firstChild() // TODO: check it
+        const child = anyNode.getFirstChild() // TODO: check it
         child && child.onClick()
     }
 
     export function bottom() {
         const anyNode = Object.values(children)[0]
         if (!anyNode) return
-        const child = anyNode.lastChild()
+        const child = anyNode.getLastChild()
         child && child.onClick()
     }
 
