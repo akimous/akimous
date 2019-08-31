@@ -4,11 +4,11 @@ const g = {
     focusStack: [],
     get focus() {
         const stack = this.focusStack
-        console.log('got focus', stack[stack.length - 1], stack)
+        // console.log('got focus', stack[stack.length - 1], stack)
         return stack[stack.length - 1]
     },
     setFocus(x) {
-        console.warn('set focus', x)
+        // console.warn('set focus', x)
         const focusStack = this.focusStack
         // backup original focus stack
         const oldRoot = focusStack[0]
@@ -40,7 +40,7 @@ const g = {
         this.onFocusChanged()
     },
     pushFocus(x) {
-        console.log('push focus', x)
+        // console.log('push focus', x)
         const focusStack = this.focusStack
         for (let i = 0; i < focusStack.length; i++) {
             if (focusStack[i] === x) return
@@ -49,7 +49,7 @@ const g = {
         this.onFocusChanged()
     },
     popFocus(x) {
-        console.log('pop focus', x)
+        // console.log('pop focus', x)
         const focusStack = this.focusStack
         for (let i = focusStack.length - 1; i >= 0; i--) {
             if (focusStack[i] === x) {

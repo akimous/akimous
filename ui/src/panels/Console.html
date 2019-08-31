@@ -266,7 +266,7 @@
         g.activeEditor.cmEventDispatcher.realtimeEvaluation = realtimeEvaluation
     }
 
-    export function stopRealtimeEvaluation() {
+    export const stopRealtimeEvaluation = () => {
         if (!g.activeEditor) return
         g.activeEditor.cmEventDispatcher.realtimeEvaluation = false
         console.warn('stopping')
