@@ -38,17 +38,17 @@
     
     import g from '../lib/Globals'
 
-    export let indentWithTabs = false,
-        isMakefile = false,
+    export let ch = 0,
         editingIndentSize = false,
         indentSize = 4,
-        line = 0,
-        ch = 0
+        indentWithTabs = false,
+        isMakefile = false,
+        line = 0
     
-    let indentSwitch,
+    let cursorPosition,
+        indentSizeDisplay,
         indentSizeInput,
-        cursorPosition,
-        indentSizeDisplay
+        indentSwitch
 
     $: indentDisplay = indentWithTabs ? 'Tab Size' : 'Spaces'
     $: indentSizeDisplay && g.tooltip.register(indentSizeDisplay)

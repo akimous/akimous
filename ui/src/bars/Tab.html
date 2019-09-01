@@ -61,20 +61,20 @@
     import { onDestroy, createEventDispatcher } from 'svelte'
 
     import g from '../lib/Globals'
-
-    let text,
-        iconSpan
     
-    export let id,
-        active = false,
+    export let active = false,
         clean = true,
-        padding = 0,
-        name = '',
         icon = 'l-python-icon',
+        id,
         labeled = true,
-        view = null,
+        name = '',
+        padding = 0,
         panel = null,
-        tab = null
+        tab = null,
+        view = null
+
+    let iconSpan,
+        text
 
     const dispatch = createEventDispatcher()
 

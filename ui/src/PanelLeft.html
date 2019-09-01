@@ -29,10 +29,10 @@
     import FileTree from './panels/FileTree.html'
     import Outline from './panels/Outline.html'
     
-    export let children = {},
+    export let autoHide = false,
+        children = {},
         focused = false,
         hidden = false,
-        autoHide = false,
         tabBar = null
 
     let onTabChange, 

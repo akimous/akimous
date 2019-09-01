@@ -49,15 +49,16 @@
     import TabBar from './bars/TabBar.html'
     import CodeEditor from './editor/CodeEditor.html'
     
-    export let focused = false,
+    export let editorProps = {},
+        editors = {},
         focus = null,
-        tabBar = null,
-        editorProps = {},
-        editors = {}
-    let editorUid = 0,
+        focused = false,
+        tabBar = null
+
+    let activationHistory = new CircularBuffer(MAX_ACTIVATION_HISTORY),
+        editorUid = 0,
         onTabChange, 
-        self,
-        activationHistory = new CircularBuffer(MAX_ACTIVATION_HISTORY)
+        self
     
     $: g.pathIndicator && g.pathIndicator.$set({ path: focus ? focus.filePath : null })
     $: {

@@ -50,22 +50,22 @@
         'full-statement'
     ])
 
-    export let open = false,
+    export let closable = true,
+        completionProvider = null,
+        keyEventHandler = null,
+        open = false,
         passive = false,
         rows = [],
-        selectedIndex = 0,
-        closable = true,
-        keyEventHandler = null,
-        completionProvider = null
+        selectedIndex = 0
     
-    let container,
-        passivePlaceholder,
-        me,
+    let cm,
         completionRows = {},
         completionRowShortcuts = new Array(9),
-        cm,
+        container,
         editor,
-        lastRequestedCompletionForDocstring
+        lastRequestedCompletionForDocstring,
+        me,
+        passivePlaceholder
     
     $: rowCount = rows.length + passive
     $: {

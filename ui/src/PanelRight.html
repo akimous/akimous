@@ -39,16 +39,16 @@
     import References from './panels/References.html'
     
 
-    export let children = {},
-        tabBar = null,
+    export let allowWhiteSpace = true,
+        autoHide = false,
+        children = {},
         focused = false,
         hidden = false,
-        autoHide = false,
-        width = 0,
-        allowWhiteSpace = true
+        tabBar = null,
+        width = 0
     
-    let originalWidth,
-        onTabChange, 
+    let onTabChange, 
+        originalWidth,
         self
     
     $: {

@@ -40,11 +40,11 @@
 <script>    
     import g from '../lib/Globals'
 
-    export let value = '',
-        active = false,
-        message = '',
+    export let active = false,
         callback = null,
-        input = null
+        input = null,
+        message = '',
+        value = ''
     
     $: active && onActivation()
     

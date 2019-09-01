@@ -166,15 +166,15 @@
         'token': '<i class="fas fa-signature"></i>',
     }
     
-    export let type = '',
+    export let highlight = '',
+        index = 0,
+        row = null,
         rowNumber = 0,
-        highlight = '',
+        selected = false,
         tail = '',
         text = '',
-        selected = false,
-        index = 0,
-        typeIcon,
-        row = null
+        type = '',
+        typeIcon
 
     $: typeIcon = _getTypeIcon(type)
     
