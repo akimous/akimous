@@ -154,19 +154,19 @@
     const domParser = new DOMParser()
     const dispatch = createEventDispatcher()
 
-    export let width = 100,
+    export let active = false,
+        currentLine = 0,
         offlineLints = [],
         offlineLintType = {...config.offlineLintType},
-        active = false,
         pyflakes = config.linter.pyflakes,
-        spellChecker = config.linter.spellChecker,
         pylint = config.linter.pylint,
         realtimeLints = [],
-        currentLine = 0,
-        spellingErrors = []
+        spellChecker = config.linter.spellChecker,
+        spellingErrors = [],
+        width = 100
     
-    let panel,
-        offlineLintCounts,
+    let offlineLintCounts,
+        panel,
         typeStrings = getTypeStrings()
     
     $: dispatch('active', {

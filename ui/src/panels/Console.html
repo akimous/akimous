@@ -45,7 +45,6 @@
     Terminal.applyAddon(fit)
 
     export let active = false,
-        mode = '',
         cells = [
             // {
             //     output: {
@@ -54,14 +53,15 @@
             // }
         ],
         displayInput = false,
+        mode = '',
         ready = false
 
-    let jupyter, 
-        terminalContainer, 
-        terminal,
+    let initializing = false,
+        jupyter, 
         lastPartALine,
         session,
-        initializing = false
+        terminal,
+        terminalContainer
 
     $: dispatch('active', {
         id: 'console',

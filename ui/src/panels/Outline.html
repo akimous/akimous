@@ -64,11 +64,11 @@
     const dispatch = createEventDispatcher()
 
     export let active = false,
-        outlineItems = [],
-        currentLine = 0
+        currentLine = 0,
+        outlineItems = []
     
-    let panel,
-        outline,
+    let outline,
+        panel,
         row
 
     $: dispatch('active', {

@@ -62,10 +62,11 @@
 <script>
     import { tick } from 'svelte'
     
-    export let open = false,
-        content = ''
-    let self,
-        arrow
+    export let content = '',
+        open = false
+
+    let arrow,
+        self
 
     export async function reposition(x, y) {
         await tick() // wait for layout or height will be 0

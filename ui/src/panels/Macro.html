@@ -97,10 +97,10 @@
     const dispatch = createEventDispatcher()
 
     export let active = false,
+        allowWhiteSpace = true,
         clipboard = [],
         macroFormatWithShift = '${NAME} =',
-        macros = {},
-        allowWhiteSpace = true
+        macros = {}
     
     let panel
     

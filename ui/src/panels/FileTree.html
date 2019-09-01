@@ -35,16 +35,18 @@
 
     const dispatch = createEventDispatcher()
     const nodeCreatedCallbacks = {}
-    let self, container
-    export let session = g.socket.createSession('fileTree'),
+
+    export let active = false,
         children = {},
-        active = false,
         dirs = [],
         files = [],
+        keyEventHandler = null,
         root = [],
-        keyEventHandler = null
+        session = g.socket.createSession('fileTree')
     
-    let selectedNode = null
+    let container,
+        selectedNode = null,
+        self
     
     $: dispatch('active', {
         id: 'fileTree',

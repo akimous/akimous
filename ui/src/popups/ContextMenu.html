@@ -33,20 +33,21 @@
     import ContextMenuDivider from './ContextMenuDivider.html'
     import EventDispatcherFactory from '../LayeredKeyboardControl/EventDispatcherFactory'
     
-    export let open = false,
-        x = 0,
-        y = 0,
+    export let 
+        closable = true,
         items = [
             // {
             //     text: '',
             //     callback: () => {}
             // }
         ],
+        keyEventHandler = null,
+        open = false,
+        selectedID = -1,
         selectedRow = null,
         target = null,
-        closable = true,
-        selectedID = -1,
-        keyEventHandler = null
+        x = 0,
+        y = 0
     
     let rows = {}
     

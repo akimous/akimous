@@ -42,11 +42,11 @@
 <script>
     import g from '../lib/Globals'
     
-    export let input = '',
+    export let allowWhiteSpace = true,
         editing = false,
-        placeholder = '',
-        allowWhiteSpace = true,
         index = 0,
+        input = '',
+        placeholder = '',
         shellCommands = []
     
     $: {

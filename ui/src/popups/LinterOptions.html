@@ -44,9 +44,9 @@
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
 
-    export let open = false,
-        left = 0
-    
+    export let left = 0,
+        open = false
+        
     let { realtime, isort, yapf } = config.formatter
     let { pylint, pyflakes, spellChecker } = config.linter
     

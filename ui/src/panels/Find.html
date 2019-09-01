@@ -145,26 +145,29 @@
     
 
     export let active = false,
-        findText = '',
+        cannotDisplay = false,
         caseSensitive = false,
-        regex = false,
+        currentCh = 0,
+        currentFilePath = [],
+        currentLine = 0,
         findInDirectory = null,
-        wholeWord = false,
-        subdirectory = true,
+        findText = '',
+        highlightOverlay = null,
+        matches = [],
+        nFiles = 0,
+        overflow = false,
+        regex = false,
         replaceMode = false,
         replaceText = '',
-        matches = [],
-        overflow = false,
         selectedIndex = -1,
-        nFiles = 0,
         selectedMatches = new Set(),
-        currentLine = 0,
-        currentFilePath = [],
-        currentCh = 0,
-        cannotDisplay = false,
-        highlightOverlay = null
+        subdirectory = true,
+        wholeWord = false
     
-    let panel, findPreviousButton, findNextButton, jobAnimationFrameId
+    let findNextButton, 
+        findPreviousButton, 
+        jobAnimationFrameId,
+        panel
     
     const dispatch = createEventDispatcher()
     $: dispatch('active', {

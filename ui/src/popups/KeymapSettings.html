@@ -20,9 +20,9 @@
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
 
-    export let open = false,
-        left = 0
-    
+    export let left = 0,
+        open = false
+        
     let { layeredKeyboardControl, keymapHint } = config.keymap
 
     $: g.app && g.app.$set({ popup: open ? g.keymapSettings : null })

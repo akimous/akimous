@@ -75,19 +75,20 @@
     import ToggleButton from '../lib/ToggleButton.html'
     import TextInput from '../lib/TextInput.html'
 
-    export let open = false,
-        left = 0,
-        cwd = '',
+    export let 
+        allowWhiteSpace = true,
         args = 'args',
-        mode = 'script',
+        cwd = '',
         editing = false,
+        left = 0,
+        mode = 'script',
+        open = false,
+        shellCommandIndex = 0,
         shellCommands = [
             'python',
             ''
-        ],
-        shellCommandIndex = 0,
-        allowWhiteSpace = true
-    
+        ]
+        
     $: g.app && g.app.$set({ popup: open ? g.runConfiguration : null })
     $: g.app && setProjectState('runConfiguration', { mode, shellCommands, shellCommandIndex, cwd, args })
     $: mode && nextFrame(setConsoleMode)

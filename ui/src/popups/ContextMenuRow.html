@@ -54,17 +54,17 @@
     import { createEventDispatcher } from 'svelte'
     import ClipboardJS from 'clipboard'
 
-    export let icon = '',
-        text = '',
-        hotkey = '',
-        selected = false,
-        callback = null,
+    export let callback = null,
         clipboardText = null,
-        id = 0
+        hotkey = '',
+        icon = '',
+        id = 0,
+        selected = false,
+        text = ''
     
-    let self,
-        clipboardHandler
-
+    let clipboardHandler,
+        self
+        
     const dispatch = createEventDispatcher()
     
     $: {

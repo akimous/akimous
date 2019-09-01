@@ -109,13 +109,17 @@
     
     export let active = false,
         completionDoc = null,
-        functionDocType = 'html',
-        functionDoc = null,
         completionDocType = 'html',
+        functionDoc = null,
         functionDocTriggeredFile = '',
-        functionDocTriggeredPos = null
+        functionDocTriggeredPos = null,
+        functionDocType = 'html'
     
-    let panel, docContainer, splitBar, functionDocContainer, completionDocContainer
+    let completionDocContainer,
+        docContainer, 
+        functionDocContainer, 
+        panel, 
+        splitBar
     
     $: dispatch('active', {
         id: 'docs',

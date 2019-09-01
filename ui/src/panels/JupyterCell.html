@@ -61,12 +61,12 @@
     import { nextFrame } from '../lib/Utils'
 
     export let cell,
-        tex,
-        executionCount = '',
         code = null,
-        stdout = null,
+        executionCount = '',
+        output = {},
         stderr = null,
-        output = {}
+        stdout = null,
+        tex
 
     let _katex = null
     

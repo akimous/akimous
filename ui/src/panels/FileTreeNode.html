@@ -166,7 +166,7 @@
     }
     setContext('parent', self)
 
-    export let 
+    export let allowWhiteSpace,
         children = {},
         dirs = [],
         files = [],
@@ -179,11 +179,10 @@
         open = false,
         placeholderMode = false,
         placeholderNode = null,
-        selected = false,
         renaming = false,
+        renamingCommittedCallback = null,
         row = null,
-        allowWhiteSpace,
-        renamingCommittedCallback = null
+        selected = false
     
     let cancelAllSelectionListener
     
