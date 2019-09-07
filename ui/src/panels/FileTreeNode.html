@@ -292,8 +292,11 @@
         if (selected) return
         dispatch('nodeSelected', getPath())
         selected = true
-        if (event || g.focusStack[0] === g.panelLeft) // avoid focus being stolen on startup
-            g.setFocus([g.panelLeft, g.fileTree, self()])
+        if (event || g.focusStack[0] === g.panelLeft) { // avoid focus being stolen on startup
+            const _self = self() // might be undefined when renaming
+            if (_self)
+                g.setFocus([g.panelLeft, g.fileTree, _self])
+        }
     }
 
     export function onDoubleClick() {
@@ -359,7 +362,7 @@
 
     export function endRenaming() {
         if (placeholderMode) {
-            parent.$set({ newNode: null })
+            parent().$set({ newNode: null })
         } else {
             renaming = false
         }
