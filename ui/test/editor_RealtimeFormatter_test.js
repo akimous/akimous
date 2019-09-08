@@ -33,7 +33,9 @@ Scenario('Normal formatting', (I) => {
     typeAndCompare(['for i in range(5', ['Meta', 'Enter'], 'print(i'],
         ['for i in range(5):', 'print(i)'])
     I.dontSee('pprint')
-    
     clear()
-    pause()
+    
+    typeAndCompare(['for i in ra', ['Escape']])
+    typeAndCompare(['ng '], ['range()'])
+    // pause()
 })
