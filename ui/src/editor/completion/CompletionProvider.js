@@ -40,14 +40,6 @@ class CompletionProvider {
         return false
     }
 
-    set passive(x) {
-        console.error('set passive')
-    }
-    get passive() {
-        console.error('get passive')
-        return false
-    }
-
     //    set mode(x) {
     //        this._mode = x
     //        console.warn('set mode', x)
@@ -88,7 +80,8 @@ class CompletionProvider {
 
         editor.session.handlers['Prediction'] = data => {
             if (debug) console.log('CompletionProvider.receive', data)
-            let input = this.lineContent[this.firstTriggeredCharPos.ch] || ''
+            const { ch } = data
+            let input = this.lineContent.slice(this.firstTriggeredCharPos.ch, ch) || ''
             this.state = RESPONDED
             this.currentCompletions = data.result
             if (data.result.length < 1) {
@@ -98,7 +91,6 @@ class CompletionProvider {
                 // def some|
                 // will not work
             }
-
             if (this.mode === AFTER_OPERATOR)
                 input = null
             const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)

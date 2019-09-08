@@ -207,7 +207,7 @@ class CMEventDispatcher {
                         }
                         // TODO: move completionProvider before formatter may yield better performance
                         input = c.text[0] // might change after handled by formatter, so reassign
-                        const isInputDot = /\./.test(input)
+                        const isInputDot = input === '.'
 
                         const shouldTriggerPrediction = () => {
                             if (c.canceled) return false
@@ -222,7 +222,14 @@ class CMEventDispatcher {
                         const newLineContent = lineContent.slice(0, c.from.ch) + input + lineContent.slice(c.to.ch)
                         shouldDismissCompletionOnCursorActivity = false
                         if (shouldTriggerPrediction()) {
-                            let offset = (c.from.ch - c.to.ch) + (isInputDot ? 0 : -1)
+                            let offset = c.from.ch - c.to.ch
+                            if (!isInputDot) {
+                                offset -= 1
+                                const t0length = t0.string.length
+                                if (!/\s+/.test(t0.string)) {
+                                    offset -= t0length
+                                }
+                            }
                             completionProvider.trigger(
                                 newLineContent,
                                 newCursor.line,
