@@ -261,6 +261,8 @@ async def sync_range(msg, send, context):
 @handles('Predict')
 async def predict(msg, send, context):
     line_number, ch, line_content = msg
+    while len(context.doc) <= line_number:
+        context.doc.append('')
     context.doc[line_number] = line_content
     doc = '\n'.join(context.doc)
     context.content = doc

@@ -67,7 +67,7 @@
         me,
         passivePlaceholder
     
-    $: rowCount = rows.length + passive
+    $: rowCount = rows.length
     $: {
         if (rows.length) {
             lastFVI = 999
@@ -95,6 +95,12 @@
     const scrollHandler = () => {
         const completionRow = completionRows[0]
         if (!completionRow) return
+        
+        // clean up null rows
+        for (const i in completionRows) {
+            if (!completionRows[i])
+                delete completionRows[i]
+        }
         const rowHeight = completionRow.row.clientHeight
         let firstVisibleIndex = Math.floor(container.scrollTop / rowHeight) - passive
         if (firstVisibleIndex < 0)
@@ -163,7 +169,6 @@
     }
 
     export function setCompletions(rows_, firstTriggeredCharPos, type) {
-        console.warn('setCompletions', [...rows_])
         rows = rows_
         passive = type !== NORMAL
         if (!rows.length) {

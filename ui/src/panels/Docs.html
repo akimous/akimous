@@ -182,32 +182,37 @@
     export function getFunctionDocIfNeeded(cm, editor, cursor) {
         if (cm.somethingSelected()) return
 
-        const token = cm.getTokenAt(cursor)
-        // don't request function doc if the cursor is moving on the same token
-        if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
-        lastTokenStart.line = cursor.line
-        lastTokenStart.ch = token.start
+        try {
+            const token = cm.getTokenAt(cursor)
+            // don't request function doc if the cursor is moving on the same token
+            if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
+            lastTokenStart.line = cursor.line
+            lastTokenStart.ch = token.start
 
-        const pos = inParentheses(cm, cursor)
+            const pos = inParentheses(cm, cursor)
 
-        // don't request function doc if the cursor is not in braces
-        if (!pos) return
+            // don't request function doc if the cursor is not in braces
+            if (!pos) return
 
-        const { filePath } = editor
-        // don't request function doc if the cursor is moving within the same braces
-        if (functionDocTriggeredPos && pos &&
-            functionDocTriggeredPos.ch === pos.ch &&
-            functionDocTriggeredPos.line === pos.line &&
-            functionDocTriggeredFile === filePath) {
-            highlightActiveParameter(cm, cursor)
-            return
+            const { filePath } = editor
+            // don't request function doc if the cursor is moving within the same braces
+            if (functionDocTriggeredPos && pos &&
+                functionDocTriggeredPos.ch === pos.ch &&
+                functionDocTriggeredPos.line === pos.line &&
+                functionDocTriggeredFile === filePath) {
+                highlightActiveParameter(cm, cursor)
+                return
+            }
+            functionDocTriggeredPos = pos, functionDocTriggeredFile = filePath
+
+            editor.session.send('GetFunctionDocumentation', {
+                line: cursor.line,
+                ch: cursor.ch,
+            })
+        } catch (e) {
+            if (g.dev) console.warn(e)
         }
-        functionDocTriggeredPos = pos, functionDocTriggeredFile = filePath
-
-        editor.session.send('GetFunctionDocumentation', {
-            line: cursor.line,
-            ch: cursor.ch,
-        })
+        
     }
 
     export function highlightActiveParameter(cm, cursor) {

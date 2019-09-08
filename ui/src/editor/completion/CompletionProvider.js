@@ -48,20 +48,20 @@ class CompletionProvider {
         return false
     }
 
-    //    set type(x) {
-    //        this._type = x
-    //        console.warn('set type', x)
+    //    set mode(x) {
+    //        this._mode = x
+    //        console.warn('set mode', x)
     //    }
     //    
-    //    get type() {
-    //        return this._type
+    //    get mode() {
+    //        return this._mode
     //    }
 
     //    set state(x) {
     //        this._state = x
     //        console.warn('set state', x)
     //    }
-    
+
     //   get state() {
     //       return this._state
     //   }

@@ -230,11 +230,15 @@ class CMEventDispatcher {
                                 offset
                             )
                             dirtyLine = NONE
-                            if (t0.type === 'string') completionProvider.type = STRING
-                            else if (t0.type === 'comment') completionProvider.type = COMMENT
-                            else if (t1.string === 'for') completionProvider.type = FOR
-                            else if (OPERATOR.test(input)) completionProvider.type = AFTER_OPERATOR
-                            else completionProvider.type = NORMAL
+                            if (t0.type === 'string') completionProvider.mode = STRING
+                            else if (t0.type === 'comment') completionProvider.mode = COMMENT
+                            else if (OPERATOR.test(input)) completionProvider.mode = AFTER_OPERATOR
+                            else if (/\s*for\s/.test(newLineContent) && 
+                                     !/\sin\s/.test(newLineContent) &&
+                                     !(t0.string === ' ' && t1.type === 'variable')) {
+                                completionProvider.mode = FOR
+                            } 
+                            else completionProvider.mode = NORMAL
                         }
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)

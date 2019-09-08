@@ -19,13 +19,21 @@ Scenario('Normal formatting', (I) => {
                 }
             }
         }
+        if (!displays) return
         for (const i of displays) {
             I.see(i)
         }
     }
-
+    const clear = () => {
+        I.type(['Escape'])
+        I.type(['Meta', 'a'])
+        I.type(['Backspace'])
+    }
+    
     typeAndCompare(['for i in range(5', ['Meta', 'Enter'], 'print(i'],
         ['for i in range(5):', 'print(i)'])
     I.dontSee('pprint')
+    
+    clear()
     pause()
 })
