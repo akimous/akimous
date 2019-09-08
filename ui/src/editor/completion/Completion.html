@@ -93,7 +93,9 @@
     // keep row number of visible rows 1 to 7
     let lastFVI = 999
     const scrollHandler = () => {
-        const rowHeight = completionRows[0].row.clientHeight
+        const completionRow = completionRows[0]
+        if (!completionRow) return
+        const rowHeight = completionRow.row.clientHeight
         let firstVisibleIndex = Math.floor(container.scrollTop / rowHeight) - passive
         if (firstVisibleIndex < 0)
             firstVisibleIndex = 0
@@ -201,7 +203,11 @@
 
         completionProvider.state = CLOSED
         let { text, tail } = row
-        text = text + (tail || '')
+        
+        // avoid duplicated braces
+        const shouldAddTail = !tail.startsWith(key)
+        if (shouldAddTail) 
+            text = text + (tail || '')
         open = false
 
         // Don't commit passive completions unless the key is Tab or a number.
@@ -219,7 +225,7 @@
             cm.doc.getCursor(),
             '+completion'
         )
-        if (tail === '()')
+        if (shouldAddTail && tail === '()')
             cm.execCommand('goCharLeft')
         cm.focus()
     }

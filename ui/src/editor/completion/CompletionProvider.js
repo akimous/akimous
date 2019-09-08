@@ -61,10 +61,10 @@ class CompletionProvider {
     //        this._state = x
     //        console.warn('set state', x)
     //    }
-    //
-    //    get state() {
-    //        return this._state
-    //    }
+    
+    //   get state() {
+    //       return this._state
+    //   }
 
     constructor(editor) {
         this.editor = editor
@@ -153,6 +153,7 @@ class CompletionProvider {
             ch
         })
         this.state = TRIGGERED
+        this.retriggerQueue.length = 0 // clear queue
     }
 
     retrigger({ lineContent, line, ch }) {

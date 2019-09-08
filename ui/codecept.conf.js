@@ -7,6 +7,12 @@ exports.config = {
             show: true,
             restart: false,
             keepBrowserState: true,
+            chrome: {
+                devtools: true
+            }
+        },
+        Editor: {
+            require: './test/editor_helper.js',
         }
     },
     include: {
