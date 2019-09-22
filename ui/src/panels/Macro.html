@@ -16,7 +16,7 @@
     </table>
 
     <div class="title">Macros<i class="edit-icon fas fa-edit" on:click="{editMacro}"></i></div>
-    <TextInput bind:this={macroFormatWithShift} bind:value={macroFormatWithShift} on:change="{onChangeMacroFormat}">Print format with shift:&nbsp;</TextInput>
+    <TextInput bind:value={macroFormatWithShift} on:change="{onChangeMacroFormat}">Print format with shift:&nbsp;</TextInput>
     <table id="macros" class="non-selectable">
         {#each Object.entries(macros).sort() as [hotkey, macro]}
         <tr on:click="{event => executeMacro(macro, event)}">
@@ -27,6 +27,9 @@
         </tr>
         {/each}
     </table>
+    <div class="tip">
+        Press ⌘^ along with the initial letter to trigger macro or paste from clipboard.
+    </div>
 </div>
 
 <style>
@@ -75,6 +78,11 @@
 
     .edit-icon:hover {
         filter: brightness(1.2);
+    }
+    
+    .tip {
+        padding: .3rem;
+        color: var(--gray7);
     }
 
     .macro-name {

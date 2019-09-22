@@ -117,9 +117,10 @@ class LayeredKeyboardControl {
                     g.keyboardControlHint.highlightModifier('Space')
                     break
                 case 'Control':
-                    if (e.metaKey)
+                    if (e.metaKey) {
                         this.macroMode = true
-                    else
+                        g.tabNumber.$set({ active: false })
+                    } else
                         g.tabNumber.$set({ active: true })
                     return true // let it propagate
                 case 'Meta':
