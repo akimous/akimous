@@ -250,7 +250,8 @@ async def sync_range(msg, send, context):
     doc[from_line:to_line] = lines
     context.content = '\n'.join(doc)
 
-    for i in range(from_line, to_line):
+    # If total number of lines changed, update from_line and below; otherwise, update changed range.
+    for i in range(from_line, to_line if to_line - from_line == len(lines) else len(doc)):
         context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
 
     if lint:

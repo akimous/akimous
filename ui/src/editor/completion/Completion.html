@@ -1,6 +1,6 @@
 <div bind:this={container} class="completion non-selectable" class:gone="{!open}">
     {#if passive}
-    <CompletionRow bind:this={passivePlaceholder} parent={null} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
+    <CompletionRow bind:this={passivePlaceholder} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
     {/if}
     {#each rows as {text, type, highlight, tail}, i}
     <CompletionRow bind:this={completionRows[i]} {text} {type} {highlight} tail={tail||''} index={i} selected={selectedIndex===i} on:completionRowClicked={onCompletionRowClicked}></CompletionRow>
