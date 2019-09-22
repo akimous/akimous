@@ -123,6 +123,11 @@ async def run_pyflakes(context, send):
 
 
 async def warm_up_jedi(context):
+    # Avoid jedi error when the file is empty.
+    if not context.doc:
+        logger.debug('File is empty')
+        return
+
     jedi.Script('\n'.join(context.doc), len(context.doc), 0,
                 str(context.path)).completions()
 
