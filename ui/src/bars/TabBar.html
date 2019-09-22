@@ -55,7 +55,7 @@
 
     export function switchToTab(index) {
         index += 1 // resizeSensor counts 1
-        for (const tab of tabs) {
+        for (const tab of Object.values(tabs)) {
             if (tab.getIndex() === index) {
                 tab.activate()
                 return
