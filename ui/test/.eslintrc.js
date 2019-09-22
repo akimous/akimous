@@ -5,14 +5,18 @@ module.exports = {
     env: {
         'codeceptjs/codeceptjs': true
     },
+    globals: {
+        codeceptjs: 'readonly',
+    },
     rules: {
         'spellcheck/spell-checker': [1,
             {
                 comments: true,
-                strings: true,
+                strings: false,
                 identifiers: true,
                 lang: 'en_US',
                 skipWords: [
+                    'codeceptjs',
                     'dont',
                     'jupyter',
                     'popup',

@@ -74,6 +74,7 @@ module.exports = {
                     'del',
                     'dev',
                     'devicon',
+                    'devtools',
                     'dir',
                     'docstring',
                     'dom',

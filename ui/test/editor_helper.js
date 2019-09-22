@@ -1,7 +1,5 @@
 const Helper = codeceptjs.helper
 
-const specialKeys = new Set(['Enter', 'Space'])
-
 class Editor extends Helper {
 
     // before/after hooks

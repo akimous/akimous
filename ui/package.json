@@ -13,7 +13,7 @@
         "eslint-plugin-codeceptjs": "^1.1.0",
         "eslint-plugin-spellcheck": "^0.0.14",
         "eslint-plugin-svelte3": "^2.7.3",
-        "puppeteer": "^1.14.0"
+        "puppeteer": "^1.20.0"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.11.1",
@@ -43,8 +43,8 @@
         "rollup-plugin-svelte": "^5.1.0",
         "rollup-plugin-terser": "^5.1.2",
         "sortablejs": "^1.10.0",
-        "stylelint": "^10.1.0",
-        "stylelint-config-recommended": "^2.1.0",
+        "stylelint": "^11.0.0",
+        "stylelint-config-recommended": "^3.0.0",
         "svelte": "^3.12.1",
         "terser": "^4.3.1",
         "xterm": "^4.0.1",
