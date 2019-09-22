@@ -45,6 +45,7 @@
     import { schedule, joinPath, CircularBuffer } from './lib/Utils'
     import { onTabChangeFactory } from './lib/UIUtils'
     import { getIconByFileName } from './lib/FileTypeToIcon'
+    import { FILE } from './bars/Tab.html'
     
     import TabBar from './bars/TabBar.html'
     import CodeEditor from './editor/CodeEditor.html'
@@ -109,7 +110,7 @@
             await tick()
             editor = editors[pathString]
             editor.cmReadyCallback = cmReadyCallback
-            tabBar.openTab(pathString, fileName, editor, getIconByFileName(fileName), true)
+            tabBar.openTab(pathString, fileName, editor, getIconByFileName(fileName), FILE)
         }
         if (!activate) return
         activateFile(filePath)

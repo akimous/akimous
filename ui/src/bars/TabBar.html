@@ -25,6 +25,7 @@
     import elementQueries from 'css-element-queries'
     
     import Tab from './Tab.html'
+    import { OTHERS } from './Tab.html'
 
     export let tabData = [],
         tabs = {}
@@ -44,8 +45,8 @@
         fitTabWidth()
     }
 
-    export async function openTab(id, name, view, icon, labeled = false) {
-        tabData.push({ id, name, view, icon, labeled })
+    export async function openTab(id, name, view, icon, type = OTHERS) {
+        tabData.push({ id, name, view, icon, type })
         tabData = tabData // force update
         fitTabWidth()
         await tick()
