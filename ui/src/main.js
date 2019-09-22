@@ -6,7 +6,7 @@ import './lib/doc-style-dark.css'
 import 'normalize.css/normalize.css'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/fold/foldgutter.css'
-import 'xterm/dist/xterm.css'
+import 'xterm/css/xterm.css'
 import 'devicon/devicon.min.css'
 import 'devicon/devicon-colors.css'
 

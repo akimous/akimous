@@ -1,4 +1,4 @@
-<div id="console" class="panel" class:gone="{!active}">
+<div id="console" class="panel" class:gone="{!active}" on:click={onFocus}>
     {#if mode === 'jupyter'}
     <div bind:this={jupyter} class="upper-half">
         <JupyterToolbar bind:this={g.jupyterToolbar}></JupyterToolbar>
@@ -32,8 +32,8 @@
 
 <script>
     import { onDestroy, createEventDispatcher, tick } from 'svelte'
-    import Terminal from 'xterm/dist/xterm'
-    import fit from 'xterm/lib/addons/fit/fit'
+    import { Terminal } from 'xterm'
+    import { FitAddon } from 'xterm-addon-fit'
     
     import g from '../lib/Globals'
     import { nextFrame, schedule } from '../lib/Utils'
@@ -42,7 +42,7 @@
     import JupyterCell from './JupyterCell.html'
 
     const dispatch = createEventDispatcher()
-    Terminal.applyAddon(fit)
+    const fit = new FitAddon()
 
     export let active = false,
         cells = [
@@ -81,6 +81,10 @@
         session && session.close()
     })
     
+    function onFocus() {
+        g.setFocus([g.panelRight, g.console])
+    }
+    
     async function initialize() {
         if (initializing) return
         initializing = true
@@ -102,15 +106,12 @@
                     },
                     convertEol: true,
                 })
+                terminal.loadAddon(fit)
                 terminal.open(terminalContainer, false)
-
-                terminal.on('focus', () => {
-                    g.setFocus([g.panelRight, g.console])
-                })
-                terminal.addDisposableListener('data', data => {
+                terminal.onData(data => {
                     session.send('Stdin', data)
                 })
-                terminal.fit()
+                fit.fit()
                 if (mode === 'terminal') {
                     connectTerminal()
                 } else if (mode === 'jupyter') {
