@@ -133,10 +133,17 @@
         const handlerFactory = (target, eventType) => {
             // return true if handled
             return ({ path }) => {
-                const node = getNode(path.slice(0, -1))
-                const arr = node[target]
+                let node, arr
+                if (path.length === 1) { // project (top level) directory
+                    if (target === 'files') arr = files
+                    else if (target === 'dirs') arr = dirs
+                } else {
+                    node = getNode(path.slice(0, -1))
+                    arr = node[target]
+                }
                 const name = path[path.length - 1]
                 const position = binarySearch(arr, name)
+                
                 if (eventType === 'created') {
                     arr.splice(position, 0, {
                         name,
@@ -156,9 +163,15 @@
                         arr.splice(position, 1)
                     else return false
                 }
-                node.$set({
-                    [target]: arr
-                })
+                
+                if (path.length === 1) { // project (top level) directory
+                    if (target === 'files') files = arr
+                    else if (target === 'dirs') dirs = arr
+                } else {
+                    node.$set({
+                        [target]: arr
+                    })
+                }
                 return true
             }
         }
