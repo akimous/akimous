@@ -24,7 +24,7 @@
         </div>
 
         {#each shellCommands as command, i}
-        <div class="option"  class:checked="{shellCommandIndex===i && mode==='shell'}" class:gone="{i === shellCommands.length - 1 && !editing}" on:click="{() => mode = 'shell', shellCommandIndex = i}">
+        <div class="option" class:checked="{shellCommandIndex===i && mode==='shell'}" class:gone="{i === shellCommands.length - 1 && !editing}" on:click="{() => {mode = 'shell'; shellCommandIndex = i}}">
             <i class="checkbox fas"/>
             <RunConfigShellCommand index={i} {shellCommands} {editing}></RunConfigShellCommand>
         </div>
