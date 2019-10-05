@@ -210,7 +210,11 @@
         let { text, tail } = row
         
         // avoid duplicated braces
-        const shouldAddTail = !tail.startsWith(key)
+        let shouldAddTail = tail && !tail.startsWith(key)
+        // avoid a dot (or an operator) is preceded with a space
+        if (key !== 'commit' && tail === ' ')
+            shouldAddTail = false
+        console.log({tail, key})
         if (shouldAddTail) 
             text = text + (tail || '')
         open = false

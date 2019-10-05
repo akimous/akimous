@@ -37,5 +37,14 @@ Scenario('Normal formatting', (I) => {
     
     typeAndCompare(['for i in ra', ['Escape']])
     typeAndCompare(['ng '], ['range()'])
+    clear()
+    
+    typeAndCompare(['fr '], ['from'])
+    typeAndCompare(['sph'])
+    I.wait(3)
+    typeAndCompare(['.'], ['from sphinx.'])
+    typeAndCompare(['io im '], ['from sphinx.io import '])
+    typeAndCompare(['rea', ['Enter']], ['from sphinx.io import read_doc'])
+    
     // pause()
 })

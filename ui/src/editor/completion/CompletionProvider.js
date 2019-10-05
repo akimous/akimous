@@ -222,6 +222,8 @@ class CompletionProvider {
                 if (/^\s*def\s$/.test(head)) tail = '()'
                 else if (!/^\s*$/.test(head)) tail = null
             }
+        } else if (tail === '()' && lineContent.includes(' import ')) {
+            tail = null
         }
         if (tail)
             completion.tail = tail
