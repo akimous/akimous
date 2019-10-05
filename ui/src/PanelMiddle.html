@@ -42,7 +42,7 @@
     import isEqual from 'lodash.isequal'
 
     import g from './lib/Globals'
-    import { schedule, joinPath, CircularBuffer } from './lib/Utils'
+    import { schedule, joinPath, CircularBuffer, nextFrame } from './lib/Utils'
     import { onTabChangeFactory } from './lib/UIUtils'
     import { getIconByFileName } from './lib/FileTypeToIcon'
     import { FILE } from './bars/Tab.html'
@@ -148,7 +148,7 @@
         
         const cm = editor.cm
         if (!cm) return
-        cm.focus()
+        nextFrame(() => cm.focus())
 
         schedule(() => { // ~5 ms
             const cursor = cm.getCursor()
