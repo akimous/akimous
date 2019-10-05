@@ -237,7 +237,8 @@ class CMEventDispatcher {
                                 offset
                             )
                             dirtyLine = NONE
-                            if (t0.type === 'string') completionProvider.mode = STRING
+                            if (isInputDot) completionProvider.mode = NORMAL // t0 can be of type string in ''.|
+                            else if (t0.type === 'string') completionProvider.mode = STRING
                             else if (t0.type === 'comment') completionProvider.mode = COMMENT
                             else if (OPERATOR.test(input)) completionProvider.mode = AFTER_OPERATOR
                             else if (/\s*for\s/.test(newLineContent) && 

@@ -72,6 +72,7 @@ class CompletionProvider {
             line: 0,
             ch: 0
         }
+        this.triggeredCharOffset = 0
         this.lineContent = ''
         this.isClassDefinition = false
         this.currentCompletions = []
@@ -135,6 +136,7 @@ class CompletionProvider {
         this.startTime = performance.now()
         this.firstTriggeredCharPos.line = line
         this.firstTriggeredCharPos.ch = ch + triggeredCharOffset
+        this.triggeredCharOffset = triggeredCharOffset
         this.lineContent = lineContent
         this.editor.session.send('Predict', [line, ch, lineContent])
         this.isClassDefinition = /^\s*class\s/.test(lineContent)
@@ -150,7 +152,7 @@ class CompletionProvider {
 
     retrigger({ lineContent, line, ch }) {
         if (!this.enabled) return
-        if (this.firstTriggeredCharPos.ch === ch - 1)
+        if (this.triggeredCharOffset && this.firstTriggeredCharPos.ch === ch - 1)
             return // should not do anything if it is just triggered and nothing else is typed
         if (this.state === TRIGGERED) {
             // enqueue retrigger requests if there's any in-flight requests

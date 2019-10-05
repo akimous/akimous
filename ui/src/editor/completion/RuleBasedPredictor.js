@@ -231,6 +231,7 @@ function suggestInitInsideClass({ topHit, line }) {
     if (topHit.text !== 'def') return
     
     const highlightedOutlineItem = g.outline.highlightedItem
+    if (!highlightedOutlineItem) return
     const classLevel = highlightedOutlineItem.level
     const classLine = highlightedOutlineItem.line
     let alreadyHasInit = false

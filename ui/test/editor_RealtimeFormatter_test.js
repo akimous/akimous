@@ -58,5 +58,8 @@ Scenario('Normal formatting', (I) => {
     I.dontSee('def __init__', '.row-content')
     clear()
     
+    typeAndCompare(['"".sta '], ['"".startswith()'])
+    clear()
+    
     // pause()
 })
