@@ -45,6 +45,11 @@ Scenario('Normal formatting', (I) => {
     typeAndCompare(['.'], ['from sphinx.'])
     typeAndCompare(['io im '], ['from sphinx.io import '])
     typeAndCompare(['rea', ['Enter']], ['from sphinx.io import read_doc'])
+    clear()
+    
+    typeAndCompare(['"""classbla', ['Meta', 'Enter'], 'cla'])
+    I.dontSee('classbla', '.row-content')
+    clear()
     
     // pause()
 })

@@ -18,8 +18,6 @@ function fullStatementCompletion({ topHit, cm, line, lineContent }) {
 
     const topHitCompletion = topHit.text
     const lineCount = cm.lineCount()
-    let lineUp = line - 1
-    let lineDown = line + 1
     let sourceLine = -1
     let sourceLineContent = ''
     let index = -1
@@ -46,21 +44,32 @@ function fullStatementCompletion({ topHit, cm, line, lineContent }) {
                 targetLineConsistencyCheckResults[i]) return false
         }
         
+        // skip comments and strings
+        const pos = {
+            line: l,
+            ch: index
+        }
+        const tokenType = cm.getTokenTypeAt(pos)
+        if (tokenType === 'string' || tokenType === 'comment')
+            return false
+        
         sourceLine = l
         return true
     }
 
-    let scannedCount = 0
     // find the nearest line including topHit.text
-    while (lineUp >= 0 || lineDown < lineCount) {
-        if (lineUp >= 0 && containsTopHit(lineUp--))
+    let found = false
+    for (let i = 2; i < MAX_SCAN_LINES; i++) {
+        const sign = (i % 2) ? 1 : -1
+        const delta = sign * Math.floor(i / 2)
+        const lineNumber = line + delta
+        if (lineNumber < 0 || lineNumber >= lineCount) continue
+        if (containsTopHit(lineNumber)) {
+            found = true
             break
-        if (lineDown < lineCount && containsTopHit(lineDown++))
-            break
-        if (scannedCount++ === MAX_SCAN_LINES)
-            break
+        }
     }
-    if (index === -1) return
+    if (!found) return
 
     const result = scanInSameLevelOfBraces(cm, {
         line: sourceLine,
