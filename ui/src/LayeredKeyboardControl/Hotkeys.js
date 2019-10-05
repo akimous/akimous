@@ -16,7 +16,7 @@ function bindHotkeys() {
     })
 
     hotkey('mod + f', () => {
-        g.panelRight.activateView(g.find)
+        g.find.$set({ active: true })
         g.setFocus([g.panelRight, g.find])
         g.find.$set({ 
             replaceMode: false,
@@ -28,7 +28,7 @@ function bindHotkeys() {
     })
 
     const replaceMode = () => {
-        g.panelRight.activateView(g.find)
+        g.find.$set({ active: true })
         g.setFocus([g.panelRight, g.find])
         g.find.$set({ 
             replaceMode: true,
