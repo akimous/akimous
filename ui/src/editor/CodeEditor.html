@@ -173,6 +173,11 @@
         }
     }
     $: {
+        if (!active && completion) {
+            completion.$set({ open: false })
+        }
+    }
+    $: {
         previousHighlightOverlay && cm.removeOverlay(previousHighlightOverlay)
         if (highlightOverlay && !cm.hasFocus()) {
             cm.setOption('highlightSelectionMatches', false) // pause highlightSelectionMatches
