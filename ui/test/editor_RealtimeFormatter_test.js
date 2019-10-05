@@ -10,7 +10,7 @@ Scenario('Normal formatting', (I) => {
     const typeAndCompare = (inputs, displays) => {
         for (const i of inputs) {
             if (Array.isArray(i)) {
-                I.type(i)
+                I.type(i, { delay: 300 })
             } else if (specialKeys.has(i)) {
                 I.pressKey(i)
             } else {
@@ -39,9 +39,9 @@ Scenario('Normal formatting', (I) => {
     typeAndCompare(['ng '], ['range()'])
     clear()
     
-    typeAndCompare(['fr '], ['from'])
-    typeAndCompare(['sph'])
-    I.wait(3)
+    typeAndCompare(['fr s'], ['from'])
+    I.wait(2)
+    typeAndCompare(['ph'])
     typeAndCompare(['.'], ['from sphinx.'])
     typeAndCompare(['io im '], ['from sphinx.io import '])
     typeAndCompare(['rea', ['Enter']], ['from sphinx.io import read_doc'])
@@ -60,6 +60,13 @@ Scenario('Normal formatting', (I) => {
     
     typeAndCompare(['"".sta '], ['"".startswith()'])
     clear()
+
+    typeAndCompare(['import logzero', ['Enter'], 'log_format = ""', ['Enter'], 'logzero.LogFormatter('])
+    typeAndCompare(['f'])
+    I.wait(.5)
+    typeAndCompare([' ='])
+    I.wait(.5)
+    typeAndCompare([' '], ['logzero.LogFormatter(fmt=log_format)'])
     
     // pause()
 })

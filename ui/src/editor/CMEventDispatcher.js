@@ -15,6 +15,7 @@ import { OPERATOR } from './RegexDefinitions'
 import { schedule, nextFrame } from '../lib/Utils'
 
 const NONE = -1
+const OFFSET_BYPASS_TOKEN_TYPES = new Set(['operator', 'punctuation'])
 
 class CMEventDispatcher {
     constructor(editor) {
@@ -208,6 +209,7 @@ class CMEventDispatcher {
                         // TODO: move completionProvider before formatter may yield better performance
                         input = c.text[0] // might change after handled by formatter, so reassign
                         const isInputDot = input === '.'
+                        const isInputOperator = OPERATOR.test(input)
 
                         const shouldTriggerPrediction = () => {
                             if (c.canceled) return false
@@ -223,11 +225,13 @@ class CMEventDispatcher {
                         shouldDismissCompletionOnCursorActivity = false
                         if (shouldTriggerPrediction()) {
                             let offset = c.from.ch - c.to.ch
-                            if (!isInputDot) {
+                            if (isInputOperator) // AFTER_OPERATOR case
+                                offset = 0
+                            else if (!isInputDot) {
                                 offset -= 1
-                                const t0length = t0.string.length
-                                if (!/\s+/.test(t0.string)) {
-                                    offset -= t0length
+                                // avoid completion not offset properly if starts at the middle of a token
+                                if (!OFFSET_BYPASS_TOKEN_TYPES.has(t0.type) && !/\s+/.test(t0.string)) {
+                                    offset -= t0.string.length
                                 }
                             }
                             completionProvider.trigger(
@@ -237,16 +241,20 @@ class CMEventDispatcher {
                                 offset
                             )
                             dirtyLine = NONE
-                            if (isInputDot) completionProvider.mode = NORMAL // t0 can be of type string in ''.|
+                            // t0 can be of type string in ''.|
+                            // int(1, base=|)
+                            if (isInputDot || input === '=') completionProvider.mode = NORMAL 
                             else if (t0.type === 'string') completionProvider.mode = STRING
                             else if (t0.type === 'comment') completionProvider.mode = COMMENT
-                            else if (OPERATOR.test(input)) completionProvider.mode = AFTER_OPERATOR
+                            else if (isInputOperator) completionProvider.mode = AFTER_OPERATOR
                             else if (/\s*for\s/.test(newLineContent) && 
                                      !/\sin\s/.test(newLineContent) &&
                                      !(t0.string === ' ' && t1.type === 'variable')) {
                                 completionProvider.mode = FOR
                             } 
                             else completionProvider.mode = NORMAL
+                        } else {
+                            completionProvider.state = CLOSED
                         }
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
