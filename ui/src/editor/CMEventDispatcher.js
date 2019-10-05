@@ -155,7 +155,7 @@ class CMEventDispatcher {
                 (origin === '+input' || origin === '+delete')
             ) {
                 completionProvider.retrigger({ lineContent, ...cursor })
-            } else if (completionProvider.state === CLOSED) {
+            } else if (state === CLOSED) {
                 syncIfNeeded(changes)
             }
             if (this.realtimeEvaluation)
@@ -253,9 +253,7 @@ class CMEventDispatcher {
                                 completionProvider.mode = FOR
                             } 
                             else completionProvider.mode = NORMAL
-                        } else {
-                            completionProvider.state = CLOSED
-                        }
+                        } // retrigger is handled in change event
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }

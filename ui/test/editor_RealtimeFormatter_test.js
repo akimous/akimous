@@ -67,6 +67,9 @@ Scenario('Normal formatting', (I) => {
     typeAndCompare([' ='])
     I.wait(.5)
     typeAndCompare([' '], ['logzero.LogFormatter(fmt=log_format)'])
+    clear()
     
+    typeAndCompare(['fr bolt.g '], ['from boltons.gcutils '])
+    clear()
     // pause()
 })
