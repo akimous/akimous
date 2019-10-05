@@ -65,7 +65,9 @@
     
     export async function updateTabIndicator({ id, active }) {
         await tick()
-        tabs[id].$set({ active })
+        const tab = tabs[id]
+        if (!tab) return
+        tab.$set({ active })
     }
 
     function _fitTabWidth() {
