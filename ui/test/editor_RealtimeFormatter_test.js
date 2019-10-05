@@ -51,5 +51,12 @@ Scenario('Normal formatting', (I) => {
     I.dontSee('classbla', '.row-content')
     clear()
     
+    typeAndCompare(['cla Bla', ['Enter']], ['class Bla:'])
+    typeAndCompare(['de', ['Space', '2'], ['Enter']], ['    def __init__(self):'])
+    typeAndCompare(['pas', ['Meta', 'Enter']], ['        pass'])
+    typeAndCompare(['def'])
+    I.dontSee('def __init__', '.row-content')
+    clear()
+    
     // pause()
 })

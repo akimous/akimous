@@ -19,10 +19,10 @@ class Editor extends Helper {
         const { keyboard } = page
         if (Array.isArray(input)) {
             for (const i of input) {
-                keyboard.down(i)
+                await keyboard.down(i)
             }
             for (const i of input.reverse()) {
-                keyboard.up(i)
+                await keyboard.up(i)
             }
         }
     }

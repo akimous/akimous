@@ -1,4 +1,5 @@
 import { highlightSequentially, inSomething } from '../../lib/Utils'
+import g from '../../lib/Globals'
 import { scanInSameLevelOfBraces } from '../EditorFunctions'
 import snakecase from 'lodash.snakecase'
 import pluralize from 'pluralize'
@@ -225,6 +226,26 @@ function forElementInCollection({ topHit, lineContent }) {
     }
 }
 
+function suggestInitInsideClass({ topHit, line }) {
+    if (!topHit) return
+    if (topHit.text !== 'def') return
+    
+    const highlightedOutlineItem = g.outline.highlightedItem
+    const classLevel = highlightedOutlineItem.level
+    const classLine = highlightedOutlineItem.line
+    let alreadyHasInit = false
+    for (let i of g.outline.outlineItems) {
+        if (i.line < classLine) continue
+        if (i.level <= classLevel && i.line > line) break
+        if (i.display === '__init__') {
+            alreadyHasInit = true
+            break
+        }
+    }
+    if (alreadyHasInit) return
+    return 'def __init__(self)'
+}
+
 class RuleBasedPredictor {
     constructor(context) {
         this.context = context
@@ -239,6 +260,7 @@ class RuleBasedPredictor {
             withAs,
             sequentialVariableNaming,
             forElementInCollection,
+            suggestInitInsideClass,
         ]
     }
 

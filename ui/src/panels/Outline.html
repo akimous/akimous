@@ -1,7 +1,7 @@
 <div bind:this={panel} class="panel" class:gone="{!active}" on:click="{onFocus}">
     <table bind:this={outline} id="outline">
         {#each outlineItems as { line, display, type, level }, i }
-        <tr bind:this={row} on:click="{() => jumpTo(line, display)}" class="outline-node" class:highlight="{line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)}">
+        <tr bind:this={row} on:click="{() => jumpTo(line, display)}" class="outline-node" class:highlight="{shouldHighlight(line, currentLine, i)}">
             <td class="line-number">{line + 1}</td>
             {#each Array(level) as indent}
             <td class="indent"></td>
@@ -66,7 +66,8 @@
 
     export let active = false,
         currentLine = 0,
-        outlineItems = []
+        outlineItems = [],
+        highlightedItem = null
     
     let outline,
         panel,
@@ -84,6 +85,15 @@
 
     function onFocus() {
         g.setFocus([g.panelLeft, g.outline])
+    }
+    
+    function shouldHighlight(line, currentLine, i) {
+        const nextItem = outlineItems[i+1]
+        const result = line <= currentLine && (!nextItem || currentLine < nextItem.line)
+        if (result) {
+            highlightedItem = outlineItems[i]
+        }
+        return result
     }
 
     export const generateOutline = (cm) => {
