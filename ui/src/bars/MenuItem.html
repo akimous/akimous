@@ -15,6 +15,7 @@
 </style>
 
 <script context="module">
+    import { togglePanelAutoHide } from '../LayeredKeyboardControl/LayeredKeyboardControl'
     /* eslint-disable */
     /* Note: following Sublime commands not included in menu
     "Cmd-Left": "goLineStartSmart",
@@ -203,7 +204,19 @@
             text: 'Unfold All',
             hotkey: '␣ 0',
             callback: () => g.CMCommand('unfoldAll')
-        }, ],
+        }, {
+            divider: true
+        }, {
+            text: 'Toggle Left Panel Auto-hide',
+            hotkey: '␣ Z',
+            icon: 'fas fa-caret-square-left',
+            callback: () => togglePanelAutoHide(g.panelLeft)
+        }, {
+            text: 'Toggle Right Panel Auto-hide',
+            hotkey: '␣ B',
+            icon: 'fas fa-caret-square-right',
+            callback: () => togglePanelAutoHide(g.panelRight)
+        }],
         Go: [{
             text: 'Line',
             hotkey: '⌘L',

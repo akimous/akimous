@@ -3,7 +3,7 @@ import { config } from '../lib/ConfigManager'
 import KeyMap from './KeyMap'
 import CodeEditor from '../editor/CodeEditor.html'
 
-function togglePanelAutoHide(panel) {
+export function togglePanelAutoHide(panel) {
     const autoHide = !panel.autoHide
     panel.$set({
         autoHide,
