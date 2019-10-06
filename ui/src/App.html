@@ -143,8 +143,12 @@
                 g.panelRight.$set({ width })
             }, 16)
         }
+        splitterLeft.onmouseup = () => {
+            g.panelLeft.saveWidth()
+        }
         splitterRight.onmouseup = () => {
             g.console.terminal && g.console.terminal.fit()
+            g.panelRight.saveWidth()
         }
         document.onmouseup = () => {
             document.onmousemove = null

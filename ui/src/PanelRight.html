@@ -28,6 +28,7 @@
     import { onMount, tick } from 'svelte'
     
     import g from './lib/Globals'
+    import { setConfig } from './lib/ConfigManager'
     import { onTabChangeFactory } from './lib/UIUtils'
     
     import TabBar from './bars/TabBar.html'
@@ -40,27 +41,44 @@
     
 
     export let allowWhiteSpace = true,
-        autoHide = false,
+        autoHide = g.config.panelRight.hidden,
         children = {},
         focused = false,
-        hidden = false,
+        hidden = g.config.panelRight.hidden,
         tabBar = null,
         width = 0
     
     let onTabChange, 
-        originalWidth,
+        originalWidth = g.config.panelRight.width,
         self
     
     $: {
-        if (g.app && hidden) {
-            originalWidth = self.getBoundingClientRect().width
-            document.documentElement.style.setProperty('--panel-right-width', '0px')
-        } else if (g.app) {
-            document.documentElement.style.setProperty('--panel-right-width', `${originalWidth}px`)
+        if (g.app) {
+            if (hidden) setHidden()
+            else setWidth()
         }
+    }
+    $: setConfig('panelRight', { hidden: autoHide })
+    
+    function setHidden() {
+        const currentWidth = self.getBoundingClientRect().width
+        if (currentWidth)
+            originalWidth = currentWidth
+        document.documentElement.style.setProperty('--panel-right-width', '0px')
+    }
+    
+    function setWidth() {
+        const width = (originalWidth < 10) ? 'calc(8rem + 7vw)' : `${originalWidth}px`
+        document.documentElement.style.setProperty('--panel-right-width', width)
+    }
+    
+    export function saveWidth() {
+        setConfig('panelRight', { width: self.getBoundingClientRect().width })
     }
     
     onMount(async () => {
+        setWidth()
+        if (hidden) setHidden()
         onTabChange = onTabChangeFactory(tabBar, children, 'right')
         tabBar.openTab('console', 'Console', children.console, 'fas fa-desktop l-purple')
         tabBar.openTab('find', 'Find', children.find, 'fas fa-search l-blue')

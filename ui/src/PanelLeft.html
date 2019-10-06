@@ -23,32 +23,52 @@
     import { onMount, tick } from 'svelte'
     
     import g from './lib/Globals'
+    import { setConfig } from './lib/ConfigManager'
     import { onTabChangeFactory } from './lib/UIUtils'
+    import { schedule } from './lib/Utils'
 
     import TabBar from './bars/TabBar.html'
     import FileTree from './panels/FileTree.html'
     import Outline from './panels/Outline.html'
     
-    export let autoHide = false,
+    
+    export let autoHide = g.config.panelLeft.hidden,
         children = {},
         focused = false,
-        hidden = false,
+        hidden = g.config.panelLeft.hidden,
         tabBar = null
 
     let onTabChange, 
-        originalWidth,
+        originalWidth = g.config.panelLeft.width,
         self
     
     $: {
-        if (g.app && hidden) {
-            originalWidth = self.getBoundingClientRect().width
-            document.documentElement.style.setProperty('--panel-left-width', '0px')
-        } else if (g.app) {
-            document.documentElement.style.setProperty('--panel-left-width', `${originalWidth}px`)
+        if (g.app) {
+            if (hidden) setHidden()
+            else setWidth()
         }
+    }
+    $: setConfig('panelLeft', { hidden: autoHide })
+    
+    function setHidden() {
+        const currentWidth = self.getBoundingClientRect().width
+        if (currentWidth)
+            originalWidth = currentWidth
+        document.documentElement.style.setProperty('--panel-left-width', '0px')
+    }
+    
+    function setWidth() {
+        const width = (originalWidth < 10) ? 'calc(8rem + 7vw)' : `${originalWidth}px`
+        document.documentElement.style.setProperty('--panel-left-width', width)
+    }
+    
+    export function saveWidth() {
+        setConfig('panelLeft', { width: self.getBoundingClientRect().width })
     }
     
     onMount(async () => {
+        setWidth()
+        if (hidden) setHidden()
         onTabChange = onTabChangeFactory(tabBar, children, 'left')
         tabBar.openTab('fileTree', 'FileTree', children.fileTree, 'fas fa-tree l-green')
         tabBar.openTab('outline', 'Outline', children.outline, 'fas fa-align-left l-blue')
