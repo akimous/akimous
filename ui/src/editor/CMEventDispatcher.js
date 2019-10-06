@@ -164,8 +164,7 @@ class CMEventDispatcher {
 
         cm.on('beforeChange', (cm, c) => {
             formatter.setContext(cm, c)
-            if (editor.debug) 
-                console.log('beforeChange', c)
+            // console.log('beforeChange', c)
             const startTime = performance.now()
             try {
                 const cursor = c.from
@@ -257,6 +256,14 @@ class CMEventDispatcher {
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }
+                } else if (c.origin === '+completion') {
+                    let input = c.text[0]
+                    let isInFunctionSignatureDefinition = false
+                    const [t0, t1, t2] = getNTokens(3, {
+                        line: c.from.line,
+                        ch: c.from.ch
+                    })
+                    formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                 } else if (c.origin === '+delete') {
                     shouldDismissCompletionOnCursorActivity = false
                     formatter.deleteHandler()
@@ -265,7 +272,7 @@ class CMEventDispatcher {
                 console.error(e)
             }
             const timeElapsed = performance.now() - startTime
-            if (editor.debug) console.log('beforeChange took', timeElapsed)
+            // console.log('beforeChange took', timeElapsed)
             if (timeElapsed > 5) console.warn('slow', c, timeElapsed)
         })
 

@@ -15,7 +15,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const ensureSpaceBefore = (t0) => {
         if (/\s+/.test(t0.string)) return // don't duplicate spaces
         c.text[0] = ' ' + c.text[0]
-        editor.completionProvider.firstTriggeredCharPos.ch++
+        const pos = {...editor.completionProvider.firstTriggeredCharPos}
+        pos.ch++
     }
     const stripTrailingSpaces = (line) => {
         for (let i = c.from.ch - 1; i >= 0; i--) {
@@ -42,21 +43,21 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         const leftTextIsOperator = operators.test(leftText)
         const currentTextIsPartOfTheOperator = compoundOperators.test(leftText + currentText)
         const currentTextIsOperator = operatorChars.test(currentText)
-        if (editor.debug) console.log({
-            currentTextIsPartOfTheOperator,
-            currentTextIsOperator,
-            leftTextIsOperator,
-            existSpaceBeforePreviousToken,
-            currentText,
-            leftText,
-            t2,
-            t1,
-            t0,
-            'll': leftText + lastChar,
-            'state': currentState,
-            'scope': currentScope,
-            'lineContent': cm.doc.getLine(c.from.line)
-        })
+        //console.log({
+        //    currentTextIsPartOfTheOperator,
+        //    currentTextIsOperator,
+        //    leftTextIsOperator,
+        //    existSpaceBeforePreviousToken,
+        //    currentText,
+        //    leftText,
+        //    t2,
+        //    t1,
+        //    t0,
+        //    'll': leftText + lastChar,
+        //    'state': currentState,
+        //    'scope': currentScope,
+        //    'lineContent': cm.doc.getLine(c.from.line)
+        //})
 
         // split string into two lines if enter is pressed inside a string token
         if (c.text.length === 2 && currentText === '' && t0.type === 'string' 
@@ -150,7 +151,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             c.text[0] = `self.${currentText}`
             c.from = Pos(c.from.line, c.from.ch - 1)
         } else {
-            if (editor.debug) console.log('none of above applies')
+            console.debug('none of above applies')
         }
     }
 
