@@ -24,13 +24,14 @@ const shouldUseSequentialHighlighter = new Set([
 const tails = {
     'class': '()',
     'function': '()',
-    // 'param': '=',  // not reliable, see predict in editor.py
     // 'word': ' = ',  // handled in addTail()
     // 'word-segment': ' = ',  // handled in addTail()
     // 'token': ' = ',  // handled in addTail()
     'keyword': ' ',
     'module': ' ',
     'variable': ' ',
+    'param': ' ', // probably not reliable, see predict in editor.py
+    // 'statement': ' ', // good for `if xxx_and` but bad for `int(xxx|)`
 }
 
 const passiveTokenCompletionSet = new Set(['word', 'word-segment', 'token'])
@@ -211,7 +212,7 @@ class CompletionProvider {
     }
 
     addTail(completion) {
-        const { type } = completion
+        const { type, postfix } = completion
         const { mode } = this
         let tail = tails[type]
         const { lineContent, firstTriggeredCharPos } = this.context
@@ -225,6 +226,8 @@ class CompletionProvider {
                 else if (!/^\s*$/.test(head)) tail = null
             }
         } else if (tail === '()' && lineContent.includes(' import ')) {
+            tail = null
+        } else if (postfix && tail === ' ') {
             tail = null
         }
         if (tail)

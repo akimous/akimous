@@ -9,17 +9,28 @@ Scenario('Normal formatting', (I) => {
     const specialKeys = new Set(['Enter', 'Space'])
     const typeAndCompare = (inputs, displays) => {
         for (const i of inputs) {
+            let first = true
             if (Array.isArray(i)) {
-                I.type(i, { delay: 300 })
+                I.type(i)
             } else if (specialKeys.has(i)) {
                 I.pressKey(i)
             } else {
                 for (const j of i) {
-                    I.pressKey(j)
+                    if (!/[0-9a-zA-Z]/.test(j)){
+                        I.wait(.3)
+                        I.pressKey(j)
+                    } else if (first) {
+                        I.pressKey(j)
+                        I.wait(.3)
+                        first = false
+                    } else {
+                        I.pressKey(j)
+                    }
                 }
             }
         }
         if (!displays) return
+        I.wait(.5)
         for (const i of displays) {
             I.see(i)
         }
@@ -40,7 +51,7 @@ Scenario('Normal formatting', (I) => {
     clear()
     
     typeAndCompare(['fr s'], ['from'])
-    I.wait(2)
+    I.wait(1)
     typeAndCompare(['ph'])
     typeAndCompare(['.'], ['from sphinx.'])
     typeAndCompare(['io im '], ['from sphinx.io import '])
@@ -61,15 +72,16 @@ Scenario('Normal formatting', (I) => {
     typeAndCompare(['"".sta '], ['"".startswith()'])
     clear()
 
-    typeAndCompare(['import logzero', ['Enter'], 'log_format = ""', ['Enter'], 'logzero.LogFormatter('])
+    typeAndCompare(['import logz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
     typeAndCompare(['f'])
-    I.wait(.5)
     typeAndCompare([' ='])
-    I.wait(.5)
     typeAndCompare([' '], ['logzero.LogFormatter(fmt=log_format)'])
     clear()
     
     typeAndCompare(['fr bolt.g '], ['from boltons.gcutils '])
+    clear()
+    
+    typeAndCompare(['1==2'], ['1 == 2'])
     clear()
     // pause()
 })

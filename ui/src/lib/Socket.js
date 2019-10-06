@@ -3,8 +3,8 @@ import g from './Globals'
 
 // For performance's sake, expand it as function. About 6.5X faster than array mapping
 const rowPreprocessors = {
-    Prediction([text, type, score]) {
-        return { text, type, score }
+    Prediction([text, type, score, postfix]) {
+        return { text, type, score, postfix }
     },
     ExtraPrediction([text, type, score]) {
         return { text, type, score }

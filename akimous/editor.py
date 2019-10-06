@@ -28,7 +28,7 @@ from .completion_utilities import is_parameter_of_def
 
 DEBUG = False
 MODEL_NAME = 'v10.model'
-PredictionRow = namedtuple('PredictionRow', ('c', 't', 's'))
+PredictionRow = namedtuple('PredictionRow', ('c', 't', 's', 'p'))
 
 handles = partial(register_handler, 'editor')
 doc_generator = DocGenerator()
@@ -307,7 +307,7 @@ async def predict(msg, send, context):
                 # e.g. def something(path): len(p|)
                 # will return "path="
                 result = [
-                    PredictionRow(c=c.name, t=c.type, s=int(s))
+                    PredictionRow(c=c.name, t=c.type, s=int(s), p=c.name_with_symbols[len(c.name):])
                     for c, s in zip(completions, scores)
                 ]
             else:
@@ -337,14 +337,14 @@ async def predict_extra(msg, send, context):
         words = search_prefix(text)
         for i, word in enumerate(words):
             if word not in results:
-                results[word] = PredictionRow(c=word, t='word', s=990 - i)
+                results[word] = PredictionRow(c=word, t='word', s=990 - i, p='')
 
     # 2. existing tokens
     tokens = context.feature_extractor.context.t0map.query_prefix(
         text, line_number)
     for i, token in enumerate(tokens):
         if token not in results:
-            results[token] = PredictionRow(c=token, t='token', s=980 - i)
+            results[token] = PredictionRow(c=token, t='token', s=980 - i, p='')
 
     # 3. segmented words
     if len(results) < 6:
@@ -352,7 +352,7 @@ async def predict_extra(msg, send, context):
         if segmented_words:
             snake = '_'.join(segmented_words)
             if snake not in results:
-                results[snake] = PredictionRow(c=snake, t='word-segment', s=1)
+                results[snake] = PredictionRow(c=snake, t='word-segment', s=1, p='')
 
     await send('ExtraPrediction', {
         'line': line_number,

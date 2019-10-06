@@ -109,7 +109,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         } else if (t0.string === ':' && !_inBrackets()) {
             c.text[0] = ' ' + c.text[0]
         } else if (currentText === '=') {
-            if (lastChar === '=' && leftText[leftText.length - 2] !== ' ') { // == case
+            if (lastChar === '=' && !/\s+/.test(t1.string) && leftText[leftText.length - 2] !== ' ') { 
+                // == case
                 const pos = Pos(c.from.line, c.from.ch - 1)
                 c.update(pos, pos, [' ='])
             } else if (currentTextIsPartOfTheOperator) { // +=, -=... etc
@@ -151,7 +152,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             c.text[0] = `self.${currentText}`
             c.from = Pos(c.from.line, c.from.ch - 1)
         } else {
-            console.debug('none of above applies')
+            // console.debug('none of above applies')
         }
     }
 
