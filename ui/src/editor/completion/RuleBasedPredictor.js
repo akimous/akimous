@@ -54,6 +54,10 @@ function fullStatementCompletion({ topHit, cm, line, lineContent }) {
         if (tokenType === 'string' || tokenType === 'comment')
             return false
         
+        // too similar to topHitCompletion, not benefitial
+        if (topHitCompletion.length + index + 1 >= sourceLineContent.length)
+            return false
+        
         sourceLine = l
         return true
     }
