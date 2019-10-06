@@ -199,6 +199,10 @@
         }
         container.style.left = `${x}px`
         container.style.top = `${y}px`
+        
+        // completionHeight can be 0 and lead to incorrect position because the div is not rendered yet
+        if (completionHeight === 0)
+            requestAnimationFrame(() => repositionCompletionWindow(pos))
     }
 
     export function enter(rowNumber, key) {
