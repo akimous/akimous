@@ -124,6 +124,7 @@ module.exports = {
                     'popup',
                     'popups',
                     'pos',
+                    'postfix',
                     'preprocessed',
                     'preprocessor',
                     'preprocessors',

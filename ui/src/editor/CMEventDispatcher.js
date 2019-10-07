@@ -257,7 +257,6 @@ class CMEventDispatcher {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }
                 } else if (c.origin === '+completion') {
-                    let input = c.text[0]
                     let isInFunctionSignatureDefinition = false
                     const [t0, t1, t2] = getNTokens(3, {
                         line: c.from.line,
