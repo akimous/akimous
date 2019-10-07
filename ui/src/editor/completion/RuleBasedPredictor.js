@@ -251,10 +251,17 @@ function suggestInitInsideClass({ topHit, line }) {
     return 'def __init__(self)'
 }
 
+function withPostfix({ topHit }) {
+    if (!topHit) return
+    if (topHit.postfix)
+        return topHit.text + topHit.postfix
+}
+
 class RuleBasedPredictor {
     constructor(context) {
         this.context = context
         this.predictors = [
+            withPostfix,
             fullStatementCompletion,
             fixedPredictionForImport,
             fromImport,
