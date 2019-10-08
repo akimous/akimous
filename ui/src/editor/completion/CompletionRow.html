@@ -1,6 +1,9 @@
 <div bind:this={row} on:click="{click}" class="row" class:selected>
     <div class="row-number"> {rowNumber} </div>
     <div class="row-content">{@html highlight}{tail}</div>
+    {#if keyboardHint}
+    <div class="keyboard-hint">{keyboardHint}</div>
+    {/if}
     <div class="type-indicator {type}"> {@html typeIcon} </div>
 </div>
 
@@ -32,6 +35,16 @@
         position: absolute;
         left: 3rem;
         overflow-x: hidden;
+    }
+    
+    .keyboard-hint {
+        display: inline-block;
+        line-height: 1.8rem;
+        width: 2rem;
+        position: absolute;
+        right: 2rem;
+        text-align: center;
+        color: var(--default-ui-font-color);
     }
 
     .type-indicator {
@@ -168,6 +181,7 @@
     
     export let highlight = '',
         index = 0,
+        keyboardHint = '',
         row = null,
         rowNumber = 0,
         selected = false,

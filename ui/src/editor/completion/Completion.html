@@ -3,7 +3,7 @@
     <CompletionRow bind:this={passivePlaceholder} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
     {/if}
     {#each rows as {text, type, highlight, tail}, i}
-    <CompletionRow bind:this={completionRows[i]} {text} {type} {highlight} tail={tail||''} index={i} selected={selectedIndex===i} on:completionRowClicked={onCompletionRowClicked}></CompletionRow>
+    <CompletionRow bind:this={completionRows[i]} {text} {type} {highlight} keyboardHint={getKeyboardHint(i, passive)} tail={tail||''} index={i} selected={selectedIndex===i} on:completionRowClicked={onCompletionRowClicked}></CompletionRow>
     {/each}
 </div>
 
@@ -170,14 +170,21 @@
 
     export function setCompletions(rows_, firstTriggeredCharPos, type) {
         rows = rows_
-        passive = type !== NORMAL
         if (!rows.length) {
             open = false
         } else {
             open = true
+            passive = type !== NORMAL
             repositionCompletionWindow(firstTriggeredCharPos)
             requestCompletionDocstringIfNeeded(rows[0])
         }
+    }
+    
+    function getKeyboardHint(i, passive) {
+        if (passive) ++i
+        if (i === 0) return '␣'
+        if (i === 1) return '⇥'
+        return ''
     }
 
     export function repositionCompletionWindow(pos) {
@@ -216,7 +223,7 @@
         // avoid duplicated braces
         let shouldAddTail = tail && !tail.startsWith(key)
         // avoid a dot (or an operator) is preceded with a space
-        if (key !== 'commit' && tail === ' ')
+        if (key !== 'commit' && key !== 'Tab' && tail === ' ')
             shouldAddTail = false
         if (shouldAddTail) 
             text = text + (tail || '')

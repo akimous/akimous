@@ -114,6 +114,7 @@ class CompletionProvider {
             this.retrigger(lastRetriggerJob)
         }
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
+            this.mode = STRING
             const sortedCompletions = this.sortAndFilter(this.input, result)
             this.deduplicateAndSetCompletions(sortedCompletions)
         }
