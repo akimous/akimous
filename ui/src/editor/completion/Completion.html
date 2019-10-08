@@ -214,7 +214,9 @@
 
     export function enter(rowNumber, key) {
         if (!open) return console.error('closed')
-        const row = rowNumber ? completionRowShortcuts[rowNumber] : rows[selectedIndex]
+        let row
+        if (key === 'Tab') row = rows[1 - passive]
+        else row = rowNumber ? completionRowShortcuts[rowNumber] : rows[selectedIndex]
         if (!row) return console.error('no selected completion')
 
         completionProvider.state = CLOSED
@@ -237,7 +239,7 @@
             }
             return true // let it propagate
         }
-
+        
         cm.replaceRange(
             text,
             completionProvider.firstTriggeredCharPos,

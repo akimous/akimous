@@ -31,7 +31,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         if (!config.formatter.realtime) return
         // skip if there are no characters before cursor 
         if (c.to.ch === 0) return
-
+        if (!c.text) return
         const leftText = t0.string
         const lastChar = leftText.slice(-1)
         const currentText = c.text[0]
