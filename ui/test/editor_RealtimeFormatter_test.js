@@ -19,6 +19,7 @@ Scenario('Normal formatting', (I) => {
                     if (!/[0-9a-zA-Z]/.test(j)){
                         I.wait(.3)
                         I.pressKey(j)
+                        I.wait(.2)
                     } else if (first) {
                         I.pressKey(j)
                         I.wait(.3)
@@ -84,6 +85,10 @@ Scenario('Normal formatting', (I) => {
     clear()
     
     typeAndCompare(['1==2'], ['1 == 2'])
+    clear()
+    
+    typeAndCompare(['def somet', ['Tab']], ['def something()'])
+    typeAndCompare(['adog', ['Tab']], ['def something(a_dog)'])
     clear()
     // pause()
 })

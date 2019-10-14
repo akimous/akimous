@@ -82,8 +82,9 @@ class CompletionProvider {
 
         editor.session.handlers['Prediction'] = data => {
             if (debug) console.log('CompletionProvider.receive', data)
-            const { ch } = data
+            const { line, ch } = data
             let input = this.lineContent.slice(this.firstTriggeredCharPos.ch, ch) || ''
+            this.input = input
             this.state = RESPONDED
             this.currentCompletions = data.result
             if (data.result.length < 1) {
@@ -98,14 +99,10 @@ class CompletionProvider {
             const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
 
             if (this.mode === NORMAL) {
-                const ruleBasedPrediction = this.ruleBasedPredictor.predict({
-                    topHit: sortedCompletions[0],
-                    completions: sortedCompletions,
-                    input
-                })
-                sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
+                this.requestExtraPredictions(line, ch, input, sortedCompletions)
+            } else {
+                this.deduplicateAndSetCompletions(sortedCompletions)
             }
-            this.deduplicateAndSetCompletions(sortedCompletions)
 
             const lastRetriggerJob = this.retriggerQueue.pop()
             this.retriggerQueue.length = 0
@@ -115,6 +112,12 @@ class CompletionProvider {
         }
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             this.mode = STRING
+            
+            if (this.context.t2.string === 'def') {
+                result.forEach(item => {
+                    item.tail = '()'
+                })
+            }
             const sortedCompletions = this.sortAndFilter(this.input, result)
             this.deduplicateAndSetCompletions(sortedCompletions)
         }
@@ -151,6 +154,21 @@ class CompletionProvider {
         this.state = TRIGGERED
         this.retriggerQueue.length = 0 // clear queue
     }
+    
+    requestExtraPredictions(line, ch, input, sortedCompletions) {
+        const ruleBasedPrediction = this.ruleBasedPredictor.predict({
+            topHit: sortedCompletions[0],
+            completions: sortedCompletions,
+            input
+        })
+        sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
+
+        if (!sortedCompletions.length) {
+            this.editor.session.send('PredictExtra', [line, ch, input])
+        } else {
+            this.deduplicateAndSetCompletions(sortedCompletions)
+        }
+    }
 
     retrigger({ lineContent, line, ch }) {
         if (!this.enabled) return
@@ -170,18 +188,7 @@ class CompletionProvider {
         const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
         this.input = input
         let sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
-
-        const ruleBasedPrediction = this.ruleBasedPredictor.predict({
-            topHit: sortedCompletions[0],
-            completions: sortedCompletions,
-            input
-        })
-        sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
-
-        if (!sortedCompletions.length) {
-            this.editor.session.send('PredictExtra', [line, ch, input])
-        } else
-            this.deduplicateAndSetCompletions(sortedCompletions)
+        this.requestExtraPredictions(line, ch, input, sortedCompletions)
     }
 
     sortAndFilter(input, completions) {
@@ -201,7 +208,7 @@ class CompletionProvider {
             }
         }
         completions.sort((a, b) => b.sortScore - a.sortScore + b.score - a.score)
-        if (debug) console.log('CompletionProvider.sort', completions)
+        if (debug) console.log('CompletionProvider.sort', input, completions)
 
         const { type } = this.completion
         const filteredCompletions = completions.filter(row => {
