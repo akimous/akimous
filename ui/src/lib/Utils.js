@@ -138,7 +138,7 @@ function inSomething(cm, cursor, open, close) {
         for (let ch = startCh - 1; ch > -1; ch--) {
             let char = lineContent.charAt(ch)
             if (char === open) {
-                pos.ch = ch
+                pos.ch = ch + 1
                 if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
                     ch = token.start
@@ -147,7 +147,7 @@ function inSomething(cm, cursor, open, close) {
                 }
                 braceStackCounter += 1
             } else if (char === close) {
-                pos.ch = ch
+                pos.ch = ch + 1
                 if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
                     ch = token.start
