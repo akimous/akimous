@@ -90,5 +90,8 @@ Scenario('Normal formatting', (I) => {
     typeAndCompare(['def somet', ['Tab']], ['def something()'])
     typeAndCompare(['adog', ['Tab']], ['def something(a_dog)'])
     clear()
+    
+    typeAndCompare(['adog', ['Tab']], ['a_dog ='])
+    clear()
     // pause()
 })

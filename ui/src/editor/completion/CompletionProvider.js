@@ -113,9 +113,14 @@ class CompletionProvider {
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             this.mode = STRING
             
-            if (this.context.t2.string === 'def') {
+            const { t0, t1, t2 } = this.context
+            if (t2.string === 'def') {
                 result.forEach(item => {
                     item.tail = '()'
+                })
+            } else if (!t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
+                result.forEach(item => {
+                    item.tail = ' ='
                 })
             }
             const sortedCompletions = this.sortAndFilter(this.input, result)

@@ -165,6 +165,7 @@ function inSomething(cm, cursor, open, close) {
             return false
         }
         lineContent = cm.doc.getLine(line - 1)
+        if (!lineContent) continue
         startCh = lineContent.length
     }
     return false

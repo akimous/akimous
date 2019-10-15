@@ -7,7 +7,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
 
     const operators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->)|[+\-*/%&|^~<>!@=])$/
     const compoundOperators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->))$/
-    const operatorChars = /[=+\-*/|&^~%@><!]$/
+    const operatorChars = /^[=+\-*/|&^~%@><!]$/
     const identifier = /^[^\d\W]\w*$/
     const _inParentheses = () => inParentheses(cm, c.from)
     const _inBrackets = () => inBrackets(cm, c.from)
