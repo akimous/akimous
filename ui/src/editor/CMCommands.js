@@ -458,6 +458,23 @@ function registerCMCommands(CodeMirror) {
         commands.goLineEnd(cm)
         commands.newlineAndIndent(cm)
     }
+    
+    function moveH(cm, dir) {
+        const cursor = {...cm.getCursor()} // must not modify original cursor or cm.moveH will break
+        if (dir < 0)
+            cursor.ch += dir
+        const neighboringChar = cm.getRange(cursor, {
+            line: cursor.line,
+            ch: cursor.ch + 1
+        })
+        if (/[()[\]{}'"]/.test(neighboringChar)) {
+            return cm.moveH(dir, 'char')
+        }
+        return cm.moveH(dir, 'group')
+    }
+    
+    commands.goLeft = cm => moveH(cm, -1)
+    commands.goRight = cm => moveH(cm, 1)
 }
 
 export default registerCMCommands

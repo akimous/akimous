@@ -1,8 +1,8 @@
 const editorCommandKeyMap = {
     'KeyI': 'goLineUp',
     'KeyK': 'goLineDown',
-    'KeyJ': 'goGroupLeft',
-    'KeyL': 'goGroupRight',
+    'KeyJ': 'goLeft',
+    'KeyL': 'goRight',
     
     'KeyH': 'goLineLeftSmart',
     'Semicolon': 'goLineRight',
