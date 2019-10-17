@@ -459,7 +459,8 @@ function registerCMCommands(CodeMirror) {
         commands.newlineAndIndent(cm)
     }
     
-    function moveH(cm, dir) {
+    // Replace goGroupLeft, goGroupRight, etc. to avoid skipping over consecutive braces
+    function moveH(cm, dir, unit) {
         const cursor = {...cm.getCursor()} // must not modify original cursor or cm.moveH will break
         if (dir < 0)
             cursor.ch += dir
@@ -470,11 +471,16 @@ function registerCMCommands(CodeMirror) {
         if (/[()[\]{}'"]/.test(neighboringChar)) {
             return cm.moveH(dir, 'char')
         }
-        return cm.moveH(dir, 'group')
+        if (unit === 'subword') {
+            return cm.execCommand(dir < 0 ? 'goSubwordLeft' : 'goSubwordRight')
+        }
+        return cm.moveH(dir, unit)
     }
     
-    commands.goLeft = cm => moveH(cm, -1)
-    commands.goRight = cm => moveH(cm, 1)
+    commands.goGroupLeft2 = cm => moveH(cm, -1, 'group')
+    commands.goGroupRight2 = cm => moveH(cm, 1, 'group')
+    commands.goSubwordLeft2 = cm => moveH(cm, -1, 'subword')
+    commands.goSubwordRight2 = cm => moveH(cm, 1, 'subword')
 }
 
 export default registerCMCommands

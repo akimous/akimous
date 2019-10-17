@@ -1,8 +1,8 @@
 const editorCommandKeyMap = {
     'KeyI': 'goLineUp',
     'KeyK': 'goLineDown',
-    'KeyJ': 'goLeft',
-    'KeyL': 'goRight',
+    'KeyJ': 'goGroupLeft2',
+    'KeyL': 'goGroupRight2',
     
     'KeyH': 'goLineLeftSmart',
     'Semicolon': 'goLineRight',
@@ -10,9 +10,9 @@ const editorCommandKeyMap = {
     'KeyO': 'goLineDown5X',
     'KeyY': 'goDocStart',
     'KeyP': 'goDocEnd',
-    'KeyM': 'goSubwordLeft',
+    'KeyM': 'goSubwordLeft2',
     'Comma': 'focusAtCenter',
-    'Period': 'goSubwordRight',
+    'Period': 'goSubwordRight2',
     
     'BracketLeft': 'goToPreviousBracket',
     'BracketRight': 'goToNextBracket',
