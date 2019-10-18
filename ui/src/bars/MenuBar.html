@@ -1,4 +1,4 @@
-<div ref:MenuBar id="menu-bar">
+<div id="menu-bar">
     <MenuItem name="File"></MenuItem>
     <MenuItem name="Edit"></MenuItem>
     <MenuItem name="Select"></MenuItem>
@@ -19,19 +19,6 @@
 
 
 <script>
-    import g from '../lib/Globals'
-
-    export default {
-        components: {
-            MenuItem: './MenuItem.html'
-        },
-        oncreate() {
-            g.menuBar = this
-        },
-        data() {
-            return {}
-        },
-        methods: {}
-    }
-
+    import MenuItem from './MenuItem.html'
+    
 </script>

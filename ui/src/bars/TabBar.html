@@ -1,5 +1,7 @@
-<div ref:tabBar class="tab-bar">
-
+<div bind:this={tabBar} class="tab-bar">
+    {#each tabData as t}
+    <Tab {...t} bind:this={tabs[t.id]} on:requestTabClose on:tabDestroyed={tabDestroyed}></Tab>
+    {/each}
 </div>
 
 
@@ -18,86 +20,89 @@
 
 
 <script>
-    import Tab from './Tab.html'
+    import { onMount, tick } from 'svelte'
     import Sortable from 'sortablejs'
     import elementQueries from 'css-element-queries'
+    
+    import Tab from './Tab.html'
+    import { OTHERS } from './Tab.html'
 
-    export default {
-        components: {},
-        oncreate() {
-            this.tabs = new Set()
-            this.sortable = Sortable.create(this.refs.tabBar, {
-                animation: 0,
-            })
-            new elementQueries.ResizeSensor(this.refs.tabBar, () => {
-                this.fitTabWidth()
-            })
-        },
-        data() {
-            return {
-                parent: null
-            }
-        },
-        methods: {
-            openTab(view, name, icon) {
-                const tab = new Tab({
-                    target: this.refs.tabBar,
-                    data: {
-                        icon,
-                        name,
-                        view,
-                        panel: this.get().parent,
-                        parent: this
-                    }
-                })
-                this.fitTabWidth()
-                return tab
-            },
-            switchToTab(index) {
-                index += 1 // resizeSensor counts 1
-                for (const tab of this.tabs) {
-                    if (tab.getIndex() === index) {
-                        tab.activate()
-                        return
-                    }
-                }
-            },
-            fitTabWidth() {
-                cancelAnimationFrame(this.tabFittingTask)
-                this.tabFittingTask = requestAnimationFrame(() => {
-                    const tabBarWidth = this.refs.tabBar.getBoundingClientRect().width
-                    const tabs = [...this.tabs]
-                    if (!tabs.length) return
-                    const equalTabWidth = tabBarWidth / tabs.length
+    export let tabData = [],
+        tabs = {}
 
-                    const originalWidths = tabs.map(tab => tab.getInternalWidth())
-                    const totalTabWidth = originalWidths.reduce((a, b) => a + b)
-                    let largerThanEqualTabWidth = 0
-                    const spareTabSpace = originalWidths.reduce((a, b) => {
-                        if (b < equalTabWidth)
-                            return equalTabWidth - b + a
-                        largerThanEqualTabWidth += 1
-                        return a
-                    }, 0)
+    let tabBar,
+        tabFittingTask = -1
 
-                    const paddingPerSide = Math.max((tabBarWidth - totalTabWidth) / this.tabs.size / 2, 0)
-
-                    const newTabWidth = equalTabWidth + (spareTabSpace / largerThanEqualTabWidth)
-                    for (let i = 0; i < tabs.length; i++) {
-                        const tab = tabs[i]
-                        if ((paddingPerSide > 0) || (originalWidths[i] < equalTabWidth)) {
-                            tab.autoWidth()
-                            tab.set({
-                                padding: paddingPerSide
-                            })
-                        } else {
-                            tab.forceSetWidth(newTabWidth)
-                        }
-                    }
-                })
-            }
-        }
-
+    onMount(async () => {
+        await tick()
+        Sortable.create(tabBar, { animation: 0 })
+        new elementQueries.ResizeSensor(tabBar, fitTabWidth)
+    })
+    
+    function tabDestroyed({ detail }) {
+        const { id } = detail
+        delete tabs[id]
+        fitTabWidth()
     }
 
+    export async function openTab(id, name, view, icon, type = OTHERS) {
+        tabData.push({ id, name, view, icon, type })
+        tabData = tabData // force update
+        fitTabWidth()
+        await tick()
+        view.tab = tabs[id] // eslint-disable-line require-atomic-updates
+    }
+
+    export function switchToTab(index) {
+        index += 1 // resizeSensor counts 1
+        for (const tab of Object.values(tabs)) {
+            if (tab.getIndex() === index) {
+                tab.activate()
+                return
+            }
+        }
+    }
+    
+    export async function updateTabIndicator({ id, active }) {
+        await tick()
+        const tab = tabs[id]
+        if (!tab) return
+        tab.$set({ active })
+    }
+
+    function _fitTabWidth() {
+        const tabBarWidth = tabBar.getBoundingClientRect().width
+        const _tabs = Object.values(tabs)
+        if (!_tabs.length) return
+        const equalTabWidth = tabBarWidth / _tabs.length
+
+        const originalWidths = _tabs.map(t => t.getInternalWidth())
+        const totalTabWidth = originalWidths.reduce((a, b) => a + b)
+        let largerThanEqualTabWidth = 0
+        const spareTabSpace = originalWidths.reduce((a, b) => {
+            if (b < equalTabWidth)
+                return equalTabWidth - b + a
+            largerThanEqualTabWidth += 1
+            return a
+        }, 0)
+
+        const paddingPerSide = Math.max((tabBarWidth - totalTabWidth) / _tabs.length / 2, 0)
+
+        const newTabWidth = equalTabWidth + (spareTabSpace / largerThanEqualTabWidth)
+        for (let i = 0; i < _tabs.length; i++) {
+            const tab = _tabs[i]
+            if ((paddingPerSide > 0) || (originalWidths[i] < equalTabWidth)) {
+                tab.autoWidth()
+                tab.$set({ padding: paddingPerSide })
+            } else {
+                tab.forceSetWidth(newTabWidth)
+            }
+        }
+    }
+    
+    export function fitTabWidth() {
+        cancelAnimationFrame(tabFittingTask)
+        tabFittingTask = requestAnimationFrame(_fitTabWidth)
+    }
 </script>
+

@@ -1,6 +1,6 @@
-<span ref:tab class="tab non-selectable {active ? 'active' : ''} {clean ? '' : 'dirty'}" style="padding:0 {padding}px" on:click="activate()" on:dblclick="close()" on:mouseenter="mouseEnter()" on:mouseleave="mouseLeave()" aria-label="{name}">
+<span bind:this={tab} class="tab non-selectable" class:active class:dirty={!clean} style="padding:0 {padding}px" on:click={activate} on:dblclick={close} on:mouseenter={mouseEnter} on:mouseleave={mouseLeave} aria-label={name}>
     <!-- if the two spans sitting on different lines means there is a space in between-->
-    <span ref:icon class="icon {icon}" class:icon-height-adjustment="name"></span>{#if labeled}<span ref:text class="text">{name}</span>{/if}
+    <span bind:this={iconSpan} class="icon {icon}" class:icon-height-adjustment={name}></span>{#if type===FILE}<span bind:this={text} class="text">{name}</span>{/if}
 </span>
 
 
@@ -9,7 +9,7 @@
         border-right: 1px solid var(--panel-delimiter-color);
         height: var(--tab-bar-height);
         display: inline-block;
-        overflow-x: visible;
+        overflow-x: hidden;
         line-height: var(--tab-bar-height);
         background: var(--panel-color);
     }
@@ -55,79 +55,80 @@
 
 </style>
 
+<script context="module">
+    export const FILE = 0,
+        OTHERS = 1
+</script>
 
 <script>
-    import g from '../lib/Globals'
+    import { onDestroy, createEventDispatcher } from 'svelte'
 
-    export default {
-        components: {},
-        oncreate() {
-            this.get().parent.tabs.add(this)
-        },
-        ondestroy() {
-            const { parent } = this.get()
-            parent.tabs.delete(this)
-            parent.fitTabWidth()
-        },
-        onstate({ changed, current, previous }) {
-            if (!previous) return
-            if (changed.parent) {
-                previous.parent && previous.parent.tabs.delete(this)
-                current.parent && current.parent.tabs.add(this)
-            }
-        },
-        data() {
-            return {
-                icon: 'l-python-icon',
-                name: '',
-                active: false,
-                view: null, // the associated tab view
-                panel: null,
-                parent: null,
-                clean: true,
-                labeled: true,
-                padding: 0
-            }
-        },
-        methods: {
-            activate() {
-                this.get().panel.activateView(this.get().view)
-            },
-            close() {
-                this.get().panel.closeView(this.get().view)
-            },
-            mouseEnter() {
-                const { padding, labeled } = this.get()
-                if (padding && labeled)
-                    return
-                g.tooltip.mouseEnterListener(event)
-            },
-            mouseLeave() {
-                g.tooltip.mouseLeaveListener(event)
-            },
-            getIndex() {
-                let node = this.refs.tab
-                let index = 0
-                while (node) {
-                    index++
-                    node = node.previousElementSibling
-                }
-                return index
-            },
-            getInternalWidth() {
-                const textWidth = this.refs.text ? this.refs.text.scrollWidth : 0
-                return this.refs.icon.scrollWidth + textWidth
-            },
-            forceSetWidth(x) {
-                this.set({
-                    padding: 0
-                })
-                this.refs.tab.style.width = `${x}px`
-            },
-            autoWidth() {
-                this.refs.tab.style.width = ''
-            }
+    import g from '../lib/Globals'
+    
+    export let active = false,
+        clean = true,
+        icon = 'l-python-icon',
+        id,
+        name = '',
+        padding = 0,
+        panel = null,
+        tab = null,
+        type = FILE,
+        view = null
+
+    let iconSpan,
+        text
+
+    const dispatch = createEventDispatcher()
+
+    onDestroy(() => {
+        dispatch('tabDestroyed', { id })
+    })
+
+    export function activate() {
+        if (type === FILE) {
+            g.panelMiddle.activateFile(view.filePath)
+        } else {
+            view.active = true
         }
     }
 
+    export function close() {
+        dispatch('requestTabClose', { view })
+    }
+
+    export function mouseEnter(event) {
+        if (padding && type === FILE)
+            return
+        g.tooltip.mouseEnterListener(event)
+    }
+
+    export const mouseLeave = () => {
+        g.tooltip.mouseLeaveListener(event)
+    }
+
+    export function getIndex() {
+        let node = tab
+        let index = 0
+        while (node) {
+            index++
+            node = node.previousElementSibling
+        }
+        return index
+    }
+
+    export function getInternalWidth() {
+        const textWidth = text ? text.scrollWidth : 0
+        return iconSpan.scrollWidth + textWidth
+    }
+
+    export function forceSetWidth(x) {
+        padding = 0
+        tab.style.width = `${x}px`
+    }
+
+    export function autoWidth() {
+        tab.style.width = ''
+    }
 </script>
+

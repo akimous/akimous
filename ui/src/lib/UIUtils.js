@@ -1,4 +1,8 @@
 import throttle from 'lodash.throttle'
+import { tick } from 'svelte'
+
+import g from './Globals'
+import { setProjectState } from './ConfigManager'
 
 function dragElement(element) {
     let xDiff = 0,
@@ -47,7 +51,9 @@ function roundCorners(corners) {
     return `border-radius: ${c(0)} ${c(1)} ${c(2)} ${c(3)};`
 }
 
-function makeScrollable(component, target) {
+async function makeScrollable(componentName, target) {
+    await tick()
+    const component = g[componentName]
     if (!component.keyEventHandler)
         component.keyEventHandler = {
             handleKeyEvent() {
@@ -85,8 +91,26 @@ function makeScrollable(component, target) {
     }
 }
 
+function onTabChangeFactory(tabBar, children, panel) {
+    function onTabChange({ detail }) {
+        if (detail.active) {
+            for (const [name, view] of Object.entries(children)) {
+                if (name !== detail.id && view) {
+                    view.$set({ active: false })
+                }
+            }
+            // no need to save panel middle, because it is already handled by ActivateEditor
+            if (g.ready && panel) 
+                setProjectState('activePanels', { [panel]: detail.id })
+        }
+        tabBar.updateTabIndicator(detail)
+    }
+    return onTabChange
+}
+
 export {
     dragElement,
     roundCorners,
     makeScrollable,
+    onTabChangeFactory,
 }

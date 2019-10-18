@@ -1,98 +1,98 @@
 {#if open}
-<div ref:self id="keyboard-control-hint">
+<div bind:this={self} id="keyboard-control-hint">
     <div id="hint-description">{@html description}</div>
     <ul class="row">
-        <li class="key fn" id="key-Escape" on:mouseover="showDescription('Escape')">esc</li>
-        <li class="key fn" id="key-F1" on:mouseover="showDescription('F1')">F1</li>
-        <li class="key fn" id="key-F2" on:mouseover="showDescription('F2')">F2</li>
-        <li class="key fn" id="key-F3" on:mouseover="showDescription('F3')">F3</li>
-        <li class="key fn" id="key-F4" on:mouseover="showDescription('F4')">F4</li>
-        <li class="key fn" id="key-F5" on:mouseover="showDescription('F5')">F5</li>
-        <li class="key fn" id="key-F6" on:mouseover="showDescription('F6')">F6</li>
-        <li class="key fn" id="key-F7" on:mouseover="showDescription('F7')">F7</li>
-        <li class="key fn" id="key-F8" on:mouseover="showDescription('F8')">F8</li>
-        <li class="key fn" id="key-F9" on:mouseover="showDescription('F9')">F9</li>
-        <li class="key fn" id="key-F10" on:mouseover="showDescription('F10')">F10</li>
-        <li class="key fn" id="key-F11" on:mouseover="showDescription('F11')">F11</li>
-        <li class="key fn" id="key-F12" on:mouseover="showDescription('F12')">F12</li>
-        <li class="key fn" id="key-Delete" on:mouseover="showDescription('Delete')">{@html keys[mode].Delete}</li>
+        <li class="key fn" id="key-Escape" on:mouseover="{() => showDescription('Escape')}">esc</li>
+        <li class="key fn" id="key-F1" on:mouseover="{() => showDescription('F1')}">F1</li>
+        <li class="key fn" id="key-F2" on:mouseover="{() => showDescription('F2')}">F2</li>
+        <li class="key fn" id="key-F3" on:mouseover="{() => showDescription('F3')}">F3</li>
+        <li class="key fn" id="key-F4" on:mouseover="{() => showDescription('F4')}">F4</li>
+        <li class="key fn" id="key-F5" on:mouseover="{() => showDescription('F5')}">F5</li>
+        <li class="key fn" id="key-F6" on:mouseover="{() => showDescription('F6')}">F6</li>
+        <li class="key fn" id="key-F7" on:mouseover="{() => showDescription('F7')}">F7</li>
+        <li class="key fn" id="key-F8" on:mouseover="{() => showDescription('F8')}">F8</li>
+        <li class="key fn" id="key-F9" on:mouseover="{() => showDescription('F9')}">F9</li>
+        <li class="key fn" id="key-F10" on:mouseover="{() => showDescription('F10')}">F10</li>
+        <li class="key fn" id="key-F11" on:mouseover="{() => showDescription('F11')}">F11</li>
+        <li class="key fn" id="key-F12" on:mouseover="{() => showDescription('F12')}">F12</li>
+        <li class="key fn" id="key-Delete" on:mouseover="{() => showDescription('Delete')}">{@html keys[mode].Delete}</li>
     </ul>
     <ul class="row">
-        <li class="key" id="key-Backquote" on:mouseover="showDescription('Backquote')">`</li>
-        <li class="key" id="key-Digit1" on:mouseover="showDescription('Digit1')">{@html keys[mode].Digit1}</li>
-        <li class="key" id="key-Digit2" on:mouseover="showDescription('Digit2')">{@html keys[mode].Digit2}</li>
-        <li class="key" id="key-Digit3" on:mouseover="showDescription('Digit3')">{@html keys[mode].Digit3}</li>
-        <li class="key" id="key-Digit4" on:mouseover="showDescription('Digit4')">{@html keys[mode].Digit4}</li>
-        <li class="key" id="key-Digit5" on:mouseover="showDescription('Digit5')">{@html keys[mode].Digit5}</li>
-        <li class="key" id="key-Digit6" on:mouseover="showDescription('Digit6')">{@html keys[mode].Digit6}</li>
-        <li class="key" id="key-Digit7" on:mouseover="showDescription('Digit7')">{@html keys[mode].Digit7}</li>
-        <li class="key" id="key-Digit8" on:mouseover="showDescription('Digit8')">{@html keys[mode].Digit8}</li>
-        <li class="key" id="key-Digit9" on:mouseover="showDescription('Digit9')">9</li>
-        <li class="key" id="key-Digit0" on:mouseover="showDescription('Digit0')">{@html keys[mode].Digit0}</li>
-        <li class="key" id="key-Minus" on:mouseover="showDescription('Minus')">{@html keys[mode].Minus}</li>
-        <li class="key" id="key-Equal" on:mouseover="showDescription('Equal')">{@html keys[mode].Equal}</li>
-        <li class="key" id="key-Backspace" on:mouseover="showDescription('Backspace')">{@html keys[mode].Backspace}</li>
+        <li class="key" id="key-Backquote" on:mouseover="{() => showDescription('Backquote')}">`</li>
+        <li class="key" id="key-Digit1" on:mouseover="{() => showDescription('Digit1')}">{@html keys[mode].Digit1}</li>
+        <li class="key" id="key-Digit2" on:mouseover="{() => showDescription('Digit2')}">{@html keys[mode].Digit2}</li>
+        <li class="key" id="key-Digit3" on:mouseover="{() => showDescription('Digit3')}">{@html keys[mode].Digit3}</li>
+        <li class="key" id="key-Digit4" on:mouseover="{() => showDescription('Digit4')}">{@html keys[mode].Digit4}</li>
+        <li class="key" id="key-Digit5" on:mouseover="{() => showDescription('Digit5')}">{@html keys[mode].Digit5}</li>
+        <li class="key" id="key-Digit6" on:mouseover="{() => showDescription('Digit6')}">{@html keys[mode].Digit6}</li>
+        <li class="key" id="key-Digit7" on:mouseover="{() => showDescription('Digit7')}">{@html keys[mode].Digit7}</li>
+        <li class="key" id="key-Digit8" on:mouseover="{() => showDescription('Digit8')}">{@html keys[mode].Digit8}</li>
+        <li class="key" id="key-Digit9" on:mouseover="{() => showDescription('Digit9')}">9</li>
+        <li class="key" id="key-Digit0" on:mouseover="{() => showDescription('Digit0')}">{@html keys[mode].Digit0}</li>
+        <li class="key" id="key-Minus" on:mouseover="{() => showDescription('Minus')}">{@html keys[mode].Minus}</li>
+        <li class="key" id="key-Equal" on:mouseover="{() => showDescription('Equal')}">{@html keys[mode].Equal}</li>
+        <li class="key" id="key-Backspace" on:mouseover="{() => showDescription('Backspace')}">{@html keys[mode].Backspace}</li>
     </ul>
     <ul class="row">
-        <li class="key" id="key-Tab" on:mouseover="showDescription('Tab')">⇥</li>
-        <li class="key" id="key-Q" on:mouseover="showDescription('Q')"></li>
-        <li class="key" id="key-W" on:mouseover="showDescription('W')">{@html keys[mode].W}</li>
-        <li class="key" id="key-E" on:mouseover="showDescription('E')">{@html keys[mode].E}</li>
-        <li class="key" id="key-R" on:mouseover="showDescription('R')">{@html keys[mode].R}</li>
-        <li class="key" id="key-T" on:mouseover="showDescription('T')">{@html keys[mode].T}</li>
-        <li class="key" id="key-Y" on:mouseover="showDescription('Y')">{@html keys[mode].Y}</li>
-        <li class="key" id="key-U" on:mouseover="showDescription('U')">{@html keys[mode].U}</li>
-        <li class="key" id="key-I" on:mouseover="showDescription('I')">{@html keys[mode].I}</li>
-        <li class="key" id="key-O" on:mouseover="showDescription('O')">{@html keys[mode].O}</li>
-        <li class="key" id="key-P" on:mouseover="showDescription('P')">{@html keys[mode].P}</li>
-        <li class="key" id="key-BracketLeft" on:mouseover="showDescription('BracketLeft')">{@html keys[mode].BracketLeft}</li>
-        <li class="key" id="key-BracketRight" on:mouseover="showDescription('BracketRight')">{@html keys[mode].BracketRight}</li>
-        <li class="key" id="key-Backslash" on:mouseover="showDescription('Backslash')"></li>
+        <li class="key" id="key-Tab" on:mouseover="{() => showDescription('Tab')}">⇥</li>
+        <li class="key" id="key-Q" on:mouseover="{() => showDescription('Q')}"></li>
+        <li class="key" id="key-W" on:mouseover="{() => showDescription('W')}">{@html keys[mode].W}</li>
+        <li class="key" id="key-E" on:mouseover="{() => showDescription('E')}">{@html keys[mode].E}</li>
+        <li class="key" id="key-R" on:mouseover="{() => showDescription('R')}">{@html keys[mode].R}</li>
+        <li class="key" id="key-T" on:mouseover="{() => showDescription('T')}">{@html keys[mode].T}</li>
+        <li class="key" id="key-Y" on:mouseover="{() => showDescription('Y')}">{@html keys[mode].Y}</li>
+        <li class="key" id="key-U" on:mouseover="{() => showDescription('U')}">{@html keys[mode].U}</li>
+        <li class="key" id="key-I" on:mouseover="{() => showDescription('I')}">{@html keys[mode].I}</li>
+        <li class="key" id="key-O" on:mouseover="{() => showDescription('O')}">{@html keys[mode].O}</li>
+        <li class="key" id="key-P" on:mouseover="{() => showDescription('P')}">{@html keys[mode].P}</li>
+        <li class="key" id="key-BracketLeft" on:mouseover="{() => showDescription('BracketLeft')}">{@html keys[mode].BracketLeft}</li>
+        <li class="key" id="key-BracketRight" on:mouseover="{() => showDescription('BracketRight')}">{@html keys[mode].BracketRight}</li>
+        <li class="key" id="key-Backslash" on:mouseover="{() => showDescription('Backslash')}"></li>
     </ul>
     <ul class="row">
         <li class="key" id="caps">⇪</li>
-        <li class="key" id="key-A" on:mouseover="showDescription('A')"></li>
-        <li class="key" id="key-S" on:mouseover="showDescription('S')">{@html keys[mode].S}</li>
-        <li class="key" id="key-D" on:mouseover="showDescription('D')">{@html keys[mode].D}</li>
-        <li class="key" id="key-F" on:mouseover="showDescription('F')">{@html keys[mode].F}</li>
-        <li class="key" id="key-G" on:mouseover="showDescription('G')">{@html keys[mode].G}</li>
-        <li class="key" id="key-H" on:mouseover="showDescription('H')">{@html keys[mode].H}</li>
-        <li class="key" id="key-J" on:mouseover="showDescription('J')">{@html keys[mode].J}</li>
-        <li class="key" id="key-K" on:mouseover="showDescription('K')">{@html keys[mode].K}</li>
-        <li class="key" id="key-L" on:mouseover="showDescription('L')">{@html keys[mode].L}</li>
-        <li class="key" id="key-Semicolon" on:mouseover="showDescription('Semicolon')">{@html keys[mode].Semicolon}</li>
-        <li class="key" id="key-Quote" on:mouseover="showDescription('Quote')"></li>
-        <li class="key" id="key-Enter" on:mouseover="showDescription('Enter')">⏎</li>
+        <li class="key" id="key-A" on:mouseover="{() => showDescription('A')}"></li>
+        <li class="key" id="key-S" on:mouseover="{() => showDescription('S')}">{@html keys[mode].S}</li>
+        <li class="key" id="key-D" on:mouseover="{() => showDescription('D')}">{@html keys[mode].D}</li>
+        <li class="key" id="key-F" on:mouseover="{() => showDescription('F')}">{@html keys[mode].F}</li>
+        <li class="key" id="key-G" on:mouseover="{() => showDescription('G')}">{@html keys[mode].G}</li>
+        <li class="key" id="key-H" on:mouseover="{() => showDescription('H')}">{@html keys[mode].H}</li>
+        <li class="key" id="key-J" on:mouseover="{() => showDescription('J')}">{@html keys[mode].J}</li>
+        <li class="key" id="key-K" on:mouseover="{() => showDescription('K')}">{@html keys[mode].K}</li>
+        <li class="key" id="key-L" on:mouseover="{() => showDescription('L')}">{@html keys[mode].L}</li>
+        <li class="key" id="key-Semicolon" on:mouseover="{() => showDescription('Semicolon')}">{@html keys[mode].Semicolon}</li>
+        <li class="key" id="key-Quote" on:mouseover="{() => showDescription('Quote')}"></li>
+        <li class="key" id="key-Enter" on:mouseover="{() => showDescription('Enter')}">⏎</li>
     </ul>
     <ul class="row">
-        <li class="key" id="key-ShiftLeft" on:mouseover="showDescription('ShiftLeft')">⇧</li>
-        <li class="key" id="key-Z" on:mouseover="showDescription('Z')">{@html keys[mode].Z}</li>
-        <li class="key" id="key-X" on:mouseover="showDescription('X')">{@html keys[mode].X}</li>
-        <li class="key" id="key-C" on:mouseover="showDescription('C')">{@html keys[mode].C}</li>
-        <li class="key" id="key-V" on:mouseover="showDescription('V')">{@html keys[mode].V}</li>
-        <li class="key" id="key-B" on:mouseover="showDescription('B')">{@html keys[mode].B}</li>
-        <li class="key" id="key-N" on:mouseover="showDescription('N')">{@html keys[mode].N}</li>
-        <li class="key" id="key-M" on:mouseover="showDescription('M')">{@html keys[mode].M}</li>
-        <li class="key" id="key-Comma" on:mouseover="showDescription('Comma')">{@html keys[mode].Comma}</li>
-        <li class="key" id="key-Period" on:mouseover="showDescription('Period')">{@html keys[mode].Period}</li>
-        <li class="key" id="key-Slash" on:mouseover="showDescription('Slash')">{@html keys[mode].Slash}</li>
-        <li class="key" id="key-ShiftRight" on:mouseover="showDescription('ShiftRight')">⇧</li>
+        <li class="key" id="key-ShiftLeft" on:mouseover="{() => showDescription('ShiftLeft')}">⇧</li>
+        <li class="key" id="key-Z" on:mouseover="{() => showDescription('Z')}">{@html keys[mode].Z}</li>
+        <li class="key" id="key-X" on:mouseover="{() => showDescription('X')}">{@html keys[mode].X}</li>
+        <li class="key" id="key-C" on:mouseover="{() => showDescription('C')}">{@html keys[mode].C}</li>
+        <li class="key" id="key-V" on:mouseover="{() => showDescription('V')}">{@html keys[mode].V}</li>
+        <li class="key" id="key-B" on:mouseover="{() => showDescription('B')}">{@html keys[mode].B}</li>
+        <li class="key" id="key-N" on:mouseover="{() => showDescription('N')}">{@html keys[mode].N}</li>
+        <li class="key" id="key-M" on:mouseover="{() => showDescription('M')}">{@html keys[mode].M}</li>
+        <li class="key" id="key-Comma" on:mouseover="{() => showDescription('Comma')}">{@html keys[mode].Comma}</li>
+        <li class="key" id="key-Period" on:mouseover="{() => showDescription('Period')}">{@html keys[mode].Period}</li>
+        <li class="key" id="key-Slash" on:mouseover="{() => showDescription('Slash')}">{@html keys[mode].Slash}</li>
+        <li class="key" id="key-ShiftRight" on:mouseover="{() => showDescription('ShiftRight')}">⇧</li>
     </ul>
     <ul class="row" id="bottomrow">
-        <li class="key" id="key-Fn" on:mouseover="showDescription('Fn')">fn</li>
-        <li class="key" id="key-ControlLeft" on:mouseover="showDescription('ControlLeft')">⌃</li>
-        <li class="key" id="key-AltLeft" on:mouseover="showDescription('AltLeft')">⌥</li>
-        <li class="key" id="key-MetaLeft" on:mouseover="showDescription('MetaLeft')">⌘</li>
-        <li class="key" id="key-Space" on:mouseover="showDescription('Space')"></li>
-        <li class="key" id="key-MetaRight" on:mouseover="showDescription('MetaRight')">⌘</li>
-        <li class="key" id="key-AltRight" on:mouseover="showDescription('AltRight')">⌥</li>
+        <li class="key" id="key-Fn" on:mouseover="{() => showDescription('Fn')}">fn</li>
+        <li class="key" id="key-ControlLeft" on:mouseover="{() => showDescription('ControlLeft')}">⌃</li>
+        <li class="key" id="key-AltLeft" on:mouseover="{() => showDescription('AltLeft')}">⌥</li>
+        <li class="key" id="key-MetaLeft" on:mouseover="{() => showDescription('MetaLeft')}">⌘</li>
+        <li class="key" id="key-Space" on:mouseover="{() => showDescription('Space')}"></li>
+        <li class="key" id="key-MetaRight" on:mouseover="{() => showDescription('MetaRight')}">⌘</li>
+        <li class="key" id="key-AltRight" on:mouseover="{() => showDescription('AltRight')}">⌥</li>
         <ol class="cf">
-            <li class="key" id="key-ArrowLeft" on:mouseover="showDescription('ArrowLeft')">◀</li>
+            <li class="key" id="key-ArrowLeft" on:mouseover="{() => showDescription('ArrowLeft')}">◀</li>
             <li>
-                <i class="key" id="key-ArrowUp" on:mouseover="showDescription('ArrowUp')">▲</i>
-                <i class="key" id="key-ArrowDown" on:mouseover="showDescription('ArrowDown')">▼</i>
+                <i class="key" id="key-ArrowUp" on:mouseover="{() => showDescription('ArrowUp')}">▲</i>
+                <i class="key" id="key-ArrowDown" on:mouseover="{() => showDescription('ArrowDown')}">▼</i>
             </li>
-            <li class="key" id="key-ArrowRight" on:mouseover="showDescription('ArrowRight')">▶</li>
+            <li class="key" id="key-ArrowRight" on:mouseover="{() => showDescription('ArrowRight')}">▶</li>
         </ol>
     </ul>
 </div>
@@ -254,180 +254,158 @@
 
 </style>
 
-
 <script>
-    import g from '../lib/Globals'
     import { dragElement } from '../lib/UIUtils'
+    import { nextFrame } from '../lib/Utils'
     import { config } from '../lib/ConfigManager'
+    
+    export const keys = {
+        normal: {
+            Delete: '<div class="l-red">⌦</div>',
+            Backspace: '<div class="l-red">⌫</div>',
 
-    export default {
-        components: {},
-        oncreate() {
-            g.keyboardControlHint = this
-            this.set({
-                description: this.get().descriptions.normal.Space
-            })
-        },
-        onupdate({ changed, current }) {
-            if (changed.open && g.toolbar) {
-                if (current.open) {
-                    dragElement(this.refs.self)
-                }
-            }
-        },
-        data() {
-            return {
-                open: config.keymap.keymapHint,
-                mode: 'normal',
-                description: '',
-                keys: {
-                    normal: {
-                        Delete: '<div class="l-red">⌦</div>',
-                        Backspace: '<div class="l-red">⌫</div>',
+            Digit1: '<div class="l-sandybrown">1</div>',
+            Digit2: '<div class="l-sandybrown">2</div>',
+            Digit3: '<div class="l-sandybrown">3</div>',
+            Digit4: '<div class="l-sandybrown">4</div>',
+            Digit5: '<div class="l-sandybrown">5</div>',
+            Digit6: '<div class="l-sandybrown">6</div>',
+            Digit7: '<div class="l-sandybrown">7</div>',
+            Digit8: '<div class="l-red bigger">∗</div>',
+            Digit0: '<div class="l-magenta">++</div>',
+            Minus: '<div class="l-magenta">-</div>',
+            Equal: '<div class="l-magenta">+</div>',
 
-                        Digit1: '<div class="l-sandybrown">1</div>',
-                        Digit2: '<div class="l-sandybrown">2</div>',
-                        Digit3: '<div class="l-sandybrown">3</div>',
-                        Digit4: '<div class="l-sandybrown">4</div>',
-                        Digit5: '<div class="l-sandybrown">5</div>',
-                        Digit6: '<div class="l-sandybrown">6</div>',
-                        Digit7: '<div class="l-sandybrown">7</div>',
-                        Digit8: '<div class="l-red bigger">∗</div>',
-                        Digit0: '<div class="l-magenta">++</div>',
-                        Minus: '<div class="l-magenta">-</div>',
-                        Equal: '<div class="l-magenta">+</div>',
+            W: '<div class="bigger l-red">⤉</div>',
+            E: '<div class="bigger lower l-orange">⇞</div>',
+            R: '<div class="bigger l-yellow">—</div>',
+            T: '<i class="fas fa-square l-yellow"></i>',
+            Y: '<div class="bigger l-green">⇱</div>',
+            U: '<div class="two-lines l-green">▲<br>x5</div>',
+            I: '<div class="l-blue">▲</div>',
+            O: '<div class="two-lines l-green">▼<br>x5</div>',
+            P: '<div class="bigger l-green">⇲</div>',
+            BracketLeft: '<div class="l-olive"><b>[</b></div>',
+            BracketRight: '<div class="l-olive"><b>]</b></div>',
 
-                        W: '<div class="bigger l-red">⤉</div>',
-                        E: '<div class="bigger lower l-orange">⇞</div>',
-                        R: '<div class="bigger l-yellow">—</div>',
-                        T: '<i class="fas fa-square l-yellow"></i>',
-                        Y: '<div class="bigger l-green">⇱</div>',
-                        U: '<div class="two-lines l-green">▲<br>x5</div>',
-                        I: '<div class="l-blue">▲</div>',
-                        O: '<div class="two-lines l-green">▼<br>x5</div>',
-                        P: '<div class="bigger l-green">⇲</div>',
-                        BracketLeft: '<div class="l-olive"><b>[</b></div>',
-                        BracketRight: '<div class="l-olive"><b>]</b></div>',
+            S: '<div class="bigger l-red">⤈</div>',
+            D: '<div class="bigger lower l-orange">⇟</div>',
+            F: '<i class="fas fa-mouse-pointer l-yellow"></i>',
+            G: '<b><div class="l-yellow">{ }</div></b>',
+            H: '<i class="fas fa-fast-backward l-green"></i>',
+            J: '<div class="l-blue">◀</div>',
+            K: '<div class="l-blue">▼</div>',
+            L: '<div class="l-blue">▶</div>',
+            Semicolon: '<i class="fas fa-fast-forward l-green"></i>',
 
-                        S: '<div class="bigger l-red">⤈</div>',
-                        D: '<div class="bigger lower l-orange">⇟</div>',
-                        F: '<i class="fas fa-mouse-pointer l-yellow"></i>',
-                        G: '<b><div class="l-yellow">{ }</div></b>',
-                        H: '<i class="fas fa-fast-backward l-green"></i>',
-                        J: '<div class="l-blue">◀</div>',
-                        K: '<div class="l-blue">▼</div>',
-                        L: '<div class="l-blue">▶</div>',
-                        Semicolon: '<i class="fas fa-fast-forward l-green"></i>',
+            Z: '<b><span class="l-magenta">|</span> ||</b>',
+            X: '<b><span class="l-blue">|</span> ||</b>',
+            C: '<b>| <span class="l-blue">|</span> |</b>',
+            V: '<b>|| <span class="l-blue">|</span></b>',
+            B: '<b>|| <span class="l-magenta">|</span></b>',
 
-                        Z: '<b><span class="l-magenta">|</span> ||</b>',
-                        X: '<b><span class="l-blue">|</span> ||</b>',
-                        C: '<b>| <span class="l-blue">|</span> |</b>',
-                        V: '<b>|| <span class="l-blue">|</span></b>',
-                        B: '<b>|| <span class="l-magenta">|</span></b>',
-
-                        N: '',
-                        M: '<div class="two-lines l-ao">◀<br>sub</div>',
-                        Comma: '<div class="l-purple">℄</div>',
-                        Period: '<div class="two-lines l-ao">▶<br>sub</div>',
-                        Slash: '',
-                    }
-                },
-                descriptions: {
-                    normal: {
-                        Delete: 'Delete word after cursor',
-                        Backspace: 'Delete word before cursor',
-
-                        Digit1: 'Select the 1st item in auto-completion',
-                        Digit2: 'Select the 2nd item in auto-completion',
-                        Digit3: 'Select the 3rd item in auto-completion',
-                        Digit4: 'Select the 4th item in auto-completion',
-                        Digit5: 'Select the 5th item in auto-completion',
-                        Digit6: 'Select the 6th item in auto-completion',
-                        Digit7: 'Select the 7th item in auto-completion',
-                        Digit8: 'Delete sub-word on the left',
-                        Digit0: 'Unfold all code blocks',
-                        Minus: 'Fold the code block',
-                        Equal: 'Unfold the code block',
-
-                        W: 'Move Line Up',
-                        E: 'Scroll Up',
-                        R: 'Select Line',
-                        T: 'Select Block',
-                        Y: 'Move the cursor to the start of the document',
-                        U: 'Move the cursor up by 5 lines',
-                        I: 'Move the cursor up by a line',
-                        O: 'Move the cursor down by 5 lines',
-                        P: 'Move the cursor to the end of the document',
-                        BracketLeft: 'Move the cursor to the opening braces/brackets/curly braces',
-                        BracketRight: 'Move the cursor to the closing braces/brackets/curly braces',
-
-                        S: 'Move line down',
-                        D: 'Scroll down',
-                        F: 'Select word (incremental selection)',
-                        G: 'Select between braces/brackets/curly braces',
-                        H: 'Move the cursor to the start of the line',
-                        J: 'Move the cursor left by a word',
-                        K: 'Move the cursor down by a line',
-                        L: 'Move the cursor right by a word',
-                        Semicolon: 'Move the cursor to the end of the line',
-
-                        Z: 'Toggle auto-hide of the left panel',
-                        X: 'Focus on the left panel',
-                        C: 'Focus on the editor',
-                        V: 'Focus on the right panel',
-                        B: 'Toggle auto-hide of the right panel',
-
-                        N: '',
-                        M: 'Move the cursor left by a sub-word',
-                        Comma: 'Move the cursor to the center line in the viewport',
-                        Period: 'Move the cursor right by a sub-word',
-                        Slash: '',
-
-                        Space: '<div class="small">Hold down the space bar and tap on one of the keys with colored icon to execute the command.</div>'
-                    }
-                }
-            }
-        },
-        methods: {
-            showDescription(key) {
-                const { open, mode, descriptions } = this.get()
-                if (!open) return
-                const description = descriptions[mode][key]
-                for (const element of document.querySelectorAll('#keyboard-control-hint .active')) {
-                    element.classList.remove('active')
-                }
-                if (!description) {
-                    this.set({
-                        description: descriptions.normal.Space
-                    })
-                    return
-                }
-                this.set({ description })
-                document.getElementById(`key-${key}`).classList.add('active')
-            },
-            highlight(key) {
-                const { open } = this.get()
-                if (!open) return
-                const element = document.getElementById(`key-${key}`)
-                element.classList.remove('highlight')
-                requestAnimationFrame(() => {
-                    element.classList.add('highlight')
-                })
-            },
-            highlightModifier(key) {
-                const { open } = this.get()
-                if (!open) return
-                const element = document.getElementById(`key-${key}`)
-                if (element.classList.contains('persistent-highlight')) return
-                element.classList.add('persistent-highlight')
-            },
-            dimModifier(key) {
-                const { open } = this.get()
-                if (!open) return
-                const element = document.getElementById(`key-${key}`)
-                element.classList.remove('persistent-highlight')
-            }
+            N: '',
+            M: '<div class="two-lines l-ao">◀<br>sub</div>',
+            Comma: '<div class="l-purple">℄</div>',
+            Period: '<div class="two-lines l-ao">▶<br>sub</div>',
+            Slash: '',
         }
     }
+    export const descriptions = {
+        normal: {
+            Delete: 'Delete word after cursor',
+            Backspace: 'Delete word before cursor',
 
+            Digit1: 'Select the 1st item in auto-completion',
+            Digit2: 'Select the 2nd item in auto-completion',
+            Digit3: 'Select the 3rd item in auto-completion',
+            Digit4: 'Select the 4th item in auto-completion',
+            Digit5: 'Select the 5th item in auto-completion',
+            Digit6: 'Select the 6th item in auto-completion',
+            Digit7: 'Select the 7th item in auto-completion',
+            Digit8: 'Delete sub-word on the left',
+            Digit0: 'Unfold all code blocks',
+            Minus: 'Fold the code block',
+            Equal: 'Unfold the code block',
+
+            W: 'Move Line Up',
+            E: 'Scroll Up',
+            R: 'Select Line',
+            T: 'Select Block',
+            Y: 'Move the cursor to the start of the document',
+            U: 'Move the cursor up by 5 lines',
+            I: 'Move the cursor up by a line',
+            O: 'Move the cursor down by 5 lines',
+            P: 'Move the cursor to the end of the document',
+            BracketLeft: 'Move the cursor to the opening braces/brackets/curly braces',
+            BracketRight: 'Move the cursor to the closing braces/brackets/curly braces',
+
+            S: 'Move line down',
+            D: 'Scroll down',
+            F: 'Select word (incremental selection)',
+            G: 'Select between braces/brackets/curly braces',
+            H: 'Move the cursor to the start of the line',
+            J: 'Move the cursor left by a word',
+            K: 'Move the cursor down by a line',
+            L: 'Move the cursor right by a word',
+            Semicolon: 'Move the cursor to the end of the line',
+
+            Z: 'Toggle auto-hide of the left panel',
+            X: 'Focus on the left panel',
+            C: 'Focus on the editor',
+            V: 'Focus on the right panel',
+            B: 'Toggle auto-hide of the right panel',
+
+            N: '',
+            M: 'Move the cursor left by a sub-word',
+            Comma: 'Move the cursor to the center line in the viewport',
+            Period: 'Move the cursor right by a sub-word',
+            Slash: '',
+
+            Space: '<div class="small">Hold down the space bar and tap on one of the keys with colored icon to execute the command.</div>'
+        }
+    }
+    
+    export let description = descriptions.normal.Space,
+        mode = 'normal',
+        open = config.keymap.keymapHint
+    
+    let self
+    
+    $: open && nextFrame(() => dragElement(self))
+
+    export function showDescription(key) {
+        if (!open) return
+        description = descriptions[mode][key]
+        for (const element of document.querySelectorAll('#keyboard-control-hint .active')) {
+            element.classList.remove('active')
+        }
+        if (!description) {
+            description = descriptions.normal.Space
+            return
+        }
+        document.getElementById(`key-${key}`).classList.add('active')
+    }
+
+    export function highlight(key) {
+        if (!open) return
+        const element = document.getElementById(`key-${key}`)
+        element.classList.remove('highlight')
+        requestAnimationFrame(() => {
+            element.classList.add('highlight')
+        })
+    }
+
+    export function highlightModifier(key) {
+        if (!open) return
+        const element = document.getElementById(`key-${key}`)
+        if (element.classList.contains('persistent-highlight')) return
+        element.classList.add('persistent-highlight')
+    }
+
+    export function dimModifier(key) {
+        if (!open) return
+        const element = document.getElementById(`key-${key}`)
+        element.classList.remove('persistent-highlight')
+    }
 </script>

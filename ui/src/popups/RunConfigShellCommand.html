@@ -1,8 +1,8 @@
 <div class="text-input" class:editing>
     {#if editing}
-    <input ref:input type="text" spellcheck="false" bind:value on:change on:keydown on:blur="commitChange()">
+    <input bind:this={input} type="text" spellcheck="false" bind:value={shellCommands[index]} on:change on:keydown on:blur="{commitChange}">
     {:else}
-    <span>{value}</span>
+    <span>{shellCommands[index]}</span>
     {/if}
 </div>
 
@@ -41,46 +41,28 @@
 
 <script>
     import g from '../lib/Globals'
-
-    export default {
-        components: {},
-        oncreate() {},
-        onstate({ changed, current }) {
-            if (changed.value) {
-                const { shellCommands } = current
-                shellCommands[current.index] = current.value
-
-                if (current.index === shellCommands.length - 1) {
-                    if (current.value.length) {
-                        shellCommands.push('')
-                        g.runConfiguration.set({
-                            shellCommands
-                        })
-                    }
-                }
-            }
-        },
-        data() {
-            return {
-                value: '',
-                placeholder: '',
-                allowWhiteSpace: true,
-                editing: false,
-
-                index: 0,
-                shellCommands: [],
-            }
-        },
-        methods: {
-            commitChange() {
-                const { shellCommands, index, value } = this.get()
-                if (!value.length) {
-                    shellCommands.splice(index, 1)
-                    g.runConfiguration.set({ shellCommands })
-                }
-                g.runConfiguration.saveChanges()
-            }
+    
+    export let allowWhiteSpace = true,
+        editing = false,
+        index = 0,
+        input = '',
+        placeholder = '',
+        shellCommands = []
+    
+    $: {
+        if (index === shellCommands.length - 1 && shellCommands[index]) {
+            shellCommands.push('')
+            g.runConfiguration.$set({ shellCommands })
+        } else if (index === shellCommands.length - 2 && !shellCommands[index]) {
+            shellCommands.pop()
+            g.runConfiguration.$set({ shellCommands })
         }
     }
 
+    function commitChange() {
+        if (!shellCommands[index].length) {
+            shellCommands.splice(index, 1)
+            g.runConfiguration.$set({ shellCommands })
+        }
+    }
 </script>

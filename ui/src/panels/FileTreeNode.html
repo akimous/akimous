@@ -1,18 +1,25 @@
-<div ref:row on:mousedown="onClick()" on:dblclick="onDoubleClick()" on:contextmenu="onContextMenu(event)" class="file-tree-node" class:selected class:hidden-file="name.startsWith('.')" style="padding-left: {0.3 + level}rem;">
-    <span class="icon {icon}"></span> {#if !renaming}
+<div bind:this={row} on:mousedown="{onClick}" on:dblclick="{onDoubleClick}" on:contextmenu="{onContextMenu}" class="file-tree-node" class:selected class:hidden-file="{name.startsWith('.')}" style="padding-left: {0.3 + level}rem;">
+    <span class="icon {icon}"></span> 
+    {#if !renaming}
     <span class="display-name">
         {name}
-    </span> {:else}
-    <input ref:input class="display-name" type="text" spellcheck="false" value="{name}" on:blur="commitRename()"> {/if}
+    </span> 
+    {:else}
+    <input bind:this={input} class="display-name" type="text" spellcheck="false" value="{name}" on:blur="{commitRename}"> 
+    {/if}
 </div>
 
 {#if newNode}
-<svelte:self ref:placeholderNode placeholderMode={true} level={level+isDir} parent={self} isDir={newNode==='dir' } /> {/if}
+<svelte:self bind:this={placeholderNode} placeholderMode={true} level={level+isDir} isDir="{ newNode==='dir' }" on:nodeSelected /> 
+{/if}
 
-<div ref:children>
+<div>
     {#each dirs as i (i.uid)}
-    <svelte:self level={level+1} name={i.name} parent={self} isDir /> {/each} {#each files as i (i.uid)}
-    <svelte:self level={level+1} name={i.name} parent={self} /> {/each}
+    <svelte:self level={level+1} name={i.name} bind:this={children[i.name]} isDir on:nodeSelected /> 
+    {/each} 
+    {#each files as i (i.uid)}
+    <svelte:self level={level+1} name={i.name} bind:this={children[i.name]} on:nodeSelected /> 
+    {/each}
 </div>
 
 
@@ -64,14 +71,7 @@
 
 </style>
 
-
-<script>
-    import g from '../lib/Globals'
-    import { binarySearch, schedule } from '../lib/Utils'
-
-    import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
-    import pressure from 'pressure'
-
+<script context="module">
     const copyPath = {
         text: 'Copy Path',
         icon: 'fas fa-link',
@@ -120,7 +120,7 @@
         text: 'Delete',
         icon: 'fas fa-trash',
         callback: (target) => {
-            target.delete()
+            target.del()
         }
     }, {
         text: 'Show in File Manager',
@@ -130,9 +130,9 @@
         }
     }, copyPath]
     
-    const keyEventHandler = {
+    export const keyEventHandler = {
         handleKeyEvent(e, target) {
-            if (!target.get().renaming) return true
+            if (!target.renaming) return true
             switch (e.key) {
                 case 'Enter':
                     target.commitRename()
@@ -149,311 +149,293 @@
             return true
         }
     }
+</script>
 
-    export default {
-        components: {},
-        oncreate() {
-            this.children = {}
-            this.renamingCommittedCallback = null
+<script>
+    import { onDestroy, onMount, createEventDispatcher, setContext, getContext, tick } from 'svelte'
+    import pressure from 'pressure'
+    
+    import g from '../lib/Globals'
+    import { binarySearch, schedule } from '../lib/Utils'
+    import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
+    
+    const dispatch = createEventDispatcher()
+    export const parent = getContext('parent')
+    function self() {
+        return parent().children[name]
+    }
+    setContext('parent', self)
 
-            // set icon
-            let icon
-            if (this.get().isDir) {
-                icon = fileTypeToIcon['folder']
-            } else {
-                icon = getIconByFileName(this.get().name)
+    export let allowWhiteSpace,
+        children = {},
+        dirs = [],
+        files = [],
+        icon = '',
+        input = '',
+        isDir = false,
+        level = 0,
+        name = '',
+        newNode = null,
+        open = false,
+        placeholderMode = false,
+        placeholderNode = null,
+        renaming = false,
+        renamingCommittedCallback = null,
+        row = null,
+        selected = false
+    
+    let cancelAllSelectionListener
+    
+    $: allowWhiteSpace = renaming
+    $: icon = isDir ? fileTypeToIcon[open ? 'folder-open' : 'folder'] : getIconByFileName(name)
+    
+    export const methods = {
+        newFile: async () => {
+            newNode = 'file'
+            await tick()
+            placeholderNode.methods.rename()
+            placeholderNode.renamingCommittedCallback = path => {
+                g.fileTree.session.send('CreateFile', { path })
+                // select newly created node after file tree updated
+                g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
             }
-            this.set({
-                icon,
-                self: this
+        },
+        newFolder: async () => {
+            newNode = 'dir'
+            await tick()
+            placeholderNode.methods.rename()
+            placeholderNode.renamingCommittedCallback = path => {
+                g.fileTree.session.send('CreateDir', { path })
+                g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
+            }
+        },
+        newModule: async () => {
+            newNode = 'dir'
+            await tick()
+            placeholderNode.methods.rename()
+            placeholderNode.renamingCommittedCallback = path => {
+                g.fileTree.session.send('CreateDir', { path })
+                g.fileTree.session.send('CreateFile', { path: [...path, '__init__.py'] })
+                g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
+            }
+        },
+        findIn() {
+            const path = getPath()
+            if (!isDir) path.pop()
+            g.find.reset()
+            g.find.$set({ 
+                active: true,
+                findInDirectory: path,
+                replaceMode: false,
             })
-
-            schedule(() => {
-                this.cancelAllSelectionListener = g.fileTree.on('cancelAllSelection', () => {
-                    this.set({ selected: false })
-                })
-                pressure.set(this.refs.row, {
-                    startDeepPress: () => { this.rename() }
-                })
+            g.setFocus([g.panelRight, g.find])
+            g.find.findText.focus()
+            g.find.findInDirectory()
+        },
+        replaceIn() {
+            this.findIn()
+            g.find.$set({ replaceMode: true })
+        },
+        rename: async () => {
+            renaming = true
+            await tick()
+            input.focus()
+        },
+        del() {
+            g.fileTree.session.send('Delete', {
+                path: getPath(),
             })
+        }
+    }
+    
+    onMount(() => {
+        schedule(() => {
+            pressure.set(row, {
+                startDeepPress: () => { methods.rename() }
+            })
+        })
 
-            if (this.get().placeholderMode)
-                this.onClick() // select this node if it is a placeholder
+        if (placeholderMode)
+            onClick() // select this node if it is a placeholder
+        dispatch('created', { name, methods })
+    })
 
-            this.keyEventHandler = keyEventHandler
-        },
-        ondestroy() {
-            this.cancelAllSelectionListener && this.cancelAllSelectionListener.cancel()
-            this.removeChildren()
-            if (this.get().selected) {
-                try {
-                    let node = this.sibling(-1)
-                    if (node && node !== this) return node.onClick()
-                    node = this.sibling(1)
-                    if (node && node !== this) return node.onClick()
-                    node = this.get().parent
-                    if (node) return node.onClick()
-                } catch (e) {
-                    // swallow exception
-                }
+    onDestroy(() => {
+        cancelAllSelectionListener && cancelAllSelectionListener.cancel()
+        if (selected) {
+            try {
+                let node = getSibling(-1)
+                if (node && node.name !== name) return node.onClick()
+                node = getSibling(1)
+                if (node && node.name !== name) return node.onClick()
+                node = parent()
+                if (node) return node.onClick()
+            } catch (e) {
+                // swallow exception
             }
-            g.popFocus(this)
-        },
-        onstate({ changed, current, previous }) {
-            if (changed.name) {
-                const { parent } = this.get()
-                if (previous && previous.name) delete parent.children[previous.name]
-                parent.children[current.name] = this
-            } else if (changed.open && current.isDir) {
-                if (current.open) {
-                    this.set({ icon: fileTypeToIcon['folder-open'] })
-                } else {
-                    this.set({ icon: fileTypeToIcon['folder'] })
-                }
-            }
-        },
-        data() {
-            return {
-                name: '',
-                icon: '',
-                level: 0,
-                isDir: false,
-                open: false,
-                selected: false,
-                renaming: false,
+        }
+    })
 
-                // for creating new files or new directories
-                newNode: null, // either null, 'file' or 'dir'
-                placeholderMode: false, // whether this is just a placeholder for naming a new file or a new dir 
+    export function getPath() {
+        const path = [name]
+        let parent_ = parent()
+        let name_ = parent_.name
+        while (name_) {
+            path.push(name_)
+            parent_ = parent_.parent()
+            name_ = parent_.name
+        }
+        return path.reverse()
+    }
 
-                // children
-                dirs: [],
-                files: [],
-                self: this,
-                parent: undefined,
-            }
-        },
-        computed: {
-            allowWhiteSpace: ({ renaming }) => renaming,
-        },
-        methods: {
-            getPath() {
-                const path = [this.get().name]
-                let { parent } = this.get()
-                let { name } = parent.get()
-                while (name) {
-                    path.push(name)
-                    parent = parent.get().parent
-                    name = parent.get().name
-                }
-                return path.reverse()
-            },
-            onClick() {
-                const { selected } = this.get()
-                if (selected) return
-                g.fileTree.fire('cancelAllSelection')
-                this.set({ selected: true })
-                if (event || g.focusStack[0] === g.panelLeft) // avoid focus being stolen on startup
-                    g.setFocus([g.panelLeft, g.fileTree, this])
-            },
-            onDoubleClick() {
-                if (this.get().isDir) {
-                    let { open } = this.get()
-                    open = !open
-                    this.set({ open })
-                    if (open) {
-                        g.fileTree.session.send('OpenDir', {
-                            path: this.getPath(),
-                        })
-                    } else {
-                        this.set({
-                            files: [],
-                            dirs: []
-                        })
-                        g.fileTree.session.send('CloseDir', {
-                            path: this.getPath()
-                        })
-                    }
-                } else {
-                    g.panelMiddle.openFile(this.getPath())
-                }
-
-            },
-            onContextMenu(e) {
-                g.fileTree.fire('cancelAllSelection')
-                this.set({ selected: true })
-                copyPath.clipboardText = this.getAbsolutePath()
-                g.contextMenu.set({
-                    open: true,
-                    x: e.clientX,
-                    y: e.clientY,
-                    items: contextMenu,
-                    caller: this
-                })
-                e.preventDefault()
-            },
-            redraw() {
-                const { dirs, files } = this.get()
-                this.set({
-                    dirs: dirs.sort((a, b) => a.name > b.name),
-                    files: files.sort((a, b) => a.name > b.name)
-                })
-            },
-            removeChildren() {
-                this.set({
-                    dirs: [],
-                    files: []
-                })
-            },
-            rename() {
-                this.set({ renaming: true })
-                this.refs.input.focus()
-            },
-            commitRename() {
-                const { renaming, parent } = this.get()
-                if (!renaming) return // prevent event being triggered twice (one from enter, one from blur)
-                if (this.refs.input.value !== this.get().name && this.refs.input.value.length > 0) {
-                    if (this.get().placeholderMode) {
-                        this.set({ name: this.refs.input.value })
-                        const path = this.getPath()
-                        const { isDir } = parent.get()
-                        if (!isDir)
-                            path.splice(-2, 1) // remove if its parent is a file, not the real parent
-                        if (this.renamingCommittedCallback)
-                            this.renamingCommittedCallback(path)
-                    } else {
-                        g.fileTree.session.send('Rename', {
-                            path: this.getPath(),
-                            newName: this.refs.input.value
-                        })
-                    }
-                }
-                this.endRenaming()
-            },
-            endRenaming() {
-                if (this.get().placeholderMode) {
-                    this.get().parent.set({ newNode: null })
-                } else {
-                    this.set({ renaming: false })
-                }
-            },
-            newFile() {
-                this.set({ newNode: 'file' })
-                this.refs.placeholderNode.rename()
-                this.refs.placeholderNode.renamingCommittedCallback = path => {
-                    g.fileTree.session.send('CreateFile', { path })
-                    // select newly created node after file tree updated
-                    g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
-                }
-            },
-            newFolder() {
-                this.set({ newNode: 'dir' })
-                this.refs.placeholderNode.rename()
-                this.refs.placeholderNode.renamingCommittedCallback = path => {
-                    g.fileTree.session.send('CreateDir', { path })
-                    g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
-                }
-            },
-            newModule() {
-                this.set({ newNode: 'dir' })
-                this.refs.placeholderNode.rename()
-                this.refs.placeholderNode.renamingCommittedCallback = path => {
-                    g.fileTree.session.send('CreateDir', { path })
-                    g.fileTree.session.send('CreateFile', { path: [...path, '__init__.py'] })
-                    g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
-                }
-            },
-            delete() {
-                g.fileTree.session.send('Delete', {
-                    path: this.getPath(),
-                })
-            },
-            sibling(direction) {
-                const { parent, isDir } = this.get()
-                const { files, dirs } = parent.get()
-                const list = isDir ? dirs : files
-                const currentIndex = binarySearch(list, this.get().name)
-
-                let newList = list
-                let newIndex = currentIndex + (direction > 0 ? 1 : -1)
-                if (direction > 0 && newIndex >= list.length) {
-                    if (!isDir) return this
-                    if (files.length) {
-                        newList = files
-                        newIndex = 0
-                    } else return this
-                } else if (direction < 0 && newIndex < 0) {
-                    if (isDir) return this
-                    if (dirs.length) {
-                        newList = dirs
-                        newIndex = dirs.length - 1
-                    } else return this
-                }
-                const nextNodeName = newList[newIndex].name
-                return parent.children[nextNodeName]
-            },
-            firstChild() {
-                const { files, dirs } = this.get()
-                if (dirs.length) return this.children[dirs[0].name]
-                if (files.length) return this.children[files[0].name]
-                return null
-            },
-            lastChild() {
-                const { files, dirs } = this.get()
-                if (files.length) return this.children[files[files.length - 1].name]
-                if (dirs.length) return this.children[dirs[dirs.length - 1].name]
-                return null
-            },
-            neighbor(direction) {
-                const { parent } = this.get()
-                if (direction > 0) {
-                    const firstChild = this.firstChild()
-                    if (firstChild) return firstChild
-                    const sibling = this.sibling(1)
-                    if (sibling && sibling !== this) return sibling
-                    if (!parent.sibling) return null
-                    return parent.sibling(1)
-                } else {
-                    const sibling = this.sibling(-1)
-                    if (!sibling || sibling === this) return parent
-                    let node = sibling
-                    while (Object.keys(node.children).length) {
-                        const lastChild = node.lastChild()
-                        if (!lastChild) break
-                        node = lastChild
-                    }
-                    return node
-                }
-            },
-            findIn() {
-                const path = this.getPath()
-                if (!this.get().isDir) path.pop()
-                g.find.reset()
-                g.find.set({ 
-                    findInDirectory: path,
-                    replaceMode: false,
-                })
-                g.panelRight.activateView(g.panelRight.refs.find)
-                g.setFocus([g.panelRight, g.find])
-                g.find.refs.findText.focus()
-                g.find.findInDirectory()
-            },
-            replaceIn() {
-                this.findIn()
-                g.find.set({ replaceMode: true })
-            },
-            openInFileManager() {
-                g.fileTree.session.send('OpenInFileManager', {
-                    path: this.getPath(),
-                })
-            },
-            getAbsolutePath() {
-                const path = g.projectRoot.concat(this.getPath())
-                let pathString = path.join(g.pathSeparator)
-                pathString = pathString.replace(g.pathSeparator + g.pathSeparator, g.pathSeparator)
-                return pathString
-            }
+    export function onClick() {
+        if (selected) return
+        dispatch('nodeSelected', getPath())
+        selected = true
+        if (event || g.focusStack[0] === g.panelLeft) { // avoid focus being stolen on startup
+            const _self = self() // might be undefined when renaming
+            if (_self)
+                g.setFocus([g.panelLeft, g.fileTree, _self])
         }
     }
 
+    export function onDoubleClick() {
+        const path = getPath()
+        if (isDir) {
+            open = !open
+            if (open) {
+                g.fileTree.session.send('OpenDir', { path })
+            } else {
+                files = []
+                dirs = []
+                g.fileTree.session.send('CloseDir', { path: getPath() })
+            }
+        } else {
+            g.panelMiddle.openFile(path)
+        }
+    }
+
+    export function onContextMenu(e) {
+        dispatch('nodeSelected', getPath())
+        selected = true
+        copyPath.clipboardText = getAbsolutePath()
+        g.contextMenu.$set({
+            open: true,
+            x: e.clientX,
+            y: e.clientY,
+            items: contextMenu,
+            target: methods
+        })
+        e.preventDefault()
+    }
+
+    export function redraw() {
+        dirs = dirs.sort((a, b) => a.name > b.name)
+        files = files.sort((a, b) => a.name > b.name)
+    }
+
+    export function removeChildren() {
+        dirs = []
+        files = []
+    }
+
+    export function commitRename() {
+        if (!renaming) return // prevent event being triggered twice (one from enter, one from blur)
+        if (input.value !== name && input.value.length > 0) {
+            if (placeholderMode) {
+                name = input.value
+                const path = getPath()
+                const { isDir } = parent
+                if (!isDir)
+                    path.splice(-2, 1) // remove if its parent is a file, not the real parent
+                if (renamingCommittedCallback)
+                    renamingCommittedCallback(path)
+            } else {
+                g.fileTree.session.send('Rename', {
+                    path: getPath(),
+                    newName: input.value
+                })
+            }
+        }
+        endRenaming()
+    }
+
+    export function endRenaming() {
+        if (placeholderMode) {
+            parent().$set({ newNode: null })
+        } else {
+            renaming = false
+        }
+    }
+
+    export function getSibling(direction) {
+        const parent_ = parent()
+        const { files, dirs } = parent_
+        const list = isDir ? dirs : files
+        const currentIndex = binarySearch(list, name)
+
+        let newList = list
+        let newIndex = currentIndex + (direction > 0 ? 1 : -1)
+        if (direction > 0 && newIndex >= list.length) {
+            if (!isDir) return self()
+            if (files.length) {
+                newList = files
+                newIndex = 0
+            } else return self()
+        } else if (direction < 0 && newIndex < 0) {
+            if (isDir) return self()
+            if (dirs.length) {
+                newList = dirs
+                newIndex = dirs.length - 1
+            } else return self()
+        }
+        const nextNodeName = newList[newIndex].name
+        return parent_.children[nextNodeName]
+    }
+
+    export function getFirstChild() {
+        if (dirs.length) return children[dirs[0].name]
+        if (files.length) return children[files[0].name]
+        return null
+    }
+
+    export function getLastChild() {
+        if (files.length) return children[files[files.length - 1].name]
+        if (dirs.length) return children[dirs[dirs.length - 1].name]
+        return null
+    }
+
+    export function neighbor(direction) {
+        if (direction > 0) {
+            const firstChild = getFirstChild()
+            if (firstChild) return firstChild
+            const sibling = getSibling(1)
+            if (sibling && sibling !== self()) return sibling
+            if (!parent.sibling) return null
+            return parent.getSibling(1)
+        } else {
+            const sibling = getSibling(-1)
+            if (!sibling || sibling === self()) return parent()
+            let node = sibling
+            while (Object.keys(node.children).length) {
+                const lastChild = node.getLastChild()
+                if (!lastChild) break
+                node = lastChild
+            }
+            return node
+        }
+    }
+
+    export function openInFileManager() {
+        g.fileTree.session.send('OpenInFileManager', {
+            path: getPath(),
+        })
+    }
+
+    export function getAbsolutePath() {
+        const path = g.projectRoot.concat(getPath())
+        let pathString = path.join(g.pathSeparator)
+        pathString = pathString.replace(g.pathSeparator + g.pathSeparator, g.pathSeparator)
+        return pathString
+    }
 </script>

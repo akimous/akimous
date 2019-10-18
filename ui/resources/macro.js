@@ -37,7 +37,7 @@ function getTargetVariableOrStatement(cm) {
 
 /**
  * Generate a macro callback function that can be used for print/log/... etc.
- * @param   {function} f (event, macroFormat, target) => string
+ * @param   {function} f (event, macroFormatWithShift, target) => string
  * @returns {function} a function that can be called in executeMacro(macro)
  */
 function printerFactory(f) {
@@ -47,11 +47,11 @@ function printerFactory(f) {
 
         const lineContent = cm.getLine(cursor.line)
         const isEmptyLine = /^\s*$/.test(lineContent)
-        const { macroFormat } = macroPanel.get()
-        const insertion = f(event, macroFormat, target)
+        const { macroFormatWithShift } = macroPanel
+        const insertion = f(event, macroFormatWithShift, target)
 
         cm.operation(() => {
-            cm.execCommand('goLineEnd')
+            cm.setCursor(cursor.line, lineContent.length)
             if (target.length || !isEmptyLine)
                 cm.execCommand('newlineAndIndent')
             cursor = cm.getCursor()
@@ -67,9 +67,9 @@ export default [
     {
         hotkey: 'd',
         name: 'logger.debug',
-        callback: printerFactory((event, macroFormat, target) => {
+        callback: printerFactory((event, macroFormatWithShift, target) => {
             if (event.shiftKey) {
-                return `logger.debug('${macroFormat.replace(/\${NAME}/g, target)} %r', ${target})`
+                return `logger.debug('${macroFormatWithShift.replace(/\${NAME}/g, target)} %r', ${target})`
             } else {
                 return `logger.debug(${target})`
             }
@@ -77,9 +77,9 @@ export default [
     }, {
         hotkey: 'i',
         name: 'logger.info',
-        callback: printerFactory((event, macroFormat, target) => {
+        callback: printerFactory((event, macroFormatWithShift, target) => {
             if (event.shiftKey) {
-                return `logger.info('${macroFormat.replace(/\${NAME}/g, target)} %r', ${target})`
+                return `logger.info('${macroFormatWithShift.replace(/\${NAME}/g, target)} %r', ${target})`
             } else {
                 return `logger.info(${target})`
             }
@@ -87,9 +87,9 @@ export default [
     }, {
         hotkey: 'w',
         name: 'logger.warning',
-        callback: printerFactory((event, macroFormat, target) => {
+        callback: printerFactory((event, macroFormatWithShift, target) => {
             if (event.shiftKey) {
-                return `logger.warning('${macroFormat.replace(/\${NAME}/g, target)} %r', ${target})`
+                return `logger.warning('${macroFormatWithShift.replace(/\${NAME}/g, target)} %r', ${target})`
             } else {
                 return `logger.warning(${target})`
             }
@@ -97,9 +97,9 @@ export default [
     }, {
         hotkey: 'e',
         name: 'logger.error',
-        callback: printerFactory((event, macroFormat, target) => {
+        callback: printerFactory((event, macroFormatWithShift, target) => {
             if (event.shiftKey) {
-                return `logger.error('${macroFormat.replace(/\${NAME}/g, target)} %r', ${target})`
+                return `logger.error('${macroFormatWithShift.replace(/\${NAME}/g, target)} %r', ${target})`
             } else {
                 return `logger.error(${target})`
             }
@@ -107,9 +107,9 @@ export default [
     }, {
         hotkey: 'c',
         name: 'logger.critical',
-        callback: printerFactory((event, macroFormat, target) => {
+        callback: printerFactory((event, macroFormatWithShift, target) => {
             if (event.shiftKey) {
-                return `logger.critical('${macroFormat.replace(/\${NAME}/g, target)} %r', ${target})`
+                return `logger.critical('${macroFormatWithShift.replace(/\${NAME}/g, target)} %r', ${target})`
             } else {
                 return `logger.critical(${target})`
             }
@@ -117,9 +117,9 @@ export default [
     }, {
         hotkey: 'x',
         name: 'logger.exception',
-        callback: printerFactory((event, macroFormat, target) => {
+        callback: printerFactory((event, macroFormatWithShift, target) => {
             if (event.shiftKey) {
-                return `logger.exception('${macroFormat.replace(/\${NAME}/g, target)} %r', ${target})`
+                return `logger.exception('${macroFormatWithShift.replace(/\${NAME}/g, target)} %r', ${target})`
             } else {
                 return `logger.exception(${target})`
             }
@@ -127,9 +127,9 @@ export default [
     }, {
         hotkey: 'p',
         name: 'print',
-        callback: printerFactory((event, macroFormat, target) => {
+        callback: printerFactory((event, macroFormatWithShift, target) => {
             if (event.shiftKey) {
-                return `print('${macroFormat.replace(/\${NAME}/g, target)}', ${target})`
+                return `print('${macroFormatWithShift.replace(/\${NAME}/g, target)}', ${target})`
             } else {
                 return `print(${target})`
             }

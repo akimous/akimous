@@ -1,4 +1,4 @@
-<div ref:menuItem on:mousedown="click(event, name)" class="menu-item non-selectable">{name}</div>
+<div bind:this={self} on:mousedown={click} class="menu-item non-selectable">{name}</div>
 
 
 <style>
@@ -14,11 +14,8 @@
 
 </style>
 
-
-<script>
-    import g from '../lib/Globals'
-    import { getRem } from '../lib/Utils'
-
+<script context="module">
+    import { togglePanelAutoHide } from '../LayeredKeyboardControl/LayeredKeyboardControl'
     /* eslint-disable */
     /* Note: following Sublime commands not included in menu
     "Cmd-Left": "goLineStartSmart",
@@ -31,13 +28,13 @@
     "Ctrl-Right": "goSubwordRight",
     */
     /* eslint-enable */
-    const menus = {
+    export const menus = {
         File: [{
             text: 'Open Folder...',
             hotkey: '⌘O',
             icon: 'fas fa-folder-open',
             callback: () => {
-                g.app.set({ openFolder: true })
+                g.app.$set({ openFolder: true })
             }
         }, {
             text: 'Close',
@@ -207,7 +204,19 @@
             text: 'Unfold All',
             hotkey: '␣ 0',
             callback: () => g.CMCommand('unfoldAll')
-        }, ],
+        }, {
+            divider: true
+        }, {
+            text: 'Toggle Left Panel Auto-hide',
+            hotkey: '␣ Z',
+            icon: 'fas fa-caret-square-left',
+            callback: () => togglePanelAutoHide(g.panelLeft)
+        }, {
+            text: 'Toggle Right Panel Auto-hide',
+            hotkey: '␣ B',
+            icon: 'fas fa-caret-square-right',
+            callback: () => togglePanelAutoHide(g.panelRight)
+        }],
         Go: [{
             text: 'Line',
             hotkey: '⌘L',
@@ -241,31 +250,28 @@
             callback: () => window.open('https://akimous.com/doc', '_blank'),
         }, ]
     }
+</script>
 
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {}
-        },
-        methods: {
-            click(e, name) {
-                const { left, bottom } = this.refs.menuItem.getBoundingClientRect()
-                const { items, open } = g.contextMenu.get()
-                if (items === menus[name] && open)
-                    g.contextMenu.set({ open: false })
-                else {
-                    g.contextMenu.set({
-                        open: true,
-                        x: left,
-                        y: bottom + .5 * getRem(),
-                        items: menus[name],
-                        caller: this
-                    })
-                }
-                e.stopPropagation()
-            }
+<script>
+    import g from '../lib/Globals'
+    import { getRem } from '../lib/Utils'
+
+    export let name
+    let self
+    
+    function click(e) {
+        const { left, bottom } = self.getBoundingClientRect()
+        const { items, open } = g.contextMenu
+        if (items === menus[name] && open)
+            g.contextMenu.$set({ open: false })
+        else {
+            g.contextMenu.$set({
+                open: true,
+                x: left,
+                y: bottom + .5 * getRem(),
+                items: menus[name],
+            })
         }
+        e.stopPropagation()
     }
-
 </script>

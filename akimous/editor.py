@@ -28,7 +28,7 @@ from .completion_utilities import is_parameter_of_def
 
 DEBUG = False
 MODEL_NAME = 'v10.model'
-PredictionRow = namedtuple('PredictionRow', ('c', 't', 's'))
+PredictionRow = namedtuple('PredictionRow', ('c', 't', 's', 'p'))
 
 handles = partial(register_handler, 'editor')
 doc_generator = DocGenerator()
@@ -37,6 +37,10 @@ with open_binary('akimous.resources', MODEL_NAME) as f:
     model = joblib.load(f)  # 300 ms
 model.n_jobs = 1
 logger.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
+
+
+def get_relative_path(context):
+    return tuple(context.path.relative_to(context.shared.project_root).parts)
 
 
 async def run_pylint(context, send):
@@ -119,6 +123,11 @@ async def run_pyflakes(context, send):
 
 
 async def warm_up_jedi(context):
+    # Avoid jedi error when the file is empty.
+    if not context.doc:
+        logger.debug('File is empty')
+        return
+
     jedi.Script('\n'.join(context.doc), len(context.doc), 0,
                 str(context.path)).completions()
 
@@ -160,7 +169,7 @@ async def connected(msg, send, context):
     })
     # update opened files
     opened_files = context.shared.project_config['openedFiles']
-    path_tuple = tuple(context.path.parts)
+    path_tuple = get_relative_path(context)
     if path_tuple not in opened_files:
         opened_files.append(path_tuple)
     await activate_editor(msg, send, context)
@@ -181,7 +190,7 @@ async def close(msg, send, context):
     Called when the editor is explicitly closed, not when it is disconnected
     """
     opened_files = context.shared.project_config['openedFiles']
-    opened_files.remove(tuple(context.path.parts))
+    opened_files.remove(get_relative_path(context))
     save_state(context)
 
 
@@ -197,7 +206,7 @@ async def reload(msg, send, context):
 @handles('ActivateEditor')
 async def activate_editor(msg, send, context):
     context.shared.doc = context.doc
-    context.shared.project_config['activePanels']['middle'] = context.path.parts
+    context.shared.project_config['activePanels']['middle'] = get_relative_path(context)
     save_state(context)
 
 
@@ -246,7 +255,8 @@ async def sync_range(msg, send, context):
     doc[from_line:to_line] = lines
     context.content = '\n'.join(doc)
 
-    for i in range(from_line, to_line):
+    # If total number of lines changed, update from_line and below; otherwise, update changed range.
+    for i in range(from_line, to_line if to_line - from_line == len(lines) else len(doc)):
         context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
 
     if lint:
@@ -257,6 +267,8 @@ async def sync_range(msg, send, context):
 @handles('Predict')
 async def predict(msg, send, context):
     line_number, ch, line_content = msg
+    while len(context.doc) <= line_number:
+        context.doc.append('')
     context.doc[line_number] = line_content
     doc = '\n'.join(context.doc)
     context.content = doc
@@ -295,7 +307,7 @@ async def predict(msg, send, context):
                 # e.g. def something(path): len(p|)
                 # will return "path="
                 result = [
-                    PredictionRow(c=c.name, t=c.type, s=int(s))
+                    PredictionRow(c=c.name, t=c.type, s=int(s), p=c.name_with_symbols[len(c.name):])
                     for c, s in zip(completions, scores)
                 ]
             else:
@@ -325,14 +337,14 @@ async def predict_extra(msg, send, context):
         words = search_prefix(text)
         for i, word in enumerate(words):
             if word not in results:
-                results[word] = PredictionRow(c=word, t='word', s=990 - i)
+                results[word] = PredictionRow(c=word, t='word', s=990 - i, p='')
 
     # 2. existing tokens
     tokens = context.feature_extractor.context.t0map.query_prefix(
         text, line_number)
     for i, token in enumerate(tokens):
         if token not in results:
-            results[token] = PredictionRow(c=token, t='token', s=980 - i)
+            results[token] = PredictionRow(c=token, t='token', s=980 - i, p='')
 
     # 3. segmented words
     if len(results) < 6:
@@ -340,7 +352,7 @@ async def predict_extra(msg, send, context):
         if segmented_words:
             snake = '_'.join(segmented_words)
             if snake not in results:
-                results[snake] = PredictionRow(c=snake, t='word-segment', s=1)
+                results[snake] = PredictionRow(c=snake, t='word-segment', s=1, p='')
 
     await send('ExtraPrediction', {
         'line': line_number,

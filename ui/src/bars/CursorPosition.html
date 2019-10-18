@@ -1,12 +1,12 @@
 <div id="indent-indicator" class="non-selectable">
-    <span ref:switchIndent on:click="switchIndent()" class="tool-bar-button" aria-label="Click to switch between tabs/spaces.">{isMakefile ? 'Tab Size' : indentDisplay}</span>:
+    <span bind:this={indentSwitch} on:click="{switchIndent}" class="tool-bar-button" aria-label="Click to switch between tabs/spaces.">{isMakefile ? 'Tab Size' : indentDisplay}</span>:
     {#if editingIndentSize}
-    <input ref:indentSizeInput id="indent-size-input" type="number" max=12 min=1 step=1 on:blur="commitIndentSize()" value={indentSize}>
+    <input bind:this={indentSizeInput} id="indent-size-input" type="number" max=12 min=1 step=1 on:blur="{commitIndentSize}" value={indentSize}>
     {:else}
-    <span ref:indentSize on:click="editIndentSize()" class="tool-bar-button" aria-label="Click to edit indent size.">{indentSize}</span>
+    <span bind:this={indentSizeDisplay} on:click="{editIndentSize}" class="tool-bar-button" aria-label="Click to edit indent size.">{indentSize}</span>
     {/if}
 </div>
-<div ref:cursorPosition id="cursor-position" class="non-selectable tool-bar-button" aria-label="Cursor Position (line : column)"> {line+1} : {ch} </div>
+<div bind:this={cursorPosition} id="cursor-position" class="non-selectable tool-bar-button" aria-label="Cursor Position (line : column)"> {line+1} : {ch} </div>
 
 <style>
     #cursor-position,
@@ -31,72 +31,59 @@
     }
 
 </style>
-
+   
 
 <script>
+    import { onMount, tick } from 'svelte'
+    
     import g from '../lib/Globals'
-    import { schedule } from '../lib/Utils'
 
-    export default {
-        components: {},
-        oncreate() {
-            g.cursorPosition = this
-            schedule(() => {
-                g.tooltip.register([
-                    this.refs.switchIndent,
-                    this.refs.cursorPosition,
-                ])
-            })
-        },
-        data() {
-            return {
-                indentWithTabs: false,
-                indentSize: 4,
-                editingIndentSize: false,
-                line: 0,
-                ch: 0,
-                isMakefile: false,
-            }
-        },
-        computed: {
-            indentDisplay: ({ indentWithTabs }) => indentWithTabs ? 'Tab Size' : 'Spaces'
-        },
-        onstate({ changed, current }) {
-            if (changed.editingIndentSize && !current.editingIndentSize) {
-                schedule(() => {
-                    g.tooltip.register(this.refs.indentSize)
-                })
-            }
-        },
-        methods: {
-            switchIndent() {
-                const { indentWithTabs, isMakefile } = this.get()
-                if (isMakefile) return
-                this.set({ indentWithTabs: !indentWithTabs })
-                for (const path in g.panelMiddle.pathToEditor) {
-                    const editor = g.panelMiddle.pathToEditor[path]
-                    if (!editor.get().isMakefile)
-                        editor.cm.setOption('indentWithTabs', indentWithTabs)
-                }
-            },
-            editIndentSize() {
-                this.set({ editingIndentSize: true })
-                requestAnimationFrame(() => {
-                    this.refs.indentSizeInput.focus()
-                })
-            },
-            commitIndentSize() {
-                const indentSize = this.refs.indentSizeInput.value
-                this.set({
-                    editingIndentSize: false,
-                    indentSize
-                })
-                for (const path in g.panelMiddle.pathToEditor) {
-                    const editor = g.panelMiddle.pathToEditor[path]
-                    editor.cm.setOption('indentUnit', indentSize)
-                }
-            }
+    export let ch = 0,
+        editingIndentSize = false,
+        indentSize = 4,
+        indentWithTabs = false,
+        isMakefile = false,
+        line = 0
+    
+    let cursorPosition,
+        indentSizeDisplay,
+        indentSizeInput,
+        indentSwitch
+
+    $: indentDisplay = indentWithTabs ? 'Tab Size' : 'Spaces'
+    $: indentSizeDisplay && g.tooltip.register(indentSizeDisplay)
+    
+    onMount(async () => {
+        await tick()
+        g.tooltip.register([
+            indentSwitch,
+            cursorPosition,
+        ])
+    })
+
+    function switchIndent() {
+        if (isMakefile) return
+        indentWithTabs = !indentWithTabs
+        for (const path in g.panelMiddle.pathToEditor) {
+            const editor = g.panelMiddle.pathToEditor[path]
+            if (!editor.isMakefile)
+                editor.cm.setOption('indentWithTabs', indentWithTabs)
         }
     }
 
+    function editIndentSize() {
+        editingIndentSize = true
+        requestAnimationFrame(() => {
+            indentSizeInput.focus()
+        })
+    }
+
+    function commitIndentSize() {
+        const indentSize = indentSizeInput.value
+        editingIndentSize = false
+        for (const path in g.panelMiddle.pathToEditor) {
+            const editor = g.panelMiddle.pathToEditor[path]
+            editor.cm.setOption('indentUnit', indentSize)
+        }
+    }
 </script>

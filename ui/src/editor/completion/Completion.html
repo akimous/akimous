@@ -1,8 +1,10 @@
-<div ref:container class="completion non-selectable" class:gone="!open">
+<div bind:this={container} class="completion non-selectable" class:gone="{!open}">
     {#if passive}
-    <CompletionRow ref:passivePlaceholder parent={null} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
+    <CompletionRow bind:this={passivePlaceholder} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
     {/if}
-    <div ref:completion></div>
+    {#each rows as {text, type, highlight, tail}, i}
+    <CompletionRow bind:this={completionRows[i]} {text} {type} {highlight} keyboardHint={getKeyboardHint(i, passive)} tail={tail||''} index={i} selected={selectedIndex===i} on:completionRowClicked={onCompletionRowClicked}></CompletionRow>
+    {/each}
 </div>
 
 <style>
@@ -26,9 +28,18 @@
 
 </style>
 
+<script context="module">
+    const PASSTHROUGH_COMMANDS = new Set([
+        'home', 'left', 'right', 'end', 'delGroupBefore', 'delGroupAfter',
+    ])
+
+</script>
 
 <script>
+    import { onMount } from 'svelte'
+    
     import g from '../../lib/Globals'
+    import { nextFrame } from '../../lib/utils'
     import CompletionRow from './CompletionRow.html'
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
     import { CLOSED, NORMAL } from './CompletionProvider'
@@ -39,224 +50,217 @@
         'full-statement'
     ])
 
-    export default {
-        components: {
-            CompletionRow
-        },
-        oncreate() {
-            const completion = this.refs.completion
-            const container = this.refs.container
-            this.completionRows = []
-            this.completionRowShortcuts = new Array(9)
-
-            // keep row number of visible rows 1 to 7
-            let lastFVI = 999
-            const scrollHandler = () => {
-                const rowHeight = this.completionRows[0].refs.completionRow.clientHeight
-                const { passive } = this.get()
-                let firstVisibleIndex = Math.floor(container.scrollTop / rowHeight) - passive
-                if (firstVisibleIndex < 0)
-                    firstVisibleIndex = 0
-                if (firstVisibleIndex > this.completionRows.length)
-                    firstVisibleIndex = this.completionRows.length - 1
-                if (lastFVI === firstVisibleIndex) return
-
-                let lastVisibleIndex = firstVisibleIndex + 8
-                if (lastVisibleIndex > this.completionRows.length)
-                    lastVisibleIndex = this.completionRows.length
-                for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-                    const rowNumber = i - firstVisibleIndex + 1
-                    this.completionRows[i].set({
-                        rowNumber
-                    })
-                    this.completionRowShortcuts[rowNumber] = this.completionRows[i]
-                }
-                lastFVI = firstVisibleIndex
-            }
-            container.addEventListener('scroll', scrollHandler, {
-                passive: true
-            })
-
-            this.on('state', ({ changed, current }) => {
-                // Don't merge this with onstate, or the completion selection will break
-                if (changed.rows) {
-                    const rows = current.rows
-                    for (const row of this.completionRows)
-                        row.destroy()
-                    this.completionRows.length = 0
-                    if (rows.length === 0) return
-                    for (const [i, row] of rows.entries()) {
-                        row.index = i
-                        row.rowNumber = i + 1
-                        row.parent = this
-                        const completionRow = new CompletionRow({
-                            target: completion,
-                            data: row
-                        })
-                        this.completionRows.push(completionRow)
-                        this.completionRowShortcuts[row.rowNumber] = completionRow
-                    }
-                    lastFVI = 999
-                    this.set({
-                        selectedCompletionRow: this.completionRows[0]
-                    })
-                }
-            })
-
-            this.keyEventHandler = EventDispatcherFactory({
-                target: this,
-                extraKeyHandler(event, target) {
-                    const { key } = event
-                    if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key)) {
-                        target.enter(null, key)
-                    } else if (/[=[\](){}]/.test(key)) {
-                        target.set({
-                            open: false
-                        })
-                        target.completionProvider.state = CLOSED
-                    } else if (key === 'Escape') {
-                        target.completionProvider.state = CLOSED
-                    }
-                    return true
-                },
-            })
-            
-            const oldCommandHandler = this.keyEventHandler.handleCommand
-            const PASSTHROUGH_COMMANDS = new Set([
-                'home', 'left', 'right', 'end', 'delGroupBefore', 'delGroupAfter',
-            ])
-            this.keyEventHandler.handleCommand = command => {
-                if (PASSTHROUGH_COMMANDS.has(command)) return true
-                oldCommandHandler(command)
-            }
-        },
-        data() {
-            return {
-                open: false,
-                passive: false,
-                rows: [],
-                selectedCompletionRow: null,
-                closable: true
-            }
-        },
-        onstate({ changed, current, previous }) {
-            // Don't merge this with on('stat), or the completion selection will break
-            if (!previous) return
-            if (changed.open) {
-                if (current.open) g.pushFocus(this)
-                else {
-                    g.popFocus(this)
-                    g.docs.set({ completionDoc: null })
-                }
-            }
-            if (changed.selectedCompletionRow) {
-                if (previous.selectedCompletionRow) previous.selectedCompletionRow.set({
-                    selected: false
-                })
-                if (current.selectedCompletionRow) current.selectedCompletionRow.set({
-                    selected: true
-                })
-            }
-            if (changed.open && !current.open)
-                this.completionProvider.state = CLOSED
-        },
-        methods: {
-            bindReferences(editor) {
-                this.editor = editor
-                this.cm = editor.cm
-                this.completionProvider = editor.completionProvider
-            },
-            requestCompletionDocstringIfNeeded(completion) {
-                let name = completion.completion
-                if (name === this.lastRequestedCompletionForDocstring) return
-                if (EXTRA_PREDICTIONS.has(completion.type))
-                    return // don't request docstring if it is not actually a completion
-
-                // remove redundant punctuation
-                const match = name.match(/^[^\d\W]\w*/)
-                if (match)
-                    name = match[0]
-                this.lastRequestedCompletionForDocstring = name
-                this.editor.session.send('GetCompletionDocstring', { name })
-            },
-            setCompletions(rows, firstTriggeredCharPos, type) {
-                const passive = type !== NORMAL
-                if (!rows.length) {
-                    this.set({ open: false })
-                } else {
-                    this.set({ rows, open: true, passive })
-                    this.repositionCompletionWindow(firstTriggeredCharPos)
-                    this.requestCompletionDocstringIfNeeded(rows[0])
-                }
-            },
-            repositionCompletionWindow(pos) {
-                if (!this.get().open)
-                    return
-                const editorElement = this.editor.refs.codeEditor
-                const container = this.refs.container
-
-                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                const coords = this.cm.charCoords(pos, 'window')
-                const charHeight = coords.bottom - coords.top
-
-                const editorArea = editorElement.getBoundingClientRect()
-                const completionArea = container.getBoundingClientRect()
-                const completionHeight = completionArea.bottom - completionArea.top
-
-                let x = coords.left - editorArea.left - 3 * rem
-                let y = coords.bottom - editorArea.top + 1.6 * charHeight
-                if (y + completionHeight > editorArea.bottom) {
-                    y = coords.top - completionHeight - 1.6 * charHeight
-                }
-                container.style.left = `${x}px`
-                container.style.top = `${y}px`
-            },
-            enter(rowNumber, key) {
-                const { open, passive } = this.get()
-                if (!open) return console.error('closed')
-                const row = rowNumber ? this.completionRowShortcuts[rowNumber] : this.get().selectedCompletionRow
-                if (!row) return console.error('no selected completion')
-
-                this.completionProvider.state = CLOSED
-                let { text, tail } = row.get()
-                text = text + tail
-                this.set({ open: false })
-
-                // Don't commit passive completions unless the key is Tab or a number.
-                if (passive && !/\d/.test(key) && key !== 'Tab') {
-                    if (key === 'commit') {
-                        const cursor = this.cm.doc.getCursor()
-                        this.cm.replaceRange(' ', cursor, cursor, '+input')
-                    }
-                    return true // let it propagate
-                }
-
-                this.cm.replaceRange(
-                    text,
-                    this.completionProvider.firstTriggeredCharPos,
-                    this.cm.doc.getCursor(),
-                    '+completion'
-                )
-                if (tail === '()')
-                    this.cm.execCommand('goCharLeft')
-                this.cm.focus()
-            },
-            move(nRows) {
-                const currentIndex = this.get().selectedCompletionRow.get().index
-                const length = this.completionRows.length
-
-                let targetIndex = currentIndex + nRows
-                if (targetIndex >= length) targetIndex = length - 1
-                else if (targetIndex < 0) targetIndex = 0
-
-                const targetRow = this.completionRows[targetIndex]
-                this.requestCompletionDocstringIfNeeded(targetRow.get())
-                this.set({
-                    selectedCompletionRow: targetRow
-                })
-                targetRow.refs.completionRow.scrollIntoViewIfNeeded(false)
-            }
+    export let closable = true,
+        completionProvider = null,
+        keyEventHandler = null,
+        open = false,
+        passive = false,
+        rows = [],
+        selectedIndex = 0
+    
+    let cm,
+        completionRows = {},
+        completionRowShortcuts = new Array(9),
+        container,
+        editor,
+        lastRequestedCompletionForDocstring,
+        me,
+        passivePlaceholder
+    
+    $: rowCount = rows.length
+    $: {
+        if (rows.length) {
+            lastFVI = 999
+            selectedIndex = 0
+            container.scrollTop = 0
+            nextFrame(scrollHandler)
+        }
+    }
+    $: {
+        if (open) {
+            g.pushFocus(me)
+        } else {
+            g.popFocus(me)
+            g.docs.$set({ completionDoc: null })
+            completionProvider && (completionProvider.state = CLOSED)
         }
     }
 
+    onMount(() => {
+        container.addEventListener('scroll', scrollHandler, { passive: true })
+    })
+    
+    // keep row number of visible rows 1 to 7
+    let lastFVI = 999
+    const scrollHandler = () => {
+        const completionRow = completionRows[0]
+        if (!completionRow) return
+        
+        // clean up null rows
+        for (const i in completionRows) {
+            if (!completionRows[i])
+                delete completionRows[i]
+        }
+        const rowHeight = completionRow.row.clientHeight
+        let firstVisibleIndex = Math.floor(container.scrollTop / rowHeight) - passive
+        if (firstVisibleIndex < 0)
+            firstVisibleIndex = 0
+        if (firstVisibleIndex > rowCount)
+            firstVisibleIndex = rowCount - 1
+        if (lastFVI === firstVisibleIndex) return
+
+        let lastVisibleIndex = firstVisibleIndex + 8
+        if (lastVisibleIndex > rowCount)
+            lastVisibleIndex = rowCount
+        for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+            const rowNumber = i - firstVisibleIndex + 1
+            completionRows[i].$set({ rowNumber })
+            completionRowShortcuts[rowNumber] = completionRows[i]
+        }
+        lastFVI = firstVisibleIndex
+    }
+    
+    function onCompletionRowClicked({ detail }) {
+        console.log('onCompletionRowClicked', detail)
+        selectedIndex = detail.index
+        enter()
+    }
+    
+    export function bindReferences(editor_) {
+        editor = editor_
+        cm = editor.cm
+        completionProvider = editor.completionProvider
+        me = editor.completion
+        
+        keyEventHandler = EventDispatcherFactory({
+            target: me,
+            extraKeyHandler(event, target) {
+                const { key } = event
+                if (/[.,()[\]:+\-*/|&^~%@><!]/.test(key)) {
+                    target.enter(null, key)
+                } else if (/[=[\](){}]/.test(key)) {
+                    target.$set({ open: false })
+                    target.completionProvider.state = CLOSED
+                } else if (key === 'Escape') {
+                    target.completionProvider.state = CLOSED
+                }
+                return true
+            }
+        })
+        const oldCommandHandler = keyEventHandler.handleCommand
+        keyEventHandler.handleCommand = command => {
+            if (PASSTHROUGH_COMMANDS.has(command)) return true
+            oldCommandHandler(command)
+        }
+    }
+
+    export function requestCompletionDocstringIfNeeded(completion) {
+        let name = completion.completion
+        if (name === lastRequestedCompletionForDocstring) return
+        if (EXTRA_PREDICTIONS.has(completion.type))
+            return // don't request docstring if it is not actually a completion
+
+        // remove redundant punctuation
+        const match = name.match(/^[^\d\W]\w*/)
+        if (match)
+            name = match[0]
+        lastRequestedCompletionForDocstring = name
+        editor.session.send('GetCompletionDocstring', { name })
+    }
+
+    export function setCompletions(rows_, firstTriggeredCharPos, type) {
+        rows = rows_
+        if (!rows.length) {
+            open = false
+        } else {
+            open = true
+            passive = type !== NORMAL
+            repositionCompletionWindow(firstTriggeredCharPos)
+            requestCompletionDocstringIfNeeded(rows[0])
+        }
+    }
+    
+    function getKeyboardHint(i, passive) {
+        if (passive) ++i
+        if (i === 0) return '␣'
+        if (i === 1) return '⇥'
+        return ''
+    }
+
+    export function repositionCompletionWindow(pos) {
+        if (!open)
+            return
+        const editorElement = editor.codeEditor
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+        const coords = cm.charCoords(pos, 'window')
+        const charHeight = coords.bottom - coords.top
+
+        const editorArea = editorElement.getBoundingClientRect()
+        const completionArea = container.getBoundingClientRect()
+        const completionHeight = completionArea.bottom - completionArea.top
+
+        let x = coords.left - editorArea.left - 3 * rem
+        let y = coords.bottom - editorArea.top + 1.6 * charHeight
+        if (y + completionHeight > editorArea.bottom) {
+            y = coords.top - completionHeight - 1.6 * charHeight
+        }
+        container.style.left = `${x}px`
+        container.style.top = `${y}px`
+        
+        // completionHeight can be 0 and lead to incorrect position because the div is not rendered yet
+        if (completionHeight === 0)
+            requestAnimationFrame(() => repositionCompletionWindow(pos))
+    }
+
+    export function enter(rowNumber, key) {
+        if (!open) return console.error('closed')
+        let row
+        if (key === 'Tab') row = rows[1 - passive]
+        else row = rowNumber ? completionRowShortcuts[rowNumber] : rows[selectedIndex]
+        if (!row) return console.error('no selected completion')
+
+        completionProvider.state = CLOSED
+        let { text, tail } = row
+        
+        // avoid duplicated braces
+        let shouldAddTail = tail && !tail.startsWith(key)
+        // avoid a dot (or an operator) is preceded with a space
+        if (key !== 'commit' && key !== 'Tab' && tail === ' ')
+            shouldAddTail = false
+        if (shouldAddTail) 
+            text = text + (tail || '')
+        open = false
+
+        // Don't commit passive completions unless the key is Tab or a number.
+        if (passive && !/\d/.test(key) && key !== 'Tab') {
+            if (key === 'commit') {
+                const cursor = cm.doc.getCursor()
+                cm.replaceRange(' ', cursor, cursor, '+input')
+            }
+            return true // let it propagate
+        }
+        
+        cm.replaceRange(
+            text,
+            completionProvider.firstTriggeredCharPos,
+            cm.doc.getCursor(),
+            '+completion'
+        )
+        if (shouldAddTail && tail === '()')
+            cm.execCommand('goCharLeft')
+        cm.focus()
+    }
+
+    export function move(nRows) {
+        const length = rows.length
+
+        let targetIndex = selectedIndex + nRows
+        if (targetIndex >= length) targetIndex = length - 1
+        else if (targetIndex < 0) targetIndex = 0
+        selectedIndex = targetIndex
+
+        const targetRow = completionRows[targetIndex]
+        requestCompletionDocstringIfNeeded(targetRow)
+        targetRow.row.scrollIntoViewIfNeeded(false)
+    }
 </script>

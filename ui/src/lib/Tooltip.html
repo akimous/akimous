@@ -1,5 +1,4 @@
-<div ref:tooltip id="tooltip" class="non-selectable"></div>
-
+<div id="tooltip" class="non-selectable"></div>
 
 <style>
     #tooltip {
@@ -13,14 +12,16 @@
 
 </style>
 
-
 <script>
-    import g from './Globals'
     import Popper from 'popper.js'
+    
+    import g from './Globals'
 
     let tooltip
+    g.Popper = Popper
 
-    function mouseEnterListener(event) {
+    // listener are being called directly outside (e.g. in Tab)
+    export function mouseEnterListener(event) {
         const { target } = event
         const tooltipElement = document.getElementById('tooltip')
         const label = target.getAttribute('aria-label')
@@ -31,37 +32,21 @@
         })
     }
 
-    function mouseLeaveListener() {
+    export function mouseLeaveListener() {
         if (tooltip)
             tooltip.destroy()
     }
 
-    export default {
-        components: {},
-        oncreate() {
-            g.tooltip = this
-            g.Popper = Popper
-            this.mouseEnterListener = mouseEnterListener
-            this.mouseLeaveListener = mouseLeaveListener
-        },
-        data() {
-            return {}
-        },
-        methods: {
-            register(element) {
-                // those listeners should be garbage collected when the element is destroyed
-                if (!Array.isArray(element)) {
-                    element.addEventListener('mouseenter', mouseEnterListener)
-                    element.addEventListener('mouseleave', mouseLeaveListener)
-                    return
-                }
-                for (const i of element) {
-                    i.addEventListener('mouseenter', mouseEnterListener)
-                    i.addEventListener('mouseleave', mouseLeaveListener)
-                }
-            },
-            
+    export function register(element) {
+        // those listeners should be garbage collected when the element is destroyed
+        if (!Array.isArray(element)) {
+            element.addEventListener('mouseenter', mouseEnterListener)
+            element.addEventListener('mouseleave', mouseLeaveListener)
+            return
+        }
+        for (const i of element) {
+            i.addEventListener('mouseenter', mouseEnterListener)
+            i.addEventListener('mouseleave', mouseLeaveListener)
         }
     }
-
 </script>

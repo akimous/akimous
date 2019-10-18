@@ -15,6 +15,7 @@ import { OPERATOR } from './RegexDefinitions'
 import { schedule, nextFrame } from '../lib/Utils'
 
 const NONE = -1
+const OFFSET_BYPASS_TOKEN_TYPES = new Set(['operator', 'punctuation'])
 
 class CMEventDispatcher {
     constructor(editor) {
@@ -63,11 +64,11 @@ class CMEventDispatcher {
             let selection = cm.getSelection()
             if (!selection) selection = cm.getLine(cm.getCursor().line) + '\n'
             g.macro.addClipboardItem(selection)
-            completion.set({ open: false })
+            completion.$set({ open: false })
         })
 
         cm.on('scroll', () => {
-            completion.set({ open: false })
+            completion.$set({ open: false })
         })
 
         cm.on('focus', () => {
@@ -75,18 +76,18 @@ class CMEventDispatcher {
             nextFrame(() => {
                 editor.session.send('Mtime', {})
                 g.setFocus([g.panelMiddle, editor])
-                if (g.find.get().active)
+                if (g.find.active)
                     g.find.clearSelections()
             })
-            editor.set({
+            editor.$set({
                 highlightOverlay: null,
                 textMark: null,
             })
         })
 
-        cm.on('blur', () => {
-            editor.completion.set({ open: false })
-        })
+        //cm.on('blur', () => {
+        // editor.completion.$set({ open: false })
+        //})
 
         cm.on('gutterClick', (cm, line, gutter /*, event*/ ) => {
             if (gutter !== 'CodeMirror-linenumbers') return
@@ -97,7 +98,7 @@ class CMEventDispatcher {
         cm.on('cursorActivity', cm => {
             if (shouldDismissCompletionOnCursorActivity) {
                 completionProvider.state = CLOSED
-                completion.set({ open: false })
+                completion.$set({ open: false })
             }
             shouldDismissCompletionOnCursorActivity = true
             const cursor = cm.getCursor()
@@ -107,12 +108,12 @@ class CMEventDispatcher {
                 syncIfNeeded(dirtyLine)
 
             schedule(() => {
-                g.cursorPosition.set(cursor)
+                g.cursorPosition.$set(cursor)
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
                 const pos = { currentLine: cursor.line }
-                g.outline.set(pos)
-                g.linter.set(pos)
-                g.find.set(pos)
+                g.outline.$set(pos)
+                g.linter.$set(pos)
+                g.find.$set(pos)
             })
 
             if (this.realtimeEvaluation)
@@ -120,9 +121,9 @@ class CMEventDispatcher {
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
-            const { clean } = editor.get() // 0.02 ms
+            const { clean } = editor // 0.02 ms
             if (clean === doc.isClean()) return
-            editor.set({ clean: !clean }) // 0.25 ms
+            editor.$set({ clean: !clean }) // 0.25 ms
         })
 
         cm.on('changes', (cm, changes) => {
@@ -154,7 +155,7 @@ class CMEventDispatcher {
                 (origin === '+input' || origin === '+delete')
             ) {
                 completionProvider.retrigger({ lineContent, ...cursor })
-            } else if (completionProvider.state === CLOSED) {
+            } else if (state === CLOSED) {
                 syncIfNeeded(changes)
             }
             if (this.realtimeEvaluation)
@@ -163,8 +164,7 @@ class CMEventDispatcher {
 
         cm.on('beforeChange', (cm, c) => {
             formatter.setContext(cm, c)
-            if (editor.debug) 
-                console.log('beforeChange', c)
+            // console.log('beforeChange', c)
             const startTime = performance.now()
             try {
                 const cursor = c.from
@@ -207,7 +207,8 @@ class CMEventDispatcher {
                         }
                         // TODO: move completionProvider before formatter may yield better performance
                         input = c.text[0] // might change after handled by formatter, so reassign
-                        const isInputDot = /\./.test(input)
+                        const isInputDot = input === '.'
+                        const isInputOperator = OPERATOR.test(input)
 
                         const shouldTriggerPrediction = () => {
                             if (c.canceled) return false
@@ -222,7 +223,16 @@ class CMEventDispatcher {
                         const newLineContent = lineContent.slice(0, c.from.ch) + input + lineContent.slice(c.to.ch)
                         shouldDismissCompletionOnCursorActivity = false
                         if (shouldTriggerPrediction()) {
-                            let offset = (c.from.ch - c.to.ch) + (isInputDot ? 0 : -1)
+                            let offset = c.from.ch - c.to.ch
+                            if (isInputOperator) // AFTER_OPERATOR case
+                                offset = 0
+                            else if (!isInputDot) {
+                                offset -= 1
+                                // avoid completion not offset properly if starts at the middle of a token
+                                if (!OFFSET_BYPASS_TOKEN_TYPES.has(t0.type) && !/\s+/.test(t0.string)) {
+                                    offset -= t0.string.length
+                                }
+                            }
                             completionProvider.trigger(
                                 newLineContent,
                                 newCursor.line,
@@ -230,15 +240,29 @@ class CMEventDispatcher {
                                 offset
                             )
                             dirtyLine = NONE
-                            if (t0.type === 'string') completionProvider.type = STRING
-                            else if (t0.type === 'comment') completionProvider.type = COMMENT
-                            else if (t1.string === 'for') completionProvider.type = FOR
-                            else if (OPERATOR.test(input)) completionProvider.type = AFTER_OPERATOR
-                            else completionProvider.type = NORMAL
-                        }
+                            // t0 can be of type string in ''.|
+                            // int(1, base=|)
+                            if (isInputDot || input === '=') completionProvider.mode = NORMAL 
+                            else if (t0.type === 'string') completionProvider.mode = STRING
+                            else if (t0.type === 'comment') completionProvider.mode = COMMENT
+                            else if (isInputOperator) completionProvider.mode = AFTER_OPERATOR
+                            else if (/\s*for\s/.test(newLineContent) && 
+                                     !/\sin\s/.test(newLineContent) &&
+                                     !(t0.string === ' ' && t1.type === 'variable')) {
+                                completionProvider.mode = FOR
+                            } 
+                            else completionProvider.mode = NORMAL
+                        } // retrigger is handled in change event
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }
+                } else if (c.origin === '+completion') {
+                    let isInFunctionSignatureDefinition = false
+                    const [t0, t1, t2] = getNTokens(3, {
+                        line: c.from.line,
+                        ch: c.from.ch
+                    })
+                    formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                 } else if (c.origin === '+delete') {
                     shouldDismissCompletionOnCursorActivity = false
                     formatter.deleteHandler()
@@ -247,7 +271,7 @@ class CMEventDispatcher {
                 console.error(e)
             }
             const timeElapsed = performance.now() - startTime
-            if (editor.debug) console.log('beforeChange took', timeElapsed)
+            // console.log('beforeChange took', timeElapsed)
             if (timeElapsed > 5) console.warn('slow', c, timeElapsed)
         })
 

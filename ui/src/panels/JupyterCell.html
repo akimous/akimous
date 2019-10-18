@@ -1,7 +1,6 @@
-<tr ref:cell>
+<tr bind:this={cell}>
     <td class="execution-count">{@html executionCount}</td>
     <td class="content">
-
         {#if code}
         <pre>{code}</pre>
         {/if}
@@ -15,16 +14,16 @@
         {/if}
 
         {#if output && output['text/latex']}
-        <div ref:tex></div>
+        <div bind:this={tex}></div>
 
-        {:elseif output && output['text/html']}
+        {:else if output && output['text/html']}
         {@html output['text/html']}
         
         {:else}
         {#each Object.entries(output) as [key, value]}
         {#if key === 'text/plain'}
         {value}
-        {:elseif key.startsWith('image/')}
+        {:else if key.startsWith('image/')}
         <img src="data:{key};base64,{value}" alt="" />
         {/if}
         {/each}
@@ -58,11 +57,29 @@
 
 </style>
 
-
-<script>
+<script>    
     import { nextFrame } from '../lib/Utils'
 
+    export let cell,
+        code = null,
+        executionCount = '',
+        output = {},
+        stderr = null,
+        stdout = null,
+        tex
+
     let _katex = null
+    
+    $: {
+        const source = output['text/latex']
+        if (source) {
+            nextFrame(() => {
+                katex(k => {
+                    k.render(source.replace(/(^\$)|(\$$)/g, ''), tex)
+                })
+            })
+        }
+    }
 
     function katex(callback) {
         if (_katex) return callback(_katex)
@@ -78,34 +95,5 @@
             callback(k)
         })
     }
-
-    export default {
-        components: {},
-        oncreate() {
-
-        },
-        onstate({ changed, current, previous }) {
-            if (changed.output) {
-                const source = current.output['text/latex']
-                if (source && (!previous || previous.output['text/latex'] !== source)) {
-                    nextFrame(() => {
-                        katex(katex => {
-                            katex.render(source.replace(/(^\$)|(\$$)/g, ''), this.refs.tex)
-                        })
-                    })
-                }
-            }
-        },
-        data() {
-            return {
-                executionCount: '',
-                code: null,
-                output: {},
-                stdout: null,
-                stderr: null,
-            }
-        },
-        methods: {}
-    }
-
 </script>
+

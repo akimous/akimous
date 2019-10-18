@@ -1,4 +1,7 @@
-<div id="panel-popup" class="popup" ref:popup class:gone="!open" on:mouseleave="set({open: false})">{@html content} <div id="popup-arrow"></div></div>
+<div id="panel-popup" class="popup" bind:this={self} class:gone={!open} on:mouseleave="{() => open = false}">
+    {@html content} 
+    <div bind:this={arrow} id="popup-arrow"></div>
+</div>
 
 
 <style>
@@ -56,40 +59,31 @@
 
 </style>
 
-
 <script>
-    import g from '../lib/Globals'
+    import { tick } from 'svelte'
+    
+    export let content = '',
+        open = false
 
-    export default {
-        components: {},
-        oncreate() {
-            g.popup = this
-        },
-        data() {
-            return {
-                open: false,
-                content: '',
-            }
-        },
-        methods: {
-            reposition(x, y) {
-                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                const { height } = this.refs.popup.getBoundingClientRect()
-                let yAdjusted = y - height / 2
-                if (y + height / 2 > document.documentElement.clientHeight)
-                    yAdjusted = document.documentElement.clientHeight - height
-                if (yAdjusted < 0)
-                    yAdjusted = 0
-                this.refs.popup.style.left = `${x - 36 * rem}px`
-                this.refs.popup.style.top = `${yAdjusted}px`
-                const el = document.querySelector('#popup-arrow')
-                el.style.top = `${y - yAdjusted}px`
-            },
-            closeIfNotHovered(event) {
-                if (event.relatedTarget && event.relatedTarget.id === 'panel-popup') return
-                this.set({ open: false })
-            }
-        }
+    let arrow,
+        self
+
+    export async function reposition(x, y) {
+        await tick() // wait for layout or height will be 0
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+        const { height } = self.getBoundingClientRect()
+        let yAdjusted = y - height / 2
+        if (y + height / 2 > document.documentElement.clientHeight)
+            yAdjusted = document.documentElement.clientHeight - height
+        if (yAdjusted < 0)
+            yAdjusted = 0
+        self.style.left = `${x - 36 * rem}px`
+        self.style.top = `${yAdjusted}px`
+        arrow.style.top = `${y - yAdjusted}px`
     }
 
+    export function closeIfNotHovered(event) {
+        if (event.relatedTarget && event.relatedTarget.id === 'panel-popup') return
+        open = false
+    }
 </script>

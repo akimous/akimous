@@ -1,6 +1,7 @@
 import CodeMirror from 'codemirror'
+import isEqual from 'lodash.isequal'
+
 import g from './Globals'
-import { setProjectState } from './ConfigManager'
 
 // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
 function binarySearch(array, target) {
@@ -58,49 +59,6 @@ function nextFrame(callback) {
     requestAnimationFrame(() => {
         requestAnimationFrame(callback)
     })
-}
-
-function initializeTabView(view, title, icon) {
-    view.set({ self: view })
-    view.children = {}
-    schedule(() => {
-        view.parent = view.get().parent
-        view.tab = view.parent.tabBar.openTab(view, title, icon)
-        view.tab.set({
-            labeled: false
-        })
-        view.on('state', ({ changed, current }) => {
-            if (changed.active) {
-                view.tab.set({
-                    active: current.active
-                })
-            }
-        })
-    })
-}
-
-function setAttributeForMultipleComponent(obj, ...targets) {
-    for (const i of targets)
-        i.set(obj)
-}
-
-function activateView(parent, view) {
-    const oldView = parent.get().focus
-    if (view === oldView) return
-    parent.set({ focus: view })
-    if (!view) return
-    if (g.focusStack.includes(parent))
-        g.setFocus([parent, view])
-    oldView && oldView.set({ active: false })
-    view.set({ active: true })
-
-    let panel
-    if (parent === g.panelLeft) panel = 'left'
-    else if (parent === g.panelRight) panel = 'right'
-    if (panel)
-        setProjectState('activePanels', {
-            [panel]: view.name
-        })
 }
 
 function reformatDocstring(doc) {
@@ -180,7 +138,7 @@ function inSomething(cm, cursor, open, close) {
         for (let ch = startCh - 1; ch > -1; ch--) {
             let char = lineContent.charAt(ch)
             if (char === open) {
-                pos.ch = ch
+                pos.ch = ch + 1
                 if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
                     ch = token.start
@@ -189,7 +147,7 @@ function inSomething(cm, cursor, open, close) {
                 }
                 braceStackCounter += 1
             } else if (char === close) {
-                pos.ch = ch
+                pos.ch = ch + 1
                 if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
                     ch = token.start
@@ -207,6 +165,7 @@ function inSomething(cm, cursor, open, close) {
             return false
         }
         lineContent = cm.doc.getLine(line - 1)
+        if (!lineContent) continue
         startCh = lineContent.length
     }
     return false
@@ -272,13 +231,43 @@ function highlightMatch(text, from, to) {
     return `${head}<em>${body}</em>${tail}`
 }
 
+class CircularBuffer {
+    constructor(size) {
+        this.size = size
+        this.buffer = new Array(size)
+        this.index = 0
+    }
+    
+    push(item) {
+        const lastItem = this.buffer[this.index]
+        if (isEqual(lastItem, item))
+            return
+        this.index = (this.index + 1) % this.size
+        this.buffer[this.index] = item
+    }
+    
+    remove(item) {
+        for (let i = 0; i < this.size; i++) {
+            if (isEqual(this.buffer[i], item))
+                this.buffer[i] = null
+        }
+    }
+    
+    *iterate() {
+        for (let i = 0; i < this.size; i++) {
+            const index = (this.index - i) % this.size
+            const item = this.buffer[index]
+            if (!item) continue
+            this.buffer[index] = null
+            yield item
+        }
+    }
+}
+
 export {
     binarySearch,
     schedule,
     nextFrame,
-    initializeTabView,
-    setAttributeForMultipleComponent,
-    activateView,
     reformatDocstring,
     getRem,
     Pos,
@@ -291,4 +280,5 @@ export {
     joinPath,
     capitalize,
     highlightMatch,
+    CircularBuffer,
 }

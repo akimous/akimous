@@ -1,4 +1,4 @@
-<div ref:panel id="references" class="panel" class:gone="!active" on:click="onFocus()">
+<div bind:this={panel} id="references" class="panel" class:gone="{!active}" on:click="{onFocus}">
     <div class="title">Definitions</div>
     <table id="table-definitions">
         {#each definitionsWithTitles as i}
@@ -8,7 +8,7 @@
                     <td class="row-body module">{i.title}</td>
                 </tr>
             {:else}
-                <tr class="row" on:click="jumpTo(i)">
+                <tr class="row" on:click="{() => jumpTo(i)}">
                     {#if i.module === 'builtins'}
                     <td class="line-number">0</td>
                     <td class="row-body">built-in</td>
@@ -29,7 +29,7 @@
                     <td class="row-body module">{i.title}</td>
                 </tr>
             {:else}
-                <tr class="row" on:click="jumpTo(i)">
+                <tr class="row" on:click="{() => jumpTo(i)}">
                     <td class="line-number">{i.line + 1}</td>
                     <td class="row-body">{@html formatForDisplay(i)}</td>
                 </tr>
@@ -45,7 +45,7 @@
                     <td class="row-body module">{i.title}</td>
                 </tr>
             {:else}
-                <tr class="row" on:click="jumpTo(i)">
+                <tr class="row" on:click="{() => jumpTo(i)}">
                     <td class="line-number">{i.line + 1}</td>
                     <td class="row-body">{@html formatForDisplay(i)}</td>
                 </tr>
@@ -76,10 +76,35 @@
 </style>
 
 <script>
+    import { onMount, createEventDispatcher } from 'svelte'
+    
     import g from '../lib/Globals'
-    import { initializeTabView, highlightMatch, joinPath, Pos } from '../lib/Utils'
+    import { highlightMatch, joinPath, Pos } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
+
+    const dispatch = createEventDispatcher()
+
+    export let active = false,
+        assignments = [],
+        definitions = [],
+        usages = []
+    
+    let panel
+
+    $: dispatch('active', {
+        id: 'references',
+        active
+    })
+    
+    $: definitionsWithTitles = [...withTitles(definitions)]
+    $: assignmentsWithTitles = [...withTitles(assignments)]
+    $: usagesWithTitles = [...withTitles(usages)]
+    $: {
+        if (definitions.length === 1 && assignments.length + usages.length === 0) {
+            jumpTo(definitions[0])
+        }
+    }
 
     function* withTitles(iterable) {
         let title = ''
@@ -98,49 +123,21 @@
     function formatForDisplay(i) {
         return highlightMatch(i.code, i.from, i.to).trim()
     }
-    
-    export default {
-        components: {},
-        helpers: {
-            formatForDisplay
-        },
-        oncreate() {
-            this.name = 'references'
-            g.references = this
-            initializeTabView(this, 'References', 'fas fa-link l-ao')
-            makeScrollable(this, this.refs.panel)
-        },
-        data() {
-            return {
-                active: false,
-                definitions: [],
-                assignments: [],
-                usages: []
-            }
-        },
-        onstate({ changed, current }) {
-            if (changed.definitions) {
-                if (current.definitions.length === 1 && current.assignments.length + current.usages.length === 0) {
-                    this.jumpTo(current.definitions[0])
-                }
-            }
-        },
-        computed: {
-            definitionsWithTitles: ({ definitions }) => [...withTitles(definitions)],
-            assignmentsWithTitles: ({ assignments }) => [...withTitles(assignments)],
-            usagesWithTitles: ({ usages }) => [...withTitles(usages)],
-        },
-        methods: {
-            onFocus() {
-                g.setFocus([g.panelRight, this])
-            },
-            jumpTo(row) {
-                g.panelMiddle.openFile(row.path, () => {
-                    const cm = setCursorAndScrollIntoView(row.line, row.from)
-                    cm.extendSelection(Pos(row.line, row.from), Pos(row.line, row.to))
-                })
-            }
-        },
+
+    onMount(async () => {
+        await makeScrollable('references', panel)
+    })
+
+    function onFocus() {
+        g.setFocus([g.panelRight, g.references])
     }
 
+    export const jumpTo = (row) => {
+        g.panelMiddle.openFile(row.path, () => {
+            const cm = setCursorAndScrollIntoView(row.line, row.from)
+            cm.extendSelection(Pos(row.line, row.from), Pos(row.line, row.to))
+        })
+    }
 </script>
+
+

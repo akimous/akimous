@@ -1,4 +1,5 @@
 import { highlightSequentially, inSomething } from '../../lib/Utils'
+import g from '../../lib/Globals'
 import { scanInSameLevelOfBraces } from '../EditorFunctions'
 import snakecase from 'lodash.snakecase'
 import pluralize from 'pluralize'
@@ -18,8 +19,6 @@ function fullStatementCompletion({ topHit, cm, line, lineContent }) {
 
     const topHitCompletion = topHit.text
     const lineCount = cm.lineCount()
-    let lineUp = line - 1
-    let lineDown = line + 1
     let sourceLine = -1
     let sourceLineContent = ''
     let index = -1
@@ -46,21 +45,36 @@ function fullStatementCompletion({ topHit, cm, line, lineContent }) {
                 targetLineConsistencyCheckResults[i]) return false
         }
         
+        // skip comments and strings
+        const pos = {
+            line: l,
+            ch: index
+        }
+        const tokenType = cm.getTokenTypeAt(pos)
+        if (tokenType === 'string' || tokenType === 'comment')
+            return false
+        
+        // too similar to topHitCompletion, not beneficial
+        if (topHitCompletion.length + index + 1 >= sourceLineContent.length)
+            return false
+        
         sourceLine = l
         return true
     }
 
-    let scannedCount = 0
     // find the nearest line including topHit.text
-    while (lineUp >= 0 || lineDown < lineCount) {
-        if (lineUp >= 0 && containsTopHit(lineUp--))
+    let found = false
+    for (let i = 2; i < MAX_SCAN_LINES; i++) {
+        const sign = (i % 2) ? 1 : -1
+        const delta = sign * Math.floor(i / 2)
+        const lineNumber = line + delta
+        if (lineNumber < 0 || lineNumber >= lineCount) continue
+        if (containsTopHit(lineNumber)) {
+            found = true
             break
-        if (lineDown < lineCount && containsTopHit(lineDown++))
-            break
-        if (scannedCount++ === MAX_SCAN_LINES)
-            break
+        }
     }
-    if (index === -1) return
+    if (!found) return
 
     const result = scanInSameLevelOfBraces(cm, {
         line: sourceLine,
@@ -216,10 +230,38 @@ function forElementInCollection({ topHit, lineContent }) {
     }
 }
 
+function suggestInitInsideClass({ topHit, line }) {
+    if (!topHit) return
+    if (topHit.text !== 'def') return
+    
+    const highlightedOutlineItem = g.outline.highlightedItem
+    if (!highlightedOutlineItem) return
+    const classLevel = highlightedOutlineItem.level
+    const classLine = highlightedOutlineItem.line
+    let alreadyHasInit = false
+    for (let i of g.outline.outlineItems) {
+        if (i.line < classLine) continue
+        if (i.level <= classLevel && i.line > line) break
+        if (i.display === '__init__') {
+            alreadyHasInit = true
+            break
+        }
+    }
+    if (alreadyHasInit) return
+    return 'def __init__(self)'
+}
+
+function withPostfix({ topHit }) {
+    if (!topHit) return
+    if (topHit.postfix)
+        return topHit.text + topHit.postfix
+}
+
 class RuleBasedPredictor {
     constructor(context) {
         this.context = context
         this.predictors = [
+            withPostfix,
             fullStatementCompletion,
             fixedPredictionForImport,
             fromImport,
@@ -230,6 +272,7 @@ class RuleBasedPredictor {
             withAs,
             sequentialVariableNaming,
             forElementInCollection,
+            suggestInitInsideClass,
         ]
     }
 

@@ -1,4 +1,4 @@
-<div ref:button class="toolbar-button" class:active="active" on:click aria-label="{title}">
+<div bind:this={self} class="toolbar-button" class:active="{active}" on:click aria-label="{title}">
     <slot></slot><i class="{iconClass}"></i>
 </div>
 
@@ -22,26 +22,19 @@
 
 </style>
 
-
 <script>
+    import { onMount, tick } from 'svelte'
+
     import g from '../lib/Globals'
-    import { schedule } from '../lib/Utils'
 
-    export default {
-        components: {},
-        oncreate() {
-            schedule(() => {
-                g.tooltip.register(this.refs.button)
-            })
-        },
-        data() {
-            return {
-                // title: ''
-                // iconClass: 'fas fa-fw fa-bell',
-                active: false,
-            }
-        },
-        methods: {}
-    }
+    export let active = false,
+        iconClass,
+        title
+        
+    let self
 
+    onMount(async () => {
+        await tick()
+        g.tooltip.register(self)
+    })
 </script>

@@ -35,11 +35,15 @@ export default {
     plugins: [
         svelte({
             dev: !production, // enable run-time checks when not in production
+            accessors: true
         }),
 
         resolve(),
         commonjs({
             sourceMap: production,
+            namedExports: {
+                xterm: ['Terminal']
+            },
         }),
         postcss({
             plugins: [autoprefixer()], // not effective for svelte component

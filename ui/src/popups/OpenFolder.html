@@ -1,23 +1,22 @@
 <div id="open-folder" class="popup">
     <div class="title">Open Folder</div>
     <div class="path-bar">
-        <div class="button" on:click="home()"><i class="fas fa-home"></i></div>
-        <div class="button" on:click="up()"><i class="fas fa-arrow-up"></i></div>
+        <div class="button" on:click="{home}"><i class="fas fa-home"></i></div>
+        <div class="button" on:click="{up}"><i class="fas fa-arrow-up"></i></div>
         <div class="path">
-            <TextInput theme="bright" bind:value="path" on:click="focusPathInput()" on:keydown|capture="pathKeyDown()"></TextInput>
+            <TextInput theme="bright" bind:value="{path}" on:click="{focusPathInput}" on:keydown="{pathKeyDown}"></TextInput>
         </div>
     </div>
     <div class="list">
         {#each list as item}
-        <div class="item non-selectable" on:click="folderClicked(item)">
+        <div class="item non-selectable" on:click="{() => folderClicked(item)}">
             <i class="fas fa-folder"></i> {item}
         </div>
         {/each}
     </div>
     <div class="buttons non-selectable">
-        <div class="button cancel" on:click="cancel()">Cancel</div>
-        <div class="button open" on:click="open()">Open
-        </div>
+        <div class="button cancel" on:click="{cancel}">Cancel</div>
+        <div class="button open" on:click="{open}">Open</div>
     </div>
 </div>
 
@@ -118,56 +117,53 @@
 
 </style>
 
-
 <script>
-    import g from '../lib/Globals'
+    import { onDestroy } from 'svelte'
 
-    export default {
-        components: {
-            TextInput: '../lib/TextInput.html'
-        },
-        oncreate() {
-            this.session = g.socket.createSession('openFolder')
-            this.session.handlers['Listed'] = data => {
-                this.set(data)
-            }
-            this.session.send('Open')
-        },
-        ondestroy() {
-            this.session && this.session.close()
-        },
-        data() {
-            return {
-                path: '',
-                list: []
-            }
-        },
-        methods: {
-            folderClicked(folder) {
-                this.session.send('Ls', [this.get().path, folder])
-            },
-            pathKeyDown() {
-                if (event.key !== 'Enter') return
-                this.session.send('Ls', [this.get().path])
-            },
-            focusPathInput() {
-                g.setFocus([this])
-            },
-            home() {
-                this.session.send('Home')
-            },
-            up() {
-                this.session.send('Ls', [this.get().path, '..'])
-            },
-            cancel() {
-                g.app.set({ openFolder: false })
-            },
-            open() {
-                const { path } = this.get()
-                g.ready = false
-                g.projectSession.send('OpenProject', { path })
-            }
-        }
+    import g from '../lib/Globals'
+    import TextInput from '../lib/TextInput.html'
+    
+    export let list = [],
+        path = ''
+        
+    let session = g.socket.createSession('openFolder')
+    session.handlers['Listed'] = data => {
+        path = data.path
+        list = data.list
+    }
+    session.send('Open')
+
+    onDestroy(() => {
+        session && session.close()
+    })
+
+    export function folderClicked(folder) {
+        session.send('Ls', [path, folder])
     }
 
+    export function pathKeyDown() {
+        if (event.key !== 'Enter') return
+        session.send('Ls', [path])
+    }
+
+    export function focusPathInput() {
+        g.setFocus([g.openFolder])
+    }
+
+    export function home() {
+        session.send('Home')
+    }
+
+    export function up() {
+        session.send('Ls', [path, '..'])
+    }
+
+    export function cancel() {
+        g.app.$set({ openFolder: false })
+    }
+
+    export function open() {
+        g.ready = false
+        g.projectSession.send('OpenProject', { path })
+    }
 </script>

@@ -1,8 +1,8 @@
-<div ref:panel id="macro" class="panel" class:gone="!active" on:click="onFocus()">
+<div bind:this={panel} id="macro" class="panel" class:gone="{!active}" on:click="{onFocus}">
     <div class="title">Clipboard</div>
     <table id="clipboard" class="non-selectable">
         {#each clipboard as text, i}
-        <tr on:click="paste(text)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)">
+        <tr on:click="{() => paste(text)}" on:mouseover="{event => showPopup(i, event)}" on:mouseleave="{closePopup}">
             <td class="clipboard-index">{(i+1)%10}</td>
             <td>
                 <div class="clipboard-text">{text}</div>
@@ -15,11 +15,11 @@
         {/each}
     </table>
 
-    <div class="title">Macros<i class="edit-icon fas fa-edit" on:click="editMacro()"></i></div>
-    <TextInput ref:macroFormatWithShift bind:value=macroFormatWithShift on:change="onChangeMacroFormat()">Print format with shift:&nbsp;</TextInput>
+    <div class="title">Macros<i class="edit-icon fas fa-edit" on:click="{editMacro}"></i></div>
+    <TextInput bind:value={macroFormatWithShift} on:change="{onChangeMacroFormat}">Print format with shift:&nbsp;</TextInput>
     <table id="macros" class="non-selectable">
         {#each Object.entries(macros).sort() as [hotkey, macro]}
-        <tr on:click="executeMacro(macro, event)">
+        <tr on:click="{event => executeMacro(macro, event)}">
             <td class="macro-hotkey">{hotkey.toUpperCase()}</td>
             <td class="macro-name">
                 {macro.name}
@@ -27,6 +27,9 @@
         </tr>
         {/each}
     </table>
+    <div class="tip">
+        Press ⌘^ along with the initial letter to trigger macro or paste from clipboard.
+    </div>
 </div>
 
 <style>
@@ -76,6 +79,11 @@
     .edit-icon:hover {
         filter: brightness(1.2);
     }
+    
+    .tip {
+        padding: .3rem;
+        color: var(--gray7);
+    }
 
     .macro-name {
         padding: .4rem 0 .2rem .3rem;
@@ -86,105 +94,105 @@
 
 
 <script>
+    import { onMount, createEventDispatcher, tick } from 'svelte'
+    
     import g from '../lib/Globals'
-    import { initializeTabView, schedule } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { config, setConfig } from '../lib/ConfigManager'
+    
+    import TextInput from '../lib/TextInput.html'
 
-    export default {
-        components: {
-            TextInput: '../lib/TextInput.html'
-        },
-        oncreate() {
-            this.name = 'macro'
-            g.macro = this
-            initializeTabView(this, 'Macro', 'fas fa-magic l-orange')
+    const dispatch = createEventDispatcher()
 
-            // load config
-            const { macroFormatWithShift } = config.macro
-            this.set({ macroFormatWithShift })
+    export let active = false,
+        allowWhiteSpace = true,
+        clipboard = [],
+        macroFormatWithShift = '${NAME} =',
+        macros = {}
+    
+    let panel
+    
+    $: dispatch('active', {
+        id: 'macro',
+        active
+    })
+    
+    onMount(async () => {
+        // load config
+        const { macroFormatWithShift } = config.macro
 
-            // load macros
-            const macros = {}
-            import('/macro.js').then(({ default: defaultMacros }) => {
-                for (const macro of defaultMacros) {
-                    macros[macro.hotkey] = macro
+        // load macros
+        const macros_ = {}
+        import('/macro.js').then(({ default: defaultMacros }) => {
+            for (const macro of defaultMacros) {
+                macros_[macro.hotkey] = macro
+            }
+            import('/user/macro.js').then(({ default: userMacros }) => {
+                for (const macro of userMacros) {
+                    macros_[macro.hotkey] = macro
                 }
-                import('/user/macro.js').then(({ default: userMacros }) => {
-                    for (const macro of userMacros) {
-                        macros[macro.hotkey] = macro
-                    }
-                }).finally(() => {
-                    this.set({ macros })
-                })
+            }).finally(() => {
+                macros = macros_
             })
+        })
 
-            makeScrollable(this, this.refs.panel)
-        },
-        data() {
-            return {
-                active: false,
-                clipboard: [],
-                macros: {},
-                macroFormatWithShift: '${NAME} =',
-                allowWhiteSpace: true,
-            }
-        },
-        methods: {
-            onFocus() {
-                g.setFocus([g.panelRight, this])
-            },
-            addClipboardItem(text) {
-                const { clipboard } = this.get()
-                if (clipboard.length >= 10) clipboard.pop()
-                clipboard.unshift(text)
-                this.set({
-                    clipboard
-                })
-            },
-            paste(text) {
-                const editor = g.activeEditor
-                if (!editor) return
-                editor.cm.replaceSelection(text)
-                editor.cm.focus()
-            },
-            dispatchMacro(event) {
-                const key = event.key
-                let number = +key
-                if (Number.isInteger(number)) {
-                    if (number === 0) number = 10
-                    this.paste(this.get().clipboard[number - 1])
-                } else {
-                    const f = this.get().macros[key.toLowerCase()]
-                    if (f)
-                        f.callback(g.activeEditor.cm, event, this)
-                }
-            },
-            showPopup(i, event) {
-                const { x, y, height } = event.currentTarget.getBoundingClientRect()
-                const content = this.get().clipboard[i]
-                g.popup.set({
-                    open: true,
-                    content: `<div class="code">${content}</div>`
-                })
-                g.popup.reposition(x, y + height / 2)
-            },
-            closePopup(event) {
-                g.popup.closeIfNotHovered(event)
-            },
-            executeMacro(macro) {
-                macro.callback(g.activeEditor.cm, event, this)
-            },
-            onChangeMacroFormat() {
-                setConfig('macro', {
-                    macroFormatWithShift: this.get().macroFormatWithShift
-                })
-            },
-            editMacro() {
-                const path = config.macro.userMacroFile
-                g.panelMiddle.openFile(path)
-            }
+        await makeScrollable('macro', panel)
+    })
+
+    function onFocus() {
+        g.setFocus([g.panelRight, g.macro])
+    }
+
+    export function addClipboardItem(text) {
+        if (clipboard.length >= 10) clipboard.pop()
+        clipboard.unshift(text)
+        clipboard = clipboard
+    }
+
+    export const paste = (text) => {
+        const editor = g.activeEditor
+        if (!editor) return
+        editor.cm.replaceSelection(text)
+        editor.cm.focus()
+    }
+
+    export function dispatchMacro(event) {
+        const key = event.key
+        let number = +key
+        if (Number.isInteger(number)) {
+            if (number === 0) number = 10
+            paste(clipboard[number - 1])
+        } else {
+            const f = macros[key.toLowerCase()]
+            if (f)
+                f.callback(g.activeEditor.cm, event, this)
         }
     }
 
+    export function showPopup(i, event) {
+        const { x, y, height } = event.currentTarget.getBoundingClientRect()
+        const content = clipboard[i]
+        g.popup.$set({
+            open: true,
+            content: `<div class="code">${content}</div>`
+        })
+        g.popup.reposition(x, y + height / 2)
+    }
+
+    export const closePopup = (event) => {
+        g.popup.closeIfNotHovered(event)
+    }
+
+    export const executeMacro = (macro) => {
+        macro.callback(g.activeEditor.cm, event, g.macro)
+    }
+
+    function onChangeMacroFormat() {
+        setConfig('macro', { macroFormatWithShift })
+    }
+
+    const editMacro = () => {
+        const path = config.macro.userMacroFile
+        g.panelMiddle.openFile(path)
+    }
 </script>

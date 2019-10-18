@@ -6,7 +6,7 @@
     <div class="text">{@html content}</div>
     <div class="buttons non-selectable">
         {#each buttons as button}
-        <div class="button {button.style}" on:click="onClickButton(button)"> {button.text} </div>
+        <div class="button {button.style}" on:click="{() => onClickButton(button)}"> {button.text} </div>
         {/each}
     </div>
 </div>
@@ -86,56 +86,46 @@
     }
 
 </style>
-
+   
 
 <script>
     import g from '../lib/Globals'
 
-    export default {
-        components: {},
-        oncreate() {
-            g.prompt = this
-            this.queue = []
-        },
-        data() {
-            return {
-                active: false,
-                icon: 'far fa-question-circle',
-                content: '',
-                buttons: [{
-                    text: 'Yes',
-                    style: 'success'
-                }, {
-                    text: 'No',
-                    style: 'danger'
-                }]
-            }
-        },
-        methods: {
-            open(data) {
-                this.queue.push(data)
-                if (this.queue.length == 1) {
-                    this.set(data)
-                }
-                this.set({
-                    active: true
-                })
-                g.activeEditor && g.activeEditor.completion.set({
-                    open: false
-                })
-            },
-            onClickButton(button) {
-                button.action && button.action()
-                this.queue.shift()
-                if (this.queue.length != 0) {
-                    this.set(this.queue[0])
-                    return
-                }
-                this.set({
-                    active: false
-                })
-            }
-        }
+    export let active = false,
+        content = '',
+        buttons = [{
+            text: 'Yes',
+            style: 'success'
+        }, {
+            text: 'No',
+            style: 'danger'
+        }],
+        icon = 'far fa-question-circle'
+    
+    const queue = []
+
+    function setProps(props) {
+        icon = props.icon
+        content = props.content
+        buttons = props.buttons
     }
 
+    export function open(props) {
+        queue.push(props)
+        if (queue.length == 1) {
+            setProps(props)
+        }
+        active = true
+        g.activeEditor && g.activeEditor.completion.$set({ open: false })
+    }
+
+    export function onClickButton(button) {
+        button.action && button.action()
+        queue.shift()
+        if (queue.length != 0) {
+            setProps(queue[0])
+            return
+        }
+        active = false
+    }
 </script>

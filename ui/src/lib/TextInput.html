@@ -2,7 +2,7 @@
     <span class="label">
         <slot></slot>
     </span>
-    <input ref:input type="text" spellcheck="false" bind:value on:click on:change on:keydown placeholder="{placeholder}">
+    <input bind:this={input} type="text" spellcheck="false" bind:value on:click on:change on:keydown placeholder="{placeholder}">
 </div>
 
 
@@ -63,28 +63,17 @@
 
 </style>
 
-
 <script>
-    // import g from './lib/Globals'
+    export let allowWhiteSpace = true,
+        coalesced = false,
+        padded = true,
+        placeholder = '',
+        theme = 'dark',
+        value = ''
 
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {
-                value: '',
-                placeholder: '',
-                allowWhiteSpace: true,
-                coalesced: false,
-                theme: 'dark',
-                padded: true,
-            }
-        },
-        methods: {
-            focus() {
-                this.refs.input.focus()
-            },
-        }
+    let input
+
+    export function focus() {
+        input.focus()
     }
-
 </script>

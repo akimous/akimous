@@ -1,21 +1,21 @@
-<div ref:toolbar id="jupyter-toolbar" class="non-selectable" class:realtime="mode==='realtime'">
+<div bind:this={self} id="jupyter-toolbar" class="non-selectable" class:realtime="{mode==='realtime'}">
     {#if mode === 'interactive'}
     {#if executionState === 'stopped'}
     <span class="gap">Click "Run" to start Jupyter kernel</span>
     {:else}
-    <div class="button" on:click="runSelected()">
+    <div class="button" on:click={runSelected}>
         <i class="fas fa-play"></i>
     </div>
-    <div class="button" on:click="runToActiveLine()">
+    <div class="button" on:click={runToActiveLine}>
         <i class="fas fa-step-forward"></i>
     </div>
-    <div class="button" on:click="runToEnd()">
+    <div class="button" on:click={runToEnd}>
         <i class="fas fa-fast-forward"></i>
     </div>
-    <div class="button" on:click="interrupt()">
+    <div class="button" on:click={interrupt}>
         <i class="fas fa-minus-circle"></i>
     </div>
-    <div class="button" on:click="restartKernel()">
+    <div class="button" on:click={restartKernel}>
         <i class="fas fa-sync-alt"></i>
     </div>
     <span class="gap"></span>
@@ -26,13 +26,13 @@
     <div class="execution-state">
         {#if executionState === 'busy'}
         <i class="fas fa-hourglass-half l-yellow"></i>
-        {:elseif executionState === 'error'}
+        {:else if executionState === 'error'}
         <i class="fas fa-exclamation-triangle l-red"></i>
-        {:elseif executionState === 'idle'}
+        {:else if executionState === 'idle'}
         <i class="fas fa-check l-green"></i>
-        {:elseif executionState === 'stopped'}
+        {:else if executionState === 'stopped'}
         <i class="fas fa-stop-circle" style="color:gray"></i>
-        {:elseif executionState === 'starting'}
+        {:else if executionState === 'starting'}
         <i class="fas fa-spinner l-blue"></i>
         {/if}
     </div>
@@ -67,10 +67,6 @@
         text-align: center;
     }
 
-    .real-time-evaluation {
-        display: inline-block;
-    }
-
     .execution-state {
         display: inline-block;
         width: 1.7rem;
@@ -80,40 +76,33 @@
 
 </style>
 
-
 <script>
     import g from '../lib/Globals'
+    
+    export let executionState = 'stopped',
+        mode = 'interactive'
+    
+    let self
 
-    export default {
-        components: {},
-        oncreate() {
-            g.jupyterToolbar = this
-        },
-        data() {
-            return {
-                mode: 'interactive', // or 'realtime'
-                executionState: 'stopped',
-            }
-        },
-        methods: {
-            runSelected() {
-                g.console.runInJupyter()
-            },
-            runToActiveLine() {
-                
-            },
-            runToEnd() {
-                
-            },
-            interrupt() {
-                g.console.session.send('InterruptKernel', )
-            },
-            restartKernel() {
-                g.console.session.send('StartKernel', {
-                    realtimeEvaluation: false
-                })
-            },
-        }
+    function runSelected() {
+        g.console.runInJupyter()
     }
 
+    function runToActiveLine() {
+        // TODO: not implemented
+    }
+
+    function runToEnd() {
+        // TODO: not implemented
+    }
+
+    function interrupt() {
+        g.console.session.send('InterruptKernel', )
+    }
+
+    function restartKernel() {
+        g.console.session.send('StartKernel', {
+            realtimeEvaluation: false
+        })
+    }
 </script>

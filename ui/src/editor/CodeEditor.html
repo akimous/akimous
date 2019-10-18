@@ -1,5 +1,5 @@
-<div ref:codeEditor class="tab-view" class:hideTextSelection="highlightOverlay" class:gone="!active" />
-<Completion ref:completion></Completion>
+<div bind:this={codeEditor} class="tab-view" class:hideTextSelection="{highlightOverlay}" class:gone="{!active}" />
+<Completion bind:this={completion}></Completion>
 
 
 <style>
@@ -9,15 +9,53 @@
 
 </style>
 
+<script context="module">
+    import g from '../lib/Globals'
+    import registerCMCommands from './CMCommands'
+    
+    g.CodeMirror = CodeMirror
+    registerCMCommands(CodeMirror)
+    const overlayOption = {
+        opaque: true,
+        priority: 0,
+    }
+    
+    /* eslint-disable */
+    const extraKeys = {
+        'Tab': 'indentMore',
+        'Shift-Tab': 'indentLess',
+        'Cmd-/': 'toggleCommentIndented',
+        'Cmd-Backspace': 'deleteLineAndGoUp',
+        'Cmd-Delete': 'deleteLineAndGoDown',
+        'Cmd-D': 'duplicateLine',
+        'Cmd-J': 'joinLines',
+        'Cmd-B': 'selectNextOccurrence',
+
+        'Ctrl-Left': 'goSubwordLeft', // should implement on LKC
+        'Ctrl-Right': 'goSubwordRight', // should implement on LKC
+        'Cmd-L': 'splitSelectionByLine', // change not visible, need modification
+        'Esc': 'singleSelectionTop',
+        'Cmd-Enter': 'moveToLineEndAndInsertLineAfter',
+        'Shift-Cmd-Enter': 'insertLineBefore',
+        'Backspace': 'smartBackspace',
+
+        "Shift-Cmd-Backspace": "delLineLeft",
+        "Shift-Cmd-Delete": "delLineRight",
+        "Cmd-Alt-Up": "addCursorToPrevLine",
+        "Cmd-Alt-Down": "addCursorToNextLine",
+    }
+    /* eslint-enable */
+</script>
 
 <script>
-    import g from '../lib/Globals'
+    import { onDestroy, onMount, createEventDispatcher } from 'svelte'
+
     import CMEventDispatcher from './CMEventDispatcher'
-    import registerCMCommands from './CMCommands'
     import RealtimeFormatter from './RealtimeFormatter'
     import { CompletionProvider } from './completion/CompletionProvider'
-    import { getIconByFileName } from '../lib/FileTypeToIcon'
     import { schedule, nextFrame, joinPath } from '../lib/Utils'
+    
+    import Completion from './completion/Completion.html'
 
     /* eslint-disable */
     import CodeMirror from 'codemirror'
@@ -50,7 +88,6 @@
     import xml from 'codemirror/mode/xml/xml'
     import yaml from 'codemirror/mode/yaml/yaml'
 
-
     // CM addons
     import meta from 'codemirror/mode/meta'
     import matchbrackets from 'codemirror/addon/edit/matchbrackets'
@@ -67,358 +104,328 @@
     import matchhighlighter from './match-highlighter'
     /* eslint-enable */
 
-    g.CodeMirror = CodeMirror
 
-    registerCMCommands(CodeMirror)
-    const overlayOption = {
-        opaque: true,
-        priority: 0,
+    const dispatch = createEventDispatcher()
+        
+    export let active = false,
+        clean = true,
+        cm = null,
+        cmEventDispatcher = null,
+        cmReadyCallback = null,
+        codeEditor = null,
+        completion = null,
+        completionProvider = null,
+        fileName = '',
+        filePath = null,
+        highlightOverlay = null,
+        isMakefile = false,
+        offlineLints = [],
+        outline = [],
+        pathString,
+        realtimeFormatter = null,
+        realtimeLints = [],
+        session = g.socket.createSession('editor', { filePath }),
+        spellingErrors = [],
+        tab = null,
+        textMark = null,
+        uid
+    
+    let cursorBeforeSaving,
+        mtime,
+        oldPathString = '',
+        previousHighlightOverlay = null,
+        previousTextMark = null,
+        saving = false,
+        scrollInfoBeforeSaving,
+        self,
+        shouldClose = false
+    
+    const highlightSelectionMatches = { // search/match-highlighter
+        style: 'match-highlight',
+        minChars: 1,
+        delay: 50,
+        wordsOnly: false,
+        annotateScrollbar: false,
+        showToken: false,
+        trim: false
     }
-
-    export default {
-        components: {
-            Completion: './completion/Completion.html'
-        },
-        oncreate() {
-            this.parent = this.get().parent
-            this.saving = false
-            this.offlineLints = []
-            this.realtimeLints = []
-            this.spellingErrors = []
-            this.outline = []
-            g.linter.clear()
-
-            const { fileName } = this.get()
-            this.tab = this.parent.tabBar.openTab(this, fileName, getIconByFileName(fileName))
-            g.panelMiddle.pathToEditor[joinPath(this.get().filePath)] = this
-
-            const mode = CodeMirror.findModeByFileName(fileName)
-
-            // Step 1: Connect to websocket and read file
-            const readFile = new Promise(resolve => {
-                let startTime = performance.now()
-                this.shouldClose = false
-                this.completion = this.refs.completion
-
-                this.session = g.socket.createSession('editor', {
-                    filePath: this.get().filePath
-                })
-                Object.assign(this.session.handlers, {
-                    FileOpened: data => {
-                        console.debug('transmission took', performance.now() - startTime)
-                        resolve(data) // <-- exit here
-                    },
-                    FailedToOpen: reason => {
-                        g.notificationBar.show('warning', reason)
-                        g.panelMiddle.closeFile(this.get().filePath)
-                    },
-                    RealTimeLints: ({ result }) => {
-                        this.realtimeLints = result
-                        if (g.activeEditor === this)
-                            g.linter.set({ realtimeLints: this.realtimeLints })
-                    },
-                    FileSaved: data => {
-                        this.mtime = data.mtime
-                        this.saving = false
-                        if (this.shouldClose)
-                            g.panelMiddle.closeFile(this.get().filePath)
-                        else if (data.content) {
-                            this.cm.setValue(data.content)
-                            if (this.cursorBeforeSaving) {
-                                // restore cursor and viewport position in case formatter changes the content
-                                this.cm.setCursor(this.cursorBeforeSaving)
-                                this.cm.scrollTo(this.scrollInfoBeforeSaving.left, this.scrollInfoBeforeSaving.top)
-                            }
-                        }
-                        if (!this.shouldClose)
-                            this.markClean()
-                        let message = `"<b>${this.get().fileName}</b>"`
-                        message += data.content ? ' formatted and saved.' : ' saved.'
-                        g.notificationBar.show('success', message)
-                    },
-                    Reloaded: data => {
-                        // prompt to reload if modified by another program
-                        this.cm.setValue(data.content)
-                        this.markClean()
-                    },
-                    Mtime: data => {
-                        if (this.mtime === data.mtime || this.saving) return
-                        this.mtime = data.mtime
-                        g.notificationBar.show(
-                            'question',
-                            `The file "<b>${this.get().fileName}</b>" has been modified by another program. Do you want to reload it?`, [{
-                                name: 'Reload',
-                                callback: () => this.session.send('Reload', {})
-                            }]
-                        )
-                    },
-                    FileDeleted: () => {
-                        if (this.saving) return
-                        // prompt to close if deleted or moved
-                        g.notificationBar.show(
-                            'question',
-                            `The file "<b>${this.get().fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
-                                name: 'Close',
-                                callback: () => {
-                                    this.markClean()
-                                    g.panelMiddle.closeFile(this.get().filePath)
-                                }
-                            }]
-                        )
-                    },
-                    CompletionDocstring: ({ doc, type }) => {
-                        if (doc.length === 0) doc = null
-                        g.docs.set({ completionDoc: doc, completionDocType: type })
-                    },
-                    FunctionDocumentation: ({ doc, type }) => {
-                        if (doc.length === 0) doc = null
-                        g.docs.set({ functionDoc: doc, functionDocType: type })
-                        g.docs.highlightActiveParameter(this.cm)
-                    },
-                    OfflineLints: data => {
-                        this.offlineLints = data.result
-                        this.offlineLints.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
-                        this.offlineLints.forEach(x => {
-                            const { message } = x
-                            const index = message.indexOf('\n')
-                            if (index <= 0) {
-                                x.message0 = message
-                                x.message1 = ''
-                            } else {
-                                x.message0 = message.substring(0, index)
-                                x.message1 = message.substring(index + 1)
-                            }
-                        })
-                        if (g.activeEditor === this)
-                            g.linter.set({ offlineLints: this.offlineLints })
-                    },
-                    SpellingErrors: data => {
-                        this.spellingErrors = data.result
-                        if (g.activeEditor === this)
-                            g.linter.set({ spellingErrors: this.spellingErrors })
-                    },
-                    ReferencesFound: data => {
-                        g.references.set(data)
-                        g.panelRight.activateView(g.references)
-                    },
-                    RequestFullSync: () => {
-                        this.session.send('SyncRange', [0, this.cm.lineCount(), false, 
-                            ...g.activeEditor.cm.getValue().split('\n')])
-                    }
-                })
+    
+    $: dispatch('active', {
+        id: joinPath(filePath),
+        active
+    })
+    
+    $: tab && tab.$set({ clean })
+    $: isMakefile = fileName.toLowerCase() === 'makefile'
+    $: {
+        if (oldPathString && pathString && oldPathString !== pathString) {
+            session.send('Mtime', { newPath: pathString })
+            tab.$set({ name: fileName })
+            oldPathString = pathString
+        }
+    }
+    $: {
+        if (active && session && cm) {
+            nextFrame(() => {
+                cm.refresh()
+                session.send('ActivateEditor')
             })
-
-            // Step 2: Open editor
-            this.highlightSelectionMatches = { // search/match-highlighter
-                style: 'match-highlight',
-                minChars: 1,
-                delay: 50,
-                wordsOnly: false,
-                annotateScrollbar: false,
-                showToken: false,
-                trim: false
-            }
-            const initializeCM = readFile.then(data => {
-                const { indentWithTabs, indentSize } = g.cursorPosition.get()
-                this.cm = CodeMirror(this.refs.codeEditor, {
-                    value: data.content,
-                    mode: mode ? mode.mime : undefined,
-                    theme: 'akimous',
-                    indentUnit: indentSize,
-                    indentWithTabs: indentWithTabs,
-                    lineNumbers: true,
-                    autofocus: true,
-                    viewportMargin: 20,
-
-                    // addons
-                    matchBrackets: true, // edit/matchbrackets
-                    autoCloseBrackets: true, // edit/closebrackets
-                    highlightSelectionMatches: this.highlightSelectionMatches,
-                    styleActiveLine: true, // selection/active-line
-
-                    foldGutter: true, // fold/foldgutter
-                    gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
-
-                    // keymap
-                    /* eslint-disable */
-                    extraKeys: {
-                        'Tab': 'indentMore',
-                        'Shift-Tab': 'indentLess',
-                        'Cmd-/': 'toggleCommentIndented',
-                        'Cmd-Backspace': 'deleteLineAndGoUp',
-                        'Cmd-Delete': 'deleteLineAndGoDown',
-                        'Cmd-D': 'duplicateLine',
-                        'Cmd-J': 'joinLines',
-                        'Cmd-B': 'selectNextOccurrence',
-
-                        'Ctrl-Left': 'goSubwordLeft', // should implement on LKC
-                        'Ctrl-Right': 'goSubwordRight', // should implement on LKC
-                        'Cmd-L': 'splitSelectionByLine', // change not visible, need modification
-                        'Esc': 'singleSelectionTop',
-                        'Cmd-Enter': 'moveToLineEndAndInsertLineAfter',
-                        'Shift-Cmd-Enter': 'insertLineBefore',
-                        'Backspace': 'smartBackspace',
-
-                        "Shift-Cmd-Backspace": "delLineLeft",
-                        "Shift-Cmd-Delete": "delLineRight",
-                        "Cmd-Alt-Up": "addCursorToPrevLine",
-                        "Cmd-Alt-Down": "addCursorToNextLine",
-                    }
-                    /* eslint-enable */
-                })
-                this.mtime = data.mtime
-            })
-
-            // Step 3: Do the rest of things (about 20 ms)
-            initializeCM.then(() => schedule(() => {
-                this.cm.refresh() // prevent CM occasionally shifts to the right
-                this.completionProvider = new CompletionProvider(this)
-                // only enable completionProvider when the document is a Python file
-                if (mode && mode.mode !== 'python') {
-                    this.completionProvider.enabled = false
-                }
-                this.realtimeFormatter = RealtimeFormatter(this, CodeMirror)
-                this.cmEventDispatcher = new CMEventDispatcher(this)
-                this.completion.bindReferences(this)
-
-                // resolve Safari over-scroll jitter issue
-                const scroller = this.refs.codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
-                scroller.onwheel = e => {
-                    if (e.deltaY <= 0) return
-                    const scrollInfo = this.cm.getScrollInfo()
-                    if (scrollInfo.top + scrollInfo.clientHeight >= scrollInfo.height) {
-                        e.preventDefault()
-                    }
-                }
-                if (this.cmReadyCallback) {
-                    this.cmReadyCallback(this)
-                    this.cmReadyCallback = null
-                }
-
-                schedule(() => {
-                    this.outline = g.outline.generateOutline(this.cm)
-                    if (g.activeEditor === this)
-                        g.outline.set({ outlineItems: this.outline })
-                })
-            }))
-        },
-        ondestroy() {
-            this.tab.destroy()
-            g.linter.clear()
-            delete g.panelMiddle.pathToEditor[joinPath(this.get().filePath)]
-            this.session.send('Close')
-            this.session.close()
-        },
-        onstate({ changed, current, previous }) {
-            if (!previous) return
-            if (changed.filePath) {
-                const newPath = current.filePath
-                g.panelMiddle.pathToEditor[joinPath(newPath)] = this
-                if (previous.filePath) {
-                    delete g.panelMiddle.pathToEditor[joinPath(previous.filePath)]
-                    this.session.send('Mtime', { newPath })
-                }
-            }
-            const tab = this.tab
-            if (!tab) return
-
-            if (changed.fileName) {
-                tab.set({ name: current.fileName })
-            }
-            if (changed.clean) {
-                tab.set({ clean: current.clean })
-            }
-            if (changed.active) {
-                const { active } = current
-                const { cm } = this
-                tab.set({ active: active })
-                if (active && this.session && cm) {
-                    nextFrame(() => {
-                        // content may not show for background editors if multiple editors are opened during startup
-                        cm.refresh()
-                        this.session.send('ActivateEditor')
-                    })
-
-                }
-            }
-            if (changed.highlightOverlay) {
-                const { cm } = this
-                cm.removeOverlay(previous.highlightOverlay)
-                if (current.highlightOverlay && !cm.hasFocus()) {
-                    cm.setOption('highlightSelectionMatches', false) // pause highlightSelectionMatches
-                    cm.addOverlay(current.highlightOverlay, overlayOption)
-                } else { // resume highlightSelectionMatches
-                    const currentOption = cm.getOption('highlightSelectionMatches')
-                    if (this.highlightSelectionMatches !== currentOption)
-                        cm.setOption('highlightSelectionMatches', this.highlightSelectionMatches)
-                }
-            }
-            if (changed.textMark && previous.textMark) {
-                previous.textMark.clear()
-            }
-        },
-        data() {
-            return {
-                fileName: '',
-                filePath: null,
-                active: false,
-                clean: true,
-                highlightOverlay: null,
-                textMark: null,
-            }
-        },
-        computed: {
-            isMakefile: ({ fileName }) => fileName.toLowerCase() === 'makefile'
-        },
-        methods: {
-            save() {
-                this.saving = true
-                this.session.send('SaveFile', { content: this.cm.getValue() })
-                // preserve cursor and viewport position in case formatter changes the content
-                this.cursorBeforeSaving = this.cm.getCursor()
-                this.scrollInfoBeforeSaving = this.cm.getScrollInfo()
-            },
-            insertText(text) {
-                g.activeEditor && g.activeEditor.cm.hasFocus()
-                if (g.activeEditor != this || !this.cm.hasFocus()) return
-                this.cm.doc.replaceRange(text, this.cm.doc.getCursor('from'), this.cm.doc.getCursor('to'), '+input')
-            },
-            markClean() {
-                this.set({ clean: true })
-                this.cm.doc.markClean()
-            },
-            syncChanges(changes, lineContent) {
-                if (!this.completionProvider.enabled) return
-                const { cm } = this
-                if (!lineContent)
-                    for (let c = 0; c < changes.length; c++) {
-                        const change = changes[c]
-                        const { text, removed } = change
-                        const from = change.from.line
-                        const to = change.to.line
-
-                        let lint = text.length > 1 || removed.length > 1
-                        if (c != changes.length - 1) lint = false // only lint on last change
-
-                        text[0] = cm.getLine(from)
-                        if (to != from && to - from === text.length - 1)
-                            text[text.length - 1] = cm.getLine(to)
-
-                        this.session.send('SyncRange', [from, to + 1, lint, ...text])
-                    }
-                else {
-                    this.session.send('SyncRange', [changes, changes + 1, true, lineContent])
-                }
-                schedule(() => {
-                    this.outline = g.outline.generateOutline(this.cm)
-                    if (g.activeEditor === this)
-                        g.outline.set({
-                            outlineItems: this.outline,
-                            currentLine: this.cm.getCursor().line
-                        })
-                })
-            }
+        }
+    }
+    $: {
+        if (!active && completion) {
+            completion.$set({ open: false })
+        }
+    }
+    $: {
+        previousHighlightOverlay && cm.removeOverlay(previousHighlightOverlay)
+        if (highlightOverlay && !cm.hasFocus()) {
+            cm.setOption('highlightSelectionMatches', false) // pause highlightSelectionMatches
+            cm.addOverlay(highlightOverlay, overlayOption)
+            previousHighlightOverlay = highlightOverlay
+        } else if (cm) { // resume highlightSelectionMatches
+            const currentOption = cm.getOption('highlightSelectionMatches')
+            if (highlightSelectionMatches !== currentOption)
+                cm.setOption('highlightSelectionMatches', highlightSelectionMatches)
+        }
+    }
+    $: {
+        if (textMark) {
+            previousTextMark && previousTextMark.clear()
+            previousTextMark = textMark
         }
     }
 
+    onMount(() => {
+        self = g.panelMiddle.editors[pathString]
+        g.linter.clear()
+        const mode = CodeMirror.findModeByFileName(fileName)
+
+        // Step 1: Connect to websocket and read file
+        const readFile = new Promise(resolve => {
+            let startTime = performance.now()
+
+            Object.assign(session.handlers, {
+                FileOpened: data => {
+                    console.debug('transmission took', performance.now() - startTime)
+                    resolve(data) // <-- exit here
+                },
+                FailedToOpen: reason => {
+                    g.notificationBar.show('warning', reason)
+                    g.panelMiddle.closeFile(filePath)
+                },
+                RealTimeLints: ({ result }) => {
+                    realtimeLints = result
+                    if (g.activeEditor === self)
+                        g.linter.$set({ realtimeLints })
+                },
+                FileSaved: data => {
+                    mtime = data.mtime
+                    saving = false
+                    if (shouldClose)
+                        g.panelMiddle.closeFile(filePath)
+                    else if (data.content) {
+                        cm.setValue(data.content)
+                        if (cursorBeforeSaving) {
+                            // restore cursor and viewport position in case formatter changes the content
+                            cm.setCursor(cursorBeforeSaving)
+                            cm.scrollTo(scrollInfoBeforeSaving.left, scrollInfoBeforeSaving.top)
+                        }
+                    }
+                    if (!shouldClose)
+                        markClean()
+                    let message = `"<b>${fileName}</b>"`
+                    message += data.content ? ' formatted and saved.' : ' saved.'
+                    g.notificationBar.show('success', message)
+                },
+                Reloaded: data => {
+                    // prompt to reload if modified by another program
+                    cm.setValue(data.content)
+                    markClean()
+                },
+                Mtime: data => {
+                    if (mtime === data.mtime || saving) return
+                    mtime = data.mtime
+                    g.notificationBar.show(
+                        'question',
+                        `The file "<b>${fileName}</b>" has been modified by another program. Do you want to reload it?`, [{
+                            name: 'Reload',
+                            callback: () => session.send('Reload', {})
+                        }]
+                    )
+                },
+                FileDeleted: () => {
+                    if (saving) return
+                    // prompt to close if deleted or moved
+                    g.notificationBar.show(
+                        'question',
+                        `The file "<b>${fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
+                            name: 'Close',
+                            callback: () => {
+                                markClean()
+                                g.panelMiddle.closeFile(filePath)
+                            }
+                        }]
+                    )
+                },
+                CompletionDocstring: ({ doc, type }) => {
+                    if (doc.length === 0) doc = null
+                    g.docs.$set({ completionDoc: doc, completionDocType: type })
+                },
+                FunctionDocumentation: ({ doc, type }) => {
+                    if (doc.length === 0) doc = null
+                    g.docs.$set({ functionDoc: doc, functionDocType: type })
+                    g.docs.highlightActiveParameter(cm)
+                },
+                OfflineLints: data => {
+                    offlineLints = data.result
+                    offlineLints.sort((a, b) => (a.line - b.line) * 1000 + (a.column - b.column))
+                    offlineLints.forEach(x => {
+                        const { message } = x
+                        const index = message.indexOf('\n')
+                        if (index <= 0) {
+                            x.message0 = message
+                            x.message1 = ''
+                        } else {
+                            x.message0 = message.substring(0, index)
+                            x.message1 = message.substring(index + 1)
+                        }
+                    })
+                    if (g.activeEditor === self)
+                        g.linter.$set({ offlineLints: offlineLints })
+                },
+                SpellingErrors: data => {
+                    spellingErrors = data.result
+                    if (g.activeEditor === self)
+                        g.linter.$set({ spellingErrors })
+                },
+                ReferencesFound: data => {
+                    g.references.$set({
+                        ...data,
+                        active: true
+                    })
+                },
+                RequestFullSync: () => {
+                    session.send('SyncRange', [0, cm.lineCount(), false, 
+                        ...g.activeEditor.cm.getValue().split('\n')])
+                }
+            })
+        })
+
+        // Step 2: Open editor
+        const initializeCM = readFile.then(data => {
+            const { indentWithTabs, indentSize } = g.cursorPosition
+            cm = CodeMirror(codeEditor, {
+                value: data.content,
+                mode: mode ? mode.mime : undefined,
+                theme: 'akimous',
+                indentUnit: indentSize,
+                indentWithTabs: indentWithTabs,
+                lineNumbers: true,
+                autofocus: true,
+                viewportMargin: 20,
+
+                // addons
+                matchBrackets: true, // edit/matchbrackets
+                autoCloseBrackets: true, // edit/closebrackets
+                highlightSelectionMatches,
+                styleActiveLine: true, // selection/active-line
+
+                foldGutter: true, // fold/foldgutter
+                gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
+                extraKeys // keymap
+            })
+            mtime = data.mtime
+        })
+
+        // Step 3: Do the rest of things (about 20 ms)
+        initializeCM.then(() => schedule(() => {
+            cm.refresh() // prevent CM occasionally shifts to the right
+            completionProvider = new CompletionProvider(self)
+            // only enable completionProvider when the document is a Python file
+            if (mode && mode.mode !== 'python') {
+                completionProvider.enabled = false
+            }
+            realtimeFormatter = RealtimeFormatter(self, CodeMirror)
+            cmEventDispatcher = new CMEventDispatcher(self)
+            completion.bindReferences(self)
+
+            // resolve Safari over-scroll jitter issue
+            const scroller = codeEditor.getElementsByClassName('CodeMirror-scroll')[0]
+            scroller.onwheel = e => {
+                if (e.deltaY <= 0) return
+                const scrollInfo = cm.getScrollInfo()
+                if (scrollInfo.top + scrollInfo.clientHeight >= scrollInfo.height) {
+                    e.preventDefault()
+                }
+            }
+            if (cmReadyCallback) { // TODO: may use event instead
+                cmReadyCallback(self)
+                cmReadyCallback = null
+            }
+
+            schedule(() => {
+                outline = g.outline.generateOutline(cm)
+                if (g.activeEditor === self)
+                    g.outline.$set({ outlineItems: outline })
+            })
+        }))
+    })
+
+    onDestroy(() => {
+        tab.$destroy()
+        g.linter.clear()
+        session.send('Close')
+        session.close()
+    })    
+
+    export function save() {
+        saving = true
+        session.send('SaveFile', { content: cm.getValue() })
+        // preserve cursor and viewport position in case formatter changes the content
+        cursorBeforeSaving = cm.getCursor()
+        scrollInfoBeforeSaving = cm.getScrollInfo()
+    }
+
+    export function insertText(text) {
+        g.activeEditor && g.activeEditor.cm.hasFocus()
+        if (!cm.hasFocus()) return
+        cm.doc.replaceRange(text, cm.doc.getCursor('from'), cm.doc.getCursor('to'), '+input')
+    }
+
+    export function markClean() {
+        clean = true
+        cm.doc.markClean()
+    }
+
+    export function syncChanges(changes, lineContent) {
+        if (!completionProvider.enabled) return
+        if (!lineContent)
+            for (let c = 0; c < changes.length; c++) {
+                const change = changes[c]
+                const { text, removed } = change
+                const from = change.from.line
+                const to = change.to.line
+
+                let lint = text.length > 1 || removed.length > 1
+                if (c != changes.length - 1) lint = false // only lint on last change
+
+                text[0] = cm.getLine(from)
+                if (to != from && to - from === text.length - 1)
+                    text[text.length - 1] = cm.getLine(to)
+
+                session.send('SyncRange', [from, to + 1, lint, ...text])
+            }
+        else {
+            session.send('SyncRange', [changes, changes + 1, true, lineContent])
+        }
+        schedule(() => {
+            outline = g.outline.generateOutline(cm)
+            if (g.activeEditor === self)
+                g.outline.$set({
+                    outlineItems: outline,
+                    currentLine: cm.getCursor().line
+                })
+        })
+    }
 </script>

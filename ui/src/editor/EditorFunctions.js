@@ -205,7 +205,7 @@ function setCursorAndScrollIntoView(line, ch) {
     const pos = Pos(line, ch)
     cm.setCursor(pos)
     cm.focus()
-    const margin = editor.refs.codeEditor.getBoundingClientRect().height * .2
+    const margin = editor.codeEditor.getBoundingClientRect().height * .2
     cm.scrollIntoView(pos, margin)
     return cm
 }

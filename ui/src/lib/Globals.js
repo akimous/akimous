@@ -4,9 +4,11 @@ const g = {
     focusStack: [],
     get focus() {
         const stack = this.focusStack
+        // console.log('got focus', stack[stack.length - 1], stack)
         return stack[stack.length - 1]
     },
     setFocus(x) {
+        // console.warn('set focus', x)
         const focusStack = this.focusStack
         // backup original focus stack
         const oldRoot = focusStack[0]
@@ -15,22 +17,16 @@ const g = {
         // if focused panel is changed
         if (oldRoot && oldRoot !== x[0]) {
             // hide panel if autoHide is true and losing focus
-            if (oldRoot.get().autoHide)
-                oldRoot.set({
-                    hidden: true
-                })
-            newRoot.set({
-                hidden: false
-            })
+            if (oldRoot.autoHide)
+                oldRoot.$set({ hidden: true })
+            newRoot.$set({ hidden: false })
             // store focus stack if needed
             if (focusStack.length > 1) {
                 if (this.focus.constructor.name === 'Completion' ||
                     this.focus.constructor.name === 'ContextMenu') {
-                    this.focus.set({
-                        open: false
-                    })
+                    this.focus.$set({ open: false })
                 }
-                oldRoot.set({
+                oldRoot.$set({
                     focusStack: focusStack.slice(1)
                 })
             }
@@ -38,12 +34,13 @@ const g = {
         this.focusStack = x
         // restore focus stack
         if (x.length === 1) {
-            const originalFocusStack = x[0].get().focusStack
+            const originalFocusStack = x[0].focusStack
             originalFocusStack && this.focusStack.push(...originalFocusStack)
         }
         this.onFocusChanged()
     },
     pushFocus(x) {
+        // console.log('push focus', x)
         const focusStack = this.focusStack
         for (let i = 0; i < focusStack.length; i++) {
             if (focusStack[i] === x) return
@@ -52,6 +49,7 @@ const g = {
         this.onFocusChanged()
     },
     popFocus(x) {
+        // console.log('pop focus', x)
         const focusStack = this.focusStack
         for (let i = focusStack.length - 1; i >= 0; i--) {
             if (focusStack[i] === x) {
@@ -64,7 +62,7 @@ const g = {
         const focusedPanel = this.focusStack[0]
         for (const panel of [g.panelLeft, g.panelMiddle, g.panelRight]) {
             if (!panel) break
-            panel.set({
+            panel.$set({
                 focused: panel === focusedPanel
             })
         }

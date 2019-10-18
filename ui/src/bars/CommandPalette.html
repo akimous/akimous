@@ -1,6 +1,6 @@
-<div id="command-palette" class="non-selectable" class:gone="!active">
+<div id="command-palette" class="non-selectable" class:gone="{!active}">
     <span class="message">{message}</span>
-    <input ref:input type="text" spellcheck="false" on:keydown="onKeyDown()" />
+    <input bind:this={input} bind:value type="text" spellcheck="false" on:keydown="{onKeyDown}" />
 </div>
 
 
@@ -37,50 +37,38 @@
 
 </style>
 
-
-<script>
+<script>    
     import g from '../lib/Globals'
 
-    export default {
-        components: {},
-        oncreate() {
-            g.commandPalette = this
-        },
-        onupdate({ changed, current }) {
-            if (changed.active && current.active) {
-                g.setFocus([this])
-                this.refs.input.focus()
-            }
-        },
-        data() {
-            return {
-                active: false,
-                message: '',
-                callback: null,
-            }
-        },
-        methods: {
-            show() {
-                this.set({
-                    active: true,
-                    message: 'Command:'
-                })
-            },
-            promptForInput(message, callback) {
-                this.set({
-                    active: true,
-                    message,
-                    callback
-                })
-            },
-            onKeyDown() {
-                if (event.key === 'Enter') {
-                    const input = this.refs.input.value
-                    this.get().callback(input)
-                    this.set({ active: false })
-                }
-            }
-        }
+    export let active = false,
+        callback = null,
+        input = null,
+        message = '',
+        value = ''
+    
+    $: active && onActivation()
+    
+    function onActivation() {
+        g.setFocus([g.commandPalette])
+        input.focus()
     }
 
+    export function show() {
+        active = true
+        message = 'Command:'
+    }
+
+    export function promptForInput(message_, callback_) {
+        active = true
+        message = message_
+        callback = callback_
+    }
+
+    export function onKeyDown() {
+        if (event.key === 'Enter') {
+            const { value } = input
+            callback(value)
+            active = false
+        }
+    }
 </script>

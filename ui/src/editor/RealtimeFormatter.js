@@ -7,7 +7,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
 
     const operators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->)|[+\-*/%&|^~<>!@=])$/
     const compoundOperators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->))$/
-    const operatorChars = /[=+\-*/|&^~%@><!]$/
+    const operatorChars = /^[=+\-*/|&^~%@><!]$/
     const identifier = /^[^\d\W]\w*$/
     const _inParentheses = () => inParentheses(cm, c.from)
     const _inBrackets = () => inBrackets(cm, c.from)
@@ -15,7 +15,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const ensureSpaceBefore = (t0) => {
         if (/\s+/.test(t0.string)) return // don't duplicate spaces
         c.text[0] = ' ' + c.text[0]
-        editor.completionProvider.firstTriggeredCharPos.ch++
+        const pos = {...editor.completionProvider.firstTriggeredCharPos}
+        pos.ch++
     }
     const stripTrailingSpaces = (line) => {
         for (let i = c.from.ch - 1; i >= 0; i--) {
@@ -30,7 +31,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         if (!config.formatter.realtime) return
         // skip if there are no characters before cursor 
         if (c.to.ch === 0) return
-
+        if (!c.text) return
         const leftText = t0.string
         const lastChar = leftText.slice(-1)
         const currentText = c.text[0]
@@ -42,21 +43,21 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         const leftTextIsOperator = operators.test(leftText)
         const currentTextIsPartOfTheOperator = compoundOperators.test(leftText + currentText)
         const currentTextIsOperator = operatorChars.test(currentText)
-        if (editor.debug) console.log({
-            currentTextIsPartOfTheOperator,
-            currentTextIsOperator,
-            leftTextIsOperator,
-            existSpaceBeforePreviousToken,
-            currentText,
-            leftText,
-            t2,
-            t1,
-            t0,
-            'll': leftText + lastChar,
-            'state': currentState,
-            'scope': currentScope,
-            'lineContent': cm.doc.getLine(c.from.line)
-        })
+        //console.log({
+        //    currentTextIsPartOfTheOperator,
+        //    currentTextIsOperator,
+        //    leftTextIsOperator,
+        //    existSpaceBeforePreviousToken,
+        //    currentText,
+        //    leftText,
+        //    t2,
+        //    t1,
+        //    t0,
+        //    'll': leftText + lastChar,
+        //    'state': currentState,
+        //    'scope': currentScope,
+        //    'lineContent': cm.doc.getLine(c.from.line)
+        //})
 
         // split string into two lines if enter is pressed inside a string token
         if (c.text.length === 2 && currentText === '' && t0.type === 'string' 
@@ -108,7 +109,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         } else if (t0.string === ':' && !_inBrackets()) {
             c.text[0] = ' ' + c.text[0]
         } else if (currentText === '=') {
-            if (lastChar === '=' && leftText[leftText.length - 2] !== ' ') { // == case
+            if (lastChar === '=' && !/\s+/.test(t1.string) && leftText[leftText.length - 2] !== ' ') { 
+                // == case
                 const pos = Pos(c.from.line, c.from.ch - 1)
                 c.update(pos, pos, [' ='])
             } else if (currentTextIsPartOfTheOperator) { // +=, -=... etc
@@ -150,7 +152,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             c.text[0] = `self.${currentText}`
             c.from = Pos(c.from.line, c.from.ch - 1)
         } else {
-            if (editor.debug) console.log('none of above applies')
+            // console.debug('none of above applies')
         }
     }
 
