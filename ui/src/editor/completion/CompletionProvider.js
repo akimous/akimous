@@ -113,7 +113,7 @@ class CompletionProvider {
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             this.mode = STRING
             
-            const { t0, t1, t2 } = this.context
+            const { t1, t2 } = this.context
             if (t2.string === 'def') {
                 result.forEach(item => {
                     item.tail = '()'
