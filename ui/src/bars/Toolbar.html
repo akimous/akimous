@@ -1,78 +1,107 @@
 <div id="toolbar">
-    <div id="buttons">
-        <ToolbarButton ref:run iconClass="fas fa-play" title="Run" />
-        <ToolbarButton ref:run iconClass="fas fa-square" title="Stop" />
-        <ToolbarButton ref:run iconClass="fas fa-bug" title="Run" />
-        <ToolbarButton ref:linterOptions iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
-        <ToolbarButton ref:keyboardControlHint iconClass="fas fa-fw fa-keyboard" title="Keyboard Hint" />
-        <ToolbarButton ref:notificationHistory iconClass="fas fa-fw fa-bell" title="Notification History" />
-        <CursorPosition ref:cursorPosition />
-    </div>
+    <MenuBar bind:this={children.menuBar} />
+    <PathIndicator bind:this={children.pathIndicator} />
+    <ToolbarButton on:click="{() => togglePopup('linterOptions')}" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
+    <ToolbarButton on:click="{() => togglePopup('keymapSettings')}" iconClass="fas fa-fw fa-keyboard" title="Keymap Settings" />
+    <ToolbarButton on:click="{() => togglePopup('notificationHistory')}" iconClass="fas fa-fw fa-bell" title="Notification History" />
+    <span class="gap">|</span>
+    <ToolbarButton on:click="{() => togglePopup('runConfiguration')}" iconClass="fas fa-caret-down" title="Run Configuration">
+        <span class="text">{runConfigurationDisplay}</span>
+    </ToolbarButton>
+    <ToolbarButton on:click="{run}" iconClass="fas fa-play" title="Run" />
+    <ToolbarButton on:click="{stop}" iconClass="fas fa-square" title="Stop" />
+    <CursorPosition bind:this={g.cursorPosition} />
 </div>
-<MenuBar></MenuBar>
-<NotificationBar></NotificationBar>
-<TabNumber></TabNumber>
-<NotificationHistory></NotificationHistory>
-<LinterOptions></LinterOptions>
+<CommandPalette bind:this={g.commandPalette} />
+<NotificationBar bind:this={children.notificationBar} />
+<TabNumber bind:this={children.tabNumber} />
+<NotificationHistory bind:this={g.notificationHistory} />
+<LinterOptions bind:this={g.linterOptions} />
+<RunConfiguration bind:this={g.runConfiguration} />
+<KeymapSettings bind:this={g.keymapSettings} />
 
 <style>
     #toolbar {
+        display: flex;
         height: var(--toolbar-height);
         background: var(--panel-color);
         border-bottom: var(--panel-border);
         box-sizing: border-box;
         z-index: 200;
         user-select: none;
+        line-height: var(--toolbar-height);
     }
 
-    #buttons {
-        position: absolute;
-        right: 0;
+    .gap {
+        color: var(--gray5);
+    }
+
+    .text {
+        font-size: var(--ui-font-size-small);
+        padding: 0 .3rem;
     }
 
 </style>
 
-<script>
-    import g from '../lib/Globals'
+   
 
-    export default {
-        components: {
-            NotificationBar: './NotificationBar.html',
-            NotificationHistory: '../popups/NotificationHistory.html',
-            LinterOptions: '../popups/LinterOptions.html',
-            TabNumber: './TabNumber.html',
-            ToolbarButton: './ToolbarButton.html',
-            MenuBar: './MenuBar.html',
-            CursorPosition: './CursorPosition.html',
-        },
-        oncreate() {
-            g.toolbar = this
-            this.refs.notificationHistory.set({
-                callback: () => {
-                    g.notificationHistory.set({
-                        open: !g.notificationHistory.get().open
-                    })
-                }
-            })
-            this.refs.keyboardControlHint.set({
-                callback: () => {
-                    g.keyboardControlHint.set({
-                        open: !g.keyboardControlHint.get().open
-                    })
-                }
-            })
-            this.refs.linterOptions.set({
-                callback: () => {
-                    g.linterOptions.set({
-                        open: !g.linterOptions.get().open
-                    })
-                }
-            })
-        },
-        data() {
-            return {}
-        },
-        methods: {}
+<script>
+    import { onMount } from 'svelte'
+    
+    import g from '../lib/Globals'
+    import NotificationBar from './NotificationBar.html'
+    import NotificationHistory from '../popups/NotificationHistory.html'
+    import LinterOptions from '../popups/LinterOptions.html'
+    import RunConfiguration from '../popups/RunConfiguration.html'
+    import KeymapSettings from '../popups/KeymapSettings.html'
+    import TabNumber from './TabNumber.html'
+    import ToolbarButton from './ToolbarButton.html'
+    import MenuBar from './MenuBar.html'
+    import CursorPosition from './CursorPosition.html'
+    import CommandPalette from './CommandPalette.html'
+    import PathIndicator from './PathIndicator.html'
+
+    export let children = {},
+        runConfigurationDisplay = ''
+
+    onMount(() => {
+        Object.assign(g, children)
+    })
+
+    function togglePopup(name) {
+        const popup = g[name]
+        const { left, right } = event.target.getBoundingClientRect()
+        popup.open = !popup.open
+        if (popup.open) {
+            popup.left = (left + right) / 2
+        }
     }
 
+    function run() {
+        const { mode } = g.runConfiguration
+        if (!g.activeEditor && mode !== 'shell') {
+            g.notificationBar.show('warning', 'Please open a Python file to run.')
+            return
+        }
+        switch (mode) {
+            case 'script':
+            case 'module':
+            case 'shell':
+                if (!g.activeEditor.cm.isClean())
+                    g.saveFile()
+                g.console.runInTerminal()
+                break
+            case 'interactive':
+                g.console.startKernel(false)
+                break
+            case 'realtime':
+                g.console.startKernel(true)
+                break
+        }
+    }
+
+    function stop() {
+        g.console.stop()
+    }
 </script>
+

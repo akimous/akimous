@@ -1,0 +1,9 @@
+[
+    "gitwildmatch",
+    "github",
+    "akimous",
+    "yapf",
+    "isort",
+    "gitignore",
+    "Pyflakes"
+]

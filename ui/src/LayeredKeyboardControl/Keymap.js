@@ -1,8 +1,8 @@
-const editorCommandKeymap = {
+const editorCommandKeyMap = {
     'KeyI': 'goLineUp',
     'KeyK': 'goLineDown',
-    'KeyJ': 'goGroupLeft',
-    'KeyL': 'goGroupRight',
+    'KeyJ': 'goGroupLeft2',
+    'KeyL': 'goGroupRight2',
     
     'KeyH': 'goLineLeftSmart',
     'Semicolon': 'goLineRight',
@@ -10,16 +10,18 @@ const editorCommandKeymap = {
     'KeyO': 'goLineDown5X',
     'KeyY': 'goDocStart',
     'KeyP': 'goDocEnd',
+    'KeyM': 'goSubwordLeft2',
+    'Comma': 'focusAtCenter',
+    'Period': 'goSubwordRight2',
     
     'BracketLeft': 'goToPreviousBracket',
     'BracketRight': 'goToNextBracket',
     
     'KeyE': 'scrollUp',
     'KeyD': 'scrollDown',
-    'KeyC': 'focusAtCenter',
     
-    'KeyW': 'moveLineUp',
-    'KeyS': 'moveLineDown',
+    'KeyW': 'swapLineUp',
+    'KeyS': 'swapLineDown',
     
     'KeyR': 'selectLine',
     'KeyT': 'selectScope',
@@ -28,11 +30,14 @@ const editorCommandKeymap = {
     
     'Backspace': 'delGroupBefore',
     'Delete': 'delGroupAfter',
+    'Digit8': 'deleteSubwordLeft',
     
+    'Digit0': 'unfoldAll',
     'Minus': 'fold',
+    'Equal': 'unfold',
 }
 
-const genericCommandKeymap = {
+const genericCommandKeyMap = {
     'KeyI': 'up',
     'KeyK': 'down',
     'KeyU': 'up5X',
@@ -49,11 +54,11 @@ const genericCommandKeymap = {
     
     'Space': 'commit',
     
-    'KeyN': 'togglePanelLeft',
-    'KeyM': 'panelLeft',
-    'Comma': 'panelMiddle',
-    'Period': 'panelRight',
-    'Slash': 'togglePanelRight',
+    'KeyZ': 'togglePanelLeft',
+    'KeyX': 'panelLeft',
+    'KeyC': 'panelMiddle',
+    'KeyV': 'panelRight',
+    'KeyB': 'togglePanelRight',
     
     'Digit1': '1',
     'Digit2': '2',
@@ -62,10 +67,13 @@ const genericCommandKeymap = {
     'Digit5': '5',
     'Digit6': '6',
     'Digit7': '7',
-    'Digit8': '8',
+    
+    // for passthrough to editor
+    'Backspace': 'delGroupBefore',
+    'Delete': 'delGroupAfter',
 }
 
 export default {
-    editorCommandKeymap,
-    genericCommandKeymap
+    editorCommandKeyMap,
+    genericCommandKeyMap
 }

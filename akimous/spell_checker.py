@@ -3,14 +3,15 @@ import re
 from collections import namedtuple
 from functools import partial
 from itertools import chain
-from token import NAME, STRING, COMMENT, NEWLINE
+from token import COMMENT, NAME, NEWLINE, STRING
 
 from wordsegment import WORDS
 
 from .websocket import register_handler
-from .word_completer import is_prefix
+from .word_completer import is_prefix, wait_until_initialized
 
-SpellingError = namedtuple('SpellingError', ('line', 'ch', 'token', 'highlighted_token'))
+SpellingError = namedtuple('SpellingError',
+                           ('line', 'ch', 'token', 'highlighted_token'))
 Token = namedtuple('Token', ('start', 'string', 'type'))
 DummyToken = namedtuple('DummyToken', ('string', ))
 dummy = DummyToken('')
@@ -28,10 +29,14 @@ handles = partial(register_handler, '')
 
 @handles('AddToProjectDictionary')
 async def add_to_project_dictionary(msg, send, context):
-    shared_context = context.shared_context
+    shared_context = context.shared
     shared_context.spell_checker.project_dictionary.update(msg)
-    with open(shared_context.project_root / '.akimous.json', 'w') as f:
-        json.dump(list(shared_context.spell_checker.project_dictionary), f, indent=4, sort_keys=True)
+    with open(shared_context.project_dictionary_file, 'w') as f:
+        json.dump(
+            list(shared_context.spell_checker.project_dictionary),
+            f,
+            indent=4,
+            sort_keys=True)
 
 
 def decompose_token(token):
@@ -65,25 +70,28 @@ def highlight_spelling_errors(token, words, is_correct):
     for w, i in zip(words, is_correct):
         index = lowercase_result.find(w, index)
         if not i:
-            result = ''.join((result[:index], '<em>', result[index:index + len(w)], '</em>', result[index + len(w):]))
+            result = ''.join(
+                (result[:index], '<em>', result[index:index + len(w)], '</em>',
+                 result[index + len(w):]))
             lowercase_result = result.lower()
             index += 9  # length of <em></em>
     return result
 
 
 class SpellChecker:
-    def __init__(self, shared_context):
+    def __init__(self, context):
+        shared_context = context.shared
         shared_context.spell_checker = self
         self.project_dictionary = set()
 
         # load project dictionary
-        dictionary_path = shared_context.project_root / '.akimous.json'
-        if dictionary_path.exists():
-            with open(dictionary_path, 'r') as f:
+        if shared_context.project_dictionary_file.exists():
+            with open(shared_context.project_dictionary_file, 'r') as f:
                 project_dictionary = json.load(f)
             self.project_dictionary.update(project_dictionary)
 
     def check_spelling(self, tokens):
+        wait_until_initialized()
         checked = set('')  # both checked tokens and words
         imported_names = set()
         spelling_errors = []
@@ -107,7 +115,10 @@ class SpellChecker:
                 return
             if word in imported_names:
                 return
-            check_token(Token((token.start[0], token.start[1] + token.string.find(word)), word, NAME))
+            check_token(
+                Token(
+                    (token.start[0], token.start[1] + token.string.find(word)),
+                    word, NAME))
 
         def check_token(token):
             if token.type in STRING_AND_COMMENT:
@@ -138,8 +149,11 @@ class SpellChecker:
             checked.update(words)
 
             if not all(is_correct):
-                highlighted_token = highlight_spelling_errors(token.string, words, is_correct)
-                spelling_errors.append(SpellingError(*token.start, token.string, highlighted_token))
+                highlighted_token = highlight_spelling_errors(
+                    token.string, words, is_correct)
+                spelling_errors.append(
+                    SpellingError(*token.start, token.string,
+                                  highlighted_token))
 
         for_ = False
         def_ = False

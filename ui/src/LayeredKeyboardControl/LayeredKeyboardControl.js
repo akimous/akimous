@@ -1,10 +1,11 @@
 import g from '../lib/Globals'
-import Keymap from './Keymap'
+import { config } from '../lib/ConfigManager'
+import KeyMap from './KeyMap'
 import CodeEditor from '../editor/CodeEditor.html'
 
-function togglePanelAutoHide(panel) {
-    const autoHide = !panel.get().autoHide
-    panel.set({
+export function togglePanelAutoHide(panel) {
+    const autoHide = !panel.autoHide
+    panel.$set({
         autoHide,
         hidden: autoHide
     })
@@ -29,7 +30,7 @@ class LayeredKeyboardControl {
         if (code.startsWith('Key'))
             key = code.substring(3)
         this.commandSent = true
-        const command = Keymap.genericCommandKeymap[code]
+        const command = KeyMap.genericCommandKeyMap[code]
         switch (command) {
             case 'panelLeft':
                 g.setFocus([g.panelLeft])
@@ -51,7 +52,7 @@ class LayeredKeyboardControl {
                     const focus = g.focusStack[i]
                     if (focus instanceof CodeEditor) {
                         const extending = e.shiftKey
-                        const editorCommand = Keymap.editorCommandKeymap[code]
+                        const editorCommand = KeyMap.editorCommandKeyMap[code]
                         if (!editorCommand) continue
                         if (extending) this.sendEditorCommand('setExtending')
                         else this.sendEditorCommand('unsetExtending')
@@ -83,8 +84,8 @@ class LayeredKeyboardControl {
     set macroMode(x) {
         this._macroMode = x
         if (x) {
-            this._previousPanelRightView = g.panelRight.get().focus
-            g.panelRight.activateView(g.panelRight.refs.macro)
+            this._previousPanelRightView = g.panelRight.focus
+            g.macro.active = true
         } else {
             this._previousPanelRightView && g.panelRight.activateView(this._previousPanelRightView)
         }
@@ -93,6 +94,7 @@ class LayeredKeyboardControl {
         return this._macroMode
     }
     constructor() {
+        this.enabled = config.keymap.layeredKeyboardControl
         this.commandSent = false
         let spacePressed = false
         let textSent = false
@@ -101,36 +103,37 @@ class LayeredKeyboardControl {
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
 
         document.addEventListener('keydown', e => {
+            if (!this.enabled) return true
             if (e.isComposing) return true // do not interfere with IME
             switch (e.key) {
                 case 'Shift':
-                    break
+                    return true
+                    // break // this will interfere with hotkey
                 case ' ':
-                    if (g.focus.get().allowWhiteSpace) return true
+                    if (spacePressed) break // ignore duplicated keydown events
+                    if (g.focus.allowWhiteSpace) return true
                     spacePressed = true
                     this.commandSent = false
                     g.keyboardControlHint.highlightModifier('Space')
                     break
                 case 'Control':
-                    if (e.metaKey)
+                    if (e.metaKey) {
                         this.macroMode = true
-                    else
-                        g.tabNumber.set({
-                            active: true
-                        })
+                        g.tabNumber.$set({ active: false })
+                    } else
+                        g.tabNumber.$set({ active: true })
                     return true // let it propagate
                 case 'Meta':
                     if (e.ctrlKey) {
                         this.macroMode = true
-                        g.tabNumber.set({
-                            active: false
-                        })
-                    }
+                        g.tabNumber.$set({ active: false })
+                    } else
+                        g.tabNumber.$set({ active: true })
                     return true // let it propagate
                 case 'Tab':
                     // When completion window is open, commit selection instead of increasing indent
-                    if (g.activeEditor.completion.get().open) {
-                        g.activeEditor.completion.enter(null, e.key)
+                    if (g.activeEditor.completion.open) {
+                        g.activeEditor.completion.enter(null, 'Tab')
                         return this.stopPropagation(e)
                     }
                     return true // let it propagate
@@ -147,7 +150,7 @@ class LayeredKeyboardControl {
                     } else if ((e.metaKey || e.ctrlKey) && !isNaN(e.key)) { // switch tab
                         const focusedPanel = g.focusStack[0]
                         if (focusedPanel)
-                            focusedPanel.tabBar.switchToTab(+e.key + 1) // resizeSensor counts 1
+                            focusedPanel.tabBar.switchToTab(+e.key)
                         return this.stopPropagation(e)
                     } else {
                         textSent = true
@@ -160,7 +163,7 @@ class LayeredKeyboardControl {
                             return this.stopPropagation(e)
                         }
                         // Handle "cut" event
-                        // Cut event is handled via cmd-X hotkey,
+                        // Cut event is handled via command-X hotkey,
                         // because we cannot get the content just cut on the cut event.
                         if (e.key === 'x' && (e.metaKey || e.ctrlKey) && g.activeEditor) {
                             const cm = g.activeEditor.cm
@@ -177,14 +180,20 @@ class LayeredKeyboardControl {
         })
 
         document.addEventListener('keyup', e => {
+            if (!this.enabled) return true
             if (e.isComposing) return true // do not interfere with IME
+            if (!g.focus) {
+                console.warn('no focus')
+                return true
+            }
             switch (e.key) {
                 case 'Shift':
                     g.activeEditor.cm.display.shift = false
-                    break
+                    return true
+                    // break // this will interfere with hotkey
                 case ' ':
                     spacePressed = false
-                    if (g.focus.get().allowWhiteSpace) return true
+                    if (g.focus.allowWhiteSpace) return true
                     if (!this.commandSent && this.sendCommand(e) &&
                         e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
                         g.activeEditor.insertText(' ')
@@ -192,12 +201,11 @@ class LayeredKeyboardControl {
                     g.keyboardControlHint.dimModifier('Space')
                     return this.stopPropagation(e)
                 case 'Control':
-                    g.tabNumber.set({
-                        active: false
-                    })
+                    g.tabNumber.$set({ active: false })
                     this.macroMode = false
                     return true // let it propagate
                 case 'Meta':
+                    g.tabNumber.$set({ active: false })
                     this.macroMode = false
                     return true // let it propagate
                 default:

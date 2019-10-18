@@ -1,12 +1,12 @@
-<div ref:panel class="panel" class:gone="!active" on:click="onFocus()">
-    <table ref:outline id="outline">
+<div bind:this={panel} class="panel" class:gone="{!active}" on:click="{onFocus}">
+    <table bind:this={outline} id="outline">
         {#each outlineItems as { line, display, type, level }, i }
-        <tr ref:row on:click="jumpTo(line, display)" class="outline-node" class:highlight="line<=currentLine && (!outlineItems[i+1] || currentLine<outlineItems[i+1].line)">
-            <td class="line-number" class:highlight>{line + 1}</td>
+        <tr bind:this={row} on:click="{() => jumpTo(line, display)}" class="outline-node" class:highlight="{shouldHighlight(line, currentLine, i)}">
+            <td class="line-number">{line + 1}</td>
             {#each Array(level) as indent}
             <td class="indent"></td>
             {/each}
-            <td class="display {type}">{display}</td>
+            <td class="row-body {type}">{display}</td>
         </tr>
         {:else}
             <tr>
@@ -31,116 +31,132 @@
         color: transparent;
         box-sizing: border-box;
         border-right: .05rem solid var(--panel-delimiter-color);
-    }
-
-    .display {
-        display: inline-block;
-        padding: .3rem .5rem;
-        flex-grow: 1;
         background: var(--gray2);
     }
 
-    .display.def {
+    .row-body {
+        display: inline-block;
+        flex-grow: 1;
+    }
+
+    .row-body.def {
         color: var(--c-function);
     }
 
-    .display.class {
+    .row-body.class {
         color: var(--c-def);
     }
 
-    .display.async {
+    .row-body.async {
         color: var(--c-attribute);
     }
 
 </style>
-
+   
 
 <script>
+    import { onMount, createEventDispatcher } from 'svelte'
+    
     import g from '../lib/Globals'
-    import { initializeTabView, Pos } from '../lib/Utils'
+    import { Pos } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
 
-    export default {
-        components: {},
-        oncreate() {
-            g.outline = this
-            g.currentHighlight = null
-            initializeTabView(this, 'Outline', 'fas fa-align-left l-blue')
-            makeScrollable(this, this.refs.panel)
-        },
-        data() {
-            return {
-                active: false,
-                outlineItems: [],
-                currentLine: 0,
+    const dispatch = createEventDispatcher()
+
+    export let active = false,
+        currentLine = 0,
+        outlineItems = [],
+        highlightedItem = null
+    
+    let outline,
+        panel,
+        row
+
+    $: dispatch('active', {
+        id: 'outline',
+        active
+    })
+    
+    onMount(async () => {
+        g.currentHighlight = null
+        await makeScrollable('outline', panel)
+    })
+
+    function onFocus() {
+        g.setFocus([g.panelLeft, g.outline])
+    }
+    
+    function shouldHighlight(line, currentLine, i) {
+        const nextItem = outlineItems[i+1]
+        const result = line <= currentLine && (!nextItem || currentLine < nextItem.line)
+        if (result) {
+            highlightedItem = outlineItems[i]
+        }
+        return result
+    }
+
+    export const generateOutline = (cm) => {
+        const lineCount = cm.lineCount()
+        const indentUnit = cm.getOption('indentUnit')
+        const result = []
+        for (let line = 0; line < lineCount; line++) {
+            let indent = 0,
+                token
+            try {
+                token = cm.getTokenAt(Pos(line, 1))
+            } catch (e) {
+                continue
             }
-        },
-        methods: {
-            onFocus() {
-                g.setFocus([g.panelLeft, this])
-            },
-            generateOutline(cm) {
-                const lineCount = cm.lineCount()
-                const indentUnit = cm.getOption('indentUnit')
-                const result = []
-                for (let line = 0; line < lineCount; line++) {
-                    let indent = 0,
-                        token
+            if (!token.type) {
+                if (!/\S/.test(token.string)) {
+                    indent = token.end
                     try {
-                        token = cm.getTokenAt(Pos(line, 1))
+                        token = cm.getTokenAt(Pos(line, indent + 1))
                     } catch (e) {
                         continue
                     }
-                    if (!token.type) {
-                        if (!/\S/.test(token.string)) {
-                            indent = token.end
-                            try {
-                                token = cm.getTokenAt(Pos(line, indent + 1))
-                            } catch (e) {
-                                continue
-                            }
-                        }
-                    }
-                    if (token.type !== 'keyword') continue
-                    let type = token.string
-                    let asynchronous = false
-                    if (type === 'async') {
-                        try {
-                            token = cm.getTokenAt(Pos(line, token.end + 2))
-                            type = token.string
-                            asynchronous = true
-                        } catch (e) {
-                            continue
-                        }
-                    }
-                    if (type === 'def' || type === 'class') {
-                        try {
-                            token = cm.getTokenAt(Pos(line, token.end + 2)) // skip over the space after the keyword
-                        } catch (e) {
-                            continue
-                        }
-                        if (asynchronous === true)
-                            type = 'async'
-                        result.push({
-                            level: indent / indentUnit,
-                            display: token.string,
-                            type,
-                            line
-                        })
-                    } else {
-                        continue
-                    }
                 }
-                return result
-            },
-            jumpTo(line, name) {
-                let ch = 0
-                const lineContent = g.activeEditor.cm.getLine(line)
-                ch = lineContent.indexOf(name)
-                setCursorAndScrollIntoView(line, ch)
-            },
-        },
+            }
+            if (token.type !== 'keyword') continue
+            let type = token.string
+            let asynchronous = false
+            if (type === 'async') {
+                try {
+                    token = cm.getTokenAt(Pos(line, token.end + 2))
+                    type = token.string
+                    asynchronous = true
+                } catch (e) {
+                    continue
+                }
+            }
+            if (type === 'def' || type === 'class') {
+                try {
+                    token = cm.getTokenAt(Pos(line, token.end + 2)) // skip over the space after the keyword
+                } catch (e) {
+                    continue
+                }
+                if (asynchronous)
+                    type = 'async'
+                result.push({
+                    level: indent / indentUnit,
+                    display: token.string,
+                    type,
+                    line
+                })
+            } else {
+                continue
+            }
+        }
+        return result
     }
 
+    function jumpTo(line, name) {
+        let ch = 0
+        const lineContent = g.activeEditor.cm.getLine(line)
+        ch = lineContent.indexOf(name)
+        setCursorAndScrollIntoView(line, ch)
+    }
 </script>
+
+

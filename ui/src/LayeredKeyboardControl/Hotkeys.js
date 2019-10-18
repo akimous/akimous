@@ -14,24 +14,44 @@ function bindHotkeys() {
     hotkey('mod + shift + s', () => {
         g.saveAll()
     })
-    
+
     hotkey('mod + f', () => {
-        g.panelRight.activateView(g.find)
+        g.find.$set({ active: true })
         g.setFocus([g.panelRight, g.find])
-        g.find.set({ replaceMode: false })
-        g.find.refs.findText.focus()
+        g.find.$set({ 
+            replaceMode: false,
+            findInDirectory: null,
+            matches: [],
+            selectedIndex: -1,
+        })
+        g.find.findText.focus()
     })
-    
-    hotkey('mod + alt + f', () => {
-        g.panelRight.activateView(g.find)
+
+    const replaceMode = () => {
+        g.find.$set({ active: true })
         g.setFocus([g.panelRight, g.find])
-        g.find.set({ replaceMode: true })
-        g.find.refs.findText.focus()
+        g.find.$set({ 
+            replaceMode: true,
+            findInDirectory: null,
+        })
+        g.find.findText.focus()
+    }
+    hotkey('mod + alt + f', replaceMode)
+    hotkey('mod + h', replaceMode)
+
+    hotkey('mod + g', () => {
+        g.find.find(1)
+        g.find.findNextButton.flash()
+    })
+
+    hotkey('mod + shift + g', () => {
+        g.find.find(-1)
+        g.find.findPreviousButton.flash()
     })
 
     hotkey('mod + `', () => {
         if (!g.activeEditor) return
-        const { filePath } = g.activeEditor.get()
+        const { filePath } = g.activeEditor
         filePath && g.panelMiddle.closeFile(filePath)
     })
 
@@ -39,7 +59,7 @@ function bindHotkeys() {
         return token.string.length > 0 && token.type &&
             (token.type.includes('variable') || token.type.includes('def'))
     }
-    hotkey('f6', () => {
+    hotkey('f8', () => {
         const editor = g.activeEditor
         if (!editor) return
         const cm = editor.cm
@@ -53,11 +73,26 @@ function bindHotkeys() {
             g.notificationBar.show('warning', 'Please select a variable.')
             return
         }
-        editor.socket.send('FindUsages', {
+        editor.session.send('FindUsages', {
             line: cursor.line,
             ch: cursor.ch,
             token: token.string
         })
+    })
+    hotkey('f1', () => {
+        g.panelLeft.tabBar.switchToTab(1)
+    })
+    hotkey('f2', () => {
+        g.panelLeft.tabBar.switchToTab(2)
+    })
+    for (let i = 1; i < 6; i++)
+        hotkey('f' + (i + 2), () => {
+            g.panelRight.tabBar.switchToTab(i)
+        })
+    
+    
+    hotkey('mod + r', () => {
+        g.console.runDefault()
     })
 }
 export default {

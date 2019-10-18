@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+
 from .feature import FeatureDefinition
 
 INITIAL_SIZE = 1

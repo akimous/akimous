@@ -1,0 +1,108 @@
+<div bind:this={self} id="jupyter-toolbar" class="non-selectable" class:realtime="{mode==='realtime'}">
+    {#if mode === 'interactive'}
+    {#if executionState === 'stopped'}
+    <span class="gap">Click "Run" to start Jupyter kernel</span>
+    {:else}
+    <div class="button" on:click={runSelected}>
+        <i class="fas fa-play"></i>
+    </div>
+    <div class="button" on:click={runToActiveLine}>
+        <i class="fas fa-step-forward"></i>
+    </div>
+    <div class="button" on:click={runToEnd}>
+        <i class="fas fa-fast-forward"></i>
+    </div>
+    <div class="button" on:click={interrupt}>
+        <i class="fas fa-minus-circle"></i>
+    </div>
+    <div class="button" on:click={restartKernel}>
+        <i class="fas fa-sync-alt"></i>
+    </div>
+    <span class="gap"></span>
+    {/if}
+    {:else}
+    <span class="gap">Realtime evaluation mode</span>
+    {/if}
+    <div class="execution-state">
+        {#if executionState === 'busy'}
+        <i class="fas fa-hourglass-half l-yellow"></i>
+        {:else if executionState === 'error'}
+        <i class="fas fa-exclamation-triangle l-red"></i>
+        {:else if executionState === 'idle'}
+        <i class="fas fa-check l-green"></i>
+        {:else if executionState === 'stopped'}
+        <i class="fas fa-stop-circle" style="color:gray"></i>
+        {:else if executionState === 'starting'}
+        <i class="fas fa-spinner l-blue"></i>
+        {/if}
+    </div>
+</div>
+
+
+<style>
+    #jupyter-toolbar {
+        line-height: var(--ui-line-height-large);
+        background: var(--primary2);
+        display: flex;
+        margin-bottom: .1rem;
+    }
+    
+    #jupyter-toolbar.realtime {
+        background: var(--accent2);
+    }
+    
+    .button {
+        width: 1.7rem;
+        line-height: var(--ui-line-height-large);
+        text-align: center;
+        color: var(--primary7);
+    }
+    
+    .button:hover {
+        filter: brightness(1.2);
+    }
+
+    .gap {
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .execution-state {
+        display: inline-block;
+        width: 1.7rem;
+        line-height: var(--ui-line-height-large);
+        text-align: center;
+    }
+
+</style>
+
+<script>
+    import g from '../lib/Globals'
+    
+    export let executionState = 'stopped',
+        mode = 'interactive'
+    
+    let self
+
+    function runSelected() {
+        g.console.runInJupyter()
+    }
+
+    function runToActiveLine() {
+        // TODO: not implemented
+    }
+
+    function runToEnd() {
+        // TODO: not implemented
+    }
+
+    function interrupt() {
+        g.console.session.send('InterruptKernel', )
+    }
+
+    function restartKernel() {
+        g.console.session.send('StartKernel', {
+            realtimeEvaluation: false
+        })
+    }
+</script>

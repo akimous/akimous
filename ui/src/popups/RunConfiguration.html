@@ -1,0 +1,114 @@
+{#if open}
+<div id="run-configuration" class="popup from-top" style="left: calc({left}px - 12.5rem);">
+    <div class="container">
+        <div class="title">Run Configuration</div>
+        <div class="message">Choose a way to run your program.</div>
+        <div class="title">Python Script</div>
+        <TextInput bind:value={cwd} theme="bright" padded={false}>
+            <span style="width: 8rem; display: inline-block;">Working directory: </span>
+        </TextInput>
+        <TextInput bind:value={args} theme="bright" padded={false}>
+            <span style="width: 8rem; display: inline-block;">Arguments: </span>
+        </TextInput>
+        <div class="option" class:checked="{mode==='script'}" on:click="{() => mode = 'script'}">
+            <i class="checkbox fas"/>
+            <span class="description">Run current script</span>
+        </div>
+        <div class="option" class:checked="{mode==='module'}" on:click="{() => mode = 'module'}">
+            <i class="checkbox fas"/>
+            <span class="description">Run current script as module</span>
+        </div>
+        <div class="title with-button">
+            Shell
+            <ToggleButton on:click="{onClickEdit}">{ editing ? 'Done' : 'Edit' }</ToggleButton>
+        </div>
+
+        {#each shellCommands as command, i}
+        <div class="option" class:checked="{shellCommandIndex===i && mode==='shell'}" class:gone="{i === shellCommands.length - 1 && !editing}" on:click="{() => {mode = 'shell'; shellCommandIndex = i}}">
+            <i class="checkbox fas"/>
+            <RunConfigShellCommand index={i} {shellCommands} {editing}></RunConfigShellCommand>
+        </div>
+        {/each}
+
+        <div class="title">IPython</div>
+        <div class="option" class:checked="{mode==='interactive'}" on:click="{() => mode = 'interactive'}">
+            <i class="checkbox fas"/>
+            <span class="description">Interactive shell</span>
+        </div>
+        <div class="option" class:checked="{mode==='realtime'}" on:click="{() => mode = 'realtime'}">
+            <i class="checkbox fas"/>
+            <span class="description">Realtime evaluation</span>
+        </div>
+    </div>
+</div>
+{/if}
+
+
+<style>
+    /*.run-now {
+        flex-grow: 1;
+        text-align: right;
+        color: var(--primary5);
+        display: none;
+    }
+
+    .option:hover .run-now {
+        display: inline;
+    }
+    */
+    
+    .checked .checkbox:before {
+        content: "\f111";
+    }
+
+</style>
+
+   
+<script>
+    import { tick } from 'svelte'
+
+    import g from '../lib/Globals'
+    import { setProjectState } from '../lib/ConfigManager'
+    import { capitalize, nextFrame } from '../lib/Utils'
+    
+    import RunConfigShellCommand from './RunConfigShellCommand.html'
+    import ToggleButton from '../lib/ToggleButton.html'
+    import TextInput from '../lib/TextInput.html'
+
+    export let 
+        allowWhiteSpace = true,
+        args = 'args',
+        cwd = '',
+        editing = false,
+        left = 0,
+        mode = 'script',
+        open = false,
+        shellCommandIndex = 0,
+        shellCommands = [
+            'python',
+            ''
+        ]
+        
+    $: g.app && g.app.$set({ popup: open ? g.runConfiguration : null })
+    $: g.app && setProjectState('runConfiguration', { mode, shellCommands, shellCommandIndex, cwd, args })
+    $: mode && nextFrame(setConsoleMode)
+    $: nextFrame(() => g.toolbar.$set({ runConfigurationDisplay: capitalize(mode) }))
+    $: if (!open) editing = false
+
+
+    async function setConsoleMode() {
+        if (['script', 'module', 'shell'].includes(mode)) {
+            g.console.$set({ mode: 'terminal' })
+        } else if (['interactive', 'realtime'].includes(mode)) {
+            g.console.$set({ mode: 'jupyter' })
+            await tick()
+            g.jupyterToolbar.$set({ mode })
+        }
+        g.console.stop()
+    }
+
+    function onClickEdit() {
+        editing = !editing
+    }
+
+</script>

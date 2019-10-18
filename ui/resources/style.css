@@ -171,17 +171,15 @@
     color: black;
     background: rgb(211, 205, 105);
     border-radius: var(--small-radius);
-    padding: 1px 0;
 }
 
-.cm-s-akimous .cm-searching-selected {
+.cm-s-akimous .cm-searching-marked {
     color: black;
     background: rgb(247, 165, 68);
     border-radius: var(--small-radius);
-    padding: 1px 0;
 }
 
-.cm-matchhighlight {
+.cm-match-highlight {
     box-shadow: 0 0 0 0.1rem #777;
 }
 

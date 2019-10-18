@@ -26,7 +26,13 @@ class DocGenerator:
             shutil.copytree(f, self.doc_dir)
         absolute_doc_path = str(self.doc_dir.absolute())
         absolute_doc_output_path = str(self.doc_output_dir.absolute())
-        app = Sphinx(absolute_doc_path, absolute_doc_path, absolute_doc_output_path, absolute_doc_path, 'html', freshenv=True)
+        app = Sphinx(
+            absolute_doc_path,
+            absolute_doc_path,
+            absolute_doc_output_path,
+            absolute_doc_path,
+            'html',
+            freshenv=True)
         app.verbosity = -1
         config = app.builder.config
         app.builder.env.srcdir = app.builder.srcdir
@@ -35,7 +41,8 @@ class DocGenerator:
         app.builder.env.config = config
         self.app = app
         docnames = ['index']
-        app.builder.env.app.emit('env-before-read-docs', app.builder.env, docnames)
+        app.builder.env.app.emit('env-before-read-docs', app.builder.env,
+                                 docnames)
 
         docname = 'index'
         app.emit('env-purge-doc', app.builder.env, docname)
@@ -53,19 +60,26 @@ class DocGenerator:
                 f.write(docstring)
             app = self.app
             docname = 'index'
-            with sphinx_domains(app.builder.env), rst.default_role(docname, app.builder.env.config.default_role):
-                doctree = read_doc(app.builder.env.app, app.builder.env, app.builder.env.doc2path(docname))
+            with sphinx_domains(app.builder.env), rst.default_role(
+                    docname, app.builder.env.config.default_role):
+                doctree = read_doc(app.builder.env.app, app.builder.env,
+                                   app.builder.env.doc2path(docname))
             for domain in app.builder.env.domains.values():
                 domain.process_doc(app.builder.env, docname, doctree)
             app.emit('doctree-read', doctree)
             app.builder.prepare_writing({docname})
-            doctree = app.builder.env.get_and_resolve_doctree(docname, app.builder, doctree)
+            doctree = app.builder.env.get_and_resolve_doctree(
+                docname, app.builder, doctree)
             app.builder.write_doc_serialized(docname, doctree)
             doctree.settings = app.builder.docsettings
-            app.builder.secnumbers = app.builder.env.toc_secnumbers.get(docname, {})
-            app.builder.fignumbers = app.builder.env.toc_fignumbers.get(docname, {})
-            app.builder.imgpath = relative_uri(app.builder.get_target_uri(docname), '_images')
-            app.builder.dlpath = relative_uri(app.builder.get_target_uri(docname), '_downloads')
+            app.builder.secnumbers = app.builder.env.toc_secnumbers.get(
+                docname, {})
+            app.builder.fignumbers = app.builder.env.toc_fignumbers.get(
+                docname, {})
+            app.builder.imgpath = relative_uri(
+                app.builder.get_target_uri(docname), '_images')
+            app.builder.dlpath = relative_uri(
+                app.builder.get_target_uri(docname), '_downloads')
             app.builder.current_docname = docname
             app.builder.docwriter.write(doctree, self.destination)
             app.builder.docwriter.assemble_parts()

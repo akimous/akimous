@@ -1,0 +1,68 @@
+<div class="text-input" class:editing>
+    {#if editing}
+    <input bind:this={input} type="text" spellcheck="false" bind:value={shellCommands[index]} on:change on:keydown on:blur="{commitChange}">
+    {:else}
+    <span>{shellCommands[index]}</span>
+    {/if}
+</div>
+
+
+<style>
+    .text-input {
+        display: inline-block;
+        padding-left: .4rem;
+        vertical-align: middle;
+    }
+
+    .text-input.editing {
+        margin: -.37rem -1rem -.37rem -.07rem;
+    }
+
+    input {
+        border: .07rem solid var(--gray7);
+        border-radius: var(--small-radius);
+        padding: .3rem;
+        font-weight: 300;
+        width: 18rem;
+    }
+
+    input:hover {
+        filter: brightness(1.2);
+    }
+
+    input:active,
+    input:focus {
+        border: .07rem solid var(--ui-highlight-color);
+        outline: none;
+    }
+
+</style>
+
+
+<script>
+    import g from '../lib/Globals'
+    
+    export let allowWhiteSpace = true,
+        editing = false,
+        index = 0,
+        input = '',
+        placeholder = '',
+        shellCommands = []
+    
+    $: {
+        if (index === shellCommands.length - 1 && shellCommands[index]) {
+            shellCommands.push('')
+            g.runConfiguration.$set({ shellCommands })
+        } else if (index === shellCommands.length - 2 && !shellCommands[index]) {
+            shellCommands.pop()
+            g.runConfiguration.$set({ shellCommands })
+        }
+    }
+
+    function commitChange() {
+        if (!shellCommands[index].length) {
+            shellCommands.splice(index, 1)
+            g.runConfiguration.$set({ shellCommands })
+        }
+    }
+</script>

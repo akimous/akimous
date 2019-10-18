@@ -1,7 +1,7 @@
-from collections import defaultdict
-from ..utils import Timer
 import sqlite3
+from collections import defaultdict
 
+from ..utils import Timer
 
 _EMPTY = tuple()
 

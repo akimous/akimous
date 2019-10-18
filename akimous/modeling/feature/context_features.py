@@ -1,5 +1,6 @@
-from .feature_definition import FeatureDefinition
 import re
+
+from .feature_definition import FeatureDefinition
 
 
 @FeatureDefinition.register_feature_generator('blank_line_before', True)

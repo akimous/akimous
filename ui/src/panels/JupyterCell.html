@@ -1,0 +1,99 @@
+<tr bind:this={cell}>
+    <td class="execution-count">{@html executionCount}</td>
+    <td class="content">
+        {#if code}
+        <pre>{code}</pre>
+        {/if}
+
+        {#if stdout}
+        <pre>{stdout}</pre>
+        {/if}
+
+        {#if stderr}
+        <pre class="l-red">{stderr}</pre>
+        {/if}
+
+        {#if output && output['text/latex']}
+        <div bind:this={tex}></div>
+
+        {:else if output && output['text/html']}
+        {@html output['text/html']}
+        
+        {:else}
+        {#each Object.entries(output) as [key, value]}
+        {#if key === 'text/plain'}
+        {value}
+        {:else if key.startsWith('image/')}
+        <img src="data:{key};base64,{value}" alt="" />
+        {/if}
+        {/each}
+
+        {/if}
+    </td>
+</tr>
+
+
+<style>
+    .execution-count {
+        width: 2rem;
+        padding: .2rem .2rem .2rem 0;
+        text-align: right;
+        color: var(--primary7);
+        background: var(--primary2);
+        font-family: var(--monospace-font-family);
+    }
+
+    .content {
+        padding: .2rem;
+    }
+    
+    pre {
+        font-family: var(--monospace-font-family);
+        font-size: var(--monospace-font-size);
+        line-height: var(--monospace-line-height);
+        margin: 0;
+    }
+    
+
+</style>
+
+<script>    
+    import { nextFrame } from '../lib/Utils'
+
+    export let cell,
+        code = null,
+        executionCount = '',
+        output = {},
+        stderr = null,
+        stdout = null,
+        tex
+
+    let _katex = null
+    
+    $: {
+        const source = output['text/latex']
+        if (source) {
+            nextFrame(() => {
+                katex(k => {
+                    k.render(source.replace(/(^\$)|(\$$)/g, ''), tex)
+                })
+            })
+        }
+    }
+
+    function katex(callback) {
+        if (_katex) return callback(_katex)
+
+        import('/katex.js').then(({ default: k }) => {
+            // load CSS
+            const style = document.createElement('link')
+            style.href = 'katex.min.css'
+            style.rel = 'stylesheet'
+            document.head.appendChild(style)
+
+            _katex = k
+            callback(k)
+        })
+    }
+</script>
+

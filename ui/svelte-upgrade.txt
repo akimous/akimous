@@ -1,0 +1,136 @@
+Failed to convert 11 files
+
+'activateView' conflicts with existing declaration
+src/PanelLeft.html
+58:         },
+59:         methods: {
+60:             activateView(view) {
+                ^
+61:                 activateView(this, view)
+62:             },
+
+'activateView' conflicts with existing declaration
+src/PanelRight.html
+74:         },
+75:         methods: {
+76:             activateView(view) {
+                ^
+77:                 activateView(this, view)
+78:                 const { width } = this.refs.panelRight.getBoundingClientRect()
+
+'switchIndent' conflicts with existing declaration
+src/bars/CursorPosition.html
+1: <div id="indent-indicator" class="non-selectable">
+2:     <span ref:switchIndent on:click="switchIndent()" class="tool-bar-button" aria-label="Click to switch between tabs/spaces.">{isMakefile ? 'Tab Size' : indentDisplay}</span>:
+             ^
+3:     {#if editingIndentSize}
+4:     <input ref:indentSizeInput id="indent-size-input" type="number" max=12 min=1 step=1 on:blur="commitIndentSize()" value={indentSize}>
+
+expected an object literal
+src/bars/NotificationBar.html
+129:                 notification.actions = notification.actions || []
+130:                 notification.active = true
+131:                 this.set(notification)
+                              ^
+132:             }
+133:         }
+
+'run' conflicts with existing declaration
+src/bars/Toolbar.html
+ 9:         <span class="text">{runConfigurationDisplay}</span>
+10:     </ToolbarButton>
+11:     <ToolbarButton ref:run on:click="run()" iconClass="fas fa-play" title="Run" />
+                       ^
+12:     <!--    <ToolbarButton ref:debug iconClass="fas fa-bug" title="Debug" />-->
+13:     <ToolbarButton ref:stop on:click="stop()" iconClass="fas fa-square" title="Stop" />
+
+'tooltip' conflicts with existing declaration
+src/lib/Tooltip.html
+1: <div ref:tooltip id="tooltip" class="non-selectable"></div>
+        ^
+2:
+3:
+
+'findNext' conflicts with existing declaration
+src/panels/Find.html
+13:         <span class="gap"></span>
+14:         <Button ref:findPrevious corner="0001" on:click="findNext(-1)" title="Find Previous"><i class="fas fa-caret-left"></i></Button>
+15:         <Button ref:findNext corner="0010" on:click="findNext(1)" title="Find Next"><i class="fas fa-caret-right"></i></Button>
+                    ^
+16:     </div>
+17:     {#if replaceMode}
+
+expected an object literal
+src/popups/KeymapSettings.html
+58:                 const value = this.get()[name]
+59:                 const updated = { [name]: !value }
+60:                 this.set(updated)
+                             ^
+61:                 setConfig('keymap', updated)
+62:             }
+
+expected an object literal
+src/popups/LinterOptions.html
+81:                     [item]: !originalValue
+82:                 }
+83:                 this.set(changed)
+                             ^
+84:                 let section = 'formatter'
+85:                 if (item === 'pylint' || item === 'pyflakes')
+
+expected an object literal
+src/popups/OpenFolder.html
+130:             this.session = g.socket.createSession('openFolder')
+131:             this.session.handlers['Listed'] = data => {
+132:                 this.set(data)
+                              ^
+133:             }
+134:             this.session.send('Open')
+
+expected an object literal
+src/popups/Prompt.html
+116:                 this.queue.push(data)
+117:                 if (this.queue.length == 1) {
+118:                     this.set(data)
+                                  ^
+119:                 }
+120:                 this.set({
+
+Manual edits required for 17 files
+src/LayeredKeyboardControl/KeyboardControlHint.html
+src/PanelMiddle.html
+src/bars/CommandPalette.html
+src/bars/PathIndicator.html
+src/bars/Tab.html
+src/bars/TabNumber.html
+src/editor/CodeEditor.html
+src/editor/completion/Completion.html
+src/panels/Console.html
+src/panels/FileTreeNode.html
+src/panels/JupyterCell.html
+src/panels/References.html
+src/popups/ContextMenu.html
+src/popups/ContextMenuRow.html
+src/popups/NotificationHistory.html
+src/popups/RunConfigShellCommand.html
+src/popups/RunConfiguration.html
+
+Manual edits suggested for 18 files
+src/App.html
+src/EmptyComponent.html
+src/bars/MenuBar.html
+src/bars/MenuItem.html
+src/bars/TabBar.html
+src/bars/ToolBarButton.html
+src/editor/completion/CompletionRow.html
+src/lib/Button.html
+src/lib/TextInput.html
+src/lib/ToggleButton.html
+src/panels/Docs.html
+src/panels/FileTree.html
+src/panels/JupyterToolbar.html
+src/panels/Linter.html
+src/panels/Macro.html
+src/panels/Outline.html
+src/popups/ContextMenuDivider.html
+src/popups/PanelPopup.html

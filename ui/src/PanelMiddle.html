@@ -1,7 +1,12 @@
-<div ref:panelMiddle id="panel-middle" class="{focused?'indicator-on':''}">
-    <TabBar ref:tabBar id="tab-bar"></TabBar>
+<div bind:this={self} id="panel-middle" class="{focused?'indicator-on':''}">
+    <TabBar bind:this={tabBar} on:requestTabClose="{(e) => closeView(e.detail.view)}"></TabBar>
+    {#if !focus}
+    <div class="placeholder non-selectable">Double click on a file on the file tree to open.</div>
+    {/if}
+    {#each Object.values(editorProps) as prop, i(prop.uid)}
+        <CodeEditor bind:this={editors[prop.pathString]} {...prop} on:active="{(e) => onTabChange(e)}"></CodeEditor>
+    {/each}
 </div>
-
 
 <style>
     #panel-middle {
@@ -14,178 +19,212 @@
         z-index: 130;
         /* should be higher than that of PanelRight, or Completion will be blocked */
     }
+    
+    .placeholder {
+        position: absolute;
+        top: 45%;
+        width: 80%;
+        margin: 0 10%;
+        text-align: center;
+        font-size: var(--ui-font-size-large);
+        color: var(--gray5);
+        z-index: -100;
+    }
 
 </style>
 
+<script context="module">
+    const MAX_ACTIVATION_HISTORY = 32
+</script>
 
 <script>
+    import { onMount, tick } from 'svelte'
+    import isEqual from 'lodash.isequal'
+
     import g from './lib/Globals'
+    import { schedule, joinPath, CircularBuffer, nextFrame } from './lib/Utils'
+    import { onTabChangeFactory } from './lib/UIUtils'
+    import { getIconByFileName } from './lib/FileTypeToIcon'
+    import { FILE } from './bars/Tab.html'
+    
+    import TabBar from './bars/TabBar.html'
     import CodeEditor from './editor/CodeEditor.html'
-    import { schedule } from './lib/Utils'
+    
+    export let editorProps = {},
+        editors = {},
+        focus = null,
+        focused = false,
+        tabBar = null
 
-    const MAX_ACTIVATION_HISTORY = 32
+    let activationHistory = new CircularBuffer(MAX_ACTIVATION_HISTORY),
+        editorUid = 0,
+        onTabChange, 
+        self
+    
+    $: g.pathIndicator && g.pathIndicator.$set({ path: focus ? focus.filePath : null })
+    $: {
+        if (focus) {
+            g.setFocus([g.panelMiddle, focus])
+        } else {
+            g.setFocus([g.panelLeft, g.fileTree])
+        }
+        g.activeEditor = focus
+    }
+    $: {
+        if (focused) {
+            focus && focus.cm && focus.cm.focus()
+        } else {
+            focus && focus.cm && focus.cm.getInputField().blur()
+        }
+    }
+    
+    onMount(async () => {
+        await tick()
+        onTabChange = onTabChangeFactory(tabBar, editors)
+        const activePath = g.projectState.activePanels.middle
+        let activated = false
+        for (const path of g.projectState.openedFiles) {
+            const shouldActivate = isEqual(activePath, path)
+            openFile(path, null, shouldActivate)
+            activated |= shouldActivate
+        }
+        if (!activated)
+            activateFile(g.projectState.openedFiles[0])
+    })
 
-    export default {
-        components: {
-            TabBar: './bars/TabBar.html'
-        },
-        oncreate() {
-            g.panelMiddle = this
-            this.tabBar = this.refs.tabBar
-            this.tabBar.set({ parent: this })
-            this.pathToEditor = {}
-            this.activationHistory = new Array(MAX_ACTIVATION_HISTORY)
-            this.activationHistoryIndex = 0
-            if (g.dev)
-                schedule(() => {
-                    this.openFile(['akimous', 'demo', 'demo.py'], 'demo.py')
-                })
-        },
-        onstate({ changed, current, previous }) {
-            if (!previous) return
-            if (changed.focus) {
-                const focus = current.focus
-                if (focus === previous.focus) return
-                if (!focus) g.setFocus([g.panelLeft, g.fileTree])
-                else g.setFocus([this, focus])
-                g.activeEditor = focus
+    export function getEditor(filePath) {
+        return editors[joinPath(filePath)]
+    }
+
+    export async function openFile(filePath, cmReadyCallback, activate = true) {
+        let editor = getEditor(filePath)
+        if (!editor) {
+            const fileName = filePath[filePath.length - 1]
+            const pathString = joinPath(filePath)
+            editorProps[pathString] = {
+                fileName, 
+                filePath, 
+                pathString,
+                uid: editorUid++
             }
-            if (changed.focused) {
-                const editor = this.get().focus
-                if (current.focused) {
-                    editor && editor.cm && editor.cm.focus()
-                } else
-                    editor && editor.cm && editor.cm.getInputField().blur()
-            }
-        },
-        data() {
-            return {
-                focus: null,
-                focused: false,
-            }
-        },
-        methods: {
-            getEditor(filePath) {
-                return this.pathToEditor[filePath.join('/')]
-            },
-            openFile(filePath, fileName) {
-                let editor = this.getEditor(filePath)
-                if (!editor) {
-                    new CodeEditor({
-                        target: this.refs.panelMiddle,
-                        data: {
-                            filePath,
-                            fileName,
-                            parent: this
-                        }
-                    })
-                }
-                this.activateFile(filePath)
-            },
-            activateView(editor) {
-                this.activateFile(editor.get().filePath)
-            },
-            activateFile(filePath) {
-                // write to activation history
-                if (this.activationHistory[this.activationHistoryIndex] != filePath) {
-                    this.activationHistoryIndex = (this.activationHistoryIndex + 1) % MAX_ACTIVATION_HISTORY
-                    this.activationHistory[this.activationHistoryIndex] = filePath
-                }
-                // activate editor
-                g.activeEditor && (g.activeEditor.set({ active: false }))
-                const editor = this.getEditor(filePath)
-                this.set({ focus: editor })
-                if (!editor) {
-                    g.linter.clear()
-                    return
-                }
-                editor.set({ active: true })
-                const { isMakefile } = editor.get()
-                g.cursorPosition.set({ isMakefile })
+            await tick()
+            editor = editors[pathString]
+            editor.cmReadyCallback = cmReadyCallback
+            tabBar.openTab(pathString, fileName, editor, getIconByFileName(fileName), FILE)
+        }
+        if (!activate) return
+        activateFile(filePath)
+        if (cmReadyCallback && editor.cm) cmReadyCallback(editor)
+        return editor
+    }
 
-                const cm = editor.cm
-                if (!cm) return
-                cm.focus()
+    export function activateView(editor) {
+        activateFile(editor.filePath)
+    }
 
-                schedule(() => { // ~5 ms
-                    const cursor = cm.getCursor()
-                    g.cursorPosition.set(cursor)
-                    g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
-                    const { offlineLints, realTimeLints, spellingErrors, outline } = editor
-                    g.linter.set({ offlineLints, realTimeLints, spellingErrors })
-                    g.outline.set({ outlineItems: outline })
-                })
-            },
-            renameDir(newDirPath, oldDirPath) {
-                const oldDirPathString = oldDirPath.join('/')
-                for (const oldPathString in this.pathToEditor) {
-                    if (oldPathString.indexOf(oldDirPathString) !== 0) continue
-                    const editor = this.pathToEditor[oldPathString]
-                    editor.set({
-                        filePath: [...newDirPath, ...editor.get().filePath.slice(newDirPath.length)]
-                    })
-                }
-            },
-            closeView(editor) {
-                this.closeFile(editor.get().filePath)
-            },
-            closeFile(filePath) {
-                const editor = this.getEditor(filePath)
-                // if the file has been edited, prompt for saving
-                if (!editor.get().clean) {
-                    // todo: close completion, blur editor
-                    g.prompt.open({
-                        icon: 'far fa-hdd',
-                        content: `Do you want to save the changes you made in <em>${editor.get().fileName}</em> ?`,
-                        buttons: [{
-                            text: 'Don\'t Save',
-                            style: 'danger',
-                            action: () => {
-                                editor.set({
-                                    clean: true
-                                })
-                                this.closeFile(filePath)
-                            }
-                        }, {
-                            text: 'Cancel',
-                            style: 'dismiss',
-                        }, {
-                            text: 'Save',
-                            style: 'success',
-                            action: () => {
-                                editor.save()
-                                editor.shouldClose = true
-                            }
-                        }]
-                    })
-                    return
-                }
-                editor.destroy()
+    export function activateFile(filePath) {
+        if (!filePath) return
+        const editor = getEditor(filePath)
+        if (g.activeEditor === editor) {
+            return // already activated
+        }
+        activationHistory.push(filePath)
+        
+        // activate editor
+        g.activeEditor && (g.activeEditor.$set({ active: false }))
+        focus = editor
+        if (!editor) {
+            g.linter.clear()
+            return
+        }
+        editor.$set({ active: true })
+        g.activeEditor = editor
+        g.setFocus([g.panelMiddle, editor])
+        
+        g.cursorPosition.$set({ isMakefile: editor.isMakefile })
+        schedule(() => {
+            g.find.$set({ currentFilePath: filePath })
+        })
+        
+        const cm = editor.cm
+        if (!cm) return
+        nextFrame(() => cm.focus())
 
-                // clear activation history
-                for (let i = 0; i < MAX_ACTIVATION_HISTORY; i++)
-                    if (this.activationHistory[i] === filePath)
-                        this.activationHistory[i] = null
-                // activate previous file
-                for (let i = this.activationHistoryIndex; i > this.activationHistoryIndex - MAX_ACTIVATION_HISTORY; i--) {
-                    const previouslyActivatedFilePath = this.activationHistory[i % MAX_ACTIVATION_HISTORY]
-                    if (previouslyActivatedFilePath && this.getEditor(previouslyActivatedFilePath)) {
-                        this.activateFile(previouslyActivatedFilePath)
-                        return
-                    }
-                }
-                // if history is exhausted, select the last editor
-                let tabs = this.tabBar.refs.tabBar.getElementsByClassName('tab')
-                if (tabs.length > 0) {
-                    this.activateFile(tabs[tabs.length - 1].dataset.filepath)
-                    return
-                }
-                // if no files opened, clear focus
-                this.set({
-                    focus: null
-                })
-            }
+        schedule(() => { // ~5 ms
+            const cursor = cm.getCursor()
+            g.cursorPosition.$set(cursor)
+            g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
+            const { offlineLints, realtimeLints, spellingErrors, outline } = editor
+            g.linter.$set({ offlineLints, realtimeLints, spellingErrors })
+            g.outline.$set({ outlineItems: outline })
+        })
+    }
+
+    export function renameDir(newDirPath, oldDirPath) {
+        const oldDirPathString = joinPath(oldDirPath)
+        for (const oldPathString in editors) {
+            if (oldPathString.indexOf(oldDirPathString) !== 0) continue
+            const editor = editors[oldPathString]
+            editor.$set({
+                filePath: [...newDirPath, ...editor.filePath.slice(newDirPath.length)]
+            })
         }
     }
 
+    export function closeView(editor) {
+        closeFile(editor.filePath)
+    }
+
+    export function closeFile(filePath) {
+        const editor = getEditor(filePath)
+        // if the file has been edited, prompt for saving
+        if (!editor.clean) {
+            g.prompt.open({
+                icon: 'far fa-hdd',
+                content: `Do you want to save the changes you made in <em>${editor.fileName}</em> ?`,
+                buttons: [{
+                    text: 'Don\'t Save',
+                    style: 'danger',
+                    action: () => {
+                        editor.$set({ clean: true })
+                        closeFile(filePath)
+                    }
+                }, {
+                    text: 'Cancel',
+                    style: 'dismiss',
+                }, {
+                    text: 'Save',
+                    style: 'success',
+                    action: () => {
+                        editor.save()
+                        editor.shouldClose = true
+                    }
+                }]
+            })
+            return
+        }
+        const pathString = joinPath(filePath)
+        delete editors[pathString]
+        delete editorProps[pathString]
+        editorProps = editorProps // forced update
+        
+        // clear activation history
+        activationHistory.remove(filePath)
+        // workaround of bind:this creating null values when components being removed
+        Object.keys(editors).forEach(key => !editors[key] && delete editors[key])
+        // activate previous file
+        for (const i of activationHistory.iterate()) {
+            if (getEditor(i)) {
+                activateFile(i)
+                return
+            }
+        }
+        // if history is exhausted, select last opened file
+        for (let i of Object.values(editors)) {
+            activateFile(i.filePath)
+            return
+        }
+        // if no files opened, clear focus
+        focus = null
+    }
 </script>

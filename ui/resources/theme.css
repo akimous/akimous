@@ -25,10 +25,10 @@
 }
 
 @font-face {
-    font-family: 'Source Code Pro';
+    font-family: "DejaVuSansMono";
     font-style: normal;
-    font-weight: 400;
-    src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(fonts/source-code-pro-v8-regular.woff2);
+    font-weight: normal;
+    src: url(fonts/DejaVuSansMono.woff2);
     font-display: block;
 }
 
@@ -73,9 +73,9 @@
     --ui-line-height-large: 1.7rem;
 
     --monospace-font-color: var(--gray8);
-    --monospace-font-family: 'Source Code Pro', 'Menlo', 'Consola', monospace;
-    --monospace-font-size: 1.2rem;
-    --monospace-line-height: 1.6rem;
+    --monospace-font-family: 'DejaVuSansMono', 'Menlo', 'Consola', monospace;
+    --monospace-font-size: 1.1rem;
+    --monospace-line-height: 1.4rem;
 
     --popup-bg-color: var(--gray9);
 
@@ -111,12 +111,16 @@
     --brighter-purple: #9b59b6;
     --darker-purple: #6F3587;
 
+    --magenta: #CC66BE;
+    --brighter-magenta: #FF80EE;
+
     --accent1: #0B2626;
     --accent2: #233D3D;
     --accent3: #325C58;
     --accent4: #498F87;
     --accent5: #5DACA3;
     --accent6: #87D5D2;
+    --accent7: #C1E5E4;
 
     --primary2: #2B3F52;
     --primary3: #264A6E;
@@ -145,6 +149,11 @@ body {
     color: var(--basic-ui-font-color);
     font-family: var(--ui-font-family);
     font-weight: 300;
+}
+
+.non-selectable {
+    user-select: none;
+    cursor: default;
 }
 
 .tab-view {
@@ -184,7 +193,7 @@ span.tooltipped::after {
     box-sizing: border-box;
 }
 
-.title {
+.panel .title {
     display: flex;
     user-select: none;
     cursor: default;
@@ -216,6 +225,11 @@ span.tooltipped::after {
     border-spacing: 0;
 }
 
+.panel table td.row-body {
+    padding: .3rem .2rem .3rem .5rem;
+    background: var(--gray2);
+}
+
 .panel td {
     vertical-align: top;
     cursor: default;
@@ -233,9 +247,9 @@ span.tooltipped::after {
 
 .panel .line-number {
     width: 3rem;
-    padding: .2rem .2rem 0 0;
+    padding: .3rem .3rem .3rem 0;
     text-align: right;
-    color: var(--ui-font-color);
+    color: var(--primary7);
     background: var(--primary2);
     font-family: var(--monospace-font-family);
 }
@@ -264,7 +278,13 @@ span.tooltipped::after {
     display: none !important;
 }
 
+.hidden {
+    visibility: hidden !important;
+}
+
 .popup {
+    top: calc(var(--toolbar-height) + 0.5rem);
+    width: 25rem;
     z-index: 320;
     position: absolute;
     background: var(--popup-bg-color);
@@ -272,6 +292,91 @@ span.tooltipped::after {
     border-radius: var(--default-radius);
     box-shadow: var(--default-shadow);
     box-sizing: border-box;
+    max-height: 85vh;
+    user-select: none;
+    cursor: default;
+}
+
+/* https://leaverou.github.io/bubbly/ */
+.popup.from-top:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12rem;
+    width: 0;
+    height: 0;
+    border: 0.5rem solid transparent;
+    border-bottom-color: var(--popup-bg-color);
+    border-top: 0;
+    margin-top: -0.5rem;
+}
+
+.popup .container {
+    min-height: 7rem;
+    max-height: 84vh;
+    overflow-y: scroll;
+    margin: 0 1.5rem 2rem 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.popup .title {
+    font-size: var(--ui-font-size-large);
+    user-select: none;
+    cursor: default;
+    color: var(--primary5);
+    font-weight: 400;
+    margin-top: 1.5rem;
+}
+
+.popup .title.with-button {
+    justify-content: space-between;
+    display: flex;
+}
+
+.popup .message {
+    color: var(--gray7);
+}
+
+.popup .option {
+    display: flex;
+    color: var(--gray5);
+    padding: .5rem;
+    margin: .5rem 0 -.5rem 0;
+    font-size: var(--monospace-font-size);
+    border-radius: var(--default-radius);
+}
+
+.popup .option:hover {
+    background: var(--primary8);
+}
+
+.popup .option .checkbox {
+    color: var(--primary7);
+    line-height: 1.15;
+    padding-right: .4rem;
+}
+
+.popup .option .checkbox:before {
+    content: "\f111";
+    font-weight: 400;
+}
+
+.popup .option.checked .checkbox {
+    color: var(--green);
+}
+
+.popup .option.checked .checkbox:before {
+    content: "\f058";
+    font-weight: 900;
+}
+
+.popup .option .description {
+    padding-left: .4rem;
+    vertical-align: middle;
+}
+
+.popup .option:hover .description {
+    color: var(--primary3);
 }
 
 .l-ui-text {
@@ -316,6 +421,10 @@ span.tooltipped::after {
 
 .l-brighter-red {
     color: var(--brighter-red);
+}
+
+.l-magenta {
+    color: var(--brighter-magenta);
 }
 
 .l-white {

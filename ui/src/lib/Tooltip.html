@@ -1,0 +1,52 @@
+<div id="tooltip" class="non-selectable"></div>
+
+<style>
+    #tooltip {
+        background: rgba(0, 0, 0, .7);
+        z-index: 999;
+        padding: .2rem .4rem;
+        margin-top: .5rem;
+        border-radius: var(--small-radius);
+        font-size: var(--ui-font-size-small);
+    }
+
+</style>
+
+<script>
+    import Popper from 'popper.js'
+    
+    import g from './Globals'
+
+    let tooltip
+    g.Popper = Popper
+
+    // listener are being called directly outside (e.g. in Tab)
+    export function mouseEnterListener(event) {
+        const { target } = event
+        const tooltipElement = document.getElementById('tooltip')
+        const label = target.getAttribute('aria-label')
+        tooltipElement.textContent = label
+        tooltip = new Popper(target, tooltipElement, {
+            positionFixed: true,
+            eventsEnabled: false,
+        })
+    }
+
+    export function mouseLeaveListener() {
+        if (tooltip)
+            tooltip.destroy()
+    }
+
+    export function register(element) {
+        // those listeners should be garbage collected when the element is destroyed
+        if (!Array.isArray(element)) {
+            element.addEventListener('mouseenter', mouseEnterListener)
+            element.addEventListener('mouseleave', mouseLeaveListener)
+            return
+        }
+        for (const i of element) {
+            i.addEventListener('mouseenter', mouseEnterListener)
+            i.addEventListener('mouseleave', mouseLeaveListener)
+        }
+    }
+</script>

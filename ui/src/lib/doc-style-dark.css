@@ -167,6 +167,7 @@
 #docs dt span.classifier-delimiter {
     color: var(--ao);
     font-weight: 300;
+    padding-left: .5em;
 }
 
 #docs table.docutils {

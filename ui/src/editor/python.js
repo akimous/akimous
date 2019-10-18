@@ -1,11 +1,11 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
-/* eslint-disable */
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("codemirror/lib/codemirror")); // modified, for finding cm module
+    mod(require("codemirror/lib/codemirror"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["codemirror/lib/codemirror"], mod); // modified, for finding cm module
+    define(["codemirror/lib/codemirror"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -44,7 +44,7 @@
     var delimiters = parserConf.delimiters || parserConf.singleDelimiters || /^[\(\)\[\]\{\}@,:`=;\.\\]/;
     //               (Backwards-compatiblity with old, cumbersome config system)
     var operators = [parserConf.singleOperators, parserConf.doubleOperators, parserConf.doubleDelimiters, parserConf.tripleDelimiters,
-                     parserConf.operators || /^([-+*/%\/&|^]=?|[<>=]+|\/\/=?|\*\*=?|!=|[~!@])/]
+                     parserConf.operators || /^([-+*/%\/&|^]=?|[<>=]+|\/\/=?|\*\*=?|!=|[~!@]|\.\.\.)/]
     for (var i = 0; i < operators.length; i++) if (!operators[i]) operators.splice(i--, 1)
 
     var hangingIndent = parserConf.hangingIndent || conf.indentUnit;
@@ -56,7 +56,7 @@
     if (parserConf.extra_builtins != undefined)
       myBuiltins = myBuiltins.concat(parserConf.extra_builtins);
 
-    var py3 = true; // modified remove python 2 support
+    var py3 = true;
     if (py3) {
       // since http://legacy.python.org/dev/peps/pep-0465/ @ is also an operator
       var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
@@ -144,7 +144,7 @@
       if (stream.match(stringPrefixes)) {
         var isFmtString = stream.current().toLowerCase().indexOf('f') !== -1;
         if (!isFmtString) {
-          state.tokenize = tokenStringFactory(stream.current());
+          state.tokenize = tokenStringFactory(stream.current(), state.tokenize);
           return state.tokenize(stream, state);
         } else {
           state.tokenize = formatStringFactory(stream.current(), state.tokenize);
@@ -157,7 +157,7 @@
 
       if (stream.match(delimiters)) return "punctuation";
 
-      if (state.lastToken == "." && stream.match(identifiers) && stream.peek() !== '(') // modified
+      if (state.lastToken == "." && stream.match(identifiers) && stream.peek() !== '(')
         return "property";
 
       if (stream.match(keywords) || stream.match(wordOperators))
@@ -172,11 +172,11 @@
       if (stream.match(identifiers)) {
         if (state.lastToken == "def" || state.lastToken == "class")
           return "def";
-        if (stream.peek() === '(') return 'function'; // modified
+        if (stream.peek() === '(') return 'function';
         return "variable";
       }
 
-      if (stream.peek() === '(') return 'function'; // modified
+      if (stream.peek() === '(') return 'function';
 
       // Handle non-detected items
       stream.next();
@@ -190,23 +190,18 @@
       var singleline = delimiter.length == 1;
       var OUTCLASS = "string";
 
-      function tokenFString(stream, state) {
-        // inside f-str Expression
-        if (stream.match(delimiter)) {
-          // expression ends pre-maturally, but very common in editing
-          // Could show error to remind users to close brace here
-          state.tokenize = tokenString
-          return OUTCLASS;
-        } else if (stream.match('{')) {
-          // starting brace, if not eaten below
-          return "punctuation";
-        } else if (stream.match('}')) {
-          // return to regular inside string state
-          state.tokenize = tokenString
-          return "punctuation";
-        } else {
-          // use tokenBaseInner to parse the expression
-          return tokenBaseInner(stream, state);
+      function tokenNestedExpr(depth) {
+        return function(stream, state) {
+          var inner = tokenBaseInner(stream, state)
+          if (inner == "punctuation") {
+            if (stream.current() == "{") {
+              state.tokenize = tokenNestedExpr(depth + 1)
+            } else if (stream.current() == "}") {
+              if (depth > 1) state.tokenize = tokenNestedExpr(depth - 1)
+              else state.tokenize = tokenString
+            }
+          }
+          return inner
         }
       }
 
@@ -225,14 +220,9 @@
             return OUTCLASS;
           } else if (stream.match('{', false)) {
             // switch to nested mode
-            state.tokenize = tokenFString
-            if (stream.current()) {
-              return OUTCLASS;
-            } else {
-              // need to return something, so eat the starting {
-              stream.next();
-              return "punctuation";
-            }
+            state.tokenize = tokenNestedExpr(0)
+            if (stream.current()) return OUTCLASS;
+            else return state.tokenize(stream, state)
           } else if (stream.match('}}')) {
             return OUTCLASS;
           } else if (stream.match('}')) {
@@ -254,7 +244,7 @@
       return tokenString;
     }
 
-    function tokenStringFactory(delimiter) {
+    function tokenStringFactory(delimiter, tokenOuter) {
       while ("rubf".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
         delimiter = delimiter.substr(1);
 
@@ -269,7 +259,7 @@
             if (singleline && stream.eol())
               return OUTCLASS;
           } else if (stream.match(delimiter)) {
-            state.tokenize = tokenBase;
+            state.tokenize = tokenOuter;
             return OUTCLASS;
           } else {
             stream.eat(/['"]/);
@@ -279,7 +269,7 @@
           if (parserConf.singleLineStringErrors)
             return ERRORCLASS;
           else
-            state.tokenize = tokenBase;
+            state.tokenize = tokenOuter;
         }
         return OUTCLASS;
       }
@@ -372,7 +362,6 @@
 
         if (style && style != "comment")
           state.lastToken = (style == "keyword" || style == "punctuation") ? stream.current() : style;
-        // modified if (style == "punctuation") style = null;
 
         if (stream.eol() && state.lambda)
           state.lambda = false;

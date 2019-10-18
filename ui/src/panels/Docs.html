@@ -1,18 +1,18 @@
-<!--Don't set it to panel class, CSS will break-->
-<div ref:panel id="docs" class:gone="!active" on:click="onFocus()">
-    <div ref:docContainer id="function-doc-container" class:expand="!completionDoc">
-        <div ref:functionDoc on:click="onClickFunctionDoc(event)" id="function-doc" class:text-docstring="functionDocType!=='html'">
+<!--Don't set it to panel class, or CSS will break-->
+<div bind:this={panel} id="docs" class:gone="{!active}" on:click="{onFocus}">
+    <div bind:this={docContainer} id="function-doc-container" class:expand="{!completionDoc}">
+        <div bind:this={functionDocContainer} on:click="{onClickFunctionDoc}" id="function-doc" class:text-docstring="{functionDocType!=='html'}">
             {#if functionDoc} {#if functionDocType==='html'} {@html functionDoc} {:else} {functionDoc} {/if} {:else}
             <h2>Function Documentation</h2>
             <p>Move the cursor inside function parentheses to show its docstring.</p>
             {/if}
         </div>
     </div>
-    <div ref:splitBar id="doc-split-bar" class:gone="!completionDoc"></div>
+    <div bind:this={splitBar} id="doc-split-bar" class:gone="{!completionDoc}"></div>
     {#if completionDoc}
     <div id="doc-mask" class="mask"></div>
     <div id="completion-doc-container">
-        <div ref:completionDoc id="completion-doc" class:text-docstring="functionDocType!=='html'">
+        <div bind:this={completionDocContainer} id="completion-doc" class:text-docstring="{functionDocType!=='html'}">
             {#if completionDocType==='html'} {@html completionDoc} {:else} {completionDoc} {/if} </div>
     </div>
     {/if}
@@ -88,12 +88,13 @@
 
 </style>
 
-
 <script>
+    import { onMount, createEventDispatcher } from 'svelte'
     import throttle from 'lodash.throttle'
+    
     import g from '../lib/Globals'
     import { makeScrollable } from '../lib/UIUtils'
-    import { initializeTabView, nextFrame, Pos, isStringOrComment, inParentheses } from '../lib/Utils'
+    import { Pos, isStringOrComment, inParentheses } from '../lib/Utils'
     import {
         scanInSameLevelOfBraces,
         needInsertCommaAfterParameter,
@@ -103,6 +104,27 @@
         moveCursorToParameterInsertionPoint,
         moveCursorToParameter,
     } from '../editor/EditorFunctions'
+
+    const dispatch = createEventDispatcher()
+    
+    export let active = false,
+        completionDoc = null,
+        completionDocType = 'html',
+        functionDoc = null,
+        functionDocTriggeredFile = '',
+        functionDocTriggeredPos = null,
+        functionDocType = 'html'
+    
+    let completionDocContainer,
+        docContainer, 
+        functionDocContainer, 
+        panel, 
+        splitBar
+    
+    $: dispatch('active', {
+        id: 'docs',
+        active
+    })
 
     let lastTokenStart = { line: 0, ch: 0 }
 
@@ -138,258 +160,233 @@
         }
     }
 
-    export default {
-        components: {},
-        oncreate() {
-            g.docs = this
-            initializeTabView(this, 'Documentation', 'fas fa-book-open l-red')
-            nextFrame(() => {
-                this.refs.splitBar.onmousedown = e => {
-                    e.preventDefault()
-                    const containerTop = this.refs.panel.getBoundingClientRect().y
-                    const style = document.documentElement.style
-                    document.onmousemove = throttle(e => {
-                        style.setProperty('--function-doc-height', `${e.pageY - containerTop}px`)
-                    }, 16)
-                }
-                this.refs.splitBar.onmouseup = () => {
-                    document.onmousemove = null
-                }
-                makeScrollable(this, this.refs.docContainer)
-            })
-        },
-        data() {
-            return {
-                active: false,
-                completionDoc: null,
-                completionDocType: 'html',
-                functionDoc: null,
-                functionDocType: 'html',
-                functionDocTriggeredFile: '',
-                functionDocTriggeredPos: null,
+    onMount(async () => {
+        await makeScrollable('docs', docContainer)
+        splitBar.onmousedown = e => {
+            e.preventDefault()
+            const containerTop = panel.getBoundingClientRect().y
+            const style = document.documentElement.style
+            document.onmousemove = throttle(e => {
+                style.setProperty('--function-doc-height', `${e.pageY - containerTop}px`)
+            }, 16)
+        }
+        splitBar.onmouseup = () => {
+            document.onmousemove = null
+        }
+    })
+
+    function onFocus() {
+        g.setFocus([g.panelRight, g.docs])
+    }
+
+    export function getFunctionDocIfNeeded(cm, editor, cursor) {
+        if (cm.somethingSelected()) return
+
+        try {
+            const token = cm.getTokenAt(cursor)
+            // don't request function doc if the cursor is moving on the same token
+            if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
+            lastTokenStart.line = cursor.line
+            lastTokenStart.ch = token.start
+
+            const pos = inParentheses(cm, cursor)
+
+            // don't request function doc if the cursor is not in braces
+            if (!pos) return
+
+            const { filePath } = editor
+            // don't request function doc if the cursor is moving within the same braces
+            if (functionDocTriggeredPos && pos &&
+                functionDocTriggeredPos.ch === pos.ch &&
+                functionDocTriggeredPos.line === pos.line &&
+                functionDocTriggeredFile === filePath) {
+                highlightActiveParameter(cm, cursor)
+                return
             }
-        },
-        methods: {
-            onFocus() {
-                g.setFocus([g.panelRight, this])
-            },
-            getFunctionDocIfNeeded(cm, editor, cursor) {
-                if (cm.somethingSelected()) return
+            functionDocTriggeredPos = pos, functionDocTriggeredFile = filePath
 
-                const token = cm.getTokenAt(cursor)
-                // don't request function doc if the cursor is moving on the same token
-                if (token.start === lastTokenStart.ch && cursor.line === lastTokenStart.line) return
-                lastTokenStart.line = cursor.line
-                lastTokenStart.ch = token.start
+            editor.session.send('GetFunctionDocumentation', {
+                line: cursor.line,
+                ch: cursor.ch,
+            })
+        } catch (e) {
+            if (g.dev) console.warn(e)
+        }
+        
+    }
 
-                const pos = inParentheses(cm, cursor)
+    export function highlightActiveParameter(cm, cursor) {
+        if (!cursor) cursor = cm.getCursor()
+        let activeParameter = getActiveParameter(cm, cursor)
+        const oldHighlights = document.querySelectorAll('#function-doc dt.highlight-parameter')
+        for (const node of oldHighlights)
+            node.classList.remove('highlight-parameter')
+        if (activeParameter === false) return
 
-                // don't request function doc if the cursor is not in braces
-                if (!pos) return
-
-                const { filePath } = editor.get()
-                const { functionDocTriggeredFile, functionDocTriggeredPos } = this.get()
-                // don't request function doc if the cursor is moving within the same braces
-                if (functionDocTriggeredPos && pos &&
-                    functionDocTriggeredPos.ch === pos.ch &&
-                    functionDocTriggeredPos.line === pos.line &&
-                    functionDocTriggeredFile === filePath) {
-                    this.highlightActiveParameter(cm, cursor)
-                    return
-                }
-                this.set({ functionDocTriggeredPos: pos, functionDocTriggeredFile: filePath })
-
-                editor.socket.send('GetFunctionDocumentation', {
-                    line: cursor.line,
-                    ch: cursor.ch,
-                })
-            },
-            highlightActiveParameter(cm, cursor) {
-                if (!cursor) cursor = cm.getCursor()
-                let activeParameter = this.getActiveParameter(cm, cursor)
-                const oldHighlights = document.querySelectorAll('#function-doc dt.highlight-parameter')
-                for (const node of oldHighlights)
-                    node.classList.remove('highlight-parameter')
-                if (activeParameter === false) return
-
-                if (Number.isInteger(activeParameter)) {
-                    const functionSignature = this.getFunctionSignature()
-                    if (!functionSignature) return
-                    activeParameter = this.getParameterNameFromFunctionSignature(functionSignature, activeParameter)
-                }
-                if (!activeParameter) return
-                for (const node of document.querySelectorAll('#function-doc dt')) {
-                    if (node.textContent.startsWith(activeParameter)) {
-                        node.scrollIntoView(true)
-                        node.classList.add('highlight-parameter')
-                        break
-                    }
-                }
-            },
-            /**
-             * ('load_iris(return_X_y=False)', 0) -> 'return_X_y'
-             * @param   {string} signature function signature from Jedi docstring
-             * @param   {number} index     n-th parameter
-             * @returns {string} name of the parameter, or undefined if not available
-             */
-            getParameterNameFromFunctionSignature(signature, index) {
-                const parameterList = this.getParameterListFromFunctionSignature(signature)
-                if (parameterList.length <= index) {
-                    console.warn('index out of bound')
-                    return
-                }
-                let parameter = parameterList[index]
-                const end = parameter.search(/[\s,=:]/)
-                if (end > 0) parameter = parameter.substring(0, end)
-                parameter = parameter.replace(/\*/g, '')
-                return parameter
-            },
-            /**
-             * Return a list of parameters, including default values and type annotations.
-             * ('someFunction(a, b=1, c: int = 3, **d)') -> ['a', 'b=1', 'c: int = 3', '**d']
-             * @param   {string} function signature from Jedi docstring
-             * @returns {Array}  as stated in the example above
-             */
-            getParameterListFromFunctionSignature(signature) {
-                const stack = []
-                const result = []
-                const length = signature.length
-                let stackTop, end = -1
-                for (let i = 0; i < length; i++) {
-                    const char = signature.charAt(i)
-                    const opening = matchingForward[char]
-                    if (opening) {
-                        stack.push(opening)
-                        stackTop = opening
-                        if (signature.substr(i + 1, 5) === 'self,')
-                            i += 6
-                        continue
-                    }
-                    if (char === stackTop) {
-                        stackTop = stack.pop()
-                        continue
-                    }
-                    if (stack.length === 1) {
-                        if (char === ',') {
-                            continue
-                        }
-                        end = signature.indexOf(',', i)
-                        if (end === -1) end = length - 1
-                        let item = signature.substring(i, end).trim()
-                        result.push(item)
-                        i = Math.max(i, end - 1)
-                    }
-                }
-                return result
-            },
-            getActiveParameter(cm, cursor) {
-                const pos = Pos(cursor)
-                // backward search
-                let kwarg = scanInSameLevelOfBraces(cm, cursor, findParameterName)
-                if (!kwarg) {
-                    // cursor "on" the parameter
-                    const token = cm.getTokenAt(pos)
-                    if (token.type === 'variable') {
-                        pos.ch = token.end + 1
-                        const nextToken = cm.getTokenAt(pos)
-                        if (nextToken.string === '=')
-                            kwarg = token.string
-                    }
-                }
-                // forward search
-                if (!kwarg)
-                    kwarg = scanInSameLevelOfBraces(cm, cursor, findParameterName, 1)
-                if (kwarg)
-                    return kwarg
-
-                let index = 0
-                let findParameterIndex = (cm, char, pos) => {
-                    if (!isStringOrComment(cm, Pos(pos.line, pos.ch + 1))) {
-                        if (char === '(') {
-                            const token = cm.getTokenAt(pos)
-                            if (token.type === 'function' || token.type === 'builtin')
-                                return index
-                            else index = 0
-                        } else if (char === ',') {
-                            ++index
-                        } else if (char === '{' || char === '[') {
-                            index = 0
-                        }
-                    }
-
-                }
-                let argIndex = scanInSameLevelOfBraces(cm, cursor, findParameterIndex)
-                return argIndex
-            },
-            onClickFunctionDoc(event) {
-                const editor = g.activeEditor
-                const { functionDoc } = this.get()
-                if (!editor || !functionDoc) return
-                const cm = editor.cm
-                if (event.ctrlKey || event.metaKey) {
-                    // insert selected parameter with default values
-                    const selectedText = getSelectedTextInDoc()
-                    const parameterList = this.getParameterListFromFunctionSignature(this.getFunctionSignature())
-                    let result = parameterList.find(item => {
-                        return item.startsWith(selectedText)
-                    })
-                    if (!result) return
-                    result = result.replace(/[’”]/g, '\'')
-
-                    const equalSignPosition = result.indexOf('=')
-                    if (equalSignPosition > 0) {
-                        const parameterName = result.substring(0, equalSignPosition)
-                        const parameterAlreadyExists = moveCursorToParameter(cm, parameterName)
-                        if (parameterAlreadyExists) {
-                            editor.cm.focus()
-                            return
-                        }
-                    }
-                    moveCursorToParameterInsertionPoint(cm)
-                    const cursor = Pos(cm.getCursor())
-                    const commaBefore = needInsertCommaBeforeParameter(cm)
-                    const commaAfter = needInsertCommaAfterParameter(cm)
-                    const multiLine = isMultilineParameter(cm)
-                    const lineContent = cm.getLine(cursor.line)
-                    const strBefore = lineContent.substring(0, cursor.ch)
-                    const charAfter = lineContent.charAt(cursor.ch)
-                    const lineBreakBefore = multiLine && strBefore.length > 0 && !/(\($)|^\s+$/.test(strBefore)
-                    const lineBreakAfter = multiLine && charAfter.length > 0 && !/\)|\s/.test(charAfter)
-
-                    if (commaBefore && lineBreakBefore) {
-                        cm.replaceSelection(',')
-                        cm.execCommand('newlineAndIndent')
-                        cm.replaceSelection(result)
-                    } else {
-                        if (lineBreakBefore) cm.execCommand('newlineAndIndent')
-                        if (commaBefore) result = ', ' + result
-                        if (commaAfter) result = result + ', '
-                        cm.replaceSelection(result)
-                        if (lineBreakAfter) cm.execCommand('newlineAndIndent')
-                    }
-                    editor.cm.focus()
-                } else if (event.altKey) {
-                    const selectedText = getSelectedTextInDoc()
-                    editor.cm.replaceSelection(selectedText)
-                    editor.cm.focus()
-                }
-            },
-            getFunctionSignature() {
-                try {
-                    const { functionDoc, functionDocType } = this.get()
-                    let functionSignature
-                    if (functionDocType === 'html') {
-                        functionSignature = document.querySelector('#function-doc p').textContent
-                    } else {
-                        functionSignature = functionDoc.substring(0, functionDoc.indexOf('\n\n'))
-                    }
-                    return functionSignature
-                } catch (e) {
-                    console.error(e)
-                    return
-                }
+        if (Number.isInteger(activeParameter)) {
+            const functionSignature = getFunctionSignature()
+            if (!functionSignature) return
+            activeParameter = getParameterNameFromFunctionSignature(functionSignature, activeParameter)
+        }
+        if (!activeParameter) return
+        for (const node of document.querySelectorAll('#function-doc dt')) {
+            if (node.textContent.startsWith(activeParameter)) {
+                node.scrollIntoView(true)
+                node.classList.add('highlight-parameter')
+                break
             }
         }
     }
 
+    export const getParameterNameFromFunctionSignature = (signature, index) => {
+        const parameterList = getParameterListFromFunctionSignature(signature)
+        if (parameterList.length <= index) {
+            return // index out of bound
+        }
+        let parameter = parameterList[index]
+        const end = parameter.search(/[\s,=:]/)
+        if (end > 0) parameter = parameter.substring(0, end)
+        parameter = parameter.replace(/\*/g, '')
+        return parameter
+    }
+
+    export const getParameterListFromFunctionSignature = (signature) => {
+        const stack = []
+        const result = []
+        const length = signature.length
+        let stackTop, end = -1
+        for (let i = 0; i < length; i++) {
+            const char = signature.charAt(i)
+            const opening = matchingForward[char]
+            if (opening) {
+                stack.push(opening)
+                stackTop = opening
+                if (signature.substr(i + 1, 5) === 'self,')
+                    i += 6
+                continue
+            }
+            if (char === stackTop) {
+                stackTop = stack.pop()
+                continue
+            }
+            if (stack.length === 1) {
+                if (char === ',') {
+                    continue
+                }
+                end = signature.indexOf(',', i)
+                if (end === -1) end = length - 1
+                let item = signature.substring(i, end).trim()
+                result.push(item)
+                i = Math.max(i, end - 1)
+            }
+        }
+        return result
+    }
+
+    export const getActiveParameter = (cm, cursor) => {
+        const pos = { line: cursor.line, ch: cursor.ch }
+        // backward search
+        let kwarg = scanInSameLevelOfBraces(cm, cursor, findParameterName)
+        if (!kwarg) {
+            // cursor "on" the parameter
+            const token = cm.getTokenAt(pos)
+            if (token.type === 'variable') {
+                pos.ch = token.end + 1
+                const nextToken = cm.getTokenAt(pos)
+                if (nextToken.string === '=')
+                    kwarg = token.string
+            }
+        }
+        // forward search
+        if (!kwarg)
+            kwarg = scanInSameLevelOfBraces(cm, cursor, findParameterName, 1)
+        if (kwarg)
+            return kwarg
+
+        let index = 0
+        let findParameterIndex = (cm, char, pos) => {
+            if (!isStringOrComment(cm, Pos(pos.line, pos.ch + 1))) {
+                if (char === '(') {
+                    const token = cm.getTokenAt(pos)
+                    if (token.type === 'function' || token.type === 'builtin')
+                        return index
+                    else index = 0
+                } else if (char === ',') {
+                    ++index
+                } else if (char === '{' || char === '[') {
+                    index = 0
+                }
+            }
+        }
+        let argIndex = scanInSameLevelOfBraces(cm, cursor, findParameterIndex)
+        return argIndex
+    }
+
+    export function onClickFunctionDoc(event) {
+        const editor = g.activeEditor
+        if (!editor || !functionDoc) return
+        const cm = editor.cm
+        if (event.ctrlKey || event.metaKey) {
+            // insert selected parameter with default values
+            const selectedText = getSelectedTextInDoc()
+            const parameterList = getParameterListFromFunctionSignature(getFunctionSignature())
+            let result = parameterList.find(item => {
+                return item.startsWith(selectedText)
+            })
+            if (!result) return
+            result = result.replace(/[’”]/g, '\'')
+
+            const equalSignPosition = result.indexOf('=')
+            if (equalSignPosition > 0) {
+                const parameterName = result.substring(0, equalSignPosition)
+                const parameterAlreadyExists = moveCursorToParameter(cm, parameterName)
+                if (parameterAlreadyExists) {
+                    editor.cm.focus()
+                    return
+                }
+            }
+            moveCursorToParameterInsertionPoint(cm)
+            const cursor = Pos(cm.getCursor())
+            const commaBefore = needInsertCommaBeforeParameter(cm)
+            const commaAfter = needInsertCommaAfterParameter(cm)
+            const multiline = isMultilineParameter(cm)
+            const lineContent = cm.getLine(cursor.line)
+            const strBefore = lineContent.substring(0, cursor.ch)
+            const charAfter = lineContent.charAt(cursor.ch)
+            const lineBreakBefore = multiline && strBefore.length > 0 && !/(\($)|^\s+$/.test(strBefore)
+            const lineBreakAfter = multiline && charAfter.length > 0 && !/\)|\s/.test(charAfter)
+
+            if (commaBefore && lineBreakBefore) {
+                cm.replaceSelection(',')
+                cm.execCommand('newlineAndIndent')
+                cm.replaceSelection(result)
+            } else {
+                if (lineBreakBefore) cm.execCommand('newlineAndIndent')
+                if (commaBefore) result = ', ' + result
+                if (commaAfter) result = result + ', '
+                cm.replaceSelection(result)
+                if (lineBreakAfter) cm.execCommand('newlineAndIndent')
+            }
+            editor.cm.focus()
+        } else if (event.altKey) {
+            const selectedText = getSelectedTextInDoc()
+            editor.cm.replaceSelection(selectedText)
+            editor.cm.focus()
+        }
+    }
+
+    export function getFunctionSignature() {
+        try {
+            let functionSignature
+            if (functionDocType === 'html') {
+                functionSignature = document.querySelector('#function-doc p').textContent
+            } else {
+                functionSignature = functionDoc.substring(0, functionDoc.indexOf('\n\n'))
+            }
+            return functionSignature
+        } catch (e) {
+            console.error(e)
+            return
+        }
+    }
 </script>

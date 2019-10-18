@@ -1,5 +1,8 @@
-<div class="text-input" class:coalesced>
-    <span class="label"><slot></slot></span><input ref:input type="text" bind:value on:change="onChange()" placeholder="{placeholder}">
+<div class="text-input {theme}" class:coalesced class:padded>
+    <span class="label">
+        <slot></slot>
+    </span>
+    <input bind:this={input} type="text" spellcheck="false" bind:value on:click on:change on:keydown placeholder="{placeholder}">
 </div>
 
 
@@ -7,72 +10,70 @@
     .text-input {
         display: flex;
         flex-wrap: wrap;
-        margin: 0 .3rem .3rem .3rem;
     }
-    
+
+    .padded {
+        padding: 0 .3rem .3rem .3rem;
+    }
+
     .text-input.coalesced {
         margin-bottom: 0;
+        padding: 0 .3rem 0 0;
     }
-    
+
     .label {
         color: var(--gray7);
-        padding-top: .4rem;
+        padding: .4rem .4rem 0 0;
     }
-    
+
     input {
         width: 5rem;
+        height: 1.8rem;
         flex-grow: 1;
         background: var(--gray3);
-        color: var(--basic-ui-font-color);        
+        color: var(--basic-ui-font-color);
         box-sizing: border-box;
         border: .07rem solid var(--gray2);
         border-radius: var(--small-radius);
         padding: .3rem;
+        outline: none;
     }
-    
+
+    :global(.bright) input {
+        background: var(--gray9);
+        color: inherit;
+        border: none;
+        border-bottom: .07rem solid var(--gray8);
+        border-radius: 0;
+    }
+
     .coalesced input {
         border-radius: var(--small-radius) var(--small-radius) 0 0;
     }
-    
+
     input:hover {
-        color: var(--gray9);
-        border: .07rem solid var(--gray1);
+        filter: brightness(1.2);
     }
-    
+
     input:active,
     input:focus {
         border: .07rem solid var(--ui-highlight-color);
-        outline: none;
+        border-radius: var(--small-radius);
     }
 
 </style>
 
-
 <script>
-    // import g from './lib/Globals'
+    export let allowWhiteSpace = true,
+        coalesced = false,
+        padded = true,
+        placeholder = '',
+        theme = 'dark',
+        value = ''
 
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {
-                value: '',
-                placeholder: '',
-                onChange: undefined,
-                allowWhiteSpace: true,
-                coalesced: false,
-            }
-        },
-        methods: {
-            onChange() {
-                const { onChange, value } = this.get()
-                if (onChange)
-                    onChange(value)
-            },
-            focus() {
-                this.refs.input.focus()
-            },
-        }
+    let input
+
+    export function focus() {
+        input.focus()
     }
-
 </script>

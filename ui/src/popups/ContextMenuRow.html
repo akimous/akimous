@@ -1,4 +1,4 @@
-<div class="context-menu-row non-selectable" class:selected on:mouseover="mouseover()" on:click="click()">
+<div bind:this={self} class="context-menu-row non-selectable" class:selected on:mouseover="{mouseover}" on:click="{click}">
     <span class="icon">
         <i class="{icon}" aria-hidden="true"></i>
     </span>
@@ -28,7 +28,7 @@
         color: var(--gray5);
         text-align: center;
     }
-    
+
     .text {
         display: inline-block;
         min-width: 10em;
@@ -37,48 +37,52 @@
     .selected .icon {
         color: var(--gray9);
     }
-    
+
     .hotkey {
         color: var(--gray6);
         position: absolute;
         right: 0.5rem;
     }
-    
+
     .selected .hotkey {
         color: var(--gray9);
     }
 
 </style>
-
-
+   
 <script>
-    // import g from './Globals'
+    import { createEventDispatcher } from 'svelte'
+    import ClipboardJS from 'clipboard'
 
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {
-                selected: false,
-                text: '',
-                hotkey: '',
-                callback: null,
-                icon: ''
-            }
-        },
-        methods: {
-            mouseover() {
-                this.parent.set({
-                    selectedRow: this
-                })
-            },
-            click() {
-                this.get().callback(this.parent.get().caller)
-                this.parent.set({
-                    open: false
-                })
-            }
+    export let callback = null,
+        clipboardText = null,
+        hotkey = '',
+        icon = '',
+        id = 0,
+        selected = false,
+        text = ''
+    
+    let clipboardHandler,
+        self
+        
+    const dispatch = createEventDispatcher()
+    
+    $: {
+        clipboardHandler && clipboardHandler.destroy()
+        if (clipboardText && self) {
+            clipboardHandler = new ClipboardJS(self, {
+                text: () => clipboardText
+            })
+        } else {
+            clipboardHandler = null
         }
     }
 
+    function mouseover() {
+        dispatch('rowSelected', { id })
+    }
+
+    function click() {
+        dispatch('click', { id })
+    }
 </script>

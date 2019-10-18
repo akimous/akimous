@@ -1,72 +1,302 @@
-<div class="panel" class:gone="!active">
-    <div ref:terminal class="tab-view"></div>
+<div id="console" class="panel" class:gone="{!active}" on:click={onFocus}>
+    {#if mode === 'jupyter'}
+    <div bind:this={jupyter} class="upper-half">
+        <JupyterToolbar bind:this={g.jupyterToolbar}></JupyterToolbar>
+        <table id="jupyter-cells">
+            {#each cells as cell}
+            {#if displayInput || !cell.code }
+            <JupyterCell {...cell}></JupyterCell>
+            {/if}
+            {/each}
+        </table>
+    </div>
+    {/if}
+    <div id="terminal" bind:this={terminalContainer} class="{mode === 'jupyter' ? 'lower-half' : 'full-height'}"></div>
 </div>
 
 
 <style>
+    .upper-half {
+        height: 70%;
+    }
+	
+    .lower-half {
+    	height: 30%;
+    }
+
+    :global(#terminal.full-height) {
+        height: 100%;
+    }
 
 </style>
 
-
 <script>
+    import { onDestroy, createEventDispatcher, tick } from 'svelte'
+    import { Terminal } from 'xterm'
+    import { FitAddon } from 'xterm-addon-fit'
+    
     import g from '../lib/Globals'
-    import { initializeTabView, nextFrame } from '../lib/Utils'
-    import Terminal from 'xterm/dist/xterm'
-    import fit from 'xterm/lib/addons/fit/fit'
-    // import attach from 'xterm/lib/addons/attach/attach'
+    import { nextFrame, schedule } from '../lib/Utils'
+    
+    import JupyterToolbar from './JupyterToolbar.html'
+    import JupyterCell from './JupyterCell.html'
 
+    const dispatch = createEventDispatcher()
+    const fit = new FitAddon()
 
-    export default {
-        components: {},
-        oncreate() {
-            g.console = this
-            initializeTabView(this, 'Console', 'fas fa-desktop l-purple')
-            this.initialized = false
-        },
-        onupdate({ changed, current }) {
-            if (changed.active) {
-                if (!this.initialized && current.active) {
-                    this.initializeTerminal()
-                    this.initialized = true
-                }
+    export let active = false,
+        cells = [
+            // {
+            //     output: {
+            //         'text/plain': 'text',
+            //     }
+            // }
+        ],
+        displayInput = false,
+        mode = '',
+        ready = false
 
-            }
-        },
-        data() {
-            return {
-                active: false
-            }
-        },
-        methods: {
-            initializeTerminal() {
-                this.tab.set({ active: false })
-                this.tab.set({ active: true })
+    let initializing = false,
+        jupyter, 
+        lastPartALine,
+        session,
+        terminal,
+        terminalContainer
 
-                nextFrame(() => {
-                    Terminal.applyAddon(fit)
-                    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                    this.terminal = new Terminal({
-                        tabStopWidth: 4,
-                        fontSize: 1.2 * rem,
-                        fontFamily: 'Source Code Pro',
-                        theme: {
-                            foreground: '#CCC',
-                            background: '#3F3F3F'
-                        }
-                    })
-                    this.terminal.open(this.refs.terminal, false)
-                    this.terminal.on('focus', () => {
-                        g.setFocus([g.panelRight, this])
-                    })
-
-                    nextFrame(() => {
-                        this.terminal.fit()
-                        for (let i = 0; i < 3; i++)
-                            this.terminal.write('blabla')
-                    })
-                })
-            }
+    $: dispatch('active', {
+        id: 'console',
+        active
+    })
+    $: {
+        if (!ready && active) initialize()
+    }
+    $: {
+        if (mode) {
+            stop()
+            close()
         }
     }
 
+    onDestroy(() => {
+        session && session.close()
+    })
+    
+    function onFocus() {
+        g.setFocus([g.panelRight, g.console])
+    }
+    
+    async function initialize() {
+        if (initializing) return
+        initializing = true
+        await tick()
+        
+        document.fonts.load('12px DejaVuSansMono').then(() => { 
+            // make sure the font is already loaded 
+            // (as it will not be replaced after terminal loads)
+            schedule(() => {
+                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+                terminal = new Terminal({
+                    tabStopWidth: 4,
+                    fontSize: 1.1 * rem,
+                    fontFamily: 'DejaVuSansMono',
+                    fontWeight: 400, // workaround for broken block (e.g. tqdm) rendering
+                    theme: {
+                        foreground: '#CCC',
+                        background: '#3F3F3F'
+                    },
+                    convertEol: true,
+                })
+                terminal.loadAddon(fit)
+                terminal.open(terminalContainer, false)
+                terminal.onData(data => {
+                    session.send('Stdin', data)
+                })
+                fit.fit()
+                if (mode === 'terminal') {
+                    connectTerminal()
+                } else if (mode === 'jupyter') {
+                    connectJupyter()
+                }
+                initializing = false
+                ready = true
+            })
+        })
+    }
+
+    export function close() {
+        ready = false
+        if (session) {
+            session.close()
+            session = null
+        }
+        if (terminal) {
+            terminal.dispose()
+            terminal = null
+        }
+    }
+
+    export function runDefault() {
+        if (mode === 'terminal') {
+            runInTerminal()
+        } else if (mode === 'jupyter') {
+            runInJupyter()
+        }
+    }
+
+    export function connectTerminal() {
+        session = g.socket.createSession('terminal')
+        const { handlers } = session
+        handlers['Stdout'] = message => {
+            terminal.write(message)
+        }
+        handlers['Started'] = () => {
+            terminal.clear()
+            terminal.reset()
+        }
+        nextFrame(() => {
+            terminal.write('Click "Run" on toolbar to run current script.\n')
+            ready = true
+        })
+    }
+
+    export function runInTerminal() {
+        active = true
+        const { mode, shellCommands, shellCommandIndex, args, cwd } = g.runConfiguration
+
+        const run = () => {
+            if (!ready) {
+                nextFrame(run)
+                return
+            }
+            const { cols, rows } = terminal
+            terminal.clear()
+
+            const configuration = { mode, cols, rows }
+            if (mode === 'shell') {
+                configuration.command = shellCommands[shellCommandIndex]
+            } else {
+                const { filePath } = g.activeEditor
+                configuration.filePath = filePath
+            }
+            if (mode === 'script' || mode === 'module') {
+                configuration.args = args
+                configuration.cwd = cwd
+            }
+            session.send('RunInTerminal', configuration)
+        }
+
+        run()
+    }
+
+    export function stop() {
+        if (!session) return
+        if (mode === 'jupyter') {
+            session.send('StopKernel', {})
+        } else {
+            session.send('Stop', {})
+        }
+    }
+
+    export function connectJupyter() {
+        if (session)
+            session.close()
+        session = g.socket.createSession('jupyter')
+        const { handlers } = session
+        
+        Object.assign(handlers, {
+            KernelStarted: () => {
+                g.jupyterToolbar.$set({ executionState: 'idle' })
+                ready = true
+            },
+            IOPub: e => {
+                const { execution_state } = e
+                if (execution_state) {
+                    g.jupyterToolbar.$set({ executionState: execution_state })
+                }
+                if (e.code) {
+                    cells.push({
+                        code: e.code,
+                        executionCount: e.execution_count,
+                    })
+                    cells = cells
+                }
+                if (e.text) {
+                    terminal.write(e.text)
+                }
+                if (e.traceback) {
+                    for (const line of e.traceback)
+                        terminal.write(line)
+                    terminal.write('\n')
+                }
+                if (e.data) {
+                    cells.push({
+                        output: e.data,
+                        executionCount: e.execution_count || '',
+                    })
+                    cells = cells
+                }
+            },
+            Clear: () => {
+                cells.length = 0
+                terminal.clear()
+            },
+            KernelStopped: () => {
+                g.jupyterToolbar.$set({ executionState: 'stopped' })
+            },
+        })
+    }
+
+    export function runInJupyter() {
+        g.console.active = true
+        const run = () => {
+            if (!ready) {
+                nextFrame(run)
+                return
+            }
+            session.send('Run', {
+                code: g.activeEditor.cm.getSelection()
+            })
+        }
+        run()
+    }
+
+    export function startKernel(realtimeEvaluation) {
+        if (!g.activeEditor) return
+        g.jupyterToolbar.$set({ executionState: 'starting' })
+        session.send('StartKernel', { realtimeEvaluation })
+        g.activeEditor.cmEventDispatcher.realtimeEvaluation = realtimeEvaluation
+    }
+
+    export const stopRealtimeEvaluation = () => {
+        if (!g.activeEditor) return
+        g.activeEditor.cmEventDispatcher.realtimeEvaluation = false
+        console.warn('stopping')
+    }
+
+    export function evaluate(cursor) {
+        delete cursor['sticky']
+        console.log('evaluate', cursor)
+        session.send('Evaluate', cursor)
+    }
+
+    export function evaluatePartA(line) {
+        if (lastPartALine === line) {
+            console.log('skipped evaluateA', line)
+            return
+        }
+        console.warn('evaluateA', line)
+        session.send('EvaluatePartA', line)
+        lastPartALine = line
+    }
+
+    export function evaluatePartB(line, line_content) {
+        console.log('evaluateB', line, performance.now())
+        g.jupyterToolbar.$set({
+            executionState: 'busy'
+        })
+        session.send('EvaluatePartB', {
+            line,
+            line_content
+        })
+    }
 </script>

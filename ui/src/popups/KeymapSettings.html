@@ -1,0 +1,37 @@
+{#if open}
+<div id="keymap-settings" class="popup from-top" style="left: calc({left}px - 12.5rem);">
+    <div class="container">
+        <div class="title">Keymap Settings</div>
+        <div class="option" class:checked="{layeredKeyboardControl}" on:click="{() => layeredKeyboardControl = !layeredKeyboardControl}">
+            <i class="checkbox fas"/>
+            <span class="description">Enable layered keyboard control</span>
+        </div>
+        {#if layeredKeyboardControl}
+        <div class="option" class:checked="{keymapHint}" on:click="{() => keymapHint = !keymapHint}">
+            <i class="checkbox fas"/>
+            <span class="description">Show keymap hint</span>
+        </div>
+        {/if}
+    </div>
+</div>
+{/if}
+   
+<script>
+    import g from '../lib/Globals'
+    import { config, setConfig } from '../lib/ConfigManager'
+
+    export let left = 0,
+        open = false
+        
+    let { layeredKeyboardControl, keymapHint } = config.keymap
+
+    $: g.app && g.app.$set({ popup: open ? g.keymapSettings : null })
+    $: g.app && (g.layeredKeyboardControl.enabled = layeredKeyboardControl)
+    $: g.app && g.keyboardControlHint.$set({ open: keymapHint })
+    $: setConfig('keymap', { layeredKeyboardControl, keymapHint })
+    
+    $: {
+        if (!layeredKeyboardControl && keymapHint)
+            keymapHint = false
+    }
+</script>

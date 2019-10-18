@@ -1,10 +1,12 @@
-import tokenize
-import token as token_
-from collections import defaultdict
 import lzma
+import token as token_
+import tokenize
+from collections import defaultdict
+
 import msgpack
-from logzero import logger as log
+from logzero import logger
 from tqdm import tqdm
+
 from .utility import working_dir
 
 token_counter = defaultdict(int)
@@ -25,13 +27,13 @@ def run_file(file_path):
 
 
 def serialize(counter, file_name, ratio=.01):
-    log.info(f'Serializing {file_name}')
-    log.info(f'Original size: {len(counter)}')
+    logger.info(f'Serializing {file_name}')
+    logger.info(f'Original size: {len(counter)}')
     max_count = max(counter.values())
-    log.info(f'Max count: {max_count}')
+    logger.info(f'Max count: {max_count}')
     threshold = max_count * ratio
     counter = {k: v for k, v in counter.items() if v > threshold}
-    log.info(f'Filtered size: {len(counter)}')
+    logger.info(f'Filtered size: {len(counter)}')
     with lzma.open(working_dir / file_name, 'wb') as f:
         msgpack.pack(counter, f, use_bin_type=True)
 

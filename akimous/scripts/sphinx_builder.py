@@ -1,19 +1,18 @@
-from docutils.core import Publisher
+from os import path
+from pathlib import Path
+from time import time
+
+from docutils import io
+from docutils.core import Publisher, publish_parts
 from docutils.frontend import OptionParser
 from docutils.io import NullOutput, StringOutput
-from sphinx.application import Sphinx
+from sphinx.application import ENV_PICKLE_FILENAME, Sphinx
 from sphinx.builders import Builder
-from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxDummySourceClass
+from sphinx.io import (SphinxDummySourceClass, SphinxDummyWriter,
+                       SphinxStandaloneReader, read_doc)
+from sphinx.util import relative_uri, rst
 from sphinx.util.docutils import sphinx_domains
-from sphinx.util import rst, relative_uri
-from pathlib import Path
-from os import path
-from sphinx.io import read_doc
 from sphinx.util.parallel import SerialTasks
-from sphinx.application import ENV_PICKLE_FILENAME
-from docutils.core import publish_parts
-from time import time
-from docutils import io
 
 absolute_path = str(Path('sphinx_input').absolute())
 

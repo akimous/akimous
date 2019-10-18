@@ -1,12 +1,14 @@
 import pickle
+import sys
+import tokenize
+
 import numpy as np
 import pandas as pd
-import tokenize
-from colorama import init
-from colorama import Fore as F
 from colorama import Back as B
+from colorama import Fore as F
+from colorama import init
 from sklearn.externals import joblib
-import sys
+
 init()
 
 

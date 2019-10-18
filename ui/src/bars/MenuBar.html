@@ -1,38 +1,24 @@
-<div ref:MenuBar id="menu-bar">
+<div id="menu-bar">
     <MenuItem name="File"></MenuItem>
     <MenuItem name="Edit"></MenuItem>
+    <MenuItem name="Select"></MenuItem>
     <MenuItem name="View"></MenuItem>
-    <MenuItem name="Navigate"></MenuItem>
-    <MenuItem name="Run"></MenuItem>
+    <MenuItem name="Go"></MenuItem>
     <MenuItem name="Help"></MenuItem>
 </div>
 
 
 <style>
     #menu-bar {
-        position: absolute;
         top: 0;
-        left: 0;
         height: var(--toolbar-height);
+        flex-shrink: 0;
     }
 
 </style>
 
 
 <script>
-    import g from '../lib/Globals'
-
-    export default {
-        components: {
-            'MenuItem': './MenuItem.html'
-        },
-        oncreate() {
-            g.menuBar = this
-        },
-        data() {
-            return {}
-        },
-        methods: {}
-    }
-
+    import MenuItem from './MenuItem.html'
+    
 </script>

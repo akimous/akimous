@@ -2,6 +2,7 @@ import g from '../lib/Globals'
 import {
     CLOSED,
     TRIGGERED,
+    RESPONDED,
     RETRIGGERED,
     NORMAL,
     STRING,
@@ -14,6 +15,7 @@ import { OPERATOR } from './RegexDefinitions'
 import { schedule, nextFrame } from '../lib/Utils'
 
 const NONE = -1
+const OFFSET_BYPASS_TOKEN_TYPES = new Set(['operator', 'punctuation'])
 
 class CMEventDispatcher {
     constructor(editor) {
@@ -22,6 +24,9 @@ class CMEventDispatcher {
             formatter = editor.realtimeFormatter,
             completionProvider = editor.completionProvider,
             completion = editor.completion
+
+        this.realtimeEvaluation = false
+        this._indentDelta = 0
 
         let dirtyLine = NONE
         let shouldDismissCompletionOnCursorActivity = false
@@ -53,29 +58,36 @@ class CMEventDispatcher {
             dirtyLine = NONE
         }
 
-        // cut event is handled in LayeredKeyboardControl via cmd-X hotkey,
+        // cut event is handled in LayeredKeyboardControl via command-X hotkey,
         // because we cannot get the content just cut on the cut event.
         cm.on('copy', cm => {
             let selection = cm.getSelection()
             if (!selection) selection = cm.getLine(cm.getCursor().line) + '\n'
             g.macro.addClipboardItem(selection)
+            completion.$set({ open: false })
         })
 
         cm.on('scroll', () => {
-            completion.set({ open: false })
+            completion.$set({ open: false })
         })
 
         cm.on('focus', () => {
             // prevent panel clicks (e.g. in Docs) to interfere with focus
             nextFrame(() => {
-                editor.socket.send('Mtime', {})
+                editor.session.send('Mtime', {})
                 g.setFocus([g.panelMiddle, editor])
+                if (g.find.active)
+                    g.find.clearSelections()
+            })
+            editor.$set({
+                highlightOverlay: null,
+                textMark: null,
             })
         })
 
-        cm.on('blur', () => {
-            editor.completion.set({ open: false })
-        })
+        //cm.on('blur', () => {
+        // editor.completion.$set({ open: false })
+        //})
 
         cm.on('gutterClick', (cm, line, gutter /*, event*/ ) => {
             if (gutter !== 'CodeMirror-linenumbers') return
@@ -86,7 +98,7 @@ class CMEventDispatcher {
         cm.on('cursorActivity', cm => {
             if (shouldDismissCompletionOnCursorActivity) {
                 completionProvider.state = CLOSED
-                completion.set({ open: false })
+                completion.$set({ open: false })
             }
             shouldDismissCompletionOnCursorActivity = true
             const cursor = cm.getCursor()
@@ -96,49 +108,63 @@ class CMEventDispatcher {
                 syncIfNeeded(dirtyLine)
 
             schedule(() => {
-                g.cursorPosition.set(cursor)
+                g.cursorPosition.$set(cursor)
                 g.docs.getFunctionDocIfNeeded(cm, editor, cursor)
-                g.outline.set({ currentLine: cursor.line })
-                g.linter.set({ currentLine: cursor.line })
+                const pos = { currentLine: cursor.line }
+                g.outline.$set(pos)
+                g.linter.$set(pos)
+                g.find.$set(pos)
             })
+
+            if (this.realtimeEvaluation)
+                g.console.evaluatePartA(cursor.line)
         })
 
         doc.on('change', (doc /*, changeObj*/ ) => {
-            const { clean } = editor.get() // 0.02 ms
+            const { clean } = editor // 0.02 ms
             if (clean === doc.isClean()) return
-            editor.set({ clean: !clean }) // 0.25 ms
+            editor.$set({ clean: !clean }) // 0.25 ms
         })
 
         cm.on('changes', (cm, changes) => {
             if (changes[0].origin === 'setValue') return
             const cursor = doc.getCursor()
             const lineContent = cm.getLine(cursor.line)
-            const indent = this.ensureIndent
-            this.ensureIndent = undefined
-            if (indent !== undefined) {
-                const diff = indent - cursor.ch
-                if (diff > 0)
-                    cm.doc.replaceRange(' '.repeat(diff), cursor, cursor)
-                else if (diff < 0)
-                    cm.execCommand('indentLess')
+            
+            // adjust indent
+            let i = this._indentDelta
+            this._indentDelta = 0 // must set to 0 immediately or it will run into infinite loop
+            while (i > 0) {
+                cm.execCommand('indentMore')
+                i -= 1
             }
+            while (i < 0) {
+                cm.execCommand('indentLess')
+                i += 1
+            }
+
             // handles Jedi sync if the change isn't a single-char input
             const origin = changes[0].origin
+            const { state } = completionProvider
             if (origin !== '+input' && origin !== '+completion' && origin !== '+delete') {
                 syncIfNeeded(changes)
             } else if (
-                (completionProvider.state === TRIGGERED || completionProvider.state === RETRIGGERED) &&
+                (state === TRIGGERED || 
+                 state === RESPONDED ||
+                 state === RETRIGGERED) &&
                 (origin === '+input' || origin === '+delete')
             ) {
                 completionProvider.retrigger({ lineContent, ...cursor })
-            } else if (completionProvider.state === CLOSED) {
+            } else if (state === CLOSED) {
                 syncIfNeeded(changes)
             }
+            if (this.realtimeEvaluation)
+                g.console.evaluatePartB(cursor.line, lineContent)
         })
 
         cm.on('beforeChange', (cm, c) => {
             formatter.setContext(cm, c)
-            if (editor.debug) console.log('beforeChange', c)
+            // console.log('beforeChange', c)
             const startTime = performance.now()
             try {
                 const cursor = c.from
@@ -176,14 +202,16 @@ class CMEventDispatcher {
                                     completionProvider.type = PARAMETER_DEFINITION
                             }
                         }
-                        if (!cm.somethingSelected())
+                        if (!cm.somethingSelected()) {
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
-
-                        // TODO: move completionProvider above formatter
+                        }
+                        // TODO: move completionProvider before formatter may yield better performance
                         input = c.text[0] // might change after handled by formatter, so reassign
-                        const isInputDot = /\./.test(input)
+                        const isInputDot = input === '.'
+                        const isInputOperator = OPERATOR.test(input)
 
-                        const inputShouldTriggerPrediction = () => {
+                        const shouldTriggerPrediction = () => {
+                            if (c.canceled) return false
                             if (isInputDot) return true
                             if (t0.type === 'number') return false
                             if (completionProvider.state !== CLOSED) return false
@@ -191,27 +219,50 @@ class CMEventDispatcher {
                             return false
                         }
                         // handle completion and predictions
-                        const newCursor = { line: cursor.line, ch: cursor.ch + input.length }
-                        const newLineContent = lineContent.slice(0, cursor.ch) + input + lineContent.slice(cursor.ch)
+                        const newCursor = { line: c.from.line, ch: c.from.ch + input.length }
+                        const newLineContent = lineContent.slice(0, c.from.ch) + input + lineContent.slice(c.to.ch)
                         shouldDismissCompletionOnCursorActivity = false
-
-                        if (inputShouldTriggerPrediction()) {
+                        if (shouldTriggerPrediction()) {
+                            let offset = c.from.ch - c.to.ch
+                            if (isInputOperator) // AFTER_OPERATOR case
+                                offset = 0
+                            else if (!isInputDot) {
+                                offset -= 1
+                                // avoid completion not offset properly if starts at the middle of a token
+                                if (!OFFSET_BYPASS_TOKEN_TYPES.has(t0.type) && !/\s+/.test(t0.string)) {
+                                    offset -= t0.string.length
+                                }
+                            }
                             completionProvider.trigger(
                                 newLineContent,
                                 newCursor.line,
                                 newCursor.ch,
-                                -(!isInputDot)
+                                offset
                             )
                             dirtyLine = NONE
-                            if (t0.type === 'string') completionProvider.type = STRING
-                            else if (t0.type === 'comment') completionProvider.type = COMMENT
-                            else if (t1.string === 'for') completionProvider.type = FOR
-                            else if (OPERATOR.test(input)) completionProvider.type = AFTER_OPERATOR
-                            else completionProvider.type = NORMAL
-                        }
+                            // t0 can be of type string in ''.|
+                            // int(1, base=|)
+                            if (isInputDot || input === '=') completionProvider.mode = NORMAL 
+                            else if (t0.type === 'string') completionProvider.mode = STRING
+                            else if (t0.type === 'comment') completionProvider.mode = COMMENT
+                            else if (isInputOperator) completionProvider.mode = AFTER_OPERATOR
+                            else if (/\s*for\s/.test(newLineContent) && 
+                                     !/\sin\s/.test(newLineContent) &&
+                                     !(t0.string === ' ' && t1.type === 'variable')) {
+                                completionProvider.mode = FOR
+                            } 
+                            else completionProvider.mode = NORMAL
+                        } // retrigger is handled in change event
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                     }
+                } else if (c.origin === '+completion') {
+                    let isInFunctionSignatureDefinition = false
+                    const [t0, t1, t2] = getNTokens(3, {
+                        line: c.from.line,
+                        ch: c.from.ch
+                    })
+                    formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                 } else if (c.origin === '+delete') {
                     shouldDismissCompletionOnCursorActivity = false
                     formatter.deleteHandler()
@@ -220,13 +271,32 @@ class CMEventDispatcher {
                 console.error(e)
             }
             const timeElapsed = performance.now() - startTime
-            if (editor.debug) console.log('beforeChange took', timeElapsed)
+            // console.log('beforeChange took', timeElapsed)
             if (timeElapsed > 5) console.warn('slow', c, timeElapsed)
         })
-    }
 
-    setIndentAfterChange(n) {
-        this.ensureIndent = n
+        cm.on('contextmenu', (cm, event) => {
+            if (!event.ctrlKey && !event.metaKey && !event.altKey)
+                return
+            const cursor = cm.coordsChar({left: event.x - 1, top: event.y - 1})
+            const type = []
+            if (event.ctrlKey || event.metaKey) {
+                type.push('assignments')
+            } 
+            if (event.altKey) {
+                type.push('usages')
+            }
+            editor.session.send('FindReferences', {
+                type,
+                line: cursor.line,
+                ch: cursor.ch
+            })
+            event.preventDefault()
+        })
+    }
+    
+    adjustIndent(n) {
+        this._indentDelta = n
     }
 }
 

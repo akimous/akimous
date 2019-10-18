@@ -1,52 +1,40 @@
-<div ref:button class="tool-bar-button tooltipped tooltipped-sw" class:indicator-on="on" on:click="onClick()" aria-label="{title}">
-    <i class="{iconClass}"></i>
+<div bind:this={self} class="toolbar-button" class:active="{active}" on:click aria-label="{title}">
+    <slot></slot><i class="{iconClass}"></i>
 </div>
 
 <style>
-    .tool-bar-button {
+    .toolbar-button {
         color: var(--basic-ui-font-color);
         font-size: var(--ui-font-size-default);
-        width: var(--ui-line-height-default);
+        min-width: var(--ui-line-height-default);
         text-align: center;
-        line-height: var(--toolbar-height);
         box-sizing: border-box;
         height: calc(var(--toolbar-height) - var(--panel-border-thickness));
         display: inline-block;
         z-index: 210;
+        flex-shrink: 0;
     }
 
-    .tool-bar-button:hover {
+    .toolbar-button:hover,
+    .toolbar-button.active {
         background: var(--main-bg-color);
-    }
-
-    .tool-bar-button.on {
-        border-bottom: .2rem solid var(--ui-highlight-color);
     }
 
 </style>
 
-
 <script>
-    // import g from '../lib/Globals'
+    import { onMount, tick } from 'svelte'
 
-    export default {
-        components: {},
-        oncreate() {
-            
-        },
-        data() {
-            return {
-                // title: ''
-                // iconClass: 'fas fa-fw fa-bell',
-                on: false,
-                // callback: () => {}
-            }
-        },
-        methods: {
-            onClick() {
-                this.get().callback()
-            }
-        }
-    }
+    import g from '../lib/Globals'
 
+    export let active = false,
+        iconClass,
+        title
+        
+    let self
+
+    onMount(async () => {
+        await tick()
+        g.tooltip.register(self)
+    })
 </script>

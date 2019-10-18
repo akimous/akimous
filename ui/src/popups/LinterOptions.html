@@ -1,180 +1,60 @@
 {#if open}
-<div ref:linterOptions id="linter-options" class="popup">
-    <div class="container non-selectable">
+<div id="linter-options" class="popup from-top" style="left: calc({left}px - 12.5rem);">
+    <div class="container">
         <div class="title">Real-Time Formatter</div>
         <div class="message">Format code as you type.</div>
-        <div class="option" on:click="toggle('realtime')">
-            <span class="checkbox">
-                <i class="fas" class:checked="realtime" class:fa-circle="!realtime" class:fa-check-circle="realtime"></i>
-            </span>
+        <div class="option" class:checked="{realtime}" on:click="{() => realtime = !realtime}">
+            <i class="checkbox fas"/>
             <span class="description">Built-in</span>
         </div>
 
         <div class="title">Real-Time Linter</div>
         <div class="message">Check for errors as you type.</div>
-        <div class="option" on:click="toggle('pyflakes')">
-            <span class="checkbox">
-                <i class="fas" class:checked="pyflakes" class:fa-circle="!pyflakes" class:fa-check-circle="pyflakes"></i>
-            </span>
+        <div class="option" class:checked="{pyflakes}" on:click="{() => pyflakes = !pyflakes}">
+            <i class="checkbox fas"/>
             <span class="description">Pyflakes</span>
         </div>
-        <div class="option" on:click="toggle('spellChecker')">
-            <span class="checkbox">
-                <i class="fas" class:checked="spellChecker" class:fa-circle="!spellChecker" class:fa-check-circle="spellChecker"></i>
-            </span>
+        <div class="option" class:checked="{spellChecker}" on:click="{() => spellChecker = !spellChecker}">
+            <i class="checkbox fas"/>
             <span class="description">Spell checker</span>
         </div>
 
         <div class="title">Beautifier</div>
         <div class="message">Reformat code before saving.</div>
-        <div class="option" on:click="toggle('isort')">
-            <span class="checkbox">
-                <i class="fas" class:checked="isort" class:fa-circle="!isort" class:fa-check-circle="isort"></i>
-            </span>
+        <div class="option" class:checked="{isort}" on:click="{() => isort = !isort}">
+            <i class="checkbox fas"/>
             <span class="description">isort</span>
         </div>
-        <div class="option" on:click="toggle('yapf')">
-            <span class="checkbox">
-                <i class="fas fa-check-circle checked" class:checked="yapf" class:fa-circle="!yapf" class:fa-check-circle="yapf"></i>
-            </span>
+        <div class="option" class:checked="{yapf}" on:click="{() => yapf = !yapf}">
+            <i class="checkbox fas"/>
             <span class="description">YAPF</span>
         </div>
 
         <div class="title">Offline Linter</div>
         <div class="message">Check for subtle problems after saving.</div>
-        <div class="option" on:click="toggle('pylint')">
-            <span class="checkbox">
-                <i class="fas fa-check-circle checked"class:checked="pylint" class:fa-circle="!pylint" class:fa-check-circle="pylint"></i>
-            </span>
+        <div class="option" class:checked="{pylint}" on:click="{() => pylint = !pylint}">
+            <i class="checkbox fas"/>
             <span class="description">Pylint</span>
         </div>
     </div>
 </div>
 {/if}
-
-
-<style>
-    #linter-options {
-        right: 1rem;
-        top: calc(var(--toolbar-height) + 0.5rem);
-        width: 20rem;
-        min-height: 10rem;
-        max-height: 40rem;
-    }
-
-    /* https://leaverou.github.io/bubbly/ */
-    #linter-options:after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 7.5rem;
-        width: 0;
-        height: 0;
-        border: 0.5rem solid transparent;
-        border-bottom-color: var(--popup-bg-color);
-        border-top: 0;
-        margin-top: -0.5rem;
-    }
-
-    .container {
-        min-height: 10rem;
-        max-height: 39rem;
-        overflow-y: scroll;
-        margin: 0 0 1rem 0;
-    }
-
-    .title {
-        color: var(--primary5);
-        font-weight: 400;
-        margin-top: 1.5rem;
-        padding-left: 1.5rem;
-    }
-
-    .message {
-        color: var(--gray7);
-        padding-left: 1.5rem;
-    }
-
-    .option {
-        color: var(--gray5);
-        padding: .4rem;
-        margin: .5rem 1.5rem;
-        font-size: var(--monospace-font-size);
-        border-radius: var(--default-radius);
-    }
-
-    .option:hover {
-        background: var(--primary8);
-
-    }
-
-    .checkbox {
-        padding-left: .4rem;
-        vertical-align: middle;
-        color: var(--primary7);
-    }
-
-    .checked {
-        color: var(--green);
-    }
-
-    .description {
-        padding-left: .4rem;
-        vertical-align: middle;
-    }
-
-    .option:hover .description {
-        color: var(--primary3);
-    }
-
-</style>
-
-
+   
 <script>
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
 
-    export default {
-        components: {},
-        oncreate() {
-            g.linterOptions = this
-        },
-        onstate({ changed, current }) {
-            if (changed.open && g.toolbar) {
-                g.app.set({
-                    popup: current.open ? this : null
-                })
-            }
-            if (g.linter) {
-                if (changed.spellChecker) g.linter.set({ spellChecker: current.spellChecker })
-                if (changed.pylint) g.linter.set({ pylint: current.pylint })
-                if (changed.pyflakes) g.linter.set({ pyflakes: current.pyflakes })
-            }
-        },
-        data() {
-            return {
-                open: false,
-                realtime: config.formatter.realtime,
-                pyflakes: config.linter.pyflakes,
-                spellChecker: config.linter.spellChecker,
-                isort: config.formatter.isort,
-                yapf: config.formatter.yapf,
-                pylint: config.linter.pylint,
-            }
-        },
-        methods: {
-            toggle(item) {
-                const originalValue = this.get()[item]
-                const changed = {
-                    [item]: !originalValue
-                }
-                this.set(changed)
-                let section = 'formatter'
-                if (item === 'pylint' || item === 'pyflakes')
-                    section = 'linter'
-                setConfig(section, changed)
-            }
-        }
-    }
+    export let left = 0,
+        open = false
+        
+    let { realtime, isort, yapf } = config.formatter
+    let { pylint, pyflakes, spellChecker } = config.linter
+    
+    $: g.app && g.app.$set({ popup: open ? g.linterOptions : null })
+    $: g.app && g.linter.$set({ spellChecker, pylint, pyflakes })
+    $: setConfig('linter', { pylint, pyflakes, spellChecker })
+    $: setConfig('formatter', { realtime, isort, yapf })
 
 </script>
+
+

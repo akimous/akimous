@@ -1,13 +1,14 @@
 # from sklearn.ensemble import RandomForestClassifier
 import multiprocessing
-
-from sklearn.externals import joblib
-from xgboost import XGBClassifier
 import pickle
 import time
-from .utility import working_dir, sha3
-from logzero import logger as log
+
 import numpy as np
+from logzero import logger
+from sklearn.externals import joblib
+from xgboost import XGBClassifier
+
+from .utility import sha3, working_dir
 
 
 def load_extracted_features():
@@ -26,7 +27,7 @@ def load_extracted_features():
                 old_length = 0 if not train_indices else train_indices[-1]
                 train_indices.extend(i + old_length for i in dg.index)
             except FileNotFoundError:
-                log.warn(f'Not found {name}: {sha3(name)}')
+                logger.warning(f'Not found {name}: {sha3(name)}')
     X = np.concatenate(Xs)
     y = np.concatenate(ys)
 
@@ -57,7 +58,7 @@ def test_model(model, Xt, yt, test_indices):
         end = i
         y = yt[start:end]
         if y.sum() != 1:
-            log.warn(f'Sum of y is not 1, {(y.sum(), start, end, y)}')
+            logger.warning(f'Sum of y is not 1, {(y.sum(), start, end, y)}')
         random_successful += 1 / (end - start)
 
         prob = prob_all[start:end, 1]
@@ -71,8 +72,8 @@ def test_model(model, Xt, yt, test_indices):
 if __name__ == "__main__":
     X, y, train_indices, Xt, yt, test_indices, dg = load_extracted_features()
 
-    log.info(f'Training dataset size: {X.shape}, {len(train_indices)}')
-    log.info(f'Testing dataset size : {Xt.shape}, {len(test_indices)}')
+    logger.info(f'Training dataset size: {X.shape}, {len(train_indices)}')
+    logger.info(f'Testing dataset size : {Xt.shape}, {len(test_indices)}')
 
     # Train the model
     start_time = time.time()
@@ -87,13 +88,13 @@ if __name__ == "__main__":
                           n_jobs=multiprocessing.cpu_count(),
                           random_state=0)
     model.fit(X, y)
-    log.info(f'Fitting model took {time.time() - start_time}\a')
+    logger.info(f'Fitting model took {time.time() - start_time}\a')
     joblib.dump(model, working_dir / 'model.model', protocol=4, compress=9)
 
     # Validate the model
     start_time = time.time()
     random_successful, model_successful = test_model(model, Xt, yt, test_indices)
-    log.info(f'Prediction took    {time.time() - start_time}')
+    logger.info(f'Prediction took    {time.time() - start_time}')
     length = len(test_indices)
-    log.info(f'Random successful rate: {random_successful} / {length} = {random_successful / length}')
-    log.info(f'Model successful rate : {model_successful} / {length} = {model_successful / length}\a')
+    logger.info(f'Random successful rate: {random_successful} / {length} = {random_successful / length}')
+    logger.info(f'Model successful rate : {model_successful} / {length} = {model_successful / length}\a')

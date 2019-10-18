@@ -1,4 +1,6 @@
 import CodeMirror from 'codemirror'
+import isEqual from 'lodash.isequal'
+
 import g from './Globals'
 
 // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
@@ -37,7 +39,7 @@ function tick(time) {
     }
 
     framesPassed = 0
-    
+
     let job = queue.shift()
     while (job) {
         job()
@@ -59,46 +61,11 @@ function nextFrame(callback) {
     })
 }
 
-function initializeTabView(view, title, icon) {
-    view.set({ self: view })
-    view.children = {}
-    schedule(() => {
-        view.parent = view.get().parent
-        view.tab = view.parent.tabBar.openTab(view, title, icon)
-        view.tab.set({
-            labeled: false
-        })
-        view.on('state', ({ changed, current }) => {
-            if (changed.active) {
-                view.tab.set({
-                    active: current.active
-                })
-            }
-        })
-    })
-}
-
-function setAttributeForMultipleComponent(obj, ...targets) {
-    for (const i of targets)
-        i.set(obj)
-}
-
-function activateView(parent, view) {
-    const oldView = parent.get().focus
-    if (view === oldView) return
-    parent.set({ focus: view })
-    if (!view) return
-    if (g.focusStack.includes(parent))
-        g.setFocus([parent, view])
-    oldView && oldView.set({ active: false })
-    view.set({ active: true })
-}
-
 function reformatDocstring(doc) {
     if (!doc) return doc
     const lines = doc.split(/\r?\n/).map(line => line.trim())
-    const maxLineLength = lines.reduce((accumlator, line) => {
-        return Math.max(accumlator, line.length)
+    const maxLineLength = lines.reduce((accumulator, line) => {
+        return Math.max(accumulator, line.length)
     }, 0) - 1
 
     const result = []
@@ -171,7 +138,7 @@ function inSomething(cm, cursor, open, close) {
         for (let ch = startCh - 1; ch > -1; ch--) {
             let char = lineContent.charAt(ch)
             if (char === open) {
-                pos.ch = ch
+                pos.ch = ch + 1
                 if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
                     ch = token.start
@@ -180,7 +147,7 @@ function inSomething(cm, cursor, open, close) {
                 }
                 braceStackCounter += 1
             } else if (char === close) {
-                pos.ch = ch
+                pos.ch = ch + 1
                 if (isStringOrComment(cm, pos)) {
                     const token = cm.getTokenAt(pos)
                     ch = token.start
@@ -198,6 +165,7 @@ function inSomething(cm, cursor, open, close) {
             return false
         }
         lineContent = cm.doc.getLine(line - 1)
+        if (!lineContent) continue
         startCh = lineContent.length
     }
     return false
@@ -215,6 +183,12 @@ function inBraces(cm, cursor) {
     return inSomething(cm, cursor, '{', '}')
 }
 
+/**
+ * Emphasize input in target for completion display.
+ * @param   {string} target e.g. "something"
+ * @param   {string} input  e.g. "some"
+ * @returns {string} e.g. "<em>some</em>thing"
+ */
 function highlightSequentially(target, input) {
     const result = []
     let t = 0
@@ -240,17 +214,60 @@ function highlightSequentially(target, input) {
     return result.join('').replace(/<\/em><em>/g, '')
 }
 
-//function capitalize(s) {
-//    return s && s.charAt(0).toUpperCase() + s.slice(1)
-//}
+function joinPath(x) {
+    if (x[0] === g.pathSeparator)
+        return g.pathSeparator + x.slice(1).join(g.pathSeparator)
+    return x.join(g.pathSeparator)
+}
+
+function capitalize(s) {
+    return s && s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+function highlightMatch(text, from, to) {
+    const head = text.substring(0, from)
+    const body = text.substring(from, to)
+    const tail = text.substring(to)
+    return `${head}<em>${body}</em>${tail}`
+}
+
+class CircularBuffer {
+    constructor(size) {
+        this.size = size
+        this.buffer = new Array(size)
+        this.index = 0
+    }
+    
+    push(item) {
+        const lastItem = this.buffer[this.index]
+        if (isEqual(lastItem, item))
+            return
+        this.index = (this.index + 1) % this.size
+        this.buffer[this.index] = item
+    }
+    
+    remove(item) {
+        for (let i = 0; i < this.size; i++) {
+            if (isEqual(this.buffer[i], item))
+                this.buffer[i] = null
+        }
+    }
+    
+    *iterate() {
+        for (let i = 0; i < this.size; i++) {
+            const index = (this.index - i) % this.size
+            const item = this.buffer[index]
+            if (!item) continue
+            this.buffer[index] = null
+            yield item
+        }
+    }
+}
 
 export {
     binarySearch,
     schedule,
     nextFrame,
-    initializeTabView,
-    setAttributeForMultipleComponent,
-    activateView,
     reformatDocstring,
     getRem,
     Pos,
@@ -260,5 +277,8 @@ export {
     inBrackets,
     inBraces,
     highlightSequentially,
-    //capitalize,
+    joinPath,
+    capitalize,
+    highlightMatch,
+    CircularBuffer,
 }

@@ -1,11 +1,10 @@
-<div ref:menuItem on:mousedown="click(event, name)" class="menu-item non-selectable">{name}</div>
+<div bind:this={self} on:mousedown={click} class="menu-item non-selectable">{name}</div>
 
 
 <style>
     .menu-item {
         display: inline-block;
         font-size: var(--ui-font-size-small);
-        line-height: var(--toolbar-height);
         padding: 0 .5rem;
     }
 
@@ -15,16 +14,28 @@
 
 </style>
 
-
-<script>
-    import g from '../lib/Globals'
-    import { getRem } from '../lib/Utils'
-    const menus = {
+<script context="module">
+    import { togglePanelAutoHide } from '../LayeredKeyboardControl/LayeredKeyboardControl'
+    /* eslint-disable */
+    /* Note: following Sublime commands not included in menu
+    "Cmd-Left": "goLineStartSmart",
+    "Ctrl-Alt-Up": "scrollLineUp",
+    "Ctrl-Alt-Down": "scrollLineDown",
+    "Cmd-L": "selectLine",
+    "Cmd-M": "goToBracket",
+    "Shift-Cmd-Space": "selectScope",
+    "Ctrl-Left": "goSubwordLeft",
+    "Ctrl-Right": "goSubwordRight",
+    */
+    /* eslint-enable */
+    export const menus = {
         File: [{
             text: 'Open Folder...',
             hotkey: '⌘O',
             icon: 'fas fa-folder-open',
-            callback: () => {}
+            callback: () => {
+                g.app.$set({ openFolder: true })
+            }
         }, {
             text: 'Close',
             hotkey: '⌘W',
@@ -78,55 +89,189 @@
         }, {
             divider: true
         }, {
+            text: 'Toggle Comment',
+            hotkey: '⌘/',
+            icon: 'fas fa-hashtag',
+            callback: () => g.CMCommand('toggleCommentIndented')
+        }, {
+            divider: true
+        }, {
+            text: 'Insert Line Before',
+            hotkey: '⌘⇧⮐',
+            callback: () => g.CMCommand('insertLineBefore')
+        }, {
+            text: 'Insert Line After',
+            hotkey: '⌘⮐',
+            callback: () => g.CMCommand('moveToLineEndAndInsertLineAfter')
+        }, {
+            text: 'Join Lines',
+            hotkey: '⌘J',
+            callback: () => g.CMCommand('joinLines')
+        }, {
+            text: 'Duplicate Line',
+            hotkey: '⌘D',
+            callback: () => g.CMCommand('duplicateLine')
+        }, {
+            divider: true
+        }, {
+            text: 'Delete Line (go up)',
+            hotkey: '⌘⌫',
+            callback: () => g.CMCommand('deleteLineAndGoUp')
+        }, {
+            text: 'Delete Line (go down)',
+            hotkey: '⌘⌦',
+            callback: () => g.CMCommand('deleteLineAndGoDown')
+        }, {
+            text: 'Delete to Line Start',
+            hotkey: '⌘⇧⌫',
+            callback: () => g.CMCommand('delLineLeft')
+        }, {
+            text: 'Delete to Line End',
+            hotkey: '⌘⇧⌦',
+            callback: () => g.CMCommand('delLineRight')
+        }, {
+            divider: true
+        }, {
+            text: 'Swap Line Up',
+            icon: 'fas fa-caret-up',
+            callback: () => g.CMCommand('swapLineUp')
+        }, {
+            text: 'Swap Line Down',
+            icon: 'fas fa-caret-down',
+            callback: () => g.CMCommand('swapLineDown')
+        }, {
+            text: 'Sort Lines',
+            icon: 'fas fa-sort-alpha-down',
+            callback: () => g.CMCommand('sortLines')
+        }, {
+            text: 'Sort Lines (case-insensitive)',
+            icon: 'fas fa-sort-alpha-down',
+            callback: () => g.CMCommand('sortLinesInsensitive')
+        }, {
+            divider: true
+        }, {
+            text: 'To Upper Case',
+            callback: () => g.CMCommand('upcaseAtCursor') // eslint-disable-line
+        }, {
+            text: 'To Lower Case',
+            callback: () => g.CMCommand('downcaseAtCursor') // eslint-disable-line
+        }, ],
+        Select: [{
             text: 'Select All',
             hotkey: '⌘A',
             icon: 'far fa-check-square',
             callback: () => {}
         }, {
+            text: 'Select Next Occurrence',
+            hotkey: '⌘B',
+            icon: 'far fa-hand-point-right',
+            callback: () => g.CMCommand('selectNextOccurrence')
+        }, {
+            text: 'Select Between Brackets',
+            callback: () => g.CMCommand('selectBetweenBrackets')
+        }, {
+            divider: true
+        }, {
             text: 'Add Cursor to Previous Line',
-            hotkey: '⌥⇧↑',
+            hotkey: '⌥⌘↑',
             icon: 'fas fa-arrow-up',
-            callback: () => {}
+            callback: () => g.CMCommand('addCursorToPrevLine') // eslint-disable-line
         }, {
             text: 'Add Cursor to Next Line',
-            hotkey: '⌥⇧↓',
+            hotkey: '⌥⌘↓',
             icon: 'fas fa-arrow-down',
-            callback: () => {}
+            callback: () => g.CMCommand('addCursorToNextLine')
+        }, {
+            divider: true
+        }, {
+            text: 'Single Selection',
+            hotkey: '⎋',
+            callback: () => g.CMCommand('singleSelectionTop')
+        }, {
+            text: 'Split Selection By Line',
+            hotkey: '⌘L',
+            callback: () => g.CMCommand('splitSelectionByLine')
         }, ],
-        View: [
-            {
-                text: 'Word Wrap',
-                hotkey: '⌥⇧W',
-                icon: 'fas fa-paragraph',
-                callback: () => {}
-            },
-        ]
+        View: [{
+            text: 'Fold',
+            hotkey: '␣ -',
+            callback: () => g.CMCommand('fold')
+        }, {
+            text: 'Unfold',
+            hotkey: '␣ =',
+            callback: () => g.CMCommand('unfold')
+        }, {
+            text: 'Unfold All',
+            hotkey: '␣ 0',
+            callback: () => g.CMCommand('unfoldAll')
+        }, {
+            divider: true
+        }, {
+            text: 'Toggle Left Panel Auto-hide',
+            hotkey: '␣ Z',
+            icon: 'fas fa-caret-square-left',
+            callback: () => togglePanelAutoHide(g.panelLeft)
+        }, {
+            text: 'Toggle Right Panel Auto-hide',
+            hotkey: '␣ B',
+            icon: 'fas fa-caret-square-right',
+            callback: () => togglePanelAutoHide(g.panelRight)
+        }],
+        Go: [{
+            text: 'Line',
+            hotkey: '⌘L',
+            icon: 'fas fa-grip-lines',
+            callback: () => g.commandPalette.promptForInput('Go to line:', (line) => {
+                console.log('meow')
+                if (!g.activeEditor) return
+                g.activeEditor.cm.setCursor(+line - 1, 0)
+                g.CMCommand('goLineStartSmart')
+            })
+        }, {
+            //     text: 'Last Edit Location',
+            //     icon: 'fas fa-arrow-left',
+            // }, {
+            //     text: 'Next Edit Location',
+            //     icon: 'fas fa-arrow-right',
+            // }, {
+            divider: true
+        }, {
+            text: 'Definition',
+        }, {
+            text: 'Usages',
+        }, ],
+        Help: [{
+            text: 'Website',
+            icon: 'fas fa-globe',
+            callback: () => window.open('https://akimous.com', '_blank'),
+        }, {
+            text: 'Documentation',
+            icon: 'fas fa-book',
+            callback: () => window.open('https://akimous.com/doc', '_blank'),
+        }, ]
     }
+</script>
 
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {}
-        },
-        methods: {
-            click(e, name) {
-                const { left, bottom } = this.refs.menuItem.getBoundingClientRect()
-                const { items, open } = g.contextMenu.get()
-                if (items === menus[name] && open)
-                    g.contextMenu.set({ open: false })
-                else {
-                    g.contextMenu.set({
-                        open: true,
-                        x: left,
-                        y: bottom + .5 * getRem(),
-                        items: menus[name],
-                        caller: this
-                    })
-                }
-                e.stopPropagation()
-            }
+<script>
+    import g from '../lib/Globals'
+    import { getRem } from '../lib/Utils'
+
+    export let name
+    let self
+    
+    function click(e) {
+        const { left, bottom } = self.getBoundingClientRect()
+        const { items, open } = g.contextMenu
+        if (items === menus[name] && open)
+            g.contextMenu.$set({ open: false })
+        else {
+            g.contextMenu.$set({
+                open: true,
+                x: left,
+                y: bottom + .5 * getRem(),
+                items: menus[name],
+            })
         }
+        e.stopPropagation()
     }
-
 </script>

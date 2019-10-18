@@ -14,9 +14,7 @@ function EventDispatcherFactory(options) {
                 target.move(-1)
                 break
             case 'Escape':
-                target.get().closable && target.set({
-                    open: false
-                })
+                target.closable && target.$set({ open: false })
                 break
             case ' ':
             case 'Enter':

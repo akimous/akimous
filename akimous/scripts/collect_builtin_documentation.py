@@ -1,10 +1,11 @@
-from subprocess import call
+import os
 import re
+import sqlite3
+from pathlib import Path
+from subprocess import call
+
 import docutils.core
 from docutils.writers.html5_polyglot import Writer
-import sqlite3
-import os
-from pathlib import Path
 
 # call(['git', 'clone', 'https://github.com/python/cpython.git'])
 

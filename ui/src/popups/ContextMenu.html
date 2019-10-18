@@ -1,5 +1,12 @@
 {#if open}
-<div ref:contextMenu id="context-menu" class="popup" style="top:{y}px; left:{x}px;">
+<div id="context-menu" class="popup" style="top:{y}px; left:{x}px;">
+    {#each items as item, i}
+    {#if item.divider}
+    <ContextMenuDivider></ContextMenuDivider>
+    {:else}
+    <ContextMenuRow id={i} bind:this={rows[i]} {...item} selected={selectedID===i} on:rowSelected={rowSelected} on:click={click}></ContextMenuRow>
+    {/if}
+    {/each}
 </div>
 {/if}
 
@@ -7,8 +14,8 @@
 <style>
     #context-menu {
         z-index: 910;
-        min-height: 100px;
-        min-width: 100px;
+        min-height: 2rem;
+        min-width: 3rem;
         overflow-x: hidden;
         padding: .2rem 0;
         vertical-align: middle;
@@ -18,109 +25,76 @@
 
 </style>
 
-
 <script>
+    import { onMount, tick } from 'svelte'
+
     import g from '../lib/Globals'
     import ContextMenuRow from './ContextMenuRow.html'
     import ContextMenuDivider from './ContextMenuDivider.html'
     import EventDispatcherFactory from '../LayeredKeyboardControl/EventDispatcherFactory'
-
-    export default {
-        components: {},
-        oncreate() {
-            g.contextMenu = this
-            this.rows = []
-            this.dividers = []
-            this.keyEventHandler = EventDispatcherFactory({
-                target: this,
-            })
-        },
-        onstate({ changed, current, previous }) {
-            if (!previous) return
-            if (changed.open) {
-                this.set({ selectedRow: undefined })
-                if (current.open) {
-                    try {
-                        g.activeEditor.completion.set({ open: false })
-                    } catch (e) { /* do nothing */ }
-                    g.pushFocus(this)
-                } else {
-                    g.popFocus(this)
-                }
-                g.app.set({
-                    popup: current.open ? this : null
-                })
-            }
-            if (changed.items) {
-                for (const i of this.rows)
-                    i.destroy()
-                for (const i of this.dividers)
-                    i.destroy()
-                this.rows.length = 0
-                this.dividers.length = 0
-                if (!current.items) return
-                for (const i of current.items) {
-                    if (i.divider) {
-                        const child = new ContextMenuDivider({
-                            target: this.refs.contextMenu,
-                        })
-                        this.dividers.push(child)
-                    } else {
-                        const child = new ContextMenuRow({
-                            target: this.refs.contextMenu,
-                            data: i
-                        })
-                        child.parent = this
-                        this.rows.push(child)
-                    }
-                }
-            }
-            if (changed.selectedRow) {
-                if (previous.selectedRow) previous.selectedRow.set({
-                    selected: false
-                })
-                if (current.selectedRow) current.selectedRow.set({
-                    selected: true
-                })
-            }
-        },
-        data() {
-            return {
-                items: [{
-                    text: '',
-                    callback: () => {}
-                }],
-                selectedRow: null,
-                open: false,
-                x: 0,
-                y: 0,
-                caller: null,
-                closable: true,
-            }
-        },
-        methods: {
-            move(nRows) {
-                const currentIndex = this.rows.indexOf(this.get().selectedRow)
-                const length = this.rows.length
-
-                let targetIndex = currentIndex + nRows
-                if (currentIndex === -1 && nRows < 0) targetIndex = length - 1
-                else if (targetIndex >= length) targetIndex = length - 1
-                else if (targetIndex < 0) targetIndex = 0
-
-                const targetRow = this.rows[targetIndex]
-                this.set({
-                    selectedRow: targetRow
-                })
-            },
-            enter(rowNumber) {
-                const row = rowNumber ? this.rows[rowNumber - 1] : this.get().selectedRow
-                if (row) row.click()
-                else this.set({
-                    open: false
-                })
-            }
+    
+    export let 
+        closable = true,
+        items = [
+            // {
+            //     text: '',
+            //     callback: () => {}
+            // }
+        ],
+        keyEventHandler = null,
+        open = false,
+        selectedID = -1,
+        selectedRow = null,
+        target = null,
+        x = 0,
+        y = 0
+    
+    let rows = {}
+    
+    $: g.app && g.app.$set({ popup: open ? g.contextMenu : null })
+    $: {
+        if (open) {
+            selectedID = -1
+            try {
+                g.activeEditor.completion.$set({ open: false })
+            } catch (e) { /* do nothing */ }
+            g.pushFocus(g.contextMenu)
+        } else {
+            g.popFocus(g.contextMenu)
         }
     }
+        
+    onMount(async () => {
+        await tick()
+        keyEventHandler = EventDispatcherFactory({
+            target: g.contextMenu,
+        })
+    })
+    
+    function rowSelected({ detail }) {
+        const { id } = detail
+        selectedID = id
+    }
+    
+    function click({ detail }) {
+        const { id } = detail
+        open = false
+        const { callback } = items[id]
+        callback && callback(target)
+    }
 
+    export function move(nRows) {
+        const length = items.length
+        let targetIndex = selectedID + nRows
+        if (selectedID === -1 && nRows < 0) targetIndex = length - 1
+        else if (targetIndex >= length) targetIndex = length - 1
+        else if (targetIndex < 0) targetIndex = 0
+        selectedID = targetIndex
+    }
+
+    export function enter(rowNumber) {
+        const row = rowNumber ? rows[rowNumber - 1] : selectedRow
+        if (row) row.click()
+        else open = false
+    }
 </script>

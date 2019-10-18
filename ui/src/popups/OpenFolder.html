@@ -1,0 +1,169 @@
+<div id="open-folder" class="popup">
+    <div class="title">Open Folder</div>
+    <div class="path-bar">
+        <div class="button" on:click="{home}"><i class="fas fa-home"></i></div>
+        <div class="button" on:click="{up}"><i class="fas fa-arrow-up"></i></div>
+        <div class="path">
+            <TextInput theme="bright" bind:value="{path}" on:click="{focusPathInput}" on:keydown="{pathKeyDown}"></TextInput>
+        </div>
+    </div>
+    <div class="list">
+        {#each list as item}
+        <div class="item non-selectable" on:click="{() => folderClicked(item)}">
+            <i class="fas fa-folder"></i> {item}
+        </div>
+        {/each}
+    </div>
+    <div class="buttons non-selectable">
+        <div class="button cancel" on:click="{cancel}">Cancel</div>
+        <div class="button open" on:click="{open}">Open</div>
+    </div>
+</div>
+
+
+<style>
+    #open-folder {
+        position: fixed;
+        width: 80vw;
+        height: 80vh;
+        left: 10vw;
+        top: 10vh;
+        overflow: hidden;
+    }
+
+    .title {
+        color: var(--primary5);
+        font-weight: 400;
+        padding: 1.5rem 0 0 2.2rem;
+    }
+
+    .path-bar {
+        margin: 1rem 1.5rem .5rem 2rem;
+    }
+
+    .path-bar .button {
+        display: inline-block;
+        width: 2rem;
+        height: 2rem;
+        line-height: 2rem;
+        font-size: 1rem;
+        text-align: center;
+        vertical-align: top;
+    }
+
+    .path {
+        display: inline-block;
+        width: calc(100% - 6rem);
+    }
+
+    .list {
+        margin: 1rem 1.5rem;
+        color: var(--gray3);
+        font-size: 1.4rem;
+        height: calc(80vh - 12rem);
+        overflow: scroll;
+    }
+
+    .item {
+        padding: .2rem .2rem .2rem 1rem;
+    }
+
+    .fa-folder {
+        color: var(--gray5);
+        padding-right: .5rem;
+    }
+
+    .item:hover {
+        color: var(--primary4);
+        background: var(--primary8);
+        border-radius: var(--default-radius);
+    }
+
+    .item:hover .fa-folder {
+        color: var(--primary5);
+    }
+
+    .buttons {
+        position: absolute;
+        display: flex;
+        bottom: 0;
+        width: 100%;
+        font-size: var(--ui-font-size-large);
+        font-weight: 400;
+        text-align: right;
+    }
+
+    .buttons .button {
+        display: inline-block;
+        text-align: center;
+        padding: .4rem;
+    }
+
+    .buttons .button:hover {
+        filter: brightness(110%);
+    }
+
+    .button.cancel {
+        flex-grow: 3;
+        background: var(--gray8);
+        color: var(--primary2);
+    }
+
+    .button.open {
+        flex-grow: 7;
+        background: var(--green);
+        color: var(--gray9);
+    }
+
+</style>
+
+<script>
+    import { onDestroy } from 'svelte'
+
+    import g from '../lib/Globals'
+    import TextInput from '../lib/TextInput.html'
+    
+    export let list = [],
+        path = ''
+        
+    let session = g.socket.createSession('openFolder')
+    session.handlers['Listed'] = data => {
+        path = data.path
+        list = data.list
+    }
+    session.send('Open')
+
+    onDestroy(() => {
+        session && session.close()
+    })
+
+    export function folderClicked(folder) {
+        session.send('Ls', [path, folder])
+    }
+
+    export function pathKeyDown() {
+        if (event.key !== 'Enter') return
+        session.send('Ls', [path])
+    }
+
+    export function focusPathInput() {
+        g.setFocus([g.openFolder])
+    }
+
+    export function home() {
+        session.send('Home')
+    }
+
+    export function up() {
+        session.send('Ls', [path, '..'])
+    }
+
+    export function cancel() {
+        g.app.$set({ openFolder: false })
+    }
+
+    export function open() {
+        g.ready = false
+        g.projectSession.send('OpenProject', { path })
+    }
+</script>

@@ -1,0 +1,5 @@
+[style]
+based_on_style = pep8
+column_limit = 79
+coalesce_brackets = True
+split_before_dot = True

@@ -1,4 +1,5 @@
 import { highlightSequentially, inSomething } from '../../lib/Utils'
+import g from '../../lib/Globals'
 import { scanInSameLevelOfBraces } from '../EditorFunctions'
 import snakecase from 'lodash.snakecase'
 import pluralize from 'pluralize'
@@ -16,10 +17,8 @@ const FULL_STATEMENT_COMPLETION_CONSISTENCY_CHECKS = [
 function fullStatementCompletion({ topHit, cm, line, lineContent }) {
     if (!topHit) return
 
-    const topHitCompletion = topHit.c
+    const topHitCompletion = topHit.text
     const lineCount = cm.lineCount()
-    let lineUp = line - 1
-    let lineDown = line + 1
     let sourceLine = -1
     let sourceLineContent = ''
     let index = -1
@@ -46,21 +45,36 @@ function fullStatementCompletion({ topHit, cm, line, lineContent }) {
                 targetLineConsistencyCheckResults[i]) return false
         }
         
+        // skip comments and strings
+        const pos = {
+            line: l,
+            ch: index
+        }
+        const tokenType = cm.getTokenTypeAt(pos)
+        if (tokenType === 'string' || tokenType === 'comment')
+            return false
+        
+        // too similar to topHitCompletion, not beneficial
+        if (topHitCompletion.length + index + 1 >= sourceLineContent.length)
+            return false
+        
         sourceLine = l
         return true
     }
 
-    let scannedCount = 0
-    // find the nearest line including topHit.c
-    while (lineUp >= 0 || lineDown < lineCount) {
-        if (lineUp >= 0 && containsTopHit(lineUp--))
+    // find the nearest line including topHit.text
+    let found = false
+    for (let i = 2; i < MAX_SCAN_LINES; i++) {
+        const sign = (i % 2) ? 1 : -1
+        const delta = sign * Math.floor(i / 2)
+        const lineNumber = line + delta
+        if (lineNumber < 0 || lineNumber >= lineCount) continue
+        if (containsTopHit(lineNumber)) {
+            found = true
             break
-        if (lineDown < lineCount && containsTopHit(lineDown++))
-            break
-        if (scannedCount++ === MAX_SCAN_LINES)
-            break
+        }
     }
-    if (index === -1) return
+    if (!found) return
 
     const result = scanInSameLevelOfBraces(cm, {
         line: sourceLine,
@@ -76,6 +90,7 @@ function fullStatementCompletion({ topHit, cm, line, lineContent }) {
         return sourceLineContent.substring(index, result)
 }
 
+/* eslint-disable */
 const fixedPredictionRules = {
     'import': {
         'matplotlib': '.pyplot as plt',
@@ -85,6 +100,7 @@ const fixedPredictionRules = {
         'tensorflow': ' as tf',
     }
 }
+/* eslint-enable */
 
 function fixedPredictionForImport({ t2, t1, topHit, lineContent }) {
     if (!topHit || !t1) return
@@ -94,24 +110,24 @@ function fixedPredictionForImport({ t2, t1, topHit, lineContent }) {
         leftToken = t2.string
     let result = fixedPredictionRules[leftToken]
     if (!result) return
-    result = result[topHit.c]
+    result = result[topHit.text]
     if (!result) return
-    return topHit.c + result
+    return topHit.text + result
 }
 
 function fromImport({ lineContent, topHit }) {
     if (!topHit) return
-    if (topHit.t !== 'module') return
+    if (topHit.type !== 'module') return
     if (!/^\s*from/.test(lineContent)) return
     if (/\simport\s/.test(lineContent)) return
-    return topHit.c + ' import '
+    return topHit.text + ' import '
 }
 
 function importAs({ lineContent, topHit }) {
     if (!topHit) return
     if (!/import/.test(lineContent)) return
     if (/\sas\s/.test(lineContent)) return
-    return topHit.c + ' as '
+    return topHit.text + ' as '
 }
 
 function isNone({ input }) {
@@ -119,10 +135,12 @@ function isNone({ input }) {
         return 'is None'
 }
 
+/* eslint-disable */
 function isNot({ input }) {
     if (input === 'isn' || input === 'isnt')
         return 'is not '
 }
+/* eslint-enable */
 
 function args({ cm, input, line, ch, lineContent }) {
     if (input !== '*') return
@@ -140,7 +158,7 @@ function args({ cm, input, line, ch, lineContent }) {
 
 function withAs({ lineContent, topHit }) {
     if (!topHit) return
-    if (topHit.c !== 'as') return
+    if (topHit.text !== 'as') return
     if (!/\s*with\s\w/.test(lineContent)) return
     if (/\s*with open\(/.test(lineContent)) return 'as f: '
     
@@ -190,32 +208,60 @@ function nextPossibleVariableName(name) {
 function sequentialVariableNaming({ topHit, line, cm, completions }) {
     if (line < 1) return
     if (!topHit) return
-    if (topHit.t !== 'statement') return
+    if (topHit.type !== 'statement') return
     const lastLine = cm.getLine(line - 1)
-    const index = lastLine.indexOf(topHit.c)
+    const index = lastLine.indexOf(topHit.text)
     if (index === -1) return
-    if (index + topHit.c.length + 3 >= lastLine.length) return
-    const charsAfterTopHitInLastLine = lastLine.substr(index + topHit.c.length, 3)
+    if (index + topHit.text.length + 3 >= lastLine.length) return
+    const charsAfterTopHitInLastLine = lastLine.substr(index + topHit.text.length, 3)
     if (charsAfterTopHitInLastLine !== ' = ') return
-    const result = nextPossibleVariableName(topHit.c)
+    const result = nextPossibleVariableName(topHit.text)
     if (!result) return
-    if (completions.some(i => i.c === result)) return
+    if (completions.some(i => i.text === result)) return
     return result + ' = '
 }
 
 function forElementInCollection({ topHit, lineContent }) {
     if (!topHit) return
     if (!/^\s*for\s/.test(lineContent)) return
-    if (pluralize.isPlural(topHit.c)) {
-        const singular = pluralize.singular(topHit.c)
-        if (singular !== topHit.c) return `${singular} in ${topHit.c}`
+    if (pluralize.isPlural(topHit.text)) {
+        const singular = pluralize.singular(topHit.text)
+        if (singular !== topHit.text) return `${singular} in ${topHit.text}`
     }
+}
+
+function suggestInitInsideClass({ topHit, line }) {
+    if (!topHit) return
+    if (topHit.text !== 'def') return
+    
+    const highlightedOutlineItem = g.outline.highlightedItem
+    if (!highlightedOutlineItem) return
+    const classLevel = highlightedOutlineItem.level
+    const classLine = highlightedOutlineItem.line
+    let alreadyHasInit = false
+    for (let i of g.outline.outlineItems) {
+        if (i.line < classLine) continue
+        if (i.level <= classLevel && i.line > line) break
+        if (i.display === '__init__') {
+            alreadyHasInit = true
+            break
+        }
+    }
+    if (alreadyHasInit) return
+    return 'def __init__(self)'
+}
+
+function withPostfix({ topHit }) {
+    if (!topHit) return
+    if (topHit.postfix)
+        return topHit.text + topHit.postfix
 }
 
 class RuleBasedPredictor {
     constructor(context) {
         this.context = context
         this.predictors = [
+            withPostfix,
             fullStatementCompletion,
             fixedPredictionForImport,
             fromImport,
@@ -226,24 +272,22 @@ class RuleBasedPredictor {
             withAs,
             sequentialVariableNaming,
             forElementInCollection,
+            suggestInitInsideClass,
         ]
     }
 
     predict(context) {
         context = Object.assign(this.context, context)
         const { input } = context
-
         context.lineContent = context.cm.getLine(context.line)
-
         let result = []
-        const startTime = performance.now()
         this.predictors.forEach(predictor => {
             try {
-                const predict = predictor(context)
-                if (!predict) return
-                if (Array.isArray(predict))
-                    result.splice(-1, 0, ...predict)
-                else result.push(predict)
+                const predictions = predictor(context)
+                if (!predictions) return
+                if (Array.isArray(predictions))
+                    result.splice(-1, 0, ...predictions)
+                else result.push(predictions)
             } catch (e) {
                 console.error(e)
             }
@@ -251,19 +295,16 @@ class RuleBasedPredictor {
         
         // deduplicate and order by length
         result = [...new Set(result)].sort((a, b) => a.length - b.length)
-        
-        console.log(`Rule-based prediction took ${performance.now() - startTime}`)
-        return result.map(c => {
+        return result.map(text => {
             return {
-                c,
-                t: 'full-statement',
-                s: 0,
+                text,
+                type: 'full-statement',
+                score: 0,
                 sortScore: 0,
-                highlight: highlightSequentially(c, input)
+                highlight: highlightSequentially(text, input)
             }
         })
     }
-
 }
 
 export default RuleBasedPredictor

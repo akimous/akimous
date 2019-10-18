@@ -1,8 +1,0 @@
-{
-    "extends": "stylelint-config-recommended",
-    "rules": {
-        "value-no-vendor-prefix": true,
-        "property-no-vendor-prefix": true,
-        "at-rule-no-vendor-prefix": true
-    }
-}

@@ -1,4 +1,4 @@
-<div ref:panel id="linter" class="panel" class:gone="!active" on:click="onFocus()">
+<div bind:this={panel} id="linter" class="panel" class:gone="{!active}" on:click="{onFocus}">
     {#if !pyflakes && !spellChecker && !pylint}
     <table>
         <tr>
@@ -9,14 +9,14 @@
     {#if pyflakes}
     <div class="title">Real-time Lints</div>
     <table id="pyflakes-result">
-        {#each realTimeLints as {line, ch, message}}
-        <tr on:click="jumpTo(line, ch)" class:highlight="currentLine + 1 === line">
+        {#each realtimeLints as {line, ch, message}}
+        <tr on:click="{() => jumpTo(line, ch)}" class:highlight="{currentLine + 1 === line}">
             <td class="line-number">{line}</td>
-            <td class="message error">{message}</td>
+            <td class="row-body error">{message}</td>
         </tr>
         {:else}
         <tr>
-            <td class="placeholder">No lints found</td>
+            <td class="placeholder">No lints found.</td>
         </tr>
         {/each}
     </table>
@@ -25,15 +25,15 @@
     <div class="title">Spelling Errors</div>
     <table id="spelling-errors">
         {#each spellingErrors as {line, ch, highlight}}
-        <tr on:click="jumpTo(line, ch)" class:highlight="currentLine + 1 === line">
+        <tr on:click="{() => jumpTo(line, ch)}" class:highlight="{currentLine + 1 === line}">
             <td class="line-number">{line}</td>
-            <td class="message">{@html highlight}
-                <div class="add-to-dictionary tooltipped tooltipped-sw" aria-label="Add to project dictionary" on:click="addToDictionary(highlight)"><i class="fas fa-book"></i></div>
+            <td class="row-body">{@html highlight}
+                <div class="add-to-dictionary" aria-label="Add to project dictionary" on:click="{() => addToDictionary(highlight)}" on:mouseenter="{g.tooltip.mouseEnterListener}" on:mouseleave="{g.tooltip.mouseLeaveListener}"><i class="fas fa-book"></i></div>
             </td>
         </tr>
         {:else}
         <tr>
-            <td class="placeholder">No spelling errors found</td>
+            <td class="placeholder">No spelling errors found.</td>
         </tr>
         {/each}
     </table>
@@ -42,7 +42,7 @@
     <div class="title">Offline Lints</div>
     <div id="offline-linter-filter">
         {#each OFFLINE_LINT_TYPES as type}
-        <div class="type-filter" class:active="offlineLintType.has(type)" on:click="toggle('offlineLintType', type)">
+        <div class="type-filter non-selectable" class:active="{offlineLintType[type]}" on:click="{() => toggle(type)}">
             <div class="type {type}">{typeStrings[type]}</div>
             <div class="count {type}">{offlineLintCounts[type]}</div>
         </div>
@@ -50,13 +50,13 @@
     </div>
     <table id="pylint-result">
         {#each filteredOfflineLints as message, i}
-        <tr on:click="jumpTo(message.line, message.column)" on:mouseover="showPopup(i, event)" on:mouseleave="closePopup(event)" class:highlight="currentLine + 1 === message.line">
+        <tr on:click="{() => jumpTo(message.line, message.column)}" on:mouseover="{event => showPopup(i, event)}" on:mouseleave="{closePopup}" class:highlight="{currentLine + 1 === message.line}">
             <td class="line-number">{message.line}</td>
-            <td class="{message.type} message">{message.message0}</td>
+            <td class="row-body {message.type}">{message.message0}</td>
         </tr>
         {:else}
         <tr>
-            <td class="placeholder">No lints found</td>
+            <td class="placeholder">No lints found.</td>
         </tr>
         {/each}
     </table>
@@ -64,16 +64,6 @@
 </div>
 
 <style>
-    #linter-option-button {
-        position: absolute;
-        right: 0;
-        background: var(--gray3);
-        border-radius: var(--small-radius);
-        display: inline-block;
-        padding: .3rem;
-        margin: .1rem;
-    }
-
     #offline-linter-filter {
         display: table;
         table-layout: fixed;
@@ -110,11 +100,6 @@
         font-weight: 400;
     }
 
-    .message {
-        padding: .3rem .5rem;
-        background: var(--gray2);
-    }
-   
     .informational {
         color: var(--brighter-purple);
     }
@@ -147,167 +132,145 @@
         color: var(--blue);
     }
 
-    #spelling-errors tr:hover .add-to-dictionary {
-        display: inline-block;
-    }
-
     .add-to-dictionary:hover {
         color: var(--brighter-blue);
     }
 
+    #spelling-errors tr:hover .add-to-dictionary {
+        display: inline-block;
+    }
+
 </style>
 
-
 <script>
+    import { onMount, createEventDispatcher } from 'svelte'
+
     import g from '../lib/Globals'
     import { config, setConfig } from '../lib/ConfigManager'
-    import { initializeTabView } from '../lib/Utils'
     import { makeScrollable } from '../lib/UIUtils'
     import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
-
+    
     const OFFLINE_LINT_TYPES = ['informational', 'refactor', 'convention', 'warning', 'error']
     const domParser = new DOMParser()
+    const dispatch = createEventDispatcher()
 
-    export default {
-        components: {},
-        oncreate() {
-            g.linter = this
-            initializeTabView(this, 'Linter', 'fas fa-check-circle l-green')
-
-            // fill in enabled types from config
-            const { offlineLintType } = config
-            const set = this.get().offlineLintType
-            for (const k in offlineLintType)
-                if (offlineLintType[k])
-                    set.add(k)
-            this.set({ offlineLintType: set })
-            
-            makeScrollable(this, this.refs.panel)
-        },
-        data() {
+    export let active = false,
+        currentLine = 0,
+        offlineLints = [],
+        offlineLintType = {...config.offlineLintType},
+        pyflakes = config.linter.pyflakes,
+        pylint = config.linter.pylint,
+        realtimeLints = [],
+        spellChecker = config.linter.spellChecker,
+        spellingErrors = [],
+        width = 100
+    
+    let offlineLintCounts,
+        panel,
+        typeStrings = getTypeStrings()
+    
+    $: dispatch('active', {
+        id: 'linter',
+        active,
+    })
+    $: {
+        const result = {
+            informational: 0,
+            refactor: 0,
+            convention: 0,
+            warning: 0,
+            error: 0
+        }
+        for (const x of offlineLints) {
+            if (result[x.type] === undefined) continue
+            result[x.type] += 1
+        }
+        offlineLintCounts = result
+    }
+    $: filteredOfflineLints = offlineLints.filter(x => offlineLintType[x.type])
+    
+    onMount(async () => {
+        await makeScrollable('linter', panel)
+    })
+    
+    function getTypeStrings() {
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+        if (width > 24 * rem)
             return {
-                active: false,
-                offlineLints: [],
-                realTimeLints: [],
-                spellingErrors: [],
-                currentLine: 0,
-                width: 100,
-                OFFLINE_LINT_TYPES,
-                offlineLintType: new Set(),
-                spellChecker: config.linter.spellChecker,
-                pylint: config.linter.pylint,
-                pyflakes: config.linter.pyflakes,
+                informational: 'Info',
+                refactor: 'Refactor',
+                convention: 'Convention',
+                warning: 'Warning',
+                error: 'Error',
             }
-        },
-        computed: {
-            typeStrings: ({ width }) => {
-                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                if (width > 24 * rem)
-                    return {
-                        informational: 'Info',
-                        refactor: 'Refactor',
-                        convention: 'Convention',
-                        warning: 'Warning',
-                        error: 'Error',
-                    }
-                return {
-                    informational: 'I',
-                    refactor: 'R',
-                    convention: 'C',
-                    warning: 'W',
-                    error: 'E',
-                }
-            },
-            offlineLintCounts: ({ offlineLints }) => {
-                const result = {
-                    informational: 0,
-                    refactor: 0,
-                    convention: 0,
-                    warning: 0,
-                    error: 0
-                }
-                for (const x of offlineLints) {
-                    if (result[x.type] === undefined) continue
-                    result[x.type] += 1
-                }
-                return result
-            },
-            filteredOfflineLints: ({ offlineLints, offlineLintType }) => {
-                return offlineLints.filter(x => {
-                    return offlineLintType.has(x.type)
-                })
-            }
-        },
-        methods: {
-            onFocus() {
-                g.setFocus([g.panelRight, this])
-            },
-            clear() {
-                this.set({
-                    offlineLints: [],
-                    realTimeLints: [],
-                    spellingErrors: []
-                })
-            },
-            jumpTo(line, ch) {
-                setCursorAndScrollIntoView(line - 1, ch)
-            },
-            showPopup(i, event) {
-                const { x, y, height } = event.currentTarget.getBoundingClientRect()
-                const message = this.get().offlineLints[i]
-                g.popup.set({
-                    open: true,
-                    content: `<table>
-                            <tr>
-				                <td class="key">Location</td>
-				                <td class="value">
-                                    Line ${message.line}, column ${message.column}
-                                    <div class="code">${message.message1}</div>
-                                </td>
-			                </tr>
-                            <tr>
-				                <td class="key">Problem</td>
-				                <td class="value">${message['message-id']}: ${message.symbol}</td>
-			                </tr>
-                            <tr>
-				                <td class="key">Message</td>
-				                <td class="value">${message.message0}</td>
-			                </tr>
-                        </table>`
-                })
-                g.popup.reposition(x, y + height / 2)
-            },
-            closePopup(event) {
-                g.popup.closeIfNotHovered(event)
-            },
-            toggle(setName, item) {
-                const set = this.get()[setName]
-                if (set.has(item))
-                    set.delete(item)
-                else
-                    set.add(item)
-                this.set({
-                    [setName]: set
-                })
-                setConfig(setName, {
-                    [item]: set.has(item)
-                })
-            },
-            addToDictionary(wordHighlight) {
-                const parsedDocument = domParser.parseFromString(wordHighlight, 'text/html')
-                const words = []
-                for (const i of parsedDocument.querySelectorAll('em'))
-                    words.push(i.innerText)
-                event.stopPropagation()
-                g.masterSocket.send('AddToProjectDictionary', words)
-                requestAnimationFrame(() => {
-                    const editor = g.activeEditor
-                    const { line } = editor.cm.getCursor()
-                    const lineContent = editor.cm.getLine(line)
-                    editor.syncChanges(line, lineContent)
-                })
-            },
+        return {
+            informational: 'I',
+            refactor: 'R',
+            convention: 'C',
+            warning: 'W',
+            error: 'E',
         }
     }
 
+    function onFocus() {
+        g.setFocus([g.panelRight, g.linter])
+    }
+
+    export function clear() {
+        offlineLints = [], realtimeLints = [], spellingErrors = []
+    }
+
+    export const jumpTo = (line, ch) => {
+        setCursorAndScrollIntoView(line - 1, ch)
+    }
+
+    function showPopup(i, event) {
+        const { x, y, height } = event.currentTarget.getBoundingClientRect()
+        const message = offlineLints[i]
+        g.panelPopup.$set({
+            open: true,
+            content: `<table>
+                <tr>
+				    <td class="key">Location</td>
+				    <td class="value">
+                        Line ${message.line}, column ${message.column}
+                        <div class="code">${message.message1}</div>
+                    </td>
+			    </tr>
+                <tr>
+				    <td class="key">Problem</td>
+				    <td class="value">${message['message-id']}: ${message.symbol}</td>
+			    </tr>
+                <tr>
+				    <td class="key">Message</td>
+				    <td class="value">${message.message0}</td>
+			    </tr>
+            </table>`
+        })
+        g.panelPopup.reposition(x, y + height / 2)
+    }
+
+    const closePopup = (event) => {
+        g.panelPopup.closeIfNotHovered(event)
+    }
+
+    function toggle(item) {
+        offlineLintType[item] = !offlineLintType[item]
+        setConfig('offlineLintType', offlineLintType)
+    }
+
+    export function addToDictionary(wordHighlight) {
+        const parsedDocument = domParser.parseFromString(wordHighlight, 'text/html')
+        const words = []
+        for (const i of parsedDocument.querySelectorAll('em'))
+            words.push(i.innerText)
+        event.stopPropagation()
+        g.projectSession.send('AddToProjectDictionary', words)
+        requestAnimationFrame(() => {
+            const editor = g.activeEditor
+            const { line } = editor.cm.getCursor()
+            const lineContent = editor.cm.getLine(line)
+            editor.syncChanges(line, lineContent)
+        })
+    }
 </script>

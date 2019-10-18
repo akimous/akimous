@@ -1,9 +1,10 @@
-from sklearn.ensemble import RandomForestClassifier
-from .train import load_extracted_features, test_model
-from .utility import working_dir
-from logzero import logger as log
 import logzero
 import numpy as np
+from logzero import logger
+from sklearn.ensemble import RandomForestClassifier
+
+from .train import load_extracted_features, test_model
+from .utility import working_dir
 
 logzero.logfile(working_dir / 'feature_selection.log')
 
@@ -12,7 +13,7 @@ if __name__ == "__main__":
     feature_names = np.array(list(dg.name_to_feature_index.keys()))
     model = RandomForestClassifier(n_estimators=120, min_samples_split=2, random_state=0, n_jobs=-1)
 
-    log.info('Feature selection started')
+    logger.info('Feature selection started')
     feature_mask = np.ones_like(X[0], dtype='?')
     model.fit(X, y)
     _, successful_count = test_model(model, Xt, yt, test_indices)
@@ -22,10 +23,10 @@ if __name__ == "__main__":
     while dirty:
         iteration += 1
         dirty = False
-        log.info(f'Iteration #{iteration}')
-        log.info(np.array(feature_mask, dtype='int'))
-        log.info(f'Baseline accuracy: {successful_count / len(test_indices):.2%} '
-                 f'with {feature_mask.sum()} features')
+        logger.info(f'Iteration #{iteration}')
+        logger.info(np.array(feature_mask, dtype='int'))
+        logger.info(f'Baseline accuracy: {successful_count / len(test_indices):.2%} '
+                    f'with {feature_mask.sum()} features')
 
         importances = model.feature_importances_
         argsort = importances.argsort()
@@ -38,7 +39,7 @@ if __name__ == "__main__":
                 secondary_mask[a] = 0
                 new_feature_mask[feature_mask] = secondary_mask
                 dirty = True
-                log.warning(f'Feature #{a:<3}: {feature_names[feature_mask][a]} removed for '
+                logger.warning(f'Feature #{a:<3}: {feature_names[feature_mask][a]} removed for '
                             f'{importances[a]:.4%} importance.')
         if dirty:
             model.fit(X[:, new_feature_mask], y)
@@ -56,12 +57,12 @@ if __name__ == "__main__":
 
             model.fit(X[:, new_feature_mask], y)
             _, new_successful_count = test_model(model, Xt[:, new_feature_mask], yt, test_indices)
-            log.debug(f'Trying to remove feature #{a:<3}: {feature_names[feature_mask][a]} '
+            logger.debug(f'Trying to remove feature #{a:<3}: {feature_names[feature_mask][a]} '
                       f'with importance {importances[a]:.4%}, '
                       f'new accuracy is {new_successful_count / len(test_indices):.2%}')
             if new_successful_count >= successful_count:
                 dirty = True
-                log.warning(f'Feature #{a:<3}: {feature_names[feature_mask][a]} removed.')
+                logger.warning(f'Feature #{a:<3}: {feature_names[feature_mask][a]} removed.')
                 feature_mask = new_feature_mask
                 successful_count = new_successful_count
                 break

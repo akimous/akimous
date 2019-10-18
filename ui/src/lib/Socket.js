@@ -2,12 +2,12 @@ import msgpack from 'msgpack-lite/dist/msgpack.min'
 import g from './Globals'
 
 // For performance's sake, expand it as function. About 6.5X faster than array mapping
-const rowPreprocessor = {
-    Prediction([c, t, s]) {
-        return { c, t, s }
+const rowPreprocessors = {
+    Prediction([text, type, score, postfix]) {
+        return { text, type, score, postfix }
     },
-    ExtraPrediction([c, t, s]) {
-        return { c, t, s }
+    ExtraPrediction([text, type, score]) {
+        return { text, type, score }
     },
     RealTimeLints([message, line, ch]) {
         return { message, line, ch }
@@ -15,63 +15,73 @@ const rowPreprocessor = {
     SpellingErrors([line, ch, token, highlight]) {
         return { line, ch, token, highlight }
     },
+    FoundInDirectory([file, matches]) {
+        return { file, matches }
+    }
 }
+
+g.rowProcessors = rowPreprocessors
 
 class Socket {
-    constructor(path) {
-        this.path = path
-        this.handlers = {}
-    }
+    constructor(onopen) {
+        this.webSocket = new WebSocket(`ws://${location.host}/ws/`)
+        this.webSocket.binaryType = 'arraybuffer'
+        this.webSocket.onopen = onopen
+        this.webSocket.onclose = event => {
+            console.warn('WebSocket closing', event)
+            if (!g.app) return
+            g.app.$destroy()
+            g.app = null
+        }
+        this.webSocket.onerror = event => {
+            console.error(`Received error from ${this.path}: ${event}`)
+        }
 
-    addHandler(event, handler) {
-        this.handlers[event] = handler
-        return this
-    }
+        this.sessions = {} // this.sessions[sessionId] = session
+        this.maxSessionId = 1 // 0 is preserved for socket control
 
-    connect(callback) {
-        this.socket = new WebSocket(`ws://${location.host}/ws/${this.path}`)
-        this.socket.binaryType = 'arraybuffer'
-        this.socket.onopen = () => {
-            if (this.path !== '')
-                this.socket.send(msgpack.encode({ clientId: g.clientId }))
-            callback()
-        }
-        this.socket.onclose = () => {
-            if (this.path === '' && g.app) {
-                g.app.destroy()
-                g.app = null
+        this.webSocket.onmessage = event => {
+            const [sessionId, eventName, object] = msgpack.decode(new Uint8Array(event.data)) // event.data is an ArrayBuffer
+            // console.debug(`Received message from ${sessionId}: ${eventName}`, object)
+            const preprocessor = rowPreprocessors[eventName]
+            if (preprocessor && object.result) {
+                object.result = object.result.map(preprocessor)
             }
-            //            setTimeout(() => {
-            //                this.connect(callback)
-            //            }, 3000)
-        }
-        this.socket.onerror = event => {
-            console.error(`Recieved error from ${this.path}: ${event}`)
-        }
-        this.socket.onmessage = event => {
-            const [e, obj] = msgpack.decode(new Uint8Array(event.data)) // event.data is ArrayBuffer
-            // console.debug(`Recieved message from ${this.path}: ${e}`, obj)
-            const preprocessor = rowPreprocessor[e]
-            if (preprocessor && obj.result) {
-                obj.result = obj.result.map(preprocessor)
-            }
-            console.debug(`Preprocessed ${this.path}/${e}`, obj)
-            const handler = this.handlers[e]
-            if (!handler) {
-                console.warn('Unhandled event', e)
+            console.debug(`Preprocessed ${sessionId}/${eventName}`, object)
+            const session = this.sessions[sessionId]
+            if (!session) {
+                console.error(`Session ${sessionId} does not exist`)
                 return
             }
-            handler(obj, e)
+            const handler = session.handlers[eventName]
+            if (!handler) {
+                console.warn('Unhandled event', eventName)
+                return
+            }
+            handler(object, eventName)
         }
-
-
-        return this
     }
 
-    send(event, obj) {
-        console.debug(`Sending message from ${this.path}, event ${event}:`, obj)
-        this.socket.send(msgpack.encode([event, obj]))
+    createSession(endpoint, firstMessage) {
+        const { sessions, webSocket } = this
+        const sessionId = this.maxSessionId++
+        const session = {
+            _sessionId: sessionId,
+            handlers: {},
+            send(event, object) {
+                console.debug(`Sending message from ${endpoint}, event ${event}:`, object)
+                webSocket.send(msgpack.encode([sessionId, event, object]))
+            },
+            close() {
+                webSocket.send(msgpack.encode([0, 'CloseSession', sessionId]))
+                delete sessions[sessionId]
+            }
+        }
+        this.sessions[sessionId] = session
+        webSocket.send(msgpack.encode([0, 'OpenSession', { sessionId, endpoint, firstMessage }]))
+        return session
     }
+
 }
 
-export { Socket, rowPreprocessor }
+export { Socket }

@@ -1,4 +1,6 @@
-<div class="non-selectable" class:active style="{roundCorners(corner)}" class:coalesced="corner.startsWith('00')" on:click>{@html label}</div>
+<div bind:this={self} class="non-selectable" class:active class:flashing style="{roundCorners(corner)}" class:coalesced="{corner.startsWith('00')}" on:click aria-label="{title}">
+    <slot></slot>
+</div>
 
 
 <style>
@@ -12,15 +14,17 @@
         flex-grow: 10;
         text-align: center;
     }
-    
+
     div.coalesced {
         border-top: none;
     }
-    
+
+    div.flashing,
     div:hover {
         filter: brightness(1.2);
     }
-    
+
+    div.flashing,
     div:active,
     div.active {
         background: var(--primary5);
@@ -29,30 +33,30 @@
 
 </style>
 
-
 <script>
+    import { onMount, tick } from 'svelte'
+    
+    import g from './Globals'
     import { roundCorners } from './UIUtils'
 
-    export default {
-        components: {},
-        oncreate() {},
-        data() {
-            return {
-                label: '',
-                active: false,
-                corner: '0000',
-                callback: null
-            }
-        },
-        helpers: {
-            roundCorners,
-        },
-        methods: {
-            onClick() {
-                console.log(this.get())
-                this.get().callback()
-            }
-        }
-    }
+    export let active = false,
+        corner = '0000',
+        flashing = false,
+        title = ''
+    
+    let self
 
+    onMount(async () => {
+        await tick()
+        if (title) {
+            g.tooltip.register(self)
+        }
+    })
+
+    export function flash() {
+        flashing = true
+        setTimeout(() => {
+            flashing = false
+        }, 128)
+    }
 </script>

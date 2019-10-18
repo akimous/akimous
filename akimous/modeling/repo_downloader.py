@@ -1,12 +1,13 @@
+import itertools
+import re
 import sqlite3
 import time
-import requests
-import re
-import itertools
 import traceback
 from getpass import getpass
-from requests.auth import HTTPBasicAuth
+
+import requests
 from git import Repo
+from requests.auth import HTTPBasicAuth
 
 from .utility import WORKING_DIR
 

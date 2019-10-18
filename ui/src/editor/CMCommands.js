@@ -1,6 +1,6 @@
 function registerCMCommands(CodeMirror) {
-    if (CodeMirror.chakuroCommandsRegistered) return
-    CodeMirror.chakuroCommandsRegistered = true
+    if (CodeMirror.akimousCommandsRegistered) return
+    CodeMirror.akimousCommandsRegistered = true
     const Pos = CodeMirror.Pos
     const commands = CodeMirror.commands
 
@@ -12,9 +12,79 @@ function registerCMCommands(CodeMirror) {
         cm.setExtending(false)
     }
 
-    commands.deleteLineAndGoLineEnd = cm => {
+    commands.deleteLineAndGoUp = cm => {
         cm.execCommand('deleteLine')
+        cm.execCommand('goLineUp')
         cm.execCommand('goLineEnd')
+    }
+
+    commands.deleteLineAndGoDown = cm => {
+        cm.execCommand('deleteLine')
+        cm.execCommand('goLineStartSmart')
+    }
+    
+    // from CM sublime plugin
+    function findPosSubword(doc, start, dir) {
+        if (dir < 0 && start.ch === 0)
+            return doc.clipPos(Pos(start.line - 1))
+        const line = doc.getLine(start.line)
+        if (dir > 0 && start.ch >= line.length)
+            return doc.clipPos(Pos(start.line + 1, 0))
+
+        const UPPER = 1,
+            LOWER = 2,
+            DIGIT = 3,
+            SPACE = 4,
+            OTHER = 5
+        let lastType = 0 // not started yet
+        let lastChar = ''
+        const end = dir < 0 ? -1 : line.length + 1
+        let pos = dir < 0 ? start.ch - 1 : start.ch
+        for (; pos !== end; pos += dir) {
+            const char = line.charAt(pos)
+            let type = OTHER
+            if (/\d/.test(char)) type = DIGIT
+            else if (/\s/.test(char)) type = SPACE
+            else if (char === '_') type = OTHER
+            else if (CodeMirror.isWordChar(char)) type = LOWER
+            if (type === LOWER && char === char.toUpperCase()) type = UPPER
+            
+            if (type === OTHER && lastType && lastChar !== char) break
+            if (!lastType) {
+                lastType = type
+                lastChar = char
+            } else if (lastType !== type) {
+                if (lastType === LOWER && type === UPPER && dir < 0) pos--
+                else if (lastType === UPPER && type === LOWER && dir > 0) {
+                    lastType = LOWER
+                    continue
+                }
+                break
+            }
+        }
+        if (dir < 0 && start.ch - pos > 1) pos -= dir 
+        return Pos(start.line, pos)
+    }
+
+    function moveSubword(cm, dir) {
+        cm.extendSelectionsBy(range => {
+            if (cm.display.shift || cm.doc.extend || range.empty())
+                return findPosSubword(cm.doc, range.head, dir)
+            else
+                return dir < 0 ? range.from() : range.to()
+        })
+    }
+
+    commands.goSubwordLeft = cm => moveSubword(cm, -1)
+    commands.goSubwordRight = cm => moveSubword(cm, 1)
+
+    commands.deleteSubwordLeft = cm => {
+        cm.operation(() => {
+            const head = cm.getCursor()
+            const anchor = findPosSubword(cm.doc, head, -1)
+            cm.replaceRange('', anchor, head)
+            cm.scrollIntoView(anchor)
+        })
     }
 
     commands.duplicateLine = cm => {
@@ -54,44 +124,10 @@ function registerCMCommands(CodeMirror) {
         cm.extendSelection(pos)
     }
 
-
-    function moveLines(cm, dir) {
-        cm.operation(() => {
-            const selections = []
-            for (const range of cm.listSelections()) {
-                const from = Pos(range.from().line, 0)
-                const rangeTo = range.to()
-                const to = Pos(rangeTo.line + (rangeTo.ch > 0 ? 1 : 0), 0)
-                const needSelect = CodeMirror.cmpPos(range.anchor, range.head) !== 0
-                const selectedLines = cm.getRange(from, to)
-                const newString = dir > 0 ?
-                    cm.getLine(to.line) + '\n' + selectedLines :
-                    selectedLines + cm.getLine(from.line - 1) + '\n'
-                if (dir > 0) to.line += 1
-                else from.line -= 1
-                cm.replaceRange(newString, from, to)
-                if (needSelect) {
-                    if (dir > 0) from.line += 1
-                    else to.line -= 1
-                    selections.push({
-                        anchor: from,
-                        head: to
-                    })
-                } else {
-                    range.anchor.line += dir
-                    selections.push(range)
-                }
-            }
-            cm.setSelections(selections)
-        })
-    }
-    commands.moveLineUp = cm => moveLines(cm, -1)
-    commands.moveLineDown = cm => moveLines(cm, 1)
-
     commands.toggleCommentIndented = cm => {
         cm.toggleComment({
             indent: true,
-            padding: ''
+            padding: ' '
         })
         if (cm.doc.somethingSelected()) return
         cm.execCommand('goLineDown')
@@ -206,12 +242,12 @@ function registerCMCommands(CodeMirror) {
         cm.setSelections(extended)
     }
 
-    CodeMirror.scanForRegex = (cm, where, dir, regex) => {
+    CodeMirror.scanForRegex = (cm, where, direction, regex) => {
         const maxScanLines = 5
-        const lineEnd = dir > 0 ?
+        const lineEnd = direction > 0 ?
             Math.min(where.line + maxScanLines, cm.lastLine() + 1) :
             Math.max(cm.firstLine() - 1, where.line - maxScanLines)
-        const bracketPairs = dir > 0 ? {
+        const bracketPairs = direction > 0 ? {
             '(': ')',
             '[': ']',
             '{': '}',
@@ -221,15 +257,14 @@ function registerCMCommands(CodeMirror) {
             '}': '{',
         }
         const pos = Pos(where.line, 0)
-        for (let line = where.line; line != lineEnd; pos.line = line += dir) {
+        for (let line = where.line; line != lineEnd; pos.line = line += direction) {
             const lineContent = cm.getLine(line)
             if (!line) continue
-            let ch = dir > 0 ? 0 : lineContent.length
-            let end = dir > 0 ? lineContent.length + 1 : -1
+            let ch = direction > 0 ? 0 : lineContent.length
+            let end = direction > 0 ? lineContent.length + 1 : -1
             if (line === where.line)
-                ch = dir > 0 ? where.ch + 1 : where.ch
+                ch = direction > 0 ? where.ch + 1 : where.ch
 
-            //            let safty = 0
             const stack = []
 
             while (ch != end) {
@@ -244,15 +279,14 @@ function registerCMCommands(CodeMirror) {
                     return {
                         token,
                         line,
-                        ch: dir > 0 ? ch - 1 : ch
+                        ch: direction > 0 ? ch - 1 : ch
                     }
                 }
-                if (dir > 0) {
+                if (direction > 0) {
                     ch = token.end + 1
                 } else {
                     ch = (token.start === token.end) ? token.start - 1 : token.start
                 }
-                //                if (safty++ > 300) return where
             }
         }
         return false
@@ -411,7 +445,7 @@ function registerCMCommands(CodeMirror) {
             return tail || range.to()
         })
     }
-    
+
     commands.fold = cm => {
         const cursor = cm.getCursor()
         cm.foldCode(cursor, {
@@ -419,6 +453,34 @@ function registerCMCommands(CodeMirror) {
             minFoldSize: 2,
         })
     }
+    
+    commands.moveToLineEndAndInsertLineAfter = cm => {
+        commands.goLineEnd(cm)
+        commands.newlineAndIndent(cm)
+    }
+    
+    // Replace goGroupLeft, goGroupRight, etc. to avoid skipping over consecutive braces
+    function moveH(cm, dir, unit) {
+        const cursor = {...cm.getCursor()} // must not modify original cursor or cm.moveH will break
+        if (dir < 0)
+            cursor.ch += dir
+        const neighboringChar = cm.getRange(cursor, {
+            line: cursor.line,
+            ch: cursor.ch + 1
+        })
+        if (/[()[\]{}'"]/.test(neighboringChar)) {
+            return cm.moveH(dir, 'char')
+        }
+        if (unit === 'subword') {
+            return cm.execCommand(dir < 0 ? 'goSubwordLeft' : 'goSubwordRight')
+        }
+        return cm.moveH(dir, unit)
+    }
+    
+    commands.goGroupLeft2 = cm => moveH(cm, -1, 'group')
+    commands.goGroupRight2 = cm => moveH(cm, 1, 'group')
+    commands.goSubwordLeft2 = cm => moveH(cm, -1, 'subword')
+    commands.goSubwordRight2 = cm => moveH(cm, 1, 'subword')
 }
 
 export default registerCMCommands

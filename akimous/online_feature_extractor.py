@@ -11,7 +11,7 @@ class OnlineFeatureExtractor(FeatureDefinition):
         self.y = np.zeros(initial_size, dtype=int)
         self.sample = np.zeros(self.n_features, dtype=int)
         self.tokens = []
-        
+
         self.index = []
         self.completions = []
         self.current_completion_start_index = 0
@@ -20,14 +20,11 @@ class OnlineFeatureExtractor(FeatureDefinition):
 
     def fill_preprocessor_context(self, line_content, line, doc):
         for f in FeatureDefinition.preprocessors:
-            f(line_content=line_content,
-              line=line, ch=0, doc=doc,
-              context=self.context
-              )
+            f(line_content=line_content, line=line, ch=0, doc=doc, context=self.context)
 
     def extract_online(self, completions, line_content, line, ch, doc, call_signatures):
         self.reset(len(completions))
-        
+
         # context features
         completion = completions[0]
         # self.stack_context_info = self.get_stack_context_info(completion)
@@ -38,31 +35,39 @@ class OnlineFeatureExtractor(FeatureDefinition):
                 completion_data_type = definitions[0].name
 
         for f in FeatureDefinition.preprocessors:
-            f(line_content=line_content[:ch],  # TODO: should slice at ch or not?
-              line=line, ch=ch - 1, doc=doc,
-              context=self.context
-              )
+            f(
+                line_content=line_content[:ch],  # TODO: should slice at ch or not?
+                line=line,
+                ch=ch - 1,
+                doc=doc,
+                context=self.context)
         for i, f in enumerate(FeatureDefinition.context_features.values()):
-            feature = f(line_content=line_content[:ch],
-                        line=line, ch=ch, doc=doc,
-                        call_signatures=call_signatures,
-                        completion_data_type=completion_data_type,
-                        context=self.context
-                        # stack_context_info=self.stack_context_info
-                        )
+            feature = f(
+                line_content=line_content[:ch],
+                line=line,
+                ch=ch,
+                doc=doc,
+                call_signatures=call_signatures,
+                completion_data_type=completion_data_type,
+                context=self.context
+                # stack_context_info=self.stack_context_info
+            )
             self.sample[i + len(FeatureDefinition.completion_features)] = feature
-            
+
         # completion features
         for completion in completions:
             for i, f in enumerate(FeatureDefinition.completion_features.values()):
-                self.sample[i] = f(completion=completion,
-                                   line_content=line_content[:ch],
-                                   line=line, ch=ch, doc=doc,
-                                   call_signatures=call_signatures,
-                                   completion_data_type=completion_data_type,
-                                   context=self.context
-                                   # stack_context_info=self.stack_context_info
-                                   )
+                self.sample[i] = f(
+                    completion=completion,
+                    line_content=line_content[:ch],
+                    line=line,
+                    ch=ch,
+                    doc=doc,
+                    call_signatures=call_signatures,
+                    completion_data_type=completion_data_type,
+                    context=self.context
+                    # stack_context_info=self.stack_context_info
+                )
             self.X[self.n_samples] = self.sample
             self.n_samples += 1
             p('=' * 40 + f' {completion.name} ' + '=' * 40)

@@ -1,12 +1,12 @@
 import mimetypes
 from http import HTTPStatus
 from importlib import resources
-from pathlib import Path
 
-from logzero import logger as log
+from logzero import logger
 from websockets.http import Headers
 
-config_directory = Path.home() / '.akimous'
+from .utils import config_directory
+
 mimetypes.init()
 
 
@@ -48,7 +48,7 @@ class HTTPHandler:
     def process_request(self, path, _):
         if path.startswith('/ws/'):
             return None
-        log.info('Serving %s', path)
+        logger.info('Serving %s', path)
 
         package, file = self.translate_path(path)
 
@@ -57,7 +57,8 @@ class HTTPHandler:
 
         header = {
             'content-type': guess_type(file),
-            'cache-control': 'max-age=31536000'
+            'cache-control': 'max-age=60',
+            'X-Frame-Options': "deny"
         }
 
         # serve user configs
@@ -72,7 +73,6 @@ class HTTPHandler:
 
         # serve other resource files
         try:
-
             try:
                 content = resources.read_binary(package, f'{file}.gz')
                 header['content-encoding'] = 'gzip'

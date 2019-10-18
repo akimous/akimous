@@ -1,4 +1,4 @@
-import { inParentheses, inBrackets, inBraces } from '../lib/Utils'
+import { inParentheses, inBrackets } from '../lib/Utils'
 import { config } from '../lib/ConfigManager'
 
 const RealtimeFormatter = (editor, CodeMirror) => {
@@ -7,16 +7,16 @@ const RealtimeFormatter = (editor, CodeMirror) => {
 
     const operators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->)|[+\-*/%&|^~<>!@=])$/
     const compoundOperators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->))$/
-    const operatorChars = /[=+\-*/|&^~%@><!]$/
-    const idendifier = /^[^\d\W]\w*$/
+    const operatorChars = /^[=+\-*/|&^~%@><!]$/
+    const identifier = /^[^\d\W]\w*$/
     const _inParentheses = () => inParentheses(cm, c.from)
     const _inBrackets = () => inBrackets(cm, c.from)
-    const _inBraces = () => inBraces(cm, c.from)
 
     const ensureSpaceBefore = (t0) => {
         if (/\s+/.test(t0.string)) return // don't duplicate spaces
         c.text[0] = ' ' + c.text[0]
-        editor.completionProvider.firstTriggeredCharPos.ch++
+        const pos = {...editor.completionProvider.firstTriggeredCharPos}
+        pos.ch++
     }
     const stripTrailingSpaces = (line) => {
         for (let i = c.from.ch - 1; i >= 0; i--) {
@@ -31,7 +31,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         if (!config.formatter.realtime) return
         // skip if there are no characters before cursor 
         if (c.to.ch === 0) return
-
+        if (!c.text) return
         const leftText = t0.string
         const lastChar = leftText.slice(-1)
         const currentText = c.text[0]
@@ -43,40 +43,46 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         const leftTextIsOperator = operators.test(leftText)
         const currentTextIsPartOfTheOperator = compoundOperators.test(leftText + currentText)
         const currentTextIsOperator = operatorChars.test(currentText)
-        if (editor.debug) console.log({
-            currentTextIsPartOfTheOperator,
-            currentTextIsOperator,
-            leftTextIsOperator,
-            existSpaceBeforePreviousToken,
-            currentText,
-            leftText,
-            t2,
-            t1,
-            t0,
-            'll': leftText + lastChar,
-            'state': currentState,
-            'scope': currentScope,
-            'lineContent': cm.doc.getLine(c.from.line)
-        })
+        //console.log({
+        //    currentTextIsPartOfTheOperator,
+        //    currentTextIsOperator,
+        //    leftTextIsOperator,
+        //    existSpaceBeforePreviousToken,
+        //    currentText,
+        //    leftText,
+        //    t2,
+        //    t1,
+        //    t0,
+        //    'll': leftText + lastChar,
+        //    'state': currentState,
+        //    'scope': currentScope,
+        //    'lineContent': cm.doc.getLine(c.from.line)
+        //})
 
+        // split string into two lines if enter is pressed inside a string token
+        if (c.text.length === 2 && currentText === '' && t0.type === 'string' 
+            && t0.start < c.from.ch && c.from.ch < t0.end) {
+            let quote = t0.string[0]
+            if (t0.string[1] === quote && t0.string[2] === quote)
+                return // do nothing if is triple quote 
+            c.text[0] = `${quote} \\`
+            c.text[1] = quote
+        }
         // skip if the cursor is in a string
         if (t0.type === 'comment' || (t0.type === 'string' && !(t0.end === c.to.ch))) return
         if (currentText === '') { // new line
             stripTrailingSpaces(line)
-            line = cm.doc.getLine(c.from.line)
-            const inScope = _inParentheses() || _inBrackets() || _inBraces()
-            let tr = ''
-            if (inScope) {
+            const inParentheses = _inParentheses()
+            if (inParentheses) {
                 try {
-                    tr = cm.doc.getRange(Pos(inScope.line, inScope.ch + 1),
-                        Pos(inScope.line, inScope.ch + 2))
+                    if (t0.string === '(' && /^\s*def\s/.test(line)) {
+                        // add extra indentation when inserting new line at, e.g.
+                        // def something(|a, b)
+                        editor.cmEventDispatcher.adjustIndent(1)
+                    }
                 } catch (e) {
                     // skip this test if out of range
                 }
-                const shouldAlignOpenParenthesis = tr && !/\s/.test(tr) && !/\)/.test(tr)
-                editor.cmEventDispatcher.setIndentAfterChange(
-                    shouldAlignOpenParenthesis ? currentScope.align : currentScope.offset + 4
-                )
             } else if ((/^\s*(if|def|for|while|with|class)\s.+[^\\:;]$/.test(line) ||
                     /^\s*(try|except|finally)/.test(line)
             ) && !/(:\s)|;$/.test(line) &&
@@ -91,8 +97,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 ) && t0.string !== ':') {
                     c.text[0] = c.text[0] + ':'
                 }
-            } else if (currentState.lastToken === 'break') {
-                editor.cmEventDispatcher.setIndentAfterChange(currentScope.offset - 4)
+            } else if (t1.string === 'break') {
+                editor.cmEventDispatcher.adjustIndent(-1)
             }
         } else if (currentText[0] === ' ') {
             return
@@ -103,7 +109,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         } else if (t0.string === ':' && !_inBrackets()) {
             c.text[0] = ' ' + c.text[0]
         } else if (currentText === '=') {
-            if (lastChar === '=' && leftText[leftText.length - 2] !== ' ') { // == case
+            if (lastChar === '=' && !/\s+/.test(t1.string) && leftText[leftText.length - 2] !== ' ') { 
+                // == case
                 const pos = Pos(c.from.line, c.from.ch - 1)
                 c.update(pos, pos, [' ='])
             } else if (currentTextIsPartOfTheOperator) { // +=, -=... etc
@@ -140,27 +147,25 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             ensureSpaceBefore(t0)
         } else if (t0.string === '>' && t1.string === '-') {
             ensureSpaceBefore(t0)
-        } else if (t0.string === '.' && t1.type === null && idendifier.test(currentText)) {
+        } else if (t0.string === '.' && t1.type === null && identifier.test(currentText)) {
             // .x => self.x
-            c.cancel()
-            const from = Pos(c.from.line, c.from.ch - 1)
-            cm.doc.replaceRange('self.' + currentText, from, c.to)
+            c.text[0] = `self.${currentText}`
+            c.from = Pos(c.from.line, c.from.ch - 1)
         } else {
-            if (editor.debug) console.log('none of above applies')
+            // console.debug('none of above applies')
         }
     }
 
     const deleteChars = (lines, chars) => {
         let replaceWith = ''
         const from = Pos(c.from.line - lines, c.to.ch - chars)
-        const to = c.to
         if (lines > 0) {
             const lineContent = cm.doc.getLine(c.from.line - lines)
             from.ch = lineContent.length - chars
             if (/[,;:]$/.test(lineContent)) replaceWith = ' '
         }
-        c.cancel() // must go before replaceRange
-        cm.doc.replaceRange(replaceWith, from, to)
+        c.text[0] = replaceWith
+        c.from = from
     }
 
     const forwardDeleteChars = (lines, chars) => {
@@ -175,8 +180,9 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             if (indent)
                 to.ch = indent[0].length
         }
-        c.cancel() // must go before replaceRange
-        cm.doc.replaceRange(replaceWith, from, to)
+        c.text[0] = replaceWith
+        c.from = from
+        c.to = to
     }
 
     const deleteHandler = () => {
@@ -210,6 +216,11 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 forwardDeleteChars(0, 2)
             } else if (/^[=<>/*]\s/.test(tx)) {
                 forwardDeleteChars(0, 2)
+            }
+        } else if (c.from.ch < cursor.ch) {
+            const t0 = cm.getTokenAt(c.to, true)
+            if (/\s+/.test(t0.string) && t0.start === 0) { // start of line indentations
+                deleteChars(1, 0)
             }
         }
     }

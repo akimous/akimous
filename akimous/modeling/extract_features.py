@@ -1,15 +1,17 @@
-import jedi
-import time
-import tokenize
-import token as TOKEN
+import logging
 import pickle
 import sys
-from tqdm import tqdm
-from .offline_feature_extractor import OfflineFeatureExtractor
-from .utility import p, working_dir, sha3
+import time
+import token as TOKEN
+import tokenize
+
+import jedi
 import logzero
-from logzero import logger as log
-import logging
+from logzero import logger
+from tqdm import tqdm
+
+from .offline_feature_extractor import OfflineFeatureExtractor
+from .utility import p, sha3, working_dir
 
 
 def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=False):
@@ -18,7 +20,7 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
     doc_lines = doc.splitlines()
     line_count = len(doc_lines)
     print(f'Processing file: {file_path}')
-    log.info(f'Line count: {line_count}')
+    logger.info(f'Line count: {line_count}')
 
     def get_token(line, ch):
         line_tokens = tokens[line]
@@ -112,11 +114,11 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
                 failed_completion_count += 1
         ch = 1
         subdoc += line_content + '\n'
-    log.info(f'Time: {time.time() - start_time}')
-    log.info(f'Successful: {successful_completion_count}')
-    log.info(f'Failed: {failed_completion_count}')
+    logger.info(f'Time: {time.time() - start_time}')
+    logger.info(f'Successful: {successful_completion_count}')
+    logger.info(f'Failed: {failed_completion_count}')
     if successful_completion_count > 0:
-        log.info(f'Naive Accuracy: {sum_of_successful_rates / successful_completion_count}')
+        logger.info(f'Naive Accuracy: {sum_of_successful_rates / successful_completion_count}')
 
 
 if __name__ == '__main__':
@@ -154,5 +156,5 @@ if __name__ == '__main__':
         pickle.dump(feature_extractor,
                     open(extraction_path / f'{sha3(file)}.pkl', 'wb'),
                     protocol=4)
-    log.info(f'Context features: {len(feature_extractor.context_features)}')
-    log.info(f'Token features: {len(feature_extractor.completion_features)}')
+    logger.info(f'Context features: {len(feature_extractor.context_features)}')
+    logger.info(f'Token features: {len(feature_extractor.completion_features)}')

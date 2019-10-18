@@ -1,7 +1,7 @@
-<div ref:panelLeft id="panel-left" class:indicator-on="focused" class:gone="hidden" class:auto-hide="autoHide">
-    <TabBar ref:tabBar id="tab-bar"></TabBar>
-    <FileTree ref:fileTree></FileTree>
-    <Outline ref:outline></Outline>
+<div bind:this={self} id="panel-left" class:indicator-on="{focused}" class:gone="{hidden}" class:auto-hide="{autoHide}">
+    <TabBar bind:this={tabBar}></TabBar>
+    <FileTree bind:this={children.fileTree} on:active="{(e) => onTabChange(e)}"></FileTree>
+    <Outline bind:this={children.outline} on:active="{(e) => onTabChange(e)}"></Outline>
 </div>
 
 
@@ -19,51 +19,69 @@
 
 </style>
 
-
 <script>
+    import { onMount, tick } from 'svelte'
+    
     import g from './lib/Globals'
-    import { setAttributeForMultipleComponent, activateView, schedule } from './lib/Utils'
+    import { setConfig } from './lib/ConfigManager'
+    import { onTabChangeFactory } from './lib/UIUtils'
 
-    export default {
-        components: {
-            TabBar: './bars/TabBar.html',
-            FileTree: './panels/FileTree.html',
-            Outline: './panels/Outline.html',
-        },
-        oncreate() {
-            g.panelLeft = this
-            this.tabBar = this.refs.tabBar
-            setAttributeForMultipleComponent({
-                parent: this
-            }, this.refs.tabBar, this.refs.fileTree, this.refs.outline)
-            schedule(() => {
-                this.activateView(this.refs.fileTree)
-            })
-        },
-        onstate({ changed, current }) {
-            if (changed.hidden) {
-                if (current.hidden) {
-                    this.originalWidth = this.refs.panelLeft.getBoundingClientRect().width
-                    document.documentElement.style.setProperty('--panel-left-width', '0px')
-                } else if (this.originalWidth)
-                    document.documentElement.style.setProperty('--panel-left-width', this.originalWidth + 'px')
-            }
-        },
-        data() {
-            return {
-                focused: false,
-                hidden: false,
-                autoHide: false
-            }
-        },
-        methods: {
-            activateView(view) {
-                activateView(this, view)
-            },
-            closeView( /*view*/ ) {
-                // not allowed to close view for now
-            }
+    import TabBar from './bars/TabBar.html'
+    import FileTree from './panels/FileTree.html'
+    import Outline from './panels/Outline.html'
+    
+    
+    export let autoHide = g.config.panelLeft.hidden,
+        children = {},
+        focused = false,
+        hidden = g.config.panelLeft.hidden,
+        tabBar = null
+
+    let onTabChange, 
+        originalWidth = g.config.panelLeft.width,
+        self
+    
+    $: {
+        if (g.app) {
+            if (hidden) setHidden()
+            else setWidth()
         }
     }
+    $: setConfig('panelLeft', { hidden: autoHide })
+    
+    function setHidden() {
+        const currentWidth = self.getBoundingClientRect().width
+        if (currentWidth)
+            originalWidth = currentWidth
+        document.documentElement.style.setProperty('--panel-left-width', '0px')
+    }
+    
+    function setWidth() {
+        const width = (originalWidth < 10) ? 'calc(8rem + 7vw)' : `${originalWidth}px`
+        document.documentElement.style.setProperty('--panel-left-width', width)
+    }
+    
+    export function saveWidth() {
+        setConfig('panelLeft', { width: self.getBoundingClientRect().width })
+    }
+    
+    onMount(async () => {
+        setWidth()
+        if (hidden) setHidden()
+        onTabChange = onTabChangeFactory(tabBar, children, 'left')
+        tabBar.openTab('fileTree', 'FileTree', children.fileTree, 'fas fa-tree l-green')
+        tabBar.openTab('outline', 'Outline', children.outline, 'fas fa-align-left l-blue')
+        Object.assign(g, children)
+        
+        await tick()
+        const activePanel = children[g.projectState.activePanels.left]
+        activePanel.$set({ active: true })
+        g.setFocus([g.panelLeft, activePanel])
+    })
 
+    export const closeView = () => {
+        // not allowed to close view for now
+    }
 </script>
+
+

@@ -1,23 +1,75 @@
-<div ref:panel id="find" class="panel" class:gone="!active" on:click="onFocus()">
+<div bind:this={panel} id="find" class="panel" class:gone="{!active}" on:click="{onFocus}">
     <div class="label">Find...</div>
-    <TextInput ref:findText bind:value=findText coalesced="true"></TextInput>
+    <TextInput bind:this={findText} bind:value={findText} coalesced="true" on:keydown="{onKeyDown}"></TextInput>
     <div class="button-group">
-        <Button label="Aa" corner="0001"></Button>
-        <Button label=".*"></Button>
-        <Button label="=" corner="0010"></Button>
+        <Button corner="0001" active={caseSensitive} on:click="{() => caseSensitive = !caseSensitive}" title="Case-Sensitive">Aa</Button>
+        <Button active={regex} on:click="{() => regex = !regex}" title="Regular Expression">.*</Button>
+        {#if findInDirectory}
+        <Button corner="0000" active={wholeWord} on:click="{() => wholeWord = !wholeWord}" title="Whole Word"><i class="far fa-square"></i></Button>
+        <Button corner="0010" active={subdirectory} on:click="{() => subdirectory = !subdirectory}" title="Search in Subdirectory"><i class="fas fa-sitemap"></i></Button>
+        {:else}
+        <Button corner="0010" active={wholeWord} on:click="{() => wholeWord = !wholeWord}" title="Whole Word"><i class="far fa-square"></i></Button>
+        {/if}
         <span class="gap"></span>
-        <Button label="<i class='fas fa-caret-left'></i>" corner="0001" on:click="find(-1)"></Button>
-        <Button label="<i class='fas fa-caret-right'></i>" corner="0010" on:click="find(1)"></Button>
+        <Button bind:this={findPreviousButton} corner="0001" on:click="{() => findNext(-1)}" title="Find Previous"><i class="fas fa-caret-left"></i></Button>
+        <Button bind:this={findNextButton} corner="0010" on:click="{() => findNext(1)}" title="Find Next"><i class="fas fa-caret-right"></i></Button>
     </div>
     {#if replaceMode}
     <div class="label">Replace with...</div>
-    <TextInput ref:replaceText bind:value=replaceText coalesced="true"></TextInput>
+    <TextInput bind:this={replaceText} bind:value={replaceText} coalesced="true"></TextInput>
     <div class="button-group">
-        <Button label="Replace" corner="0001"></Button>
-        <Button label="Batch"></Button>
-        <Button label="All" corner="0010"></Button>
+        <Button corner="0011" on:click="{replaceAll}" title="Replace All Occurances">All</Button>
+        <span class="gap"></span>
+        <Button corner="0001" on:click="{() => replace(-1)}" title="Replace and Select Previous Occurance"><i class="fas fa-caret-left"></i></Button>
+        <Button on:click="{() => replace(0)}" title="Replace Selected">Replace</Button>
+        <Button corner="0010" on:click="{() => replace(1)}" title="Replace and Select Next Occurance"><i class="fas fa-caret-right"></i></Button>
     </div>
     {/if}
+
+    {#if findInDirectory}
+    <div class="group-wrapper">
+        {#if matches.length > 2999}
+        <div class="message l-red"><i class="fas fa-exclamation-triangle"></i> Cannot display all results (too many matches)</div>
+        {:else if overflow}
+        <div class="message l-orange"><i class="fas fa-exclamation-circle"></i> Search paused (too many matches)</div>
+        <span class="gap"></span>
+        <Button corner="1111" on:click="{() => findInDirectory(2999)}">Continue</Button>
+        {/if}
+    </div>
+    {/if}
+
+    <div class="group-wrapper">
+        <div id="search-counter" class="message" class:hidden="{selectedIndex < 0 && !findInDirectory}">
+            {#if findInDirectory}
+            {matches.length} matches in {nFiles} files
+            {:else}
+            {selectedIndex + 1} of {matches.length} matches
+            {/if}
+        </div>
+        <span class="gap"></span>
+        {#if !findInDirectory}
+        <Button corner="1111" on:click="{selectAll}">Select All</Button>
+        {/if}
+    </div>
+    <table id="found-matches">
+        {#each matches as match}
+        {#if Array.isArray(match)}
+        <tr class="matched-file">
+            <td class="line-number"><i class="fas fa-file"></i></td>
+            <td class="match">{joinPath(match)}</td>
+        </tr>
+        {:else}
+        <tr class:highlight="{selectedMatches.size === 0 && currentLine === match.from.line && isEqual(currentFilePath, match.filePath)}">
+            <td class="line-number" class:selected="{selectedMatches.has(match)}" on:click="{() => toggleSelection(match)}">{match.from.line + 1}</td>
+            <td class="match" on:click="{() => jumpTo(match)}">{@html match.display}</td>
+        </tr>
+        {/if}
+        {:else}
+        <tr>
+            <td class="placeholder">No matches found.</td>
+        </tr>
+        {/each}
+    </table>
 </div>
 
 <style>
@@ -26,7 +78,7 @@
     }
 
     .button-group {
-        margin: 0 .3rem .3rem .3rem;
+        margin: 0 .3rem .3rem .4rem;
         display: flex;
     }
 
@@ -34,99 +86,376 @@
         flex-grow: 5;
     }
 
-</style>
-
-
-<script>
-    import g from '../lib/Globals'
-    import { initializeTabView, Pos } from '../lib/Utils'
-    import { makeScrollable } from '../lib/UIUtils'
-
-    const overlayOption = {
-        opaque: true,
-        priority: 1,
+    td.selected {
+        background: var(--accent4);
     }
 
-    export default {
-        components: {
-            TextInput: '../lib/TextInput.html',
-            Button: '../lib/Button.html',
-        },
-        oncreate() {
-            g.find = this
-            initializeTabView(this, 'Find', 'fas fa-search l-blue')
-            makeScrollable(this, this.refs.panel)
-            this.searchState = {}
-        },
-        data() {
-            return {
-                active: false,
-                findText: '',
-                replaceText: '',
-                highlightOverlay: null,
-                replaceMode: false,
-            }
-        },
-        onstate({ changed, current, previous }) {
-            if (changed.highlightOverlay && g.activeEditor) {
-                const cm = g.activeEditor.cm
-                if (cm) {
-                    cm.removeOverlay(previous.highlightOverlay)
-                    cm.addOverlay(current.highlightOverlay, overlayOption)
+    .match {
+        padding: .3rem .5rem;
+        background: var(--gray2);
+    }
+
+    .match :global(em) {
+        color: var(--brighter-yellow);
+        font-style: normal;
+    }
+
+    .group-wrapper {
+        margin: .3rem .3rem .3rem .5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .message {
+        padding-right: .5rem;
+        margin: 0;
+    }
+
+    .matched-file .line-number {
+        color: var(--accent7);
+        background: var(--accent3);
+        text-align: center;
+        padding-right: 0;
+    }
+
+    .matched-file .match {
+        color: var(--accent7);
+        background: var(--accent2);
+    }
+
+</style>
+
+<script context="module">
+    const textMarkOption = {
+        className: 'cm-searching-marked'
+    }
+</script>
+
+<script>
+    import { onMount, createEventDispatcher } from 'svelte'
+    import isEqual from 'lodash.isequal'
+
+    import g from '../lib/Globals'
+    import { nextFrame, Pos, joinPath, highlightMatch } from '../lib/Utils'
+    import { makeScrollable } from '../lib/UIUtils'
+    import { setCursorAndScrollIntoView } from '../editor/EditorFunctions'
+    
+    import TextInput from '../lib/TextInput.html'
+    import Button from '../lib/Button.html'
+    
+
+    export let active = false,
+        cannotDisplay = false,
+        caseSensitive = false,
+        currentCh = 0,
+        currentFilePath = [],
+        currentLine = 0,
+        findInDirectory = null,
+        findText = '',
+        highlightOverlay = null,
+        matches = [],
+        nFiles = 0,
+        overflow = false,
+        regex = false,
+        replaceMode = false,
+        replaceText = '',
+        selectedIndex = -1,
+        selectedMatches = new Set(),
+        subdirectory = true,
+        wholeWord = false
+    
+    let findNextButton, 
+        findPreviousButton, 
+        jobAnimationFrameId,
+        panel
+    
+    const dispatch = createEventDispatcher()
+    $: dispatch('active', {
+        id: 'find',
+        active
+    })
+    $: {
+        caseSensitive, regex, wholeWord, subdirectory, findText
+        const editor = g.activeEditor
+        if (findInDirectory) findInDirectories()
+        else if (editor) findInFile(editor)
+        selectedIndex = -1
+    }
+    $: {
+        const editor = g.activeEditor
+        if (selectedMatches && editor) {
+            const { cm, filePath } = editor
+            if (!cm)  {
+                // do nothing
+            } else if (selectedMatches.size) {
+                const selections = []
+                for (const s of selectedMatches) {
+                    if (isEqual(s.filePath, filePath))
+                        selections.push({
+                            anchor: s.from,
+                            head: s.to
+                        })
                 }
-
-            }
-        },
-        methods: {
-            onFocus() {
-                g.setFocus([g.panelRight, this])
-            },
-            find(direction) {
-                const cm = g.activeEditor.cm
-                const caseInsensitive = false
-                const action = direction > 0 ? 'findNext' : 'findPrevious'
-                const { findText } = this.get()
-                const { searchState } = this
-                const query = new RegExp(findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
-                    caseInsensitive ? 'gi' : 'g')
-                let searchCursor = cm.getSearchCursor(query,
-                    direction > 0 ? cm.getCursor('to') : cm.getCursor('from'))
-                let found = searchCursor[action]()
-
-                if (!found) { // wrap around
-                    searchCursor = cm.getSearchCursor(query,
-                        direction > 0 ? Pos(cm.firstLine(), 0) : Pos(cm.lastLine()))
-                    found = searchCursor[action]()
-                }
-                if (!found) return
-
-                let from = searchCursor.from()
-                let to = searchCursor.to()
-                const pos = { from, to }
-                cm.setSelection(from, to)
-                cm.scrollIntoView(pos, 20)
-                searchState.foundPos = pos
-
-                const highlightOverlay = {
-                    token(stream) {
-                        query.lastIndex = stream.pos
-                        const match = query.exec(stream.string)
-                        if (match && match.index == stream.pos) {
-                            stream.pos += match[0].length || 1
-                            if (stream.pos === to.ch && stream.lineOracle.line === to.line) {
-                                return 'searching-selected'
-                            }
-                            return 'searching'
-                        } else if (match) {
-                            stream.pos = match.index
-                        } else {
-                            stream.skipToEnd()
-                        }
-                    }
-                }
-                this.set({ highlightOverlay })
+                cm.setSelections(selections)
+                editor.$set({ highlightOverlay: null })
+                selectedIndex = -1
+            } else if (selectedIndex === -1) {
+                cm.setCursor(cm.getCursor()) // clear selections if nothing selected
             }
         }
     }
 
+    function searchOverlayGenerator(query) {
+        return {
+            token(stream) {
+                query.lastIndex = stream.pos
+                const match = query.exec(stream.string)
+                if (match && match.index == stream.pos) {
+                    stream.pos += match[0].length || 1
+                    return 'searching'
+                } else if (match) {
+                    stream.pos = match.index
+                } else {
+                    stream.skipToEnd()
+                }
+            }
+        }
+    }
+
+    onMount(async () => {
+        jobAnimationFrameId = 0
+        g.projectSession.handlers['FoundInDirectory'] = data => {
+            const m = []
+            for (const { file, matches } of data.result) {
+                m.push(file)
+                for (const [line, from, to, text] of matches) {
+                    m.push({
+                        from: Pos(line, from),
+                        to: Pos(line, to),
+                        filePath: file,
+                        display: highlightMatch(text, from, to),
+                    })
+                }
+            }
+            matches = m
+            nFiles = data.nFiles
+            overflow = data.overflow
+        }
+        g.projectSession.handlers['ReplacedInDirectory'] = ({ count }) => {
+            g.notificationBar.show('success', `${count} matches replaced.`)
+        }
+        await makeScrollable('find', panel)
+    })
+
+    function onFocus() {
+        g.setFocus([g.panelRight, g.find])
+    }
+
+    function onKeyDown(event) {
+        if (event.key === 'Enter') {
+            findNext(1)
+            findNextButton.flash()
+        }
+        return true
+    }
+
+    export function getQuery() {
+        if (!findText.length) return
+        let regexString = findText
+        if (!regex) regexString = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
+        if (wholeWord) regexString = `\\b${regexString}\\b`
+        return new RegExp(regexString, caseSensitive ? 'g' : 'gi')
+    }
+
+    export function findNext(direction) {
+        if (findInDirectory) {
+            const { length } = matches
+            selectedIndex = (selectedIndex + length + direction) % length
+            if (selectedIndex < 0) selectedIndex = length - 1
+            let match = matches[selectedIndex]
+            if (Array.isArray(match)) {
+                selectedIndex = (selectedIndex + length + direction) % length
+                selectedIndex += selectedIndex ? 0 : direction
+                match = matches[selectedIndex]
+            }
+            if (match)
+                jumpTo(match)
+            return
+        }
+        const editor = g.activeEditor
+        if (!editor) return
+        const cm = editor.cm
+        const query = getQuery()
+        let searchCursor = cm.getSearchCursor(query,
+            direction > 0 ? cm.getCursor('to') : cm.getCursor('from'))
+        const action = direction > 0 ? 'findNext' : 'findPrevious'
+        let found = searchCursor[action]()
+
+        if (!found) { // wrap around
+            searchCursor = cm.getSearchCursor(query,
+                direction > 0 ? Pos(cm.firstLine(), 0) : Pos(cm.lastLine()))
+            found = searchCursor[action]()
+        }
+        if (!found) {
+            g.notificationBar.show('warning', 'Not found.')
+            selectedIndex = -1
+            return
+        }
+
+        let from = searchCursor.from()
+        let to = searchCursor.to()
+        const pos = { from, to }
+
+        nextFrame(() => {
+            selectedIndex = matches.findIndex(x => x.from.line === from.line && x.from.ch === from.ch)
+            clearSelections()
+        })
+
+        cm.operation(() => {
+            const changeObject = { textMark: cm.markText(from, to, textMarkOption) }
+            if (editor.highlightOverlay !== highlightOverlay) {
+                changeObject.highlightOverlay = highlightOverlay
+            }
+            editor.$set(changeObject)
+            cm.setSelection(from, to)
+            cm.scrollIntoView(pos, 20)
+        })
+        return searchCursor
+    }
+
+    export function replace(direction) {
+        const editor = g.activeEditor
+        if (!editor) return
+        const cm = editor.cm
+        if (cm.somethingSelected()) {
+            cm.replaceSelection(replaceText)
+        } else if (direction === 0) {
+            g.notificationBar.show('warning', 'Nothing selected to be replaced.')
+            return
+        } else {
+            const searchCursor = findNext(direction)
+            if (!searchCursor) {
+                g.notificationBar.show('warning', 'No result found to be replaced.')
+                return
+            }
+            searchCursor.replace(replaceText)
+        }
+        if (!direction)
+            return
+        const searchCursor = findNext(direction)
+        if (!searchCursor)
+            g.notificationBar.show('warning', 'No result found.')
+    }
+
+    export function replaceAll() {
+        if (findInDirectory) {
+            g.projectSession.send('ReplaceAllInDirectory', {
+                path: findInDirectory,
+                findText,
+                replaceText,
+                caseSensitive,
+                subdirectory,
+            })
+            return
+        } else {
+            selectAll()
+            replace()
+            g.notificationBar.show('success', `${matches.length} matches replaced.`)
+        }
+    }
+
+    export function jumpTo(match) {
+        g.panelMiddle.openFile(match.filePath, editor => {
+            const cm = setCursorAndScrollIntoView(match.from.line, match.from.ch)
+            cm.extendSelection(match.from, match.to)
+            editor.$set({ highlightOverlay: null })
+        })
+        selectedIndex = matches.indexOf(match)
+    }
+
+    export function toggleSelection(match) {
+        if (!g.activeEditor) return
+        if (selectedMatches.has(match)) {
+            selectedMatches.delete(match)
+        } else {
+            selectedMatches.add(match)
+        }
+        selectedMatches = selectedMatches
+    }
+
+    export function reset() {
+        matches = [], selectedIndex = -1, selectedMatches = new Set(), currentFilePath = [], currentLine = 0, currentCh = 0, nFiles = 0, overflow = false, cannotDisplay = false
+    }
+
+    export function clearSelections() {
+        selectedMatches.clear()
+        selectedMatches = selectedMatches
+    }
+
+    export function selectAll() {
+        if (!g.activeEditor) return
+        if (selectedMatches.size === matches.length) {
+            selectedMatches.clear()
+        } else {
+            selectedMatches = new Set(matches)
+        }
+        selectedMatches = selectedMatches
+    }
+
+    export function findInFile(editor) {
+        cancelAnimationFrame(jobAnimationFrameId)
+        const query = getQuery()
+        if (query) {
+            const searchCursor = editor.cm.getSearchCursor(query, Pos(0, 0))
+            const filePath = editor.filePath
+            let found
+            matches.length = 0
+
+            let limit = 30
+            const job = () => {
+                while (found = searchCursor.findNext()) {
+                    const match = found[0]
+                    const { length } = match
+                    const { input, index } = found
+                    const from = searchCursor.from()
+                    const to = searchCursor.to()                            
+                    const display = highlightMatch(input, index, index + length)
+                    matches.push({ display, from, to, filePath })
+                    if (matches.length === limit) {
+                        limit += 100
+                        jobAnimationFrameId = requestAnimationFrame(job)
+                        break
+                    }
+                }
+                matches = matches
+            }
+            job()
+
+            highlightOverlay = searchOverlayGenerator(query)
+            nextFrame(() => {
+                editor.$set({ highlightOverlay })
+            })
+        } else {
+            editor.$set({ highlightOverlay: null })
+        }
+    }
+
+    export function findInDirectories(limit) {
+        if (!findText.length) {
+            matches = [], nFiles = 0, overflow = false
+            return
+        }
+        if (!limit)
+            limit = findText.length > 1 ? 299 : 99
+        let query = findText
+        if (!regex) query = findText.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
+        if (wholeWord) query = `\\b${query}\\b`
+        g.projectSession.send('FindInDirectory', {
+            path: findInDirectory,
+            query,
+            limit,
+            caseSensitive,
+            subdirectory
+        })
+    }
 </script>

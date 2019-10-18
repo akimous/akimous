@@ -33,6 +33,7 @@ def yuki(args, **kwargs):
 
 class Yui(object):
     def __init__(self, x):
+        self.member = 1
         a = {'key': 'value', 'yukino': 'yukinoshita'}
         pass
 

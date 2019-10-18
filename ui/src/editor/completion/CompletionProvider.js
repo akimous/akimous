@@ -5,14 +5,15 @@ import { highlightSequentially } from '../../lib/Utils'
 // state
 const CLOSED = 0,
     TRIGGERED = 1,
-    RETRIGGERED = 2
+    RESPONDED = 2,
+    RETRIGGERED = 3
 const NORMAL = 0,
     STRING = 1,
     COMMENT = 2,
     FOR = 3,
     PARAMETER_DEFINITION = 4,
     AFTER_OPERATOR = 5
-const debug = false
+const debug = true
 
 const shouldUseSequentialHighlighter = new Set([
     'word-segment',
@@ -23,13 +24,14 @@ const shouldUseSequentialHighlighter = new Set([
 const tails = {
     'class': '()',
     'function': '()',
-    // 'param': '=',  // already handled by Jedi in completion.name_with_symbols
     // 'word': ' = ',  // handled in addTail()
     // 'word-segment': ' = ',  // handled in addTail()
     // 'token': ' = ',  // handled in addTail()
     'keyword': ' ',
     'module': ' ',
     'variable': ' ',
+    'param': ' ', // probably not reliable, see predict in editor.py
+    // 'statement': ' ', // good for `if xxx_and` but bad for `int(xxx|)`
 }
 
 const passiveTokenCompletionSet = new Set(['word', 'word-segment', 'token'])
@@ -39,31 +41,23 @@ class CompletionProvider {
         return false
     }
 
-    set passive(x) {
-        console.error('set passive')
-    }
-    get passive() {
-        console.error('get passive')
-        return false
-    }
-
-    //    set type(x) {
-    //        this._type = x
-    //        console.warn('set type', x)
+    //    set mode(x) {
+    //        this._mode = x
+    //        console.warn('set mode', x)
     //    }
     //    
-    //    get type() {
-    //        return this._type
+    //    get mode() {
+    //        return this._mode
     //    }
 
     //    set state(x) {
     //        this._state = x
     //        console.warn('set state', x)
     //    }
-    //
-    //    get state() {
-    //        return this._state
-    //    }
+
+    //   get state() {
+    //       return this._state
+    //   }
 
     constructor(editor) {
         this.editor = editor
@@ -73,60 +67,88 @@ class CompletionProvider {
         this.ruleBasedPredictor = new RuleBasedPredictor(this.context)
         this.enabled = true
         this.state = CLOSED
-        this.type = NORMAL
+        this.mode = NORMAL
 
         this.firstTriggeredCharPos = {
             line: 0,
             ch: 0
         }
+        this.triggeredCharOffset = 0
         this.lineContent = ''
         this.isClassDefinition = false
         this.currentCompletions = []
         this.input = ''
+        this.retriggerQueue = []
 
-        editor.socket.addHandler('Prediction', (data) => {
-            if (debug) console.log('CompletionProvider.recieve', data)
-            let input = this.lineContent[this.firstTriggeredCharPos.ch]
-            this.state = TRIGGERED
+        editor.session.handlers['Prediction'] = data => {
+            if (debug) console.log('CompletionProvider.receive', data)
+            const { line, ch } = data
+            let input = this.lineContent.slice(this.firstTriggeredCharPos.ch, ch) || ''
+            this.input = input
+            this.state = RESPONDED
             this.currentCompletions = data.result
-            if (data.result.length < 1)
-                return this.completion.set({ open: false })
-
-            if (this.type === AFTER_OPERATOR)
+            if (data.result.length < 1) {
+                this.state = CLOSED
+                this.completion.$set({ open: false })
+                // do not return here, or 
+                // def some|
+                // will not work
+            }
+            if (this.mode === AFTER_OPERATOR)
                 input = null
             const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
 
-            if (this.type === NORMAL) {
-                const ruleBasedPrediction = this.ruleBasedPredictor.predict({
-                    topHit: sortedCompletions[0],
-                    completions: sortedCompletions,
-                    input
-                })
-                sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
+            if (this.mode === NORMAL) {
+                this.requestExtraPredictions(line, ch, input, sortedCompletions)
+            } else {
+                this.deduplicateAndSetCompletions(sortedCompletions)
             }
-            this.completion.setCompletions(
-                sortedCompletions,
-                this.firstTriggeredCharPos,
-                this.type
-            )
-        })
-        editor.socket.addHandler('ExtraPrediction', ({ result }) => {
+
+            const lastRetriggerJob = this.retriggerQueue.pop()
+            this.retriggerQueue.length = 0
+            if (!lastRetriggerJob) return
+            if (lastRetriggerJob.line === data.line && lastRetriggerJob.ch === data.ch) return
+            this.retrigger(lastRetriggerJob)
+        }
+        editor.session.handlers['ExtraPrediction'] = ({ result }) => {
+            this.mode = STRING
+            
+            const { t1, t2 } = this.context
+            if (t2.string === 'def') {
+                result.forEach(item => {
+                    item.tail = '()'
+                })
+            } else if (!t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
+                result.forEach(item => {
+                    item.tail = ' ='
+                })
+            }
             const sortedCompletions = this.sortAndFilter(this.input, result)
-            this.completion.setCompletions(
-                sortedCompletions,
-                this.firstTriggeredCharPos,
-                this.type
-            )
-        })
+            this.deduplicateAndSetCompletions(sortedCompletions)
+        }
     }
 
-    trigger(lineContent, line, ch, triggerdCharOffset) {
+    deduplicateAndSetCompletions(sortedCompletions) {
+        const set = new Set()
+        this.completion.setCompletions(
+            sortedCompletions.filter(v => {
+                if (set.has(v.text)) return false
+                set.add(v.text)
+                return true
+            }),
+            this.firstTriggeredCharPos,
+            this.mode
+        )
+    }
+
+    trigger(lineContent, line, ch, triggeredCharOffset) {
         if (!this.enabled) return
         this.startTime = performance.now()
         this.firstTriggeredCharPos.line = line
-        this.firstTriggeredCharPos.ch = ch + triggerdCharOffset
+        this.firstTriggeredCharPos.ch = ch + triggeredCharOffset
+        this.triggeredCharOffset = triggeredCharOffset
         this.lineContent = lineContent
-        this.editor.socket.send('Predict', [line, ch, lineContent])
+        this.editor.session.send('Predict', [line, ch, lineContent])
         this.isClassDefinition = /^\s*class\s/.test(lineContent)
         Object.assign(this.context, {
             firstTriggeredCharPos: this.firstTriggeredCharPos,
@@ -134,20 +156,11 @@ class CompletionProvider {
             line,
             ch
         })
+        this.state = TRIGGERED
+        this.retriggerQueue.length = 0 // clear queue
     }
-
-    retrigger({ lineContent, line, ch }) {
-        if (!this.enabled) return
-        if (this.firstTriggeredCharPos.ch === ch) {
-            this.completion.set({ open: false })
-            this.state = CLOSED
-            return
-        }
-        this.state = RETRIGGERED
-        const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
-        this.input = input
-        let sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
-
+    
+    requestExtraPredictions(line, ch, input, sortedCompletions) {
         const ruleBasedPrediction = this.ruleBasedPredictor.predict({
             topHit: sortedCompletions[0],
             completions: sortedCompletions,
@@ -156,34 +169,55 @@ class CompletionProvider {
         sortedCompletions.splice(1, 0, ...ruleBasedPrediction)
 
         if (!sortedCompletions.length) {
-            console.warn({ input })
-            this.editor.socket.send('PredictExtra', [line, ch, input])
-        } else
-            this.completion.setCompletions(sortedCompletions, this.firstTriggeredCharPos, this.type)
+            this.editor.session.send('PredictExtra', [line, ch, input])
+        } else {
+            this.deduplicateAndSetCompletions(sortedCompletions)
+        }
+    }
+
+    retrigger({ lineContent, line, ch }) {
+        if (!this.enabled) return
+        if (this.triggeredCharOffset && this.firstTriggeredCharPos.ch === ch - 1)
+            return // should not do anything if it is just triggered and nothing else is typed
+        if (this.state === TRIGGERED) {
+            // enqueue retrigger requests if there's any in-flight requests
+            this.retriggerQueue.push({ lineContent, line, ch })
+            return
+        }
+        if (this.firstTriggeredCharPos.ch === ch) {
+            this.completion.$set({ open: false })
+            this.state = CLOSED
+            return
+        }
+        this.state = RETRIGGERED
+        const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
+        this.input = input
+        let sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
+        this.requestExtraPredictions(line, ch, input, sortedCompletions)
     }
 
     sortAndFilter(input, completions) {
         if (!input) { // for prediction immediately after dot or operator
             completions.forEach(i => {
                 i.sortScore = 1
-                i.highlight = i.c
+                i.highlight = i.text
             })
         } else {
             this.sorter.setInput(input)
             for (let i of completions) {
-                i.sortScore = this.sorter.score(i.c) * 10
-                if (shouldUseSequentialHighlighter.has(i.t))
-                    i.highlight = highlightSequentially(i.c, input)
+                i.sortScore = this.sorter.score(i.text) * 10
+                if (shouldUseSequentialHighlighter.has(i.type))
+                    i.highlight = highlightSequentially(i.text, input)
                 else
                     i.highlight = this.sorter.highlight()
             }
         }
-        completions.sort((a, b) => b.sortScore - a.sortScore + b.s - a.s)
-        if (debug) console.log('CompletionProvider.sort', completions)
+        completions.sort((a, b) => b.sortScore - a.sortScore + b.score - a.score)
+        if (debug) console.log('CompletionProvider.sort', input, completions)
 
-        const { type } = this.completion.get()
+        const { type } = this.completion
         const filteredCompletions = completions.filter(row => {
-            if (type !== NORMAL && row.c.length < 2) return false
+            if (type !== NORMAL && row.text.length < 2) return false
             return row.sortScore > 0
         })
         filteredCompletions.forEach(this.addTail, this)
@@ -191,21 +225,24 @@ class CompletionProvider {
     }
 
     addTail(completion) {
-        const { t } = completion
-        const type = this.type
-        let tail = tails[t]
+        const { type, postfix } = completion
+        const { mode } = this
+        let tail = tails[type]
         const { lineContent, firstTriggeredCharPos } = this.context
-        if (type === STRING || type === COMMENT)
+        if (mode === STRING || mode === COMMENT)
             tail = null
-        else if (passiveTokenCompletionSet.has(t)) {
-            if (type === PARAMETER_DEFINITION) tail = '='
+        else if (passiveTokenCompletionSet.has(type)) {
+            if (mode === PARAMETER_DEFINITION) tail = '='
             else {
                 const head = lineContent.substring(0, firstTriggeredCharPos.ch)
                 if (/^\s*def\s$/.test(head)) tail = '()'
                 else if (!/^\s*$/.test(head)) tail = null
             }
+        } else if (tail === '()' && lineContent.includes(' import ')) {
+            tail = null
+        } else if (postfix && tail === ' ') {
+            tail = null
         }
-
         if (tail)
             completion.tail = tail
     }
@@ -215,6 +252,7 @@ export {
     CompletionProvider,
     CLOSED,
     TRIGGERED,
+    RESPONDED,
     RETRIGGERED,
     NORMAL,
     STRING,

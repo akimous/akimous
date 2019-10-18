@@ -1,6 +1,7 @@
 import json
 import shlex
-from asyncio import create_subprocess_shell, subprocess, create_task
+from asyncio import (CancelledError, create_subprocess_shell, create_task,
+                     subprocess)
 from collections import namedtuple
 from functools import partial
 from importlib.resources import open_binary
@@ -9,29 +10,37 @@ from pathlib import Path
 import jedi
 import pyflakes.api
 import wordsegment
-from boltons.gcutils import toggle_gc_postcollect
-from logzero import logger as log
+from logzero import logger
 from sklearn.externals import joblib
 
-from .master import config
+from .config import config
 from .doc_generator import DocGenerator  # 165ms, 13M memory
-from .online_feature_extractor import OnlineFeatureExtractor  # 90ms, 10M memory
+from .modeling.feature.feature_definition import tokenize
+from .online_feature_extractor import \
+    OnlineFeatureExtractor  # 90ms, 10M memory
 from .pyflakes_reporter import PyflakesReporter
-from .utils import Timer, detect_doc_type
+from .utils import Timer, detect_doc_type, nop, log_exception
 from .websocket import register_handler
 from .word_completer import search_prefix
-from .modeling.feature.feature_definition import tokenize
+from .project import save_state
+from .completion_utilities import is_parameter_of_def
+
 
 DEBUG = False
 MODEL_NAME = 'v10.model'
-PredictionRow = namedtuple('PredictionRow', ('c', 't', 's'))
+PredictionRow = namedtuple('PredictionRow', ('c', 't', 's', 'p'))
 
 handles = partial(register_handler, 'editor')
 doc_generator = DocGenerator()
 
-model = joblib.load(open_binary('akimous.resources', MODEL_NAME))  # 300 ms
+with open_binary('akimous.resources', MODEL_NAME) as f:
+    model = joblib.load(f)  # 300 ms
 model.n_jobs = 1
-log.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
+logger.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
+
+
+def get_relative_path(context):
+    return tuple(context.path.relative_to(context.shared.project_root).parts)
 
 
 async def run_pylint(context, send):
@@ -47,19 +56,21 @@ async def run_pylint(context, send):
                 stderr=subprocess.PIPE)
             stdout, stderr = await context.linter_process.communicate()
             if stderr:
-                log.error(stderr)
+                logger.error(stderr)
             context.linter_output = json.loads(stdout)
         await send('OfflineLints', {
             'result': context.linter_output,
         })
+    except CancelledError:
+        return
     except Exception as e:
-        log.error(e)
+        logger.exception(e)
 
 
-async def run_yapf(context, send):
+async def run_yapf(context):
     if not config['formatter']['yapf']:
         return
-    try:
+    with log_exception():
         with Timer('YAPF'):
             absolute_path = context.path.absolute()
             context.yapf_process = await create_subprocess_shell(
@@ -69,17 +80,15 @@ async def run_yapf(context, send):
                 stderr=subprocess.PIPE)
             stdout, stderr = await context.yapf_process.communicate()
             if stdout:
-                log.info(stdout)
+                logger.info(stdout)
             if stderr:
-                log.error(stderr)
-    except Exception as e:
-        log.error(e)
+                logger.error(stderr)
 
 
 async def run_isort(context):
     if not config['formatter']['isort']:
         return
-    try:
+    with log_exception():
         with Timer('Sorting'):
             absolute_path = context.path.absolute()
             context.isort_process = await create_subprocess_shell(
@@ -89,11 +98,9 @@ async def run_isort(context):
                 stderr=subprocess.PIPE)
             stdout, stderr = await context.isort_process.communicate()
             if stdout:
-                log.info(stdout)
+                logger.info(stdout)
             if stderr:
-                log.error(stderr)
-    except Exception as e:
-        log.error(e)
+                logger.error(stderr)
 
 
 async def run_spell_checker(context, send):
@@ -101,7 +108,9 @@ async def run_spell_checker(context, send):
         return
     with Timer('Spelling check'):
         tokens = tokenize(context.content)
-        await send('SpellingErrors', {'result': context.shared_context.spell_checker.check_spelling(tokens)})
+        await send(
+            'SpellingErrors',
+            {'result': context.shared.spell_checker.check_spelling(tokens)})
 
 
 async def run_pyflakes(context, send):
@@ -114,40 +123,75 @@ async def run_pyflakes(context, send):
 
 
 async def warm_up_jedi(context):
-    jedi.Script('\n'.join(context.doc), len(context.doc), 0, context.path).completions()
+    # Avoid jedi error when the file is empty.
+    if not context.doc:
+        logger.debug('File is empty')
+        return
+
+    jedi.Script('\n'.join(context.doc), len(context.doc), 0,
+                str(context.path)).completions()
 
 
 async def post_content_change(context, send):
     with Timer('Post content change'):
-        with toggle_gc_postcollect:
-            context.doc = context.content.splitlines()
-            # initialize feature extractor
-            context.feature_extractor = OnlineFeatureExtractor()
-            for line, line_content in enumerate(context.doc):
-                context.feature_extractor.fill_preprocessor_context(line_content, line, context.doc)
+        context.doc = context.content.splitlines()
+        context.shared.doc = context.doc
+        # initialize feature extractor
+        context.feature_extractor = OnlineFeatureExtractor()
+        for line, line_content in enumerate(context.doc):
+            context.feature_extractor.fill_preprocessor_context(
+                line_content, line, context.doc)
+        create_task(warm_up_jedi(context))
+        create_task(run_spell_checker(context, send))
+        create_task(run_pyflakes(context, send))
+        context.linter_task = create_task(run_pylint(context, send))
 
-            create_task(warm_up_jedi(context))
-            create_task(run_spell_checker(context, send))
-            create_task(run_pyflakes(context, send))
-            context.linter_task = create_task(run_pylint(context, send))
 
-
-@handles('OpenFile')
-async def open_file(msg, send, context):
-    context.path = Path(*msg['filePath'])
-    log.warning(context.path)
+@handles('_connected')
+async def connected(msg, send, context):
+    context.doc = []
+    context.linter_task = create_task(nop())
+    # open file
+    context.path = Path(context.shared.project_root, *msg['filePath'])
     context.is_python = context.path.suffix in ('.py', '.pyx')
     context.pyflakes_reporter = PyflakesReporter()
     with open(context.path) as f:
-        content = f.read()
+        try:
+            content = f.read()
+        except UnicodeDecodeError:
+            await send('FailedToOpen', f'Failed to open file {context.path}. (only text files are supported)')
+            return
         context.content = content
     # somehow risky, but it should not wait until the extractor ready
-    await send('FileOpened', {'mtime': context.path.stat().st_mtime, 'content': content})
+    await send('FileOpened', {
+        'mtime': context.path.stat().st_mtime,
+        'content': content
+    })
+    # update opened files
+    opened_files = context.shared.project_config['openedFiles']
+    path_tuple = get_relative_path(context)
+    if path_tuple not in opened_files:
+        opened_files.append(path_tuple)
+    await activate_editor(msg, send, context)
     # skip all completion, linting etc. if it is not a Python file
     if not context.is_python:
         return
-
     await post_content_change(context, send)
+
+
+@handles('_disconnected')
+async def disconnected(context):
+    context.linter_task.cancel()
+
+
+@handles('Close')
+async def close(msg, send, context):
+    """
+    Called when the editor is explicitly closed, not when it is disconnected
+    """
+    opened_files = context.shared.project_config['openedFiles']
+    opened_files.remove(get_relative_path(context))
+    save_state(context)
 
 
 @handles('Reload')
@@ -159,11 +203,18 @@ async def reload(msg, send, context):
     await post_content_change(context, send)
 
 
+@handles('ActivateEditor')
+async def activate_editor(msg, send, context):
+    context.shared.doc = context.doc
+    context.shared.project_config['activePanels']['middle'] = get_relative_path(context)
+    save_state(context)
+
+
 @handles('Mtime')
 async def modification_time(msg, send, context):
     new_path = msg.get('newPath', None)
     if new_path is not None:
-        log.info('path modified from %s to %s', context.path, new_path)
+        logger.info('path modified from %s to %s', context.path, new_path)
         context.path = Path(*new_path)
     try:
         await send('Mtime', {'mtime': context.path.stat().st_mtime})
@@ -184,7 +235,7 @@ async def save_file(msg, send, context):
         return
 
     await run_isort(context)
-    await run_yapf(context, send)
+    await run_yapf(context)
 
     mtime_after_formatting = context.path.stat().st_mtime
     if mtime_after_formatting != mtime_before_formatting:
@@ -202,12 +253,13 @@ async def sync_range(msg, send, context):
     from_line, to_line, lint, *lines = msg  # to_line is exclusive
     doc = context.doc
     doc[from_line:to_line] = lines
+    context.content = '\n'.join(doc)
 
-    for i in range(from_line, to_line):
+    # If total number of lines changed, update from_line and below; otherwise, update changed range.
+    for i in range(from_line, to_line if to_line - from_line == len(lines) else len(doc)):
         context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
 
     if lint:
-        context.content = '\n'.join(doc)
         await run_spell_checker(context, send)
         await run_pyflakes(context, send)
 
@@ -215,63 +267,98 @@ async def sync_range(msg, send, context):
 @handles('Predict')
 async def predict(msg, send, context):
     line_number, ch, line_content = msg
+    while len(context.doc) <= line_number:
+        context.doc.append('')
     context.doc[line_number] = line_content
     doc = '\n'.join(context.doc)
     context.content = doc
-    with Timer(f'Prediction ({line_number}, {ch})'):
-        j = jedi.Script(doc, line_number + 1, ch, context.path)
-        completions = j.completions()
 
-    with Timer(f'Rest ({line_number}, {ch})'):
-        if completions:
-            context.currentCompletions = {completion.name: completion for completion in completions}
-            feature_extractor = context.feature_extractor
-            feature_extractor.extract_online(completions, line_content, line_number, ch, context.doc,
-                                             j.call_signatures())
-            scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
-            result = [PredictionRow(c=c.name_with_symbols, t=c.type, s=int(s)) for c, s in zip(completions, scores)]
-        else:
-            result = []
+    if is_parameter_of_def(context.doc, line_number, ch):
+        # don't make prediction if it is defining function parameters
+        await send('Prediction', {
+            'line': line_number,
+            'ch': ch,
+            'result': [],
+            'parameterDefinition': True
+        })
+        return
+    try:
+        with Timer(f'Prediction ({line_number}, {ch})'):
+            j = jedi.Script(doc, line_number + 1, ch, str(context.path))
+            completions = j.completions()
 
-    await send('Prediction', {
-        'line': line_number,
-        'ch': ch,
-        'result': result,
-    })
+        offset = 0
+        with Timer(f'Rest ({line_number}, {ch})'):
+            if completions:
+                context.currentCompletions = {
+                    completion.name: completion
+                    for completion in completions
+                }
+
+                completion = completions[0]
+                offset = len(completion.complete) - len(completion.name)
+
+                feature_extractor = context.feature_extractor
+                feature_extractor.extract_online(completions, line_content,
+                                                 line_number, ch, context.doc,
+                                                 j.call_signatures())
+                scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
+                # c.name_with_symbol is not reliable
+                # e.g. def something(path): len(p|)
+                # will return "path="
+                result = [
+                    PredictionRow(c=c.name, t=c.type, s=int(s), p=c.name_with_symbols[len(c.name):])
+                    for c, s in zip(completions, scores)
+                ]
+            else:
+                result = []
+
+        await send('Prediction', {
+            'line': line_number,
+            'ch': ch,
+            'offset': offset,
+            'result': result,
+        })
+    except Exception as e:
+        logger.exception(e)
+        await send('RequestFullSync', None)
 
 
 @handles('PredictExtra')
 async def predict_extra(msg, send, context):
+    """
+    Prediction from tokens, words and snake-cases from word segments
+    """
     line_number, ch, text = msg
-    result = []
-    result_set = set()
-    #
-    # 1. existed tokens
-    tokens = context.feature_extractor.context.t0map.query_prefix(text, line_number)
-    for i, token in enumerate(tokens):
-        if token in result_set:
-            continue
-        result.append(PredictionRow(c=token, t='token', s=990 - i))
-        result_set.add(token)
+    results = {}  # used as an ordered set
 
-    # 2. words from dictionary
-    if len(result) < 6:
+    # 1. words from dictionary
+    if len(results) < 6:
         words = search_prefix(text)
         for i, word in enumerate(words):
-            if word in result_set:
-                continue
-            result.append(PredictionRow(c=word, t='word', s=980 - i))
-            result_set.add(word)
+            if word not in results:
+                results[word] = PredictionRow(c=word, t='word', s=990 - i, p='')
+
+    # 2. existing tokens
+    tokens = context.feature_extractor.context.t0map.query_prefix(
+        text, line_number)
+    for i, token in enumerate(tokens):
+        if token not in results:
+            results[token] = PredictionRow(c=token, t='token', s=980 - i, p='')
 
     # 3. segmented words
-    if len(result) < 6:
+    if len(results) < 6:
         segmented_words = wordsegment.segment(text)
         if segmented_words:
             snake = '_'.join(segmented_words)
-            if snake not in result_set:
-                result.append(PredictionRow(c=snake, t='word-segment', s=1))
+            if snake not in results:
+                results[snake] = PredictionRow(c=snake, t='word-segment', s=1, p='')
 
-    await send('ExtraPrediction', {'line': line_number, 'ch': ch, 'result': result})
+    await send('ExtraPrediction', {
+        'line': line_number,
+        'ch': ch,
+        'result': list(results.values())
+    })
 
 
 @handles('GetCompletionDocstring')
@@ -298,11 +385,12 @@ async def get_completion_docstring(msg, send, context):
     doc_type = detect_doc_type(docstring)
     html = None
     if doc_type != 'text':
-        try:
+        with log_exception():
             html = doc_generator.make_html(docstring)
-        except Exception as e:
-            log.error('Failed to get completion docstring', e)
-    await send('CompletionDocstring', {'doc': html if html else docstring, 'type': 'html' if html else 'text'})
+    await send('CompletionDocstring', {
+        'doc': html if html else docstring,
+        'type': 'html' if html else 'text'
+    })
 
 
 @handles('GetFunctionDocumentation')
@@ -311,10 +399,10 @@ async def get_function_documentation(msg, send, context):
     ch = msg['ch']
     content = context.content
 
-    j = jedi.Script(content, line_number + 1, ch, context.path)
+    j = jedi.Script(content, line_number + 1, ch, str(context.path))
     call_signatures = j.call_signatures()
     if not call_signatures:
-        log.debug('call signature is empty while obtaining docstring')
+        logger.debug('call signature is empty while obtaining docstring')
         return
     signature = call_signatures[0]
     docstring = signature.docstring()
@@ -323,21 +411,81 @@ async def get_function_documentation(msg, send, context):
     doc_type = detect_doc_type(docstring)
     html = None
     if doc_type != 'text':
-        try:
+        with log_exception():
             html = doc_generator.make_html(docstring)
-        except Exception as e:
-            log.error('failed to generate function documentation', e)
 
-    await send('FunctionDocumentation', {
-        'doc': html if html else docstring,
-        'fullName': signature.full_name,
-        'type': 'html' if html else 'text'
-    })
+    await send(
+        'FunctionDocumentation', {
+            'doc': html if html else docstring,
+            'fullName': signature.full_name,
+            'type': 'html' if html else 'text'
+        })
+
+
+@handles('FindAssignments')
+async def find_assignments(msg, send, context):
+    content = context.content
+    j = jedi.Script(content, msg['line'] + 1, msg['ch'], str(context.path))
+    definitions = j.goto_assignments(follow_imports=True)
+    results = [{
+        'path': d.module_path,
+        'module': d.module_name,
+        'builtin': d.in_builtin_module(),
+        'definition': d.is_definition(),
+        'line': d.line,
+        'ch': d.column,
+        'code': d.get_line_code().strip()
+    } for d in definitions]
+    await send('AssignmentsFound', results)
 
 
 @handles('FindUsages')
 async def find_usage(msg, send, context):
     content = context.content
-    j = jedi.Script(content, msg['line'] + 1, msg['ch'], context.path)
+    j = jedi.Script(content, msg['line'] + 1, msg['ch'], str(context.path))
     usages = j.usages()
-    await send('UsageFound', {'pos': [(i.line - 1, i.column + 1) for i in usages], 'token': msg['token']})
+    results = [{
+        'path': u.module_path,
+        'module': u.module_name,
+        'definition': u.is_definition(),
+        'line': u.line,
+        'ch': u.column,
+        'code': u.get_line_code().strip()
+    } for u in usages]
+    await send('UsagesFound', results)
+
+
+def definition_to_dict(d):
+    return {
+        'path': Path(d.module_path).parts,
+        'module': d.module_name,
+        'builtin': d.in_builtin_module(),
+        'definition': d.is_definition(),
+        'line': d.line - 1,
+        'from': d.column,
+        'to': d.column + len(d.name),
+        'code': d.get_line_code()
+    }
+
+
+@handles('FindReferences')
+async def find_references(msg, send, context):
+    definitions = []
+    assignments = []
+    usages = []
+    mode = msg['type']
+    j = jedi.Script(context.content, msg['line'] + 1, msg['ch'], str(context.path))
+    if 'assignments' in mode:
+        references = j.goto_assignments(follow_imports=True)
+        if 'usages' not in mode:
+            definitions.extend(r for r in references if r.is_definition())
+        assignments.extend(r for r in references if not r.is_definition())
+    if 'usages' in mode:
+        references = j.usages()
+        definitions.extend(r for r in references if r.is_definition())
+        usages.extend(r for r in references if not r.is_definition())
+    await send('ReferencesFound', {
+        'definitions': [definition_to_dict(x) for x in definitions],
+        'assignments': [definition_to_dict(x) for x in assignments],
+        'usages': [definition_to_dict(x) for x in usages]
+    })

@@ -1,0 +1,74 @@
+<div id="command-palette" class="non-selectable" class:gone="{!active}">
+    <span class="message">{message}</span>
+    <input bind:this={input} bind:value type="text" spellcheck="false" on:keydown="{onKeyDown}" />
+</div>
+
+
+<style>
+    #command-palette {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: var(--toolbar-height);
+        line-height: var(--toolbar-height);
+        z-index: 240;
+        color: var(--brighter-ui-font-color);
+        text-align: center;
+        vertical-align: middle;
+        background: var(--blue);
+    }
+
+    .message {
+        margin-right: .5rem;
+    }
+
+    input {
+        min-width: 30%;
+        background: transparent;
+        border: none;
+        color: white;
+        font-family: var(--ui-font-family);
+        font-weight: 300;
+    }
+
+    input:focus {
+        outline: none;
+    }
+
+</style>
+
+<script>    
+    import g from '../lib/Globals'
+
+    export let active = false,
+        callback = null,
+        input = null,
+        message = '',
+        value = ''
+    
+    $: active && onActivation()
+    
+    function onActivation() {
+        g.setFocus([g.commandPalette])
+        input.focus()
+    }
+
+    export function show() {
+        active = true
+        message = 'Command:'
+    }
+
+    export function promptForInput(message_, callback_) {
+        active = true
+        message = message_
+        callback = callback_
+    }
+
+    export function onKeyDown() {
+        if (event.key === 'Enter') {
+            const { value } = input
+            callback(value)
+            active = false
+        }
+    }
+</script>

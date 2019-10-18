@@ -1,15 +1,15 @@
 import lzma
-from types import SimpleNamespace
 from collections import OrderedDict
-from tokenize import generate_tokens, TokenError
-from token import NAME
-from io import StringIO
 from importlib.resources import open_binary
+from io import StringIO
+from token import NAME
+from tokenize import TokenError, generate_tokens
+from types import SimpleNamespace
 
 import msgpack
 import numpy as np
 
-from ..token_map import TokenMap, DirtyMap, PrefixTokenMap
+from ..token_map import DirtyMap, PrefixTokenMap, TokenMap
 from ..utility import p, to_key_value_columns
 
 NOT_APPLICABLE = -99999
@@ -21,8 +21,9 @@ _EMPTY = tuple()
 
 
 def _load_token_statistics(file_name):
-    with lzma.open(open_binary('akimous.resources', file_name), 'rb') as f:
-        return msgpack.unpack(f, use_list=False, raw=False)
+    with open_binary('akimous.resources', file_name) as f1:
+        with lzma.open(f1, 'rb') as f2:
+            return msgpack.unpack(f2, use_list=False, raw=False)
 
 
 class FeatureDefinition:

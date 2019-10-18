@@ -1,9 +1,10 @@
-<div ref:tabNumberHint id="tab-number-hint" class:gone="!active">
+{#if active}
+<div id="tab-number-hint">
     {#each numberOffsets as offset, i} {#if i < 9} 
        <span class="number l-orange" style="left:{offset}px">{i + 1}</span>
     {/if} {/each}
 </div>
-
+{/if}
 
 <style>
     #tab-number-hint {
@@ -24,43 +25,26 @@
 
 </style>
 
-
 <script>
     import g from '../lib/Globals'
-
-    export default {
-        components: {},
-        oncreate() {
-            g.tabNumber = this
-        },
-        onstate({ changed, current }) {
-            if (changed.active) {
-                if (!current.active) return
-                const activePanel = g.focusStack[0]
-                if (!activePanel) return
-                let children = activePanel.tabBar.refs.tabBar.childNodes
-                // remove resizeSensor
-                children = [...children].filter(child => child.classList.contains('tab'))
-                if (children.length < 2) {
-                    this.set({
-                        active: false
-                    })
-                }
-                this.set({
-                    numberOffsets: children.map(tab => {
-                        const rect = tab.getBoundingClientRect()
-                        return (rect.left + rect.right) / 2 - 15
-                    })
-                })
-            }
-        },
-        data() {
-            return {
-                active: false,
-                numberOffsets: []
-            }
-        },
-        methods: {}
+    
+    export let active = false
+    let numberOffsets = []
+    
+    $: if (active) onUpdate(active)
+    
+    function onUpdate() {
+        const activePanel = g.focusStack[0]
+        if (!activePanel || !activePanel.tabBar) return
+        let children = Object.values(activePanel.tabBar.tabs)
+        if (active && children.length < 2) {
+            active = false
+            return
+        }
+        numberOffsets = children.map(tab => {
+            const rect = tab.tab.getBoundingClientRect()
+            return (rect.left + rect.right) / 2 - 15
+        })
     }
-
+    
 </script>

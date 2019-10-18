@@ -1,15 +1,21 @@
-<Toolbar ref:toolbar></Toolbar>
-<div ref:splitBarL id="split-bar-l" class="split-bar"></div>
-<div ref:splitBarR id="split-bar-r" class="split-bar"></div>
-<PanelLeft></PanelLeft>
-<PanelMiddle ref:panelMiddle></PanelMiddle>
-<PanelRight ref:panelRight></PanelRight>
-<Prompt ref:prompt></Prompt>
-<ContextMenu ref:contextMenu></ContextMenu>
-<KeyboardControlHint ref:keyboardControlHint></KeyboardControlHint>
-<PanelPopup></PanelPopup>
+<!--{#if initialized}-->
+<Toolbar bind:this={g.toolbar}></Toolbar>
+<div bind:this={splitterLeft} id="split-bar-l" class="split-bar"></div>
+<div bind:this={splitterRight} id="split-bar-r" class="split-bar"></div>
+<PanelLeft bind:this={g.panelLeft}></PanelLeft>
+<PanelMiddle bind:this={g.panelMiddle}></PanelMiddle>
+<PanelRight bind:this={g.panelRight}></PanelRight>
+<Prompt bind:this={g.prompt}></Prompt>
+<ContextMenu bind:this={g.contextMenu}></ContextMenu>
+<KeyboardControlHint bind:this={g.keyboardControlHint}></KeyboardControlHint>
+<PanelPopup bind:this={g.panelPopup}></PanelPopup>
+<Tooltip bind:this={g.tooltip}></Tooltip>
+<!--{/if}-->
+{#if openFolder}
+<OpenFolder bind:this={g.openFolder}></OpenFolder>
+{/if}
 {#if popup}
-<div id="dismiss-popup" on:mousedown="dismissPopups()"></div>
+<div id="dismiss-popup" on:mousedown="{dismissPopups}"></div>
 {/if}
 
 <style>
@@ -50,13 +56,7 @@
 
 </style>
 
-<script>
-    import throttle from 'lodash.throttle'
-    import g from './lib/Globals'
-    import { schedule } from './lib/Utils'
-    import Hotkeys from './LayeredKeyboardControl/Hotkeys'
-    import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
-
+<script context="module">
     // register service worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -67,7 +67,7 @@
             })
         })
     }
-
+    
     // polyfill scrollIntoViewIfNeeded
     // from https://gist.github.com/hsablonniere/2581101
     if (!Element.prototype.scrollIntoViewIfNeeded) {
@@ -94,73 +94,95 @@
         }
     }
 
+</script>
 
-    export default {
-        components: {
-            Toolbar: './bars/Toolbar.html',
-            PanelLeft: './PanelLeft.html',
-            PanelMiddle: './PanelMiddle.html',
-            PanelRight: './PanelRight.html',
-            Prompt: './popups/Prompt.html',
-            ContextMenu: './popups/ContextMenu.html',
-            KeyboardControlHint: './LayeredKeyboardControl/KeyboardControlHint.html',
-            PanelPopup: './popups/PanelPopup.html',
-        },
+<script>
+    import { onMount } from 'svelte'
+    import throttle from 'lodash.throttle'
+    
+    import Toolbar from './bars/Toolbar.html'
+    import PanelLeft from './PanelLeft.html'
+    import PanelMiddle from './PanelMiddle.html'
+    import PanelRight from './PanelRight.html'
+    import Prompt from './popups/Prompt.html'
+    import ContextMenu from './popups/ContextMenu.html'
+    import KeyboardControlHint from './LayeredKeyboardControl/KeyboardControlHint.html'
+    import PanelPopup from './popups/PanelPopup.html'
+    import Tooltip from './lib/tooltip.html'
+    import OpenFolder from './popups/OpenFolder.html'
+    import Hotkeys from './LayeredKeyboardControl/Hotkeys'
+    import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
+    import { schedule } from './lib/Utils'
+    import g from './lib/Globals'
 
-        oncreate() {
-            g.app = this
-            schedule(() => {
-                this.refs.splitBarL.onmousedown = e => {
-                    e.preventDefault()
-                    document.onmousemove = throttle(e => {
-                        document.documentElement.style.setProperty('--panel-left-width', `${e.pageX}px`)
-                    }, 16)
-                }
-                this.refs.splitBarR.onmousedown = e => {
-                    e.preventDefault()
-                    document.onmousemove = throttle(e => {
-                        const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-                        const width = viewportWidth - e.pageX
-                        document.documentElement.style.setProperty('--panel-right-width', `${width}px`)
-                        this.refs.panelRight.set({ width })
-                    }, 16)
-                }
-                this.refs.splitBarR.onmouseup = () => {
-                    g.console.terminal && g.console.terminal.fit()
-                }
-                document.onmouseup = () => {
-                    document.onmousemove = null
-                }
+    export let initialized = true,
+        openFolder = false,
+        popup = false
 
-                if (!g.dev)
-                    window.addEventListener('beforeunload', e => {
-                        const message = 'You have unsaved changes. Do you really want to leave?'
-                        for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
-                            console.warn(`Leaving with ${filePath} unsaved.`)
-                            if (!editor.get().clean) {
-                                e.returnValue = message
-                                return message
-                            }
-                        }
-                    })
+    let splitterLeft,
+        splitterRight
+    
+    onMount(async () => {
+        if (!initialized) return
 
-                Hotkeys.bindHotkeys()
-                g.layeredKeyboardControl = new LayeredKeyboardControl()
-            })
-        },
-        data() {
-            return {
-                popup: false,
-            }
-        },
-        methods: {
-            dismissPopups() {
-                const { popup } = this.get()
-                if (popup)
-                    popup.set({ open: false })
-                this.set({ popup: null })
-            }
+        splitterLeft.onmousedown = e => {
+            e.preventDefault()
+            document.onmousemove = throttle(e => {
+                const width = e.pageX
+                if (width < 100) return
+                document.documentElement.style.setProperty('--panel-left-width', `${e.pageX}px`)
+            }, 16)
         }
-    }
+        splitterRight.onmousedown = e => {
+            e.preventDefault()
+            document.onmousemove = throttle(e => {
+                const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+                const width = viewportWidth - e.pageX
+                if (width < 200) return
+                document.documentElement.style.setProperty('--panel-right-width', `${width}px`)
+                g.panelRight.$set({ width })
+            }, 16)
+        }
+        splitterLeft.onmouseup = () => {
+            g.panelLeft.saveWidth()
+        }
+        splitterRight.onmouseup = () => {
+            g.console.terminal && g.console.terminal.fit()
+            g.panelRight.saveWidth()
+        }
+        document.onmouseup = () => {
+            document.onmousemove = null
+        }
 
+        if (!g.dev)
+            window.addEventListener('beforeunload', e => {
+                const message = 'You have unsaved changes. Do you really want to leave?'
+                for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
+                    console.warn(`Leaving with ${filePath} unsaved.`)
+                    if (!editor.clean) {
+                        e.returnValue = message
+                        return message
+                    }
+                }
+            })
+
+        Hotkeys.bindHotkeys()
+        g.layeredKeyboardControl = new LayeredKeyboardControl()
+
+        schedule(() => { 
+            g.ready = true
+        })
+    })
+
+    export function dismissPopups() {
+        let { name } = popup.constructor
+        name = name.charAt(0).toLowerCase() + name.slice(1)
+        const toolbarButton = g.toolbar[name]
+        if (toolbarButton) {
+            g.toolbar.togglePopup(name) // also deactivate button shade
+        } else if (popup) {   
+            popup.$set({ open: false })
+        }
+        popup = null
+    }
 </script>
