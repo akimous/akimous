@@ -9,6 +9,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const compoundOperators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->))$/
     const operatorChars = /^[=+\-*/|&^~%@><!]$/
     const identifier = /^[^\d\W]\w*$/
+    const fromImport = /^\s*(import|from)\s/
     const _inParentheses = () => inParentheses(cm, c.from)
     const _inBrackets = () => inBrackets(cm, c.from)
 
@@ -148,6 +149,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         } else if (t0.string === '>' && t1.string === '-') {
             ensureSpaceBefore(t0)
         } else if (t0.string === '.' && t1.type === null && identifier.test(currentText)) {
+            const lineContent = cm.doc.getLine(c.from.line)
+            if (fromImport.test(lineContent)) return
             // .x => self.x
             c.text[0] = `self.${currentText}`
             c.from = Pos(c.from.line, c.from.ch - 1)
