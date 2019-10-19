@@ -44,8 +44,14 @@ test: | pytest
 
 pytest:
 	poetry run python -m pytest -sx
-    
+
 jstest:
+	cd ui && yarn run mocha test/unit_*.js --require esm
+
+singleuitest:
+	cd ui && yarn run codeceptjs run --steps ${UNIT}
+
+uitest:
 	cd ui && yarn run codeceptjs run --steps ${UNIT}
 
 jsdev: | clean static
