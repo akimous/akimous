@@ -222,10 +222,20 @@ class CompletionProvider {
         })
         
         // prepare common parts for addTail
-        const { lineContent, firstTriggeredCharPos } = this.context
+        const { lineContent, firstTriggeredCharPos, inParentheses, cm } = this.context
+        this.context.isImport = false
+        if (lineContent.includes(' import ')) {
+            this.context.isImport = true
+        } else if (inParentheses) {
+            const pos = {...inParentheses}
+            pos.ch -= 2
+            const token = cm.getTokenAt(pos)
+            if (token && token.string === 'import') {
+                this.context.isImport = true
+            }            
+        }
         const head = lineContent.substring(0, firstTriggeredCharPos.ch)
         Object.assign(this.context, {
-            isImport: lineContent.includes(' import '),
             isDef: /^\s*def\s$/.test(head),
             isSpace: /^\s*$/.test(head),
         })

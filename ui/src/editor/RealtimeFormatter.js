@@ -69,14 +69,18 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             c.text[0] = `${quote} \\`
             c.text[1] = quote
         }
+        const inParentheses = _inParentheses()
+        editor.completionProvider.context.inParentheses = inParentheses
+        
         // skip if the cursor is in a string
         if (t0.type === 'comment' || (t0.type === 'string' && !(t0.end === c.to.ch))) return
         if (currentText === '') { // new line
             stripTrailingSpaces(line)
-            const inParentheses = _inParentheses()
             if (inParentheses) {
                 try {
-                    if (t0.string === '(') { // [ and { is already handled by mode
+                    const rightChar = line.charAt(c.to.ch)
+                    // [ and { is already handled by mode
+                    if (t0.string === '(' && rightChar === ')') { 
                         // add extra indentation when inserting new line at, e.g.
                         // def something(|a, b)
                         editor.cmEventDispatcher.adjustIndent(1)
