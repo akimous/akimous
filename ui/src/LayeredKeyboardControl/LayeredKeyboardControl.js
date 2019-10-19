@@ -139,7 +139,6 @@ class LayeredKeyboardControl {
                     return true // let it propagate
                 default:
                     if (this.macroMode) {
-                        console.info(e)
                         g.macro.dispatchMacro(e)
                         return this.stopPropagation(e)
                     } else if (spacePressed && !textSent && this.commandSent &&
