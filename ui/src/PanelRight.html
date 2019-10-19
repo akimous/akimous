@@ -53,7 +53,7 @@
         self
     
     $: {
-        if (g.app) {
+        if (g.app && self) {
             if (hidden) setHidden()
             else setWidth()
         }

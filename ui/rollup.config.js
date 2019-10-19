@@ -58,9 +58,9 @@ export default {
             keep_fnames: true,
             compress: {
                 drop_console: true,
-                unsafe: false,
                 passes: 1
-            }
+            },
+            mangle: false, // mangling is likely to break xterm
         }),
         production && progress(),
         !production && livereload('../akimous_ui/bundle.js'),

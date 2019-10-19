@@ -71,6 +71,8 @@
     }
 
     function _fitTabWidth() {
+        if (!tabBar) // tab bar not ready
+            return
         const tabBarWidth = tabBar.getBoundingClientRect().width
         const _tabs = Object.values(tabs)
         if (!_tabs.length) return

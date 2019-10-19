@@ -39,7 +39,7 @@ const socket = new Socket(() => {
         const { root } = data
         g.projectRoot = root
         Object.assign(projectState, data.projectState)
-        if (app) app.destroy()
+        if (app) app.$destroy()
         g.app = app = new App({
             target: document.body,
         })
