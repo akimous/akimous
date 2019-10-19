@@ -76,7 +76,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             const inParentheses = _inParentheses()
             if (inParentheses) {
                 try {
-                    if (t0.string === '(' && /^\s*def\s/.test(line)) {
+                    if (t0.string === '(') {
                         // add extra indentation when inserting new line at, e.g.
                         // def something(|a, b)
                         editor.cmEventDispatcher.adjustIndent(1)
@@ -149,8 +149,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         } else if (t0.string === '>' && t1.string === '-') {
             ensureSpaceBefore(t0)
         } else if (t0.string === '.' && t1.type === null && identifier.test(currentText)) {
-            const lineContent = cm.doc.getLine(c.from.line)
-            if (fromImport.test(lineContent)) return
+            if (fromImport.test(line)) return
             // .x => self.x
             c.text[0] = `self.${currentText}`
             c.from = Pos(c.from.line, c.from.ch - 1)
