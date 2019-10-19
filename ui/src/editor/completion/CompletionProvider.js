@@ -220,6 +220,15 @@ class CompletionProvider {
             if (type !== NORMAL && row.text.length < 2) return false
             return row.sortScore > 0
         })
+        
+        // prepare common parts for addTail
+        const { lineContent, firstTriggeredCharPos } = this.context
+        const head = lineContent.substring(0, firstTriggeredCharPos.ch)
+        Object.assign(this.context, {
+            isImport: lineContent.includes(' import '),
+            isDef: /^\s*def\s$/.test(head),
+            isSpace: /^\s*$/.test(head),
+        })
         filteredCompletions.forEach(this.addTail, this)
         return filteredCompletions
     }
@@ -228,17 +237,16 @@ class CompletionProvider {
         const { type, postfix } = completion
         const { mode } = this
         let tail = tails[type]
-        const { lineContent, firstTriggeredCharPos } = this.context
+        const { isImport, isDef, isSpace } = this.context
         if (mode === STRING || mode === COMMENT)
             tail = null
         else if (passiveTokenCompletionSet.has(type)) {
             if (mode === PARAMETER_DEFINITION) tail = '='
             else {
-                const head = lineContent.substring(0, firstTriggeredCharPos.ch)
-                if (/^\s*def\s$/.test(head)) tail = '()'
-                else if (!/^\s*$/.test(head)) tail = null
+                if (isDef) tail = '()'
+                else if (!isSpace) tail = null
             }
-        } else if (tail === '()' && lineContent.includes(' import ')) {
+        } else if (tail === '()' && isImport) {
             tail = null
         } else if (postfix && tail === ' ') {
             tail = null

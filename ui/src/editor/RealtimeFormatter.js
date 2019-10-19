@@ -76,7 +76,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             const inParentheses = _inParentheses()
             if (inParentheses) {
                 try {
-                    if (t0.string === '(') {
+                    if (t0.string === '(') { // [ and { is already handled by mode
                         // add extra indentation when inserting new line at, e.g.
                         // def something(|a, b)
                         editor.cmEventDispatcher.adjustIndent(1)
