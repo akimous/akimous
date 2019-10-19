@@ -177,6 +177,7 @@
 
     export function closeFile(filePath) {
         const editor = getEditor(filePath)
+        if (!editor) return // if not opened
         // if the file has been edited, prompt for saving
         if (!editor.clean) {
             g.prompt.open({
