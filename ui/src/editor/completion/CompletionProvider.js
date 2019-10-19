@@ -1,3 +1,5 @@
+import camelCase from 'lodash.camelcase'
+
 import Sorter from './Sorter'
 import RuleBasedPredictor from './RuleBasedPredictor'
 import { highlightSequentially } from '../../lib/Utils'
@@ -113,7 +115,7 @@ class CompletionProvider {
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             this.mode = STRING
             
-            const { t1, t2 } = this.context
+            const { t1, t2, input } = this.context
             if (t2.string === 'def') {
                 result.forEach(item => {
                     item.tail = '()'
@@ -121,6 +123,14 @@ class CompletionProvider {
             } else if (!t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
                 result.forEach(item => {
                     item.tail = ' ='
+                })
+            }
+            
+            if (t2.string === 'class' || /[A-Z]/.test(input.charAt(0))) {
+                result.forEach(item => {
+                    let camel = camelCase(item.text)
+                    camel = camel.charAt(0).toUpperCase() + camel.substring(1)
+                    item.text = camel
                 })
             }
             const sortedCompletions = this.sortAndFilter(this.input, result)
