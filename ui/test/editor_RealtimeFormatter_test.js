@@ -80,7 +80,7 @@ Scenario('Normal formatting', (I) => {
     clear()
     
     typeAndCompare(['fr bolt.g'])
-    I.wait(1)
+    I.wait(1.5)
     typeAndCompare([' '], ['from boltons.gcutils '])
     clear()
     
@@ -93,5 +93,13 @@ Scenario('Normal formatting', (I) => {
     
     typeAndCompare(['adog', ['Tab']], ['a_dog ='])
     clear()
+    
+    typeAndCompare(['fr .ml', ['Tab'], '(', ['Enter'], 'li '], ['from .ml import (', 'load_iris'])
+    I.dontSee('load_iris()')
+    clear()
+    
+    typeAndCompare(['cl cacheadog', ['Tab'], ['Enter']], ['class CacheADog:'])
+    clear()
+    
     // pause()
 })

@@ -33,7 +33,8 @@
 
     onMount(() => {
         const setAvailableWidth = () => {
-            availableWidth = self.getBoundingClientRect().width
+            if (self)
+                availableWidth = self.getBoundingClientRect().width
         }
         window.addEventListener('resize', throttle(setAvailableWidth))
         setAvailableWidth()
