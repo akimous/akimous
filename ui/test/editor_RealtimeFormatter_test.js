@@ -98,7 +98,9 @@ Scenario('Normal formatting', (I) => {
     I.dontSee('load_iris()')
     clear()
     
-    typeAndCompare(['cl cacheadog', ['Tab'], ['Enter']], ['class CacheADog:'])
+    typeAndCompare(['cl cacheadog'])
+    I.see('CacheADog', 'em')
+    typeAndCompare([['Tab'], ['Enter']], ['class CacheADog:'])
     clear()
     
     // pause()
