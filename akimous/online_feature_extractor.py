@@ -30,7 +30,7 @@ class OnlineFeatureExtractor(FeatureDefinition):
         # self.stack_context_info = self.get_stack_context_info(completion)
         completion_data_type = 'unknown'
         if completion.type == 'instance':
-            definitions = completion.follow_definition()
+            definitions = completion.infer()
             if definitions:
                 completion_data_type = definitions[0].name
 

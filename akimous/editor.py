@@ -377,7 +377,7 @@ async def get_completion_docstring(msg, send, context):
     # try to follow definition if it fails to get docstring
     if not docstring:
         try:
-            definition = completion.follow_definition()
+            definition = completion.infer()
         except NotImplementedError:
             return
         if not definition:
