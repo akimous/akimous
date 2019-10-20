@@ -63,6 +63,9 @@ Scenario('Normal formatting', (I) => {
     I.dontSee('classbla', '.row-content')
     clear()
     
+    typeAndCompare(['cla C', ['Enter']], ['class C:']) // single character class
+    clear()
+    
     typeAndCompare(['cla Bla', ['Enter']], ['class Bla:'])
     typeAndCompare(['de', ['Space', '2'], ['Enter']], ['    def __init__(self):'])
     typeAndCompare(['pas', ['Meta', 'Enter']], ['        pass'])

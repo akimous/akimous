@@ -88,10 +88,10 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 } catch (e) {
                     // skip this test if out of range
                 }
-            } else if ((/^\s*(if|def|for|while|with|class)\s.+[^\\:;]$/.test(line) ||
-                    /^\s*(try|except|finally)/.test(line)
-            ) && !/(:\s)|;$/.test(line) &&
-                t0.string !== ':'
+            } else if ((/^\s*(if|def|for|while|with|class)\s.+$/.test(line) ||
+                        /^\s*(try|except|finally)/.test(line)) 
+                       && !/(:\s)|;$/.test(line) 
+                       && t0.string !== ':'
             ) { // add : if needed
                 c.text[0] = c.text[0] + ':'
             } else if (c.from.ch === line.length && /[)}\]]$/.test(t0.string)) {
