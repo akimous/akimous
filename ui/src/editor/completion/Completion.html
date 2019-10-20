@@ -257,7 +257,7 @@
             cm.doc.getCursor(),
             '+completion'
         )
-        if (shouldAddTail && tail === '()')
+        if (shouldAddTail && tail.endsWith(')'))
             cm.execCommand('goCharLeft')
         cm.focus()
     }

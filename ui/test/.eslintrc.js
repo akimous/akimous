@@ -1,9 +1,14 @@
 module.exports = {
     plugins: [
         'codeceptjs',
+        'mocha',
+    ],
+    extends: [
+        'plugin:mocha/recommended',
     ],
     env: {
-        'codeceptjs/codeceptjs': true
+        'codeceptjs/codeceptjs': true,
+        'mocha': true,
     },
     globals: {
         codeceptjs: 'readonly',

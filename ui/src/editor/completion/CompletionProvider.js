@@ -1,5 +1,6 @@
 import camelCase from 'lodash.camelcase'
 
+import g from '../../lib/Globals'
 import Sorter from './Sorter'
 import RuleBasedPredictor from './RuleBasedPredictor'
 import { highlightSequentially } from '../../lib/Utils'
@@ -117,9 +118,16 @@ class CompletionProvider {
             
             const { t1, t2, input } = this.context
             if (t2.string === 'def') {
-                result.forEach(item => {
-                    item.tail = '()'
-                })
+                // decide whether self should be added
+                if (this.isMethodDefinition()) {
+                    result.forEach(item => {
+                        item.tail = '(self)'
+                    })
+                } else {
+                    result.forEach(item => {
+                        item.tail = '()'
+                    })
+                }
             } else if (!t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
                 result.forEach(item => {
                     item.tail = ' ='
@@ -136,6 +144,27 @@ class CompletionProvider {
             const sortedCompletions = this.sortAndFilter(this.input, result)
             this.deduplicateAndSetCompletions(sortedCompletions)
         }
+    }
+    
+    isMethodDefinition() {
+        const highlightedOutlineItem = g.outline.highlightedItem
+        if (!highlightedOutlineItem) return false
+        const currentLevel = highlightedOutlineItem.level
+        if (!currentLevel) return false
+        const { outlineItems } = g.outline
+        let i
+        for (i = 0; i < outlineItems.length; i++) {
+            if (outlineItems[i] === highlightedOutlineItem) break
+        }
+        if (i === outlineItems.length) return false
+        for (i-- ; i >= 0; i--) {
+            const { level, type } = outlineItems[i]
+            if (level < currentLevel) {
+                if (type === 'class') return true
+                return false
+            }
+        }
+        return false
     }
 
     deduplicateAndSetCompletions(sortedCompletions) {

@@ -1,7 +1,7 @@
 import Sorter from '../src/editor/completion/Sorter.js'
 import assert from 'assert'
 
-describe('Sorter', () => {
+describe('Sorter', function () {
     const sorter = new Sorter()
 
     function score(target, input) {
@@ -9,7 +9,7 @@ describe('Sorter', () => {
         return sorter.score(target)
     }
 
-    it('scores', () => {
+    it('scores', function () {
         assert(score('abc', 'abc') === 1000)
         assert(score('abc', 'abc') > score('ABC', 'abc'))
         assert(score('a', 'a') > score('A', 'a'))
@@ -27,7 +27,7 @@ describe('Sorter', () => {
         return sorter.highlight()
     }
     
-    it('highlights', () => {
+    it('highlights', function () {
         assert.strictEqual(highlight('a', 'a'), '<em>a</em>')
         assert.strictEqual(highlight('A', 'a'), '<em>A</em>')
         assert.strictEqual(highlight('abc', 'abc'), '<em>abc</em>')

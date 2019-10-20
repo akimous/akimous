@@ -109,5 +109,8 @@ Scenario('Normal formatting', (I) => {
     typeAndCompare(['__adog', ['Tab']], ['__a_dog ='])
     clear()
     
+    typeAndCompare(['cla C', ['Enter'], 'de adog', ['Tab']], ['class C:', 'def a_dog(self)'])
+    clear()
+    
     // pause()
 })
