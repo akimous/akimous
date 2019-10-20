@@ -348,11 +348,16 @@ async def predict_extra(msg, send, context):
 
     # 3. segmented words
     if len(results) < 6:
-        segmented_words = wordsegment.segment(text)
-        if segmented_words:
-            snake = '_'.join(segmented_words)
-            if snake not in results:
-                results[snake] = PredictionRow(c=snake, t='word-segment', s=1, p='')
+        parts = text.split('_')  # handle private variables starting with _
+        words = []
+        for part in parts:
+            if not part:
+                words.append(part)
+            else:
+                words.extend(wordsegment.segment(part))
+        snake = '_'.join(words)
+        if snake and snake not in results:
+            results[snake] = PredictionRow(c=snake, t='word-segment', s=1, p='')
 
     await send('ExtraPrediction', {
         'line': line_number,

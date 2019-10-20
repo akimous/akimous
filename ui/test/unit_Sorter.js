@@ -34,5 +34,6 @@ describe('Sorter', () => {
         assert.strictEqual(highlight('import', 'im'), '<em>im</em>port')
         assert.strictEqual(highlight('AbcBbcCbc', 'abc'), '<em>A</em>bc<em>B</em>bc<em>C</em>bc')
         assert.strictEqual(highlight('AbcBbcCbc', 'abcc'), '<em>A</em>bc<em>B</em>bc<em>C</em>b<em>c</em>')
+        assert.strictEqual(highlight('_a_dog', '_adog'), '<em>_a</em>_<em>dog</em>')
     })
 })

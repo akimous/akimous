@@ -103,5 +103,8 @@ Scenario('Normal formatting', (I) => {
     typeAndCompare([['Tab'], ['Enter']], ['class CacheADog:'])
     clear()
     
+    typeAndCompare(['__adog', ['Tab']], ['__a_dog ='])
+    clear()
+    
     // pause()
 })
