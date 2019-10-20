@@ -3,7 +3,7 @@
     <CompletionRow bind:this={passivePlaceholder} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
     {/if}
     {#each rows as {text, type, highlight, tail}, i}
-    <CompletionRow bind:this={completionRows[i]} {text} {type} {highlight} keyboardHint={getKeyboardHint(i, passive)} tail={tail||''} index={i} selected={selectedIndex===i} on:completionRowClicked={onCompletionRowClicked}></CompletionRow>
+    <CompletionRow bind:this={completionRows[i]} {text} {type} {highlight} keyboardHint={getKeyboardHint(i, passive, selectedIndex)} tail={tail||''} index={i} selected={selectedIndex===i} on:completionRowClicked={onCompletionRowClicked}></CompletionRow>
     {/each}
 </div>
 
@@ -180,10 +180,16 @@
         }
     }
     
-    function getKeyboardHint(i, passive) {
-        if (passive) ++i
-        if (i === 0) return '␣'
-        if (i === 1) return '⇥'
+    function getKeyboardHint(i, passive, selectedIndex) {
+        if (passive) {
+            if (i === selectedIndex) return '⇥'
+            else return ''
+        }
+        if (selectedIndex === 0) {
+            if (i === 0) return '␣'
+            if (i === 1) return '⇥'
+        }
+        if (i === selectedIndex) return '⇥ ␣'
         return ''
     }
 
@@ -215,8 +221,13 @@
     export function enter(rowNumber, key) {
         if (!open) return console.error('closed')
         let row
-        if (key === 'Tab') row = rows[1 - passive]
-        else row = rowNumber ? completionRowShortcuts[rowNumber] : rows[selectedIndex]
+        if (key === 'Tab') {
+            if (passive || selectedIndex > 0) {
+                row = rows[selectedIndex]
+            } else {
+                row = rows[1]
+            }
+        } else row = rowNumber ? completionRowShortcuts[rowNumber] : rows[selectedIndex]
         if (!row) return console.error('no selected completion')
 
         completionProvider.state = CLOSED
