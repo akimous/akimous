@@ -37,6 +37,13 @@ const tails = {
     // 'statement': ' ', // good for `if xxx_and` but bad for `int(xxx|)`
 }
 
+const forVariableOffset = {
+    "keyword": -2000,
+    "module": -1900,
+    "class": -1800,
+    "function": -1700,
+}
+
 const passiveTokenCompletionSet = new Set(['word', 'word-segment', 'token'])
 
 class CompletionProvider {
@@ -99,6 +106,14 @@ class CompletionProvider {
             }
             if (this.mode === AFTER_OPERATOR)
                 input = null
+            
+            // adjust score, or weird stuff will pop up at positions supposed to be variable
+            if (this.mode === FOR) {
+                for (const completion of this.currentCompletions) {
+                    completion.score += forVariableOffset[completion.type] || 0
+                }
+            }
+            
             const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
 
             if (this.mode === NORMAL) {
@@ -257,7 +272,7 @@ class CompletionProvider {
         const { type } = this.completion
         const filteredCompletions = completions.filter(row => {
             if (type !== NORMAL && row.text.length < 2) return false
-            return row.sortScore > 0
+            return row.sortScore + row.score > 0
         })
         
         // prepare common parts for addTail
