@@ -38,10 +38,10 @@ const tails = {
 }
 
 const forVariableOffset = {
-    "keyword": -2000,
-    "module": -1900,
-    "class": -1800,
-    "function": -1700,
+    'keyword': -2000,
+    'module': -1900,
+    'class': -1800,
+    'function': -1700,
 }
 
 const passiveTokenCompletionSet = new Set(['word', 'word-segment', 'token'])

@@ -102,7 +102,7 @@ class LayeredKeyboardControl {
         let composeTimeStamp = 0
         const keysRequireHandling = new Set(['Backspace', 'Delete'])
 
-        document.addEventListener('keydown', e => {
+        this._keydown = e => {
             if (!this.enabled) return true
             if (e.isComposing) return true // do not interfere with IME
             switch (e.key) {
@@ -174,11 +174,9 @@ class LayeredKeyboardControl {
                     }
             }
             return this.stopPropagation(e)
-        }, {
-            capture: true
-        })
-
-        document.addEventListener('keyup', e => {
+        }
+        
+        this._keyup = e => {
             if (!this.enabled) return true
             if (e.isComposing) return true // do not interfere with IME
             if (!g.focus) {
@@ -218,19 +216,24 @@ class LayeredKeyboardControl {
                         g.activeEditor.insertText(e.key)
                     }
             }
-        }, {
-            capture: true
-        })
-
-        document.addEventListener('compositionstart', e => {
+        }
+        
+        this._composition = e => {
             composeTimeStamp = e.timeStamp
-        })
-        document.addEventListener('compositionend', e => {
-            composeTimeStamp = e.timeStamp
-        })
-        document.addEventListener('compositionupdate', e => {
-            composeTimeStamp = e.timeStamp
-        })
+        }
+        document.addEventListener('keydown', this._keydown, { capture: true })
+        document.addEventListener('keyup', this._keyup, { capture: true })
+        document.addEventListener('compositionstart', this._composition)
+        document.addEventListener('compositionend', this._composition)
+        document.addEventListener('compositionupdate', this._composition)
+    }
+    
+    destroy() {
+        document.removeEventListener('keydown', this._keydown, true)
+        document.removeEventListener('keyup', this._keyup, true)
+        document.removeEventListener('compositionstart', this._composition)
+        document.removeEventListener('compositionend', this._composition)
+        document.removeEventListener('compositionupdate', this._composition)
     }
 }
 

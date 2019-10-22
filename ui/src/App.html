@@ -97,7 +97,7 @@
 </script>
 
 <script>
-    import { onMount } from 'svelte'
+    import { onMount, onDestroy } from 'svelte'
     import throttle from 'lodash.throttle'
     
     import Toolbar from './bars/Toolbar.html'
@@ -120,7 +120,8 @@
         popup = false
 
     let splitterLeft,
-        splitterRight
+        splitterRight,
+        _beforeUnload
     
     onMount(async () => {
         if (!initialized) return
@@ -154,17 +155,19 @@
             document.onmousemove = null
         }
 
-        if (!g.dev)
-            window.addEventListener('beforeunload', e => {
+        if (!g.dev) {
+            _beforeUnload = e => {
                 const message = 'You have unsaved changes. Do you really want to leave?'
-                for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
-                    console.warn(`Leaving with ${filePath} unsaved.`)
+                for (let [fileName, editor] of Object.entries(g.panelMiddle.editors)) {
                     if (!editor.clean) {
+                        console.warn(`Leaving with ${fileName} unsaved.`)
                         e.returnValue = message
                         return message
                     }
                 }
-            })
+            }
+            window.addEventListener('beforeunload', _beforeUnload)
+        }
 
         Hotkeys.bindHotkeys()
         g.layeredKeyboardControl = new LayeredKeyboardControl()
@@ -172,6 +175,11 @@
         schedule(() => { 
             g.ready = true
         })
+    })
+    
+    onDestroy(() => {
+        g.layeredKeyboardControl.destroy()
+        window.removeEventListener('beforeunload', _beforeUnload)
     })
 
     export function dismissPopups() {
