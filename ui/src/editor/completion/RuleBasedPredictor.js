@@ -140,6 +140,11 @@ function isNot({ input }) {
     if (input === 'isn' || input === 'isnt')
         return 'is not '
 }
+
+function ifNot({ input }) {
+    if (input === 'ifn')
+        return 'if not '
+}
 /* eslint-enable */
 
 function args({ cm, input, line, ch, lineContent }) {
@@ -268,6 +273,7 @@ class RuleBasedPredictor {
             importAs,
             isNone,
             isNot,
+            ifNot,
             args,
             withAs,
             sequentialVariableNaming,
