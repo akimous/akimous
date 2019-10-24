@@ -45,6 +45,7 @@
     import { schedule, joinPath, CircularBuffer, nextFrame } from './lib/Utils'
     import { onTabChangeFactory } from './lib/UIUtils'
     import { getIconByFileName } from './lib/FileTypeToIcon'
+    import { setConfig } from './lib/ConfigManager'
     import { FILE } from './bars/Tab.html'
     
     import TabBar from './bars/TabBar.html'
@@ -227,5 +228,13 @@
         }
         // if no files opened, clear focus
         focus = null
+    }
+    
+    export function toggleLineWrapping() {
+        const lineWrapping = !g.config.editor.lineWrapping
+        setConfig('editor', { lineWrapping })
+        for (const editor of Object.values(editors)) {
+            editor.cm.setOption('lineWrapping', lineWrapping)
+        }
     }
 </script>

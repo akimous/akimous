@@ -216,7 +216,14 @@
             hotkey: '␣ B',
             icon: 'fas fa-caret-square-right',
             callback: () => togglePanelAutoHide(g.panelRight)
-        }],
+        }, {
+            divider: true
+        }, {
+            text: 'Toggle Line Wrapping',
+            hotkey: '',
+            icon: 'fas fa-reply fa-flip-vertical',
+            callback: () => g.panelMiddle.toggleLineWrapping()
+        }, ],
         Go: [{
             text: 'Line',
             hotkey: '⌘L',
