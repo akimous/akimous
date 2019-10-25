@@ -10,6 +10,7 @@ const CLOSED = 0,
     TRIGGERED = 1,
     RESPONDED = 2,
     RETRIGGERED = 3
+// mode
 const NORMAL = 0,
     STRING = 1,
     COMMENT = 2,
@@ -276,7 +277,7 @@ class CompletionProvider {
         })
         
         // prepare common parts for addTail
-        const { lineContent, firstTriggeredCharPos, inParentheses, cm } = this.context
+        const { lineContent, firstTriggeredCharPos, inParentheses, cm, t0, t1 } = this.context
         this.context.isImport = false
         if (lineContent.includes(' import ')) {
             this.context.isImport = true
@@ -292,6 +293,7 @@ class CompletionProvider {
         Object.assign(this.context, {
             isDef: /^\s*def\s$/.test(head),
             isSpace: /^\s*$/.test(head),
+            afterAt: (t0 && t0.string === '@') || (t1 && t1.string === '@')
         })
         filteredCompletions.forEach(this.addTail, this)
         return filteredCompletions
@@ -301,7 +303,7 @@ class CompletionProvider {
         const { type, postfix } = completion
         const { mode } = this
         let tail = tails[type]
-        const { isImport, isDef, isSpace } = this.context
+        const { isImport, isDef, isSpace, afterAt } = this.context
         if (mode === STRING || mode === COMMENT)
             tail = null
         else if (passiveTokenCompletionSet.has(type)) {
@@ -310,10 +312,10 @@ class CompletionProvider {
                 if (isDef) tail = '()'
                 else if (!isSpace) tail = null
             }
-        } else if (tail === '()' && isImport) {
-            tail = null
-        } else if (postfix && tail === ' ') {
-            tail = null
+        } else if (tail === '()') {
+            if (isImport) tail = null
+            else if (postfix) tail = null
+            else if (afterAt) tail = null  // handle @property and other decorators
         }
         if (tail)
             completion.tail = tail

@@ -209,11 +209,11 @@ class CMEventDispatcher {
                         input = c.text[0] // might change after handled by formatter, so reassign
                         const isInputDot = input === '.'
                         const isInputOperator = OPERATOR.test(input)
-
                         const shouldTriggerPrediction = () => {
                             if (c.canceled) return false
                             if (isInputDot) return true
                             if (t0.type === 'number') return false
+                            if (t0.string === '@' && input.length === 1) return true // handle decorator
                             if (completionProvider.state !== CLOSED) return false
                             if (/[A-Za-z_=+\-*/|&^~%@><!]$/.test(input)) return true
                             return false

@@ -168,13 +168,13 @@
         editor.session.send('GetCompletionDocstring', { name })
     }
 
-    export function setCompletions(rows_, firstTriggeredCharPos, type) {
+    export function setCompletions(rows_, firstTriggeredCharPos, mode) {
         rows = rows_
         if (!rows.length) {
             open = false
         } else {
             open = true
-            passive = type !== NORMAL
+            passive = mode !== NORMAL
             repositionCompletionWindow(firstTriggeredCharPos)
             requestCompletionDocstringIfNeeded(rows[0])
         }

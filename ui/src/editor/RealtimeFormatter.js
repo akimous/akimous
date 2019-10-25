@@ -40,7 +40,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         if (currentState.scopes === undefined) return
         const currentScope = currentState.scopes[currentState.scopes.length - 1]
 
-        const existSpaceBeforePreviousToken = /\s$/.test(t1.string)
+        const existSpaceBeforePreviousToken = t1.string === ' '
         const leftTextIsOperator = operators.test(leftText)
         const currentTextIsPartOfTheOperator = compoundOperators.test(leftText + currentText)
         const currentTextIsOperator = operatorChars.test(currentText)
