@@ -293,7 +293,8 @@ class CompletionProvider {
         Object.assign(this.context, {
             isDef: /^\s*def\s$/.test(head),
             isSpace: /^\s*$/.test(head),
-            afterAt: (t0 && t0.string === '@') || (t1 && t1.string === '@')
+            afterAt: (t0 && t0.string === '@') || (t1 && t1.string === '@'),
+            except: /^\s*except\s/.test(head),
         })
         filteredCompletions.forEach(this.addTail, this)
         return filteredCompletions
@@ -303,7 +304,7 @@ class CompletionProvider {
         const { type, postfix } = completion
         const { mode } = this
         let tail = tails[type]
-        const { isImport, isDef, isSpace, afterAt } = this.context
+        const { isImport, isDef, isSpace, afterAt, except } = this.context
         if (mode === STRING || mode === COMMENT)
             tail = null
         else if (passiveTokenCompletionSet.has(type)) {
@@ -316,6 +317,7 @@ class CompletionProvider {
             if (isImport) tail = null
             else if (postfix) tail = null
             else if (afterAt) tail = null  // handle @property and other decorators
+            else if (except) tail = null
         }
         if (tail)
             completion.tail = tail

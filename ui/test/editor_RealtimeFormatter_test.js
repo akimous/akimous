@@ -123,5 +123,9 @@ Scenario('Normal formatting', async (I) => {
     I.see('Tab to commit the selected item')
     clear()
     
+    await typeAndCompare(['try', ['Enter'], 'pa', ['Enter'], 'ex OS', ['Enter']],
+            ['try:', '    pass', 'except OSError:'])
+    clear()
+    
     // pause()
 })
