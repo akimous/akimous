@@ -205,7 +205,6 @@ class CMEventDispatcher {
                         if (!cm.somethingSelected()) {
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                         }
-                        // TODO: move completionProvider before formatter may yield better performance
                         input = c.text[0] // might change after handled by formatter, so reassign
                         const isInputDot = input === '.'
                         const isInputOperator = OPERATOR.test(input)

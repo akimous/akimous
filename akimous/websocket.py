@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import msgpack
 import websockets
 from logzero import logger
-from websockets.exceptions import ConnectionClosed, ConnectionClosedOK
+from websockets.exceptions import ConnectionClosed, ConnectionClosedOK, ConnectionClosedError
 
 from akimous.utils import nop, log_exception
 
@@ -137,8 +137,8 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
             session.loop.cancel()
         del sessions[client_id]
 
-    except ConnectionClosed as e:
-        logger.exception(e)
+    except (ConnectionClosed, ConnectionClosedError) as e:
+        logger.warn(e)
         for session in client_sessions.values():
             session.loop.cancel()
         del sessions[client_id]
