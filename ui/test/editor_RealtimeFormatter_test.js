@@ -119,5 +119,9 @@ Scenario('Normal formatting', async (I) => {
         ['class C:', '    @property', '    def a_dog(self)'])
     clear()
     
+    await typeAndCompare(['"%s.'])
+    I.see('Tab to commit the selected item')
+    clear()
+    
     // pause()
 })

@@ -241,10 +241,12 @@ class CMEventDispatcher {
                             )
                             dirtyLine = NONE
                             // t0 can be of type string in ''.|
-                            // int(1, base=|)
-                            if (isInputDot || input === '=') completionProvider.mode = NORMAL 
-                            else if (t0.type === 'string') completionProvider.mode = STRING
+                            // must make sure cursor is inside string, not after
+                            if (t0.type === 'string' && cursor.ch < t0.end) completionProvider.mode = STRING
                             else if (t0.type === 'comment') completionProvider.mode = COMMENT
+                            // must go after the first two, or completion will not be passive inside strings/comments
+                            // int(1, base=|)
+                            else if (isInputDot || input === '=') completionProvider.mode = NORMAL 
                             else if (isInputOperator) completionProvider.mode = AFTER_OPERATOR
                             else if (/\s*for\s/.test(newLineContent) && 
                                      !/\sin\s/.test(newLineContent) &&
