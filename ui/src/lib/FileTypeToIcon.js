@@ -47,9 +47,9 @@ const fileTypeToIcon = {
     'bat': 'fas fa-terminal l-red',
     'bin': 'fas fa-file l-red',
     'cmd': 'fas fa-terminal l-green',
-    'cfg': 'fas fa-cog l-ao',
+    'cfg': 'fas fa-cog l-cyan',
     'config': 'fas fa-cog l-green',
-    'csv': 'fas fa-table l-ao',
+    'csv': 'fas fa-table l-cyan',
     'db': 'fas fa-database l-blue',
     'db2': 'fas fa-database l-red',
     'db3': 'fas fa-database l-green',
@@ -66,7 +66,7 @@ const fileTypeToIcon = {
     'json': 'fas fa-cog l-orange',
     'log': 'fas fa-file-alt l-white',
     'map': 'fas fa-map l-white',
-    'md': 'fab fa-markdown l-ao',
+    'md': 'fab fa-markdown l-cyan',
     'mid': 'fas fa-music l-blue',
     'midi': 'fas fa-music l-blue',
     'mp3': 'fas fa-music l-red',
@@ -109,7 +109,7 @@ function getIconByFileName(fileName) {
         icon = fileTypeToIcon[fileType]
         if (!icon) {
             if (fileType.endsWith('rc'))
-                return 'fas fa-sliders-h l-ao'
+                return 'fas fa-sliders-h l-cyan'
             if (fileType.endsWith('ignore'))
                 return 'fas fa-eye-slash l-blue'
             return defaultIcon

@@ -92,7 +92,8 @@ async def connected(msg, send, context):
 
 @handles('_disconnected')
 async def disconnected(context):
-    with suppress(ValueError):  # may raise ValueError: PyCapsule_GetPointer called with invalid PyCapsule object
+    with suppress(ValueError, SystemError):
+        # may raise ValueError: PyCapsule_GetPointer called with invalid PyCapsule object
         context.observer.stop()
 
 
