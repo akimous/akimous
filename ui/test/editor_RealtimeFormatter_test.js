@@ -127,5 +127,10 @@ Scenario('Normal formatting', async (I) => {
             ['try:', '    pass', 'except OSError:'])
     clear()
     
+    await typeAndCompare(['cachedir=[]', ['Enter'], 'ifn any (term in ca )for te'],
+        ['if not any((term in cachedir) for te)'])
+    I.see('Tab to commit the selected item')
+    clear()
+    
     // pause()
 })

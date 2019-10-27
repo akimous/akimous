@@ -247,6 +247,7 @@ class CMEventDispatcher {
                             // int(1, base=|)
                             else if (isInputDot || input === '=') completionProvider.mode = NORMAL 
                             else if (isInputOperator) completionProvider.mode = AFTER_OPERATOR
+                            else if (t1.string === 'for') completionProvider.mode = FOR
                             else if (/\s*for\s/.test(newLineContent) && 
                                      !/\sin\s/.test(newLineContent) &&
                                      !(t0.string === ' ' && t1.type === 'variable')) {
