@@ -241,18 +241,36 @@ function suggestInitInsideClass({ topHit, line }) {
     
     const highlightedOutlineItem = g.outline.highlightedItem
     if (!highlightedOutlineItem) return
-    const classLevel = highlightedOutlineItem.level
-    const classLine = highlightedOutlineItem.line
-    let alreadyHasInit = false
-    for (let i of g.outline.outlineItems) {
-        if (i.line < classLine) continue
-        if (i.level <= classLevel && i.line > line) break
-        if (i.display === '__init__') {
-            alreadyHasInit = true
-            break
+    
+    let classOutlineIndex = -1
+    const { outlineItems, highlightedIndex } = g.outline
+ 
+    if (highlightedOutlineItem.type === 'class') {
+        classOutlineIndex = highlightedIndex
+    } else {
+        const currentLevel = highlightedOutlineItem.level
+        // TODO: binary search
+        for (let i = highlightedIndex; i >= 0; i--) {
+            const item = outlineItems[i]
+            if (item.level < currentLevel && item.type === 'class') {
+                classOutlineIndex = i
+                break
+            }
         }
     }
-    if (alreadyHasInit) return
+    const classOutlineItem = outlineItems[classOutlineIndex]
+    if (!classOutlineItem) return
+    
+    const classLevel = classOutlineItem.level
+    const classLine = classOutlineItem.line
+    for (let i = classOutlineIndex; i < outlineItems.length; i++) {
+        const item = outlineItems[i]
+        if (item.level <= classLevel && item.line > line) {
+            break
+        } else if (item.display === '__init__' && item.level === classLevel + 1) {
+            return  // already has init
+        }
+    }
     return 'def __init__(self)'
 }
 

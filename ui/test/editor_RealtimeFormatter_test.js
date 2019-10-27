@@ -40,6 +40,11 @@ Scenario('Normal formatting', async (I) => {
             assert(doc.includes(i))
         }
     }
+    const paste = async (content) => {
+        await I.executeScript(function(content) {
+            window.g.activeEditor.cm.setValue(content)
+        }, content)
+    }
     const clear = () => {
         I.type(['Escape'])
         I.type(['Meta', 'a'])
@@ -133,6 +138,13 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     await typeAndCompare(['pri "",flu', ['Tab'], 'Tru '], ['print("", flush=True)'])
+    clear()
+    
+    await paste('class C:\n    def __init__(self):\n        pass\n\n    def cat(self):\n' + 
+        '        pass\n\n')
+    await typeAndCompare([['Space', 'p'], ['Tab'], 'd'])
+    I.see('def', '.row-content')
+    I.dontSee('def __init__', '.row-content')
     clear()
     
     // pause()

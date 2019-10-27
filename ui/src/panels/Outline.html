@@ -67,7 +67,8 @@
     export let active = false,
         currentLine = 0,
         outlineItems = [],
-        highlightedItem = null
+        highlightedItem = null,
+        highlightedIndex = -1
     
     let outline,
         panel,
@@ -92,6 +93,7 @@
         const result = line <= currentLine && (!nextItem || currentLine < nextItem.line)
         if (result) {
             highlightedItem = outlineItems[i]
+            highlightedIndex = i
         }
         return result
     }
