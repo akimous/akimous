@@ -181,8 +181,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         const from = Pos(c.from.line, c.from.ch)
         const to = Pos(c.to.line, c.to.ch + chars - 1)
         if (lines > 0) {
-            const lineContent = cm.doc.getLine(from.line)
-            const nextLineContent = cm.doc.getLine(from.line + lines)
+            const lineContent = cm.getLine(from.line)
+            const nextLineContent = cm.getLine(from.line + lines)
             if (/[,;:]$/.test(lineContent)) replaceWith = ' '
             const indent = nextLineContent.match(/^\s+/)
             if (indent)
@@ -209,7 +209,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 deleteChars(0, 3)
             } else if (/\S[=<>/*]\s$/.test(tx)) {
                 deleteChars(0, 2)
-            } else if (/\s[=+\-*/|&^%@<>!]$/.test(tx)) {
+            } else if (/\S\s[=+\-*/|&^%@<>!]$/.test(tx)) {
                 deleteChars(0, 2)
             }
         } else if (c.from.ch === cursor.ch) { // handle forward delete
