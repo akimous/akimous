@@ -369,10 +369,11 @@ async def predict_extra(msg, send, context):
 @handles('GetCompletionDocstring')
 async def get_completion_docstring(msg, send, context):
     # get docstring
-    completion = context.currentCompletions.get(msg['name'], None)
+    completion = context.currentCompletions.get(msg['text'], None)
     if not completion:
         return
     docstring = completion.docstring(fast=False)
+    definition = None
 
     # try to follow definition if it fails to get docstring
     if not docstring:
@@ -386,6 +387,8 @@ async def get_completion_docstring(msg, send, context):
         if not docstring:
             return
 
+    parameters = definition.params if definition else completion.params
+
     # render doc
     doc_type = detect_doc_type(docstring)
     html = None
@@ -394,7 +397,8 @@ async def get_completion_docstring(msg, send, context):
             html = doc_generator.make_html(docstring)
     await send('CompletionDocstring', {
         'doc': html if html else docstring,
-        'type': 'html' if html else 'text'
+        'type': 'html' if html else 'text',
+        'parameters': bool(parameters),
     })
 
 

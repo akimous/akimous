@@ -147,5 +147,12 @@ Scenario('Normal formatting', async (I) => {
     I.dontSee('def __init__', '.row-content')
     clear()
     
+    // cursor should be inside of braces if completion has parameters
+    await typeAndCompare(['"".sp ".'], ['"".split(".")'])
+    clear()
+    
+    // outside if not
+    await typeAndCompare(['"".ti +'], ['"".title() +'])
+    
     // pause()
 })
