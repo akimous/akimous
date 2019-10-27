@@ -132,5 +132,8 @@ Scenario('Normal formatting', async (I) => {
     I.see('Tab to commit the selected item')
     clear()
     
+    await typeAndCompare(['pri "",flu', ['Tab'], 'Tru '], ['print("", flush=True)'])
+    clear()
+    
     // pause()
 })

@@ -262,6 +262,13 @@ function withPostfix({ topHit }) {
         return topHit.text + topHit.postfix
 }
 
+// TODO: possibly a Jedi bug causing those keywords not showing up; remove if fixed in a future release
+function keywords({ input }) {
+    if ('True'.startsWith(input)) return 'True'
+    if ('False'.startsWith(input)) return 'False'
+    if ('None'.startsWith(input)) return 'None'
+}
+
 class RuleBasedPredictor {
     constructor(context) {
         this.context = context
@@ -279,6 +286,7 @@ class RuleBasedPredictor {
             sequentialVariableNaming,
             forElementInCollection,
             suggestInitInsideClass,
+            keywords,
         ]
     }
 
