@@ -10,6 +10,9 @@ install:
 	pip uninstall -y akimous
 	cd dist && pip install akimous*.whl
 
+
+### build ###
+
 bootstrap:
 	cd ui && yarn install
 
@@ -34,6 +37,9 @@ static:
 	touch akimous_ui/__init__.py
 	for D in akimous_ui/*/; do touch $${D}__init__.py; done
 
+
+### lint and test ###
+
 lint:
 	cd ui && yarn run cloc src resources ../akimous
 	cd ui && yarn run eslint --ext .html,.js .
@@ -54,6 +60,9 @@ singleuitest:
 uitest:
 	cd ui && yarn run codeceptjs run --steps ${UNIT}
 
+
+### development ###
+
 jsdev: | clean static
 	cp ui/node_modules/codemirror/mode/python/python.js ui/src/editor/
 	cd ui/src/editor && patch < python.js.patch
@@ -73,3 +82,20 @@ fixpoetry:
 
 update_docker:
 	cd docker && poetry run python update.py
+
+
+### model ###
+
+download:
+	cd akimous && mkdir -p modeling/temp
+	cd akimous && poetry run python -m modeling.download ${N}
+
+sample:
+	cd akimous && poetry run python -m modeling.sample ${STATISTICS} ${TRAINING} ${VALIDATION}
+
+statistics:
+	cd akimous && poetry run python -m modeling.generate_token_statistics
+
+tinymodel:
+	make sample STATISTICS=10 TRAINING=1 VALIDATION=1
+	make statistics

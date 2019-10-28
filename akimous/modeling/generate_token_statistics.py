@@ -18,7 +18,8 @@ def run_file(file_path):
     t0, t1, t2 = '', '', ''
     with open(file_path, 'rb') as f:
         for token in tokenize.tokenize(f.readline):
-            if token.type not in (token_.STRING, token_.OP, token_.NAME) or len(token.string) > 30:
+            if token.type not in (token_.STRING, token_.OP,
+                                  token_.NAME) or len(token.string) > 30:
                 continue
             t2, t1, t0 = t1, t0, token.string
             token_counter[t0] += 1

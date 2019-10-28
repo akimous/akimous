@@ -3,8 +3,8 @@ from itertools import zip_longest
 from pathlib import Path
 
 DEBUG = False
-WORKING_DIR = '/Users/ray/Code/Working/'
-working_dir = Path.home() / 'chakuro-working'
+WORKING_DIR = 'modeling/temp'
+working_dir = Path('modeling/temp')
 
 
 def p(*args, **kwargs):
@@ -20,9 +20,11 @@ def to_columns(lst=[], output_width=140):
     max_length = max(len(i) for i in lst) + 2
     n_columns = output_width // max_length
     items_per_column = len(lst) // n_columns + int(bool(len(lst) % n_columns))
-    columns = (lst[i * items_per_column:(i+1) * items_per_column] for i in range(n_columns))
+    columns = (lst[i * items_per_column:(i + 1) * items_per_column]
+               for i in range(n_columns))
     format_string = ('{:<' + str(max_length) + '}') * n_columns
-    result = (format_string.format(*i) for i in zip_longest(*columns, fillvalue=''))
+    result = (format_string.format(*i)
+              for i in zip_longest(*columns, fillvalue=''))
     return '\n'.join(result)
 
 

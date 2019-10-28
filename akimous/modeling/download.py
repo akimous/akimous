@@ -3,28 +3,26 @@ import sys
 from pathlib import Path
 
 from git import Repo
+from logzero import logger
 
 from .utility import working_dir
 
-REPOS = json.load(open(Path('resources/repo.json')))
+repositories = json.load(open(Path('resources/repo.json')))
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        exit(1)
-    mode = sys.argv[1]
+        print('Usage: python -m modeling.download <num_repos>')
+        sys.exit(1)
+
+    n_repositories = int(sys.argv[1])
     finished_count = 0
 
-    repos = REPOS
-    if mode in ('tiny', 'small'):
-        repos = {
-            'keras': REPOS['keras']
-        }
+    if n_repositories == 1:
+        repositories = {'keras': repositories['keras']}
 
-    for k, v in repos.items():
-        print('Cloning', v)
+    for k, v in repositories.items():
+        logger.info('Cloning %s', v)
         Repo.clone_from(v, working_dir / k, depth=1)
         finished_count += 1
-        if mode in ('tiny', 'small'):
-            break
-        elif mode == 'medium' and finished_count == 10:
+        if finished_count >= n_repositories:
             break
