@@ -55,9 +55,9 @@ if __name__ == "__main__":
     testing_list_path = working_dir / 'testing_list.txt'
     if training_file_count == 1 and validation_file_count == 1:
         with open(training_list_path, 'w') as f:
-            f.writelines([f'{source_dir}/keras/optimizers.py\n'])
+            f.writelines([f'{source_dir}/keras/keras/optimizers.py\n'])
         with open(testing_list_path, 'w') as f:
-            f.writelines([f'{source_dir}/keras/models.py\n'])
+            f.writelines([f'{source_dir}/keras/keras/models.py\n'])
     else:
         with open(training_list_path, 'w') as f:
             f.writelines(

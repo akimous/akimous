@@ -11,10 +11,11 @@ from requests.auth import HTTPBasicAuth
 
 from .utility import WORKING_DIR
 
-db = sqlite3.connect('/Users/ray/Code/Working/repoDatabase.db')
+db = sqlite3.connect('akimous/modeling/temp/repoDatabase.db')
 
 db.execute('drop table repo')
-db.execute('create table repo(html_url text, stargazers_count text, updated_at text)')
+db.execute(
+    'create table repo(html_url text, stargazers_count text, updated_at text)')
 
 awesome_list_url = 'https://github.com/vinta/awesome-python/raw/master/README.md'
 awesome = requests.get(awesome_list_url)
@@ -30,7 +31,8 @@ for line in awesome.text.splitlines():
         else:
             non_github_urls[line[line.find('[') + 1:line.find(']')]] = url
 
-print(f'{len(github_urls)} Github urls, {len(non_github_urls)} non Github urls')
+print(
+    f'{len(github_urls)} Github urls, {len(non_github_urls)} non Github urls')
 
 user_name = input('Please input Github account: ')
 password = getpass()
@@ -43,20 +45,29 @@ def get_github_info(repo_name_or_url):
     print(repo_name_or_url)
     try:
         if repo_name_or_url.startswith('https://github.com/'):
-            api = repo_name_or_url.replace('https://github.com/', 'https://api.github.com/repos/')
+            api = repo_name_or_url.replace('https://github.com/',
+                                           'https://api.github.com/repos/')
             repo_api_result = requests.get(api, auth=auth)
             json = repo_api_result.json()
         else:
             api = 'https://api.github.com/search/repositories'
-            repo_api_result = requests.get(api, params={'q': repo_name_or_url, 'per_page': 1}, auth=auth)
+            repo_api_result = requests.get(api,
+                                           params={
+                                               'q': repo_name_or_url,
+                                               'per_page': 1
+                                           },
+                                           auth=auth)
             json = repo_api_result.json()
             if len(json['items']) > 0:
                 json = json['items'][0]
-        db.execute('insert into repo values(?,?,?)',
-                   (json['html_url'], json['stargazers_count'], json['updated_at']))
+        db.execute(
+            'insert into repo values(?,?,?)',
+            (json['html_url'], json['stargazers_count'], json['updated_at']))
         db.commit()
-        rate_limit_remaining = int(repo_api_result.headers['X-RateLimit-Remaining'])
-        rate_limit_reset_at = time.ctime(int(repo_api_result.headers['X-RateLimit-Reset']))
+        rate_limit_remaining = int(
+            repo_api_result.headers['X-RateLimit-Remaining'])
+        rate_limit_reset_at = time.ctime(
+            int(repo_api_result.headers['X-RateLimit-Reset']))
         print(rate_limit_remaining, '\t', rate_limit_reset_at, end='\t')
         if rate_limit_remaining < 7:
             time.sleep(7 - rate_limit_remaining)
@@ -69,9 +80,12 @@ for a, b in itertools.zip_longest(github_urls, non_github_urls):
     get_github_info(a)
     get_github_info(b)
 
-
 # clone top repos
-top_repos = [i[0] for i in db.execute('select * from repo order by cast(stargazers_count as number) desc limit 10')]
+top_repos = [
+    i[0] for i in db.execute(
+        'select * from repo order by cast(stargazers_count as number) desc limit 10'
+    )
+]
 for repo in top_repos:
     repo_name = repo.split('/')[-1]
     print(repo, repo_name)

@@ -3,8 +3,7 @@ from itertools import zip_longest
 from pathlib import Path
 
 DEBUG = False
-WORKING_DIR = 'modeling/temp'
-working_dir = Path('modeling/temp')
+working_dir = Path('akimous/modeling/temp')
 
 
 def p(*args, **kwargs):

@@ -12,12 +12,13 @@ pip install -U akimous
 
 Make sure you have recent version of the following dependencies installed.
 
-* [Node](https://nodejs.org/en/) (11+)
+* [Node](https://nodejs.org/en/) (12+)
 * [Python](https://www.python.org) (3.7+)
 * [Poetry](https://poetry.eustace.io)
 * [Yarn](https://yarnpkg.com/)
 * [Make](https://www.gnu.org/software/make/)
 * [Zopfli](https://github.com/google/zopfli)
+* [Parallel](https://www.gnu.org/software/parallel/)
 
 Run the following commands according to your need.
 

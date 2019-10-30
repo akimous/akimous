@@ -20,7 +20,16 @@ class OfflineFeatureExtractor(FeatureDefinition):
         self.current_completion_start_index = 0
         self.last_token = None
 
-    def add(self, token, completion, line_content, line, ch, full_doc, doc, call_signatures, positive=True):
+    def add(self,
+            token,
+            completion,
+            line_content,
+            line,
+            ch,
+            full_doc,
+            doc,
+            call_signatures,
+            positive=True):
         if len(self.y) == self.n_samples:
             new_size = self.n_samples * 2
             self.X.resize([new_size, self.n_features])
@@ -41,36 +50,45 @@ class OfflineFeatureExtractor(FeatureDefinition):
         if id(self.last_token) != id(token):
             # self.stack_context_info = self.get_stack_context_info(completion)
             for f in FeatureDefinition.preprocessors:
-                f(line_content=line_content[:ch],
-                  line=line - 1, ch=ch - 1, doc=doc,
-                  # full_doc=full_doc,
-                  call_signatures=call_signatures,
-                  completion_data_type=completion_data_type,
-                  context=self.context
-                  )
+                f(
+                    line_content=line_content[:ch],
+                    line=line - 1,
+                    ch=ch - 1,
+                    doc=doc,
+                    # full_doc=full_doc,
+                    call_signatures=call_signatures,
+                    completion_data_type=completion_data_type,
+                    context=self.context)
             for i, f in enumerate(FeatureDefinition.context_features.values()):
-                feature = f(line_content=line_content[:ch],
-                            line=line - 1, ch=ch - 1, doc=doc,
-                            # full_doc=full_doc,
-                            call_signatures=call_signatures,
-                            completion_data_type=completion_data_type,
-                            context=self.context
-                            # stack_context_info=self.stack_context_info
-                            )
-                self.sample[i + len(FeatureDefinition.completion_features)] = feature
+                feature = f(
+                    line_content=line_content[:ch],
+                    line=line - 1,
+                    ch=ch - 1,
+                    doc=doc,
+                    # full_doc=full_doc,
+                    call_signatures=call_signatures,
+                    completion_data_type=completion_data_type,
+                    context=self.context
+                    # stack_context_info=self.stack_context_info
+                )
+                self.sample[
+                    i + len(FeatureDefinition.completion_features)] = feature
 
         self.last_token = token
 
         for i, f in enumerate(FeatureDefinition.completion_features.values()):
-            self.sample[i] = f(completion=completion,
-                               line_content=line_content[:ch],
-                               line=line - 1, ch=ch - 1, doc=doc,
-                               # full_doc=full_doc,
-                               call_signatures=call_signatures,
-                               completion_data_type=completion_data_type,
-                               context=self.context
-                               # stack_context_info=self.stack_context_info
-                               )
+            self.sample[i] = f(
+                completion=completion,
+                line_content=line_content[:ch],
+                line=line - 1,
+                ch=ch - 1,
+                doc=doc,
+                # full_doc=full_doc,
+                call_signatures=call_signatures,
+                completion_data_type=completion_data_type,
+                context=self.context
+                # stack_context_info=self.stack_context_info
+            )
         self.X[self.n_samples] = self.sample
         self.y[self.n_samples] = 1 if positive else 0
         self.n_samples += 1
@@ -89,9 +107,13 @@ class OfflineFeatureExtractor(FeatureDefinition):
     def finalize(self):
         self.X.resize([self.n_samples, self.n_features])
         self.y.resize(self.n_samples)
+        self.context = None
+        self.preprocessors = None
+        self.context_names_required_by_preprocessors = None
 
     def dataframe(self):
-        feature_names = list(FeatureDefinition.completion_features) + list(FeatureDefinition.context_features)
+        feature_names = list(FeatureDefinition.completion_features) + list(
+            FeatureDefinition.context_features)
         df = pd.DataFrame(self.X, columns=feature_names)
         token_names = pd.DataFrame(self.completions, columns=['c'])
         y = pd.DataFrame(self.y, columns=['y'])

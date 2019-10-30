@@ -49,7 +49,7 @@ lint:
 test: | jstest pytest
 
 pytest:
-	poetry run python -m pytest -sx
+	poetry run python -m pytest -sx --ignore akimous/modeling/temp
 
 jstest:
 	cd ui && yarn run mocha test/unit_*.js --require esm
@@ -91,11 +91,25 @@ download:
 	cd akimous && poetry run python -m modeling.download ${N}
 
 sample:
-	cd akimous && poetry run python -m modeling.sample ${STATISTICS} ${TRAINING} ${VALIDATION}
+	poetry run python -m akimous.modeling.sample ${STATISTICS} ${TRAINING} ${VALIDATION}
 
 statistics:
-	cd akimous && poetry run python -m modeling.generate_token_statistics
+	poetry run python -m akimous.modeling.generate_token_statistics
+    
+features:
+	parallel --eta --progress -a akimous/modeling/temp/training_list.txt poetry run python -m akimous.modeling.extract_features {}
 
-tinymodel:
+model1:
 	make sample STATISTICS=10 TRAINING=1 VALIDATION=1
 	make statistics
+	make features
+
+model10:
+	make sample STATISTICS=100 TRAINING=10 VALIDATION=10
+	make statistics
+	make features
+
+model100:
+	make sample STATISTICS=10000 TRAINING=1000 VALIDATION=100
+	make statistics
+	make features

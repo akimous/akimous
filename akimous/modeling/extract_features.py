@@ -14,7 +14,10 @@ from .offline_feature_extractor import OfflineFeatureExtractor
 from .utility import p, sha3, working_dir
 
 
-def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=False):
+def run_file(file_path,
+             feature_extractor,
+             silent=False,
+             zero_length_prediction=False):
     with open(file_path) as f:
         doc = f.read()
     doc_lines = doc.splitlines()
@@ -58,7 +61,9 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
             if should_skip:
                 ch += 1
                 continue
-            token = get_token(line, ch)  # don't + 1 on ch, or it will clip short (2ch) tokens
+            token = get_token(
+                line,
+                ch)  # don't + 1 on ch, or it will clip short (2ch) tokens
             if token is None:
                 ch += 1
                 continue
@@ -93,9 +98,13 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
                 if comp_name == token.string:
                     accepted_completion = comp_string
                     # add to training dataset
-                    feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signatures)
+                    feature_extractor.add(token, comp, line_content[:ch], line,
+                                          ch, full_doc, real_doc_lines,
+                                          call_signatures)
                 else:
-                    feature_extractor.add(token, comp, line_content[:ch], line, ch, full_doc, real_doc_lines, call_signatures, False)
+                    feature_extractor.add(token, comp, line_content[:ch], line,
+                                          ch, full_doc, real_doc_lines,
+                                          call_signatures, False)
 
             feature_extractor.end_current_completion(accepted_completion)
             if accepted_completion:
@@ -103,7 +112,8 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
                 successful_completion_count += 1
                 sum_of_successful_rates += 1 / len(completions)
                 if token.type is not TOKEN.NAME:
-                    p(f'\n-----(token is not Name)[{token.string}][{line_content[ch-1]}]', end=' ')
+                    p(f'\n-----(token is not Name)[{token.string}][{line_content[ch-1]}]',
+                      end=' ')
                 p(f'(O: {token.string})')
             else:
                 token = get_token(line, ch)
@@ -118,43 +128,35 @@ def run_file(file_path, feature_extractor, silent=False, zero_length_prediction=
     logger.info(f'Successful: {successful_completion_count}')
     logger.info(f'Failed: {failed_completion_count}')
     if successful_completion_count > 0:
-        logger.info(f'Naive Accuracy: {sum_of_successful_rates / successful_completion_count}')
+        logger.info(
+            f'Naive Accuracy: {sum_of_successful_rates / successful_completion_count}'
+        )
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('Bad arguments. Should be either train, test, both or a path to a Python file.')
-        exit(1)
+        print(
+            'Usage: python -m akimous.modeling.extract_features <path/to/a/python/file.py>'
+        )
+        sys.exit(1)
     target = sys.argv[1]
     zero_length_prediction = True
     if len(sys.argv) < 3 or not bool(int(sys.argv[2])):
         zero_length_prediction = False
 
-    if target in ('train', 'both'):
-        feature_extractor = OfflineFeatureExtractor()
-        with open(working_dir / 'training_list.txt') as f:
-            for file in f:
-                run_file(file.strip(), feature_extractor)
-        feature_extractor.finalize()
-        pickle.dump(feature_extractor, open(working_dir / 'train.pkl', 'wb'), protocol=4)
-    if target in ('test', 'both'):
-        feature_extractor = OfflineFeatureExtractor()
-        with open(working_dir / 'testing_list.txt') as f:
-            for file in f:
-                run_file(file.strip(), feature_extractor)
-        feature_extractor.file_path = file
-        feature_extractor.finalize()
-        pickle.dump(feature_extractor, open(working_dir / 'test.pkl', 'wb'), protocol=4)
-    if target not in ('train', 'test', 'both'):
-        logzero.loglevel(logging.WARNING)
-        feature_extractor = OfflineFeatureExtractor()
-        file = target.strip()
-        run_file(file, feature_extractor, silent=True, zero_length_prediction=zero_length_prediction)
-        feature_extractor.finalize()
-        extraction_path = working_dir / 'extraction'
-        extraction_path.mkdir(exist_ok=True)
-        pickle.dump(feature_extractor,
-                    open(extraction_path / f'{sha3(file)}.pkl', 'wb'),
-                    protocol=4)
+    logzero.loglevel(logging.WARNING)
+    feature_extractor = OfflineFeatureExtractor()
+    file = target.strip()
+    run_file(file,
+             feature_extractor,
+             silent=True,
+             zero_length_prediction=zero_length_prediction)
+    feature_extractor.finalize()
+    extraction_path = working_dir / 'extraction'
+    extraction_path.mkdir(exist_ok=True)
+    pickle.dump(feature_extractor,
+                open(extraction_path / f'{sha3(file)}.pkl', 'wb'),
+                protocol=4)
     logger.info(f'Context features: {len(feature_extractor.context_features)}')
-    logger.info(f'Token features: {len(feature_extractor.completion_features)}')
+    logger.info(
+        f'Token features: {len(feature_extractor.completion_features)}')

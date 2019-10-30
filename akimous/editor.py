@@ -387,7 +387,12 @@ async def get_completion_docstring(msg, send, context):
         if not docstring:
             return
 
-    parameters = definition.params if definition else completion.params
+    if definition and hasattr(definition, 'params'):
+        parameters = definition.params
+    elif hasattr(completion, 'params'):
+        parameters = completion.params
+    else:
+        parameters = []
 
     # render doc
     doc_type = detect_doc_type(docstring)
