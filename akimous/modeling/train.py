@@ -1,12 +1,9 @@
-# from sklearn.ensemble import RandomForestClassifier
-import multiprocessing
 import pickle
 import time
 
 import numpy as np
 from logzero import logger
-from sklearn.externals import joblib
-from xgboost import XGBClassifier
+from xgboost import Booster, DMatrix, train
 
 from .utility import sha3, working_dir
 
@@ -21,7 +18,9 @@ def load_extracted_features():
             if not name:
                 break
             try:
-                dg = pickle.load(open(working_dir / 'extraction' / f'{sha3(name)}.pkl', 'rb'))
+                dg = pickle.load(
+                    open(working_dir / 'extraction' / f'{sha3(name)}.pkl',
+                         'rb'))
                 Xs.append(dg.X)
                 ys.append(dg.y)
                 old_length = 0 if not train_indices else train_indices[-1]
@@ -37,7 +36,8 @@ def load_extracted_features():
             name = name.strip()
             if not name:
                 break
-            dg = pickle.load(open(working_dir / 'extraction' / f'{sha3(name)}.pkl', 'rb'))
+            dg = pickle.load(
+                open(working_dir / 'extraction' / f'{sha3(name)}.pkl', 'rb'))
             Xs.append(dg.X)
             ys.append(dg.y)
             old_length = 0 if not test_indices else test_indices[-1]
@@ -48,12 +48,13 @@ def load_extracted_features():
     return X, y, train_indices, Xt, yt, test_indices, dg
 
 
-def test_model(model, Xt, yt, test_indices):
+def test_model(model: Booster, Xt, yt, test_indices):
+    d_test = DMatrix(Xt, label=yt)
     random_successful = 0.
     model_successful = 0.
-    start = 0
-    prob_all = model.predict_proba(Xt)
+    prob_all = model.predict(d_test, True)
 
+    start = 0
     for i in test_indices:
         end = i
         y = yt[start:end]
@@ -61,7 +62,7 @@ def test_model(model, Xt, yt, test_indices):
             logger.warning(f'Sum of y is not 1, {(y.sum(), start, end, y)}')
         random_successful += 1 / (end - start)
 
-        prob = prob_all[start:end, 1]
+        prob = prob_all[start:end]
         if yt[start + prob.argmax()] > 0:
             model_successful += 1
         start = end
@@ -69,32 +70,36 @@ def test_model(model, Xt, yt, test_indices):
     return random_successful, model_successful
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     X, y, train_indices, Xt, yt, test_indices, dg = load_extracted_features()
 
     logger.info(f'Training dataset size: {X.shape}, {len(train_indices)}')
     logger.info(f'Testing dataset size : {Xt.shape}, {len(test_indices)}')
 
+    d_train = DMatrix(X, label=y)
+
     # Train the model
     start_time = time.time()
-    # model = RandomForestClassifier(n_estimators=100, min_samples_leaf=7,
-    #                                random_state=0, n_jobs=-1)
-    model = XGBClassifier(n_estimators=100,
-                          max_depth=5,
-                          booster='gbtree',
-                          learning_rate=0.2,
-                          colsample_bylevel=0.8,
-                          silent=True,
-                          n_jobs=multiprocessing.cpu_count(),
-                          random_state=0)
-    model.fit(X, y)
+    model = train(
+        {
+            'learning_rate': .2,
+            'max_depth': 5,
+            'colsample_bylevel': .8,
+            'seed': 0,
+        }, d_train, 100)
+
     logger.info(f'Fitting model took {time.time() - start_time}\a')
-    joblib.dump(model, working_dir / 'model.model', protocol=4, compress=9)
+    model.save_model(str(working_dir / 'model.xgb'))
 
     # Validate the model
     start_time = time.time()
-    random_successful, model_successful = test_model(model, Xt, yt, test_indices)
+    random_successful, model_successful = test_model(model, Xt, yt,
+                                                     test_indices)
     logger.info(f'Prediction took    {time.time() - start_time}')
     length = len(test_indices)
-    logger.info(f'Random successful rate: {random_successful} / {length} = {random_successful / length}')
-    logger.info(f'Model successful rate : {model_successful} / {length} = {model_successful / length}\a')
+    logger.info(
+        f'Random successful rate: {random_successful} / {length} = {random_successful / length}'
+    )
+    logger.info(
+        f'Model successful rate : {model_successful} / {length} = {model_successful / length}\a'
+    )

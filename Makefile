@@ -97,7 +97,11 @@ statistics:
 	poetry run python -m akimous.modeling.generate_token_statistics
     
 features:
-	parallel --eta --progress -a akimous/modeling/temp/training_list.txt poetry run python -m akimous.modeling.extract_features {}
+	cat akimous/modeling/temp/training_list.txt akimous/modeling/temp/testing_list.txt > akimous/modeling/temp/list.txt
+	parallel --eta --progress -a akimous/modeling/temp/list.txt poetry run python -m akimous.modeling.extract_features {}
+
+xgboost:
+	poetry run python -m akimous.modeling.train
 
 model1:
 	make sample STATISTICS=10 TRAINING=1 VALIDATION=1
