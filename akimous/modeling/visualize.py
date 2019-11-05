@@ -6,7 +6,7 @@ import tokenize
 from colorama import Back as B
 from colorama import Fore as F
 from colorama import init
-from sklearn.externals import joblib
+from xgboost import Booster, DMatrix
 
 from .utility import sha3, working_dir
 
@@ -14,12 +14,13 @@ init()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print('Usage: \npython visualize.py /path/to/single/pickle [show_error]')
+        print('Usage: python visualize.py ' +
+              '/path/to/single/pickle [show_error]')
         exit(1)
     file_path = sys.argv[1]
     show_error = False if len(sys.argv) < 3 else bool(int(sys.argv[2]))
     known_initial = False if len(sys.argv) < 4 else bool(int(sys.argv[3]))
-    model = joblib.load(working_dir / 'model.model')
+    model = Booster(model_file=str(working_dir / 'model.xgb'))
     pickle_path = working_dir / 'extraction' / f'{sha3(file_path)}.pkl'
 
     print(f'loading {file_path}')
@@ -40,13 +41,13 @@ if __name__ == "__main__":
     index_i = 0
 
     completions = list(df.c)
-    predicted_prob = model.predict_proba(fe.X)[:, 1]
+    d_test = DMatrix(fe.X)
+    predicted_prob = model.predict(d_test, output_margin=True)
 
     correct_prediction = 0
     wrong_prediction = 0
     not_available = 0
     not_required = 0
-
 
     def get_range_from_doc(start, end):
         result = []
@@ -56,7 +57,6 @@ if __name__ == "__main__":
             result.append(doc[line][ch:end_ch])
             ch = 0
         return '\n'.join(result)
-
 
     def predict_and_color(token, known_initial=False):
         global index_i, token_selection_start, correct_prediction, wrong_prediction, not_available, not_required
@@ -90,11 +90,11 @@ if __name__ == "__main__":
             return B.RESET + F.GREEN + token.string  # CORRECT
         elif show_error:
             wrong_prediction += 1
-            return B.RESET + F.RED + token.string + B.RED + F.WHITE + selections[yi]  # WRONG
+            return (B.RESET + F.RED + token.string + B.RED + F.WHITE +
+                    selections[yi])  # WRONG
         else:
             wrong_prediction += 1
             return B.RESET + F.RED + token.string  # WRONG
-
 
     while token_i < length:
         token = tokens[token_i]
@@ -103,15 +103,19 @@ if __name__ == "__main__":
             pass
         elif token.string == '\n':
             pass
-        elif token.string.startswith(get_range_from_doc(token.start, token.end)):
+        elif token.string.startswith(get_range_from_doc(
+                token.start, token.end)):
             if doc_pos < token.start:
-                print(B.RESET + F.MAGENTA + get_range_from_doc(doc_pos, token.start), end='')
-            if token.type in (TOKEN.NUMBER,
-                              TOKEN.STRING,
-                              TOKEN.NEWLINE,
-                              TOKEN.OP,
-                              TOKEN.COMMENT,
-                              ):
+                print(B.RESET + F.MAGENTA +
+                      get_range_from_doc(doc_pos, token.start),
+                      end='')
+            if token.type in {
+                    TOKEN.NUMBER,
+                    TOKEN.STRING,
+                    TOKEN.NEWLINE,
+                    TOKEN.OP,
+                    TOKEN.COMMENT,
+            }:
                 print(B.RESET + F.RESET + token.string, end='')
             else:
                 print(predict_and_color(token, known_initial), end='')
@@ -124,5 +128,9 @@ if __name__ == "__main__":
     print('CORRECT PREDICTION:', correct_prediction)
     print('WRONG PREDICTION  :', wrong_prediction)
     print('NOT AVAILABLE     :', not_available)
-    print(f'ACCURACY          : {(correct_prediction / (correct_prediction+wrong_prediction)):.2%}')
-    print(f'SUCCESSFUL RATE   : {(correct_prediction / (correct_prediction+wrong_prediction+not_available)):.2%}')
+    print(
+        f'ACCURACY          : {(correct_prediction / (correct_prediction+wrong_prediction)):.2%}'
+    )
+    print(
+        f'SUCCESSFUL RATE   : {(correct_prediction / (correct_prediction+wrong_prediction+not_available)):.2%}'
+    )

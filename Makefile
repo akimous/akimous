@@ -117,3 +117,6 @@ model100:
 	make sample STATISTICS=10000 TRAINING=1000 VALIDATION=100
 	make statistics
 	make features
+
+visualize:
+	poetry run python -m akimous.modeling.visualize ${FILE} ${SHOW_ERROR} ${KNOWN_INITIAL}
