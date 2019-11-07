@@ -1,6 +1,6 @@
 import g from '../lib/Globals'
 import { config } from '../lib/ConfigManager'
-import KeyMap from './KeyMap'
+import KeyMap from './Keymap'
 import CodeEditor from '../editor/CodeEditor.html'
 
 export function togglePanelAutoHide(panel) {
