@@ -88,8 +88,6 @@ Scenario('Normal formatting', async (I) => {
     await typeAndCompare(['import logz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
     await typeAndCompare(['f', ['Tab']])
     await typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
-    //    await typeAndCompare([' ='])
-    //    await typeAndCompare([' '], ['logzero.LogFormatter(fmt=log_format)'])
     clear()
     
     await typeAndCompare(['fr bolt.g'])
@@ -129,7 +127,7 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     await typeAndCompare(['try', ['Enter'], 'pa', ['Enter'], 'ex OS', ['Enter']],
-            ['try:', '    pass', 'except OSError:'])
+        ['try:', '    pass', 'except OSError:'])
     clear()
     
     await typeAndCompare(['cachedir=[]', ['Enter'], 'ifn any (term in ca )for te'],

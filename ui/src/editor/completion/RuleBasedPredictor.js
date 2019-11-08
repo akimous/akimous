@@ -262,7 +262,6 @@ function suggestInitInsideClass({ topHit, line }) {
     if (!classOutlineItem) return
     
     const classLevel = classOutlineItem.level
-    const classLine = classOutlineItem.line
     for (let i = classOutlineIndex; i < outlineItems.length; i++) {
         const item = outlineItems[i]
         if (item.level <= classLevel && item.line > line) {
