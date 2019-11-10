@@ -7,7 +7,7 @@ from logzero import logger
 
 from .utility import working_dir
 
-repositories = json.load(open(Path('resources/repo.json')))
+repositories = json.load(open(Path('akimous/resources/repo.json')))
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

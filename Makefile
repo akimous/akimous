@@ -87,8 +87,8 @@ update_docker:
 ### model ###
 
 download:
-	cd akimous && mkdir -p modeling/temp
-	cd akimous && poetry run python -m modeling.download ${N}
+	mkdir -p akimous/modeling/temp
+	poetry run python -m akimous.modeling.download ${N}
 
 sample:
 	poetry run python -m akimous.modeling.sample ${STATISTICS} ${TRAINING} ${VALIDATION}
