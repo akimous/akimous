@@ -1,4 +1,4 @@
-<!--{#if initialized}-->
+{#if initialized}
 <Toolbar bind:this={g.toolbar}></Toolbar>
 <div bind:this={splitterLeft} id="split-bar-l" class="split-bar"></div>
 <div bind:this={splitterRight} id="split-bar-r" class="split-bar"></div>
@@ -10,7 +10,7 @@
 <KeyboardControlHint bind:this={g.keyboardControlHint}></KeyboardControlHint>
 <PanelPopup bind:this={g.panelPopup}></PanelPopup>
 <Tooltip bind:this={g.tooltip}></Tooltip>
-<!--{/if}-->
+{/if}
 {#if openFolder}
 <OpenFolder bind:this={g.openFolder}></OpenFolder>
 {/if}
@@ -178,6 +178,7 @@
     })
     
     onDestroy(() => {
+        if (!initialized) return
         g.layeredKeyboardControl.destroy()
         window.removeEventListener('beforeunload', _beforeUnload)
     })

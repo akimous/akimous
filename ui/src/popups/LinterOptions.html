@@ -50,8 +50,8 @@
     let { realtime, isort, yapf } = config.formatter
     let { pylint, pyflakes, spellChecker } = config.linter
     
-    $: g.app && g.app.$set({ popup: open ? g.linterOptions : null })
-    $: g.app && g.linter.$set({ spellChecker, pylint, pyflakes })
+    $: g.ready && g.app.$set({ popup: open ? g.linterOptions : null })
+    $: g.ready && g.linter.$set({ spellChecker, pylint, pyflakes })
     $: setConfig('linter', { pylint, pyflakes, spellChecker })
     $: setConfig('formatter', { realtime, isort, yapf })
 

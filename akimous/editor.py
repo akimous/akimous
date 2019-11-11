@@ -5,14 +5,12 @@ from asyncio import (CancelledError, create_subprocess_shell, create_task,
 from collections import namedtuple
 from functools import partial
 from importlib import resources
-# from importlib.resources import open_binary
 from pathlib import Path
 
 import jedi
 import pyflakes.api
 import wordsegment
 from logzero import logger
-# from sklearn.externals import joblib
 from xgboost import Booster, DMatrix
 
 from .completion_utilities import is_parameter_of_def
@@ -28,20 +26,15 @@ from .websocket import register_handler
 from .word_completer import search_prefix
 
 DEBUG = False
-# MODEL_NAME = 'v10.model'
 MODEL_NAME = 'v11.xgb'
 PredictionRow = namedtuple('PredictionRow', ('c', 't', 's', 'p'))
 
 handles = partial(register_handler, 'editor')
 doc_generator = DocGenerator()
 
-# with open_binary('akimous.resources', MODEL_NAME) as f:
-# model = joblib.load(f)  # 300 ms
 with resources.path('akimous.resources', MODEL_NAME) as path:
     model = Booster(model_file=str(path))  # 3 ms
     model.set_param('nthread', 1)
-# model.n_jobs = 1
-# logger.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
 logger.info(f'Model {MODEL_NAME} loaded.')
 
 

@@ -1,6 +1,7 @@
 import { config, projectState } from './lib/ConfigManager'
 import { Socket } from './lib/Socket'
 import g from './lib/Globals'
+import { schedule } from './lib/Utils'
 import App from './App.html'
 import './lib/doc-style-dark.css'
 import 'normalize.css/normalize.css'
@@ -28,7 +29,7 @@ const socket = new Socket(() => {
         } else {
             g.app = app = new App({
                 target: document.body,
-                data: {
+                props: {
                     initialized: false,
                     openFolder: true
                 }
