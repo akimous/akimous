@@ -108,12 +108,12 @@ if __name__ == '__main__':
     logger.info(f'Training dataset size: {X.shape}, {len(train_indices)}')
     logger.info(f'Testing dataset size : {Xt.shape}, {len(test_indices)}')
 
-    # d_train = DMatrix(X, label=y)
-    # use external memory
-    datasets.dump_svmlight_file(X, y, str(working_dir / 'svmlight.txt'))
-    d_train = DMatrix(
-        str(working_dir / 'svmlight.txt') + '#' +
-        str(working_dir / 'dtrain.cache'))
+    d_train = DMatrix(X, label=y)
+    # using external memory can have very bad accuracy
+    # datasets.dump_svmlight_file(X, y, str(working_dir / 'svmlight.txt'))
+    # d_train = DMatrix(
+    # str(working_dir / 'svmlight.txt') + '#' +
+    # str(working_dir / 'dtrain.cache'))
 
     # Train the model
     start_time = time.time()
@@ -123,6 +123,7 @@ if __name__ == '__main__':
             'max_depth': 5,
             'colsample_bylevel': .8,
             'seed': 0,
+            'tree_method': 'exact',
         }, d_train, 100)
 
     logger.info(f'Fitting model took {time.time() - start_time}\a')
