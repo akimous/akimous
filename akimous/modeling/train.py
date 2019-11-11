@@ -49,14 +49,10 @@ def load_extracted_features():
                 X[Xi:Xi + length, :] = dg.X
                 y[Xi:Xi + length] = dg.y
                 Xi += length
-                # Xs.append(dg.X)
-                # ys.append(dg.y)
                 old_length = 0 if not train_indices else train_indices[-1]
                 train_indices.extend(i + old_length for i in dg.index)
             except FileNotFoundError:
                 pass
-    # X = np.concatenate(Xs)
-    # y = np.concatenate(ys)
 
     Xs, ys = [], []
     with open(working_dir / 'testing_list.txt') as f:
