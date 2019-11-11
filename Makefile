@@ -69,7 +69,7 @@ jsdev: | clean static
 	cd ui && yarn run rollup -c -w
 
 pydev:
-	poetry run python -X dev -m akimous --no-browser --verbose
+	poetry run python -X dev -m akimous --no-browser --verbose --port 3178
 
 upgrade:
 	poetry update
@@ -101,7 +101,7 @@ features:
 	parallel --eta --progress -a akimous/modeling/temp/list.txt poetry run python -m akimous.modeling.extract_features {}
 
 xgboost:
-	poetry run python -m akimous.modeling.train
+	nice -n 19 poetry run python -m akimous.modeling.train
 
 model1:
 	make sample STATISTICS=10 TRAINING=1 VALIDATION=1

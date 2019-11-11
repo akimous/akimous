@@ -1,3 +1,5 @@
+import errno
+import sys
 import webbrowser
 from asyncio import (CancelledError, Queue, create_task, ensure_future,
                      get_event_loop, sleep, wait_for)
@@ -156,7 +158,14 @@ def start_server(host, port, no_browser, verbose, clean_up_callback):
         port=port,
         extra_headers=[('Content-Security-Policy', "frame-ancestors: 'none'")],
         process_request=http_handler.process_request)
-    loop.run_until_complete(websocket_server)
+    try:
+        loop.run_until_complete(websocket_server)
+    except OSError as e:
+        if e.errno == errno.EADDRINUSE:
+            logger.error('%s:%d is already in use. Please specify a new port using option --port.', host, port)
+            sys.exit(1)
+        raise e
+
     initialize_word_completer(loop)
     logger.info('Starting server, listening on %s:%d.', host, port)
 

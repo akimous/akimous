@@ -3,6 +3,7 @@ import time
 
 import numpy as np
 from logzero import logger
+from sklearn import datasets
 from xgboost import Booster, DMatrix, train
 
 from ..utils import Timer, set_verbosity
@@ -106,7 +107,12 @@ if __name__ == '__main__':
     logger.info(f'Training dataset size: {X.shape}, {len(train_indices)}')
     logger.info(f'Testing dataset size : {Xt.shape}, {len(test_indices)}')
 
-    d_train = DMatrix(X, label=y)
+    # d_train = DMatrix(X, label=y)
+    # use external memory
+    datasets.dump_svmlight_file(X, y, str(working_dir / 'svmlight.txt'))
+    d_train = DMatrix(
+        str(working_dir / 'svmlight.txt') + '#' +
+        str(working_dir / 'dtrain.cache'))
 
     # Train the model
     start_time = time.time()
