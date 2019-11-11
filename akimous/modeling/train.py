@@ -3,7 +3,6 @@ import time
 
 import numpy as np
 from logzero import logger
-from sklearn import datasets
 from xgboost import Booster, DMatrix, train
 
 from ..utils import Timer, set_verbosity

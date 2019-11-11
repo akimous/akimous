@@ -8,7 +8,7 @@ RUN set -ex &&\
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&\
     curl -sL https://deb.nodesource.com/setup_13.x | bash - &&\
     apt-get update &&\
-    apt-get -yq --no-install-recommends install yarn nodejs zopfli parallel gcc g++
+    apt-get -yq --no-install-recommends install yarn nodejs zopfli parallel gcc g++ scp
 
 # zsh
 ADD .zsh_plugins.txt .zshrc .p10k.zsh /root/
