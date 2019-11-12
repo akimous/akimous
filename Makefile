@@ -5,6 +5,7 @@ all: | bootstrap clean static
 	cd akimous_ui/ && zopfli *.js *.css *.map *.html && rm *.js *.css *.map *.html
 	cd akimous_ui/webfonts && zopfli *.css && rm *.css
 	poetry build
+	poetry install
 
 install:
 	pip uninstall -y akimous
