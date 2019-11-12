@@ -1,6 +1,8 @@
 const assert = require('assert')
 Feature('Realtime Formatter')
 
+const META = (process.platform === 'darwin') ? 'Meta' : 'Control'
+
 Scenario('Normal formatting', async (I) => {
     await I.amOnPage('http://localhost:3178')
     await I.wait(1)
@@ -46,7 +48,7 @@ Scenario('Normal formatting', async (I) => {
     }
     const clear = () => {
         I.type(['Escape'])
-        I.type(['Meta', 'a'])
+        I.type([META, 'a'])
         I.type(['Backspace'])
     }
     
