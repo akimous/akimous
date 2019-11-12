@@ -1,4 +1,4 @@
-<!--{#if initialized}-->
+{#if initialized}
 <Toolbar bind:this={g.toolbar}></Toolbar>
 <div bind:this={splitterLeft} id="split-bar-l" class="split-bar"></div>
 <div bind:this={splitterRight} id="split-bar-r" class="split-bar"></div>
@@ -10,7 +10,7 @@
 <KeyboardControlHint bind:this={g.keyboardControlHint}></KeyboardControlHint>
 <PanelPopup bind:this={g.panelPopup}></PanelPopup>
 <Tooltip bind:this={g.tooltip}></Tooltip>
-<!--{/if}-->
+{/if}
 {#if openFolder}
 <OpenFolder bind:this={g.openFolder}></OpenFolder>
 {/if}
@@ -97,7 +97,7 @@
 </script>
 
 <script>
-    import { onMount } from 'svelte'
+    import { onMount, onDestroy } from 'svelte'
     import throttle from 'lodash.throttle'
     
     import Toolbar from './bars/Toolbar.html'
@@ -108,7 +108,7 @@
     import ContextMenu from './popups/ContextMenu.html'
     import KeyboardControlHint from './LayeredKeyboardControl/KeyboardControlHint.html'
     import PanelPopup from './popups/PanelPopup.html'
-    import Tooltip from './lib/tooltip.html'
+    import Tooltip from './lib/Tooltip.html'
     import OpenFolder from './popups/OpenFolder.html'
     import Hotkeys from './LayeredKeyboardControl/Hotkeys'
     import LayeredKeyboardControl from './LayeredKeyboardControl/LayeredKeyboardControl'
@@ -120,7 +120,8 @@
         popup = false
 
     let splitterLeft,
-        splitterRight
+        splitterRight,
+        _beforeUnload
     
     onMount(async () => {
         if (!initialized) return
@@ -154,17 +155,19 @@
             document.onmousemove = null
         }
 
-        if (!g.dev)
-            window.addEventListener('beforeunload', e => {
+        if (!g.dev) {
+            _beforeUnload = e => {
                 const message = 'You have unsaved changes. Do you really want to leave?'
-                for (let [filePath, editor] of Object.entries(g.panelMiddle.pathToEditor)) {
-                    console.warn(`Leaving with ${filePath} unsaved.`)
+                for (let [fileName, editor] of Object.entries(g.panelMiddle.editors)) {
                     if (!editor.clean) {
+                        console.warn(`Leaving with ${fileName} unsaved.`)
                         e.returnValue = message
                         return message
                     }
                 }
-            })
+            }
+            window.addEventListener('beforeunload', _beforeUnload)
+        }
 
         Hotkeys.bindHotkeys()
         g.layeredKeyboardControl = new LayeredKeyboardControl()
@@ -172,6 +175,12 @@
         schedule(() => { 
             g.ready = true
         })
+    })
+    
+    onDestroy(() => {
+        if (!initialized) return
+        g.layeredKeyboardControl.destroy()
+        window.removeEventListener('beforeunload', _beforeUnload)
     })
 
     export function dismissPopups() {

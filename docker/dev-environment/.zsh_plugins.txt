@@ -1,0 +1,12 @@
+romkatv/powerlevel10k
+robbyrussell/oh-my-zsh
+robbyrussell/oh-my-zsh path:plugins/git
+robbyrussell/oh-my-zsh path:plugins/extract
+robbyrussell/oh-my-zsh path:plugins/z
+andrewferrier/fzf-z
+hlissner/zsh-autopair
+desyncr/auto-ls
+zsh-users/zsh-autosuggestions
+zsh-users/zsh-completions
+zsh-users/zsh-syntax-highlighting
+zsh-users/zsh-history-substring-search

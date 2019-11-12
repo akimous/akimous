@@ -205,15 +205,14 @@ class CMEventDispatcher {
                         if (!cm.somethingSelected()) {
                             formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                         }
-                        // TODO: move completionProvider before formatter may yield better performance
                         input = c.text[0] // might change after handled by formatter, so reassign
                         const isInputDot = input === '.'
                         const isInputOperator = OPERATOR.test(input)
-
                         const shouldTriggerPrediction = () => {
                             if (c.canceled) return false
                             if (isInputDot) return true
                             if (t0.type === 'number') return false
+                            if (t0.string === '@' && input.length === 1) return true // handle decorator
                             if (completionProvider.state !== CLOSED) return false
                             if (/[A-Za-z_=+\-*/|&^~%@><!]$/.test(input)) return true
                             return false
@@ -241,11 +240,14 @@ class CMEventDispatcher {
                             )
                             dirtyLine = NONE
                             // t0 can be of type string in ''.|
-                            // int(1, base=|)
-                            if (isInputDot || input === '=') completionProvider.mode = NORMAL 
-                            else if (t0.type === 'string') completionProvider.mode = STRING
+                            // must make sure cursor is inside string, not after
+                            if (t0.type === 'string' && cursor.ch < t0.end) completionProvider.mode = STRING
                             else if (t0.type === 'comment') completionProvider.mode = COMMENT
+                            // must go after the first two, or completion will not be passive inside strings/comments
+                            // int(1, base=|)
+                            else if (isInputDot || input === '=') completionProvider.mode = NORMAL 
                             else if (isInputOperator) completionProvider.mode = AFTER_OPERATOR
+                            else if (t1.string === 'for') completionProvider.mode = FOR
                             else if (/\s*for\s/.test(newLineContent) && 
                                      !/\sin\s/.test(newLineContent) &&
                                      !(t0.string === ' ' && t1.type === 'variable')) {

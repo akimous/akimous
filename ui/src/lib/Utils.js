@@ -195,18 +195,19 @@ function highlightSequentially(target, input) {
     let i = 0
     const tLength = target.length
     const iLength = input.length
-    let iChar = input.charAt(i)
+    const inputLowered = input.toLowerCase()
+    let iChar = inputLowered.charAt(i)
 
     for (; t < tLength; t++) {
         const tChar = target.charAt(t)
-        if (tChar === iChar) {
+        if (tChar.toLowerCase() === iChar) {
             result.push(`<em>${tChar}</em>`)
             i += 1
             if (i >= iLength) {
                 result.push(target.substring(t + 1))
                 break
             }
-            iChar = input.charAt(i)
+            iChar = inputLowered.charAt(i)
         } else {
             result.push(tChar)
         }

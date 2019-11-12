@@ -1,8 +1,6 @@
 import sqlite3
 from collections import defaultdict
 
-from ..utils import Timer
-
 _EMPTY = tuple()
 
 
@@ -42,12 +40,10 @@ class TokenMap:
                 lines -= line_to_remove
 
     def add(self, line, token):
-        # with Timer(f'orig.add "{token}"'):
-            self.line_to_tokens[line].add(token)
-            self.token_to_lines[token].add(line)
+        self.line_to_tokens[line].add(token)
+        self.token_to_lines[token].add(line)
 
     def query(self, token):
-        # with Timer(f'orig.query "{token}"'):
         result = self.token_to_lines.get(token, None)
         return result
 
@@ -68,32 +64,31 @@ class PrefixTokenMap:
         self.db.execute('DELETE FROM d WHERE l=?', (line, ))
 
     def add(self, line, token):
-        # with Timer(f'add "{token}"'):
-            self.db.execute('INSERT INTO d VALUES(?,?)', (str(token), line))
+        self.db.execute('INSERT INTO d VALUES(?,?)', (str(token), line))
 
     def add_many(self, line, tokens):
-        with Timer(f'add_many "{tokens}"'):
-            self.db.executemany('INSERT INTO d VALUES(?,?)', ((str(token), line) for token in tokens))
+        self.db.executemany('INSERT INTO d VALUES(?,?)',
+                            ((str(token), line) for token in tokens))
 
     def query_min(self, token):
-        with Timer(f'query_min "{token}"'):
-            result = self.db.execute('SELECT min(l) FROM d WHERE t=?', (str(token), )).fetchall()[0][0]
+        result = self.db.execute('SELECT min(l) FROM d WHERE t=?',
+                                 (str(token), )).fetchall()[0][0]
         return result
 
     def query_max(self, token):
-        with Timer(f'query_max "{token}"'):
-            result = self.db.execute('SELECT max(l) FROM d WHERE t=?', (str(token), )).fetchall()[0][0]
+        result = self.db.execute('SELECT max(l) FROM d WHERE t=?',
+                                 (str(token), )).fetchall()[0][0]
         return result
 
     def query_min_max(self, token):
-        with Timer(f'query_min_max "{token}"'):
-            result = self.db.execute('SELECT min(l), max(l) FROM d WHERE t=?', (str(token), )).fetchall()[0]
+        result = self.db.execute('SELECT min(l), max(l) FROM d WHERE t=?',
+                                 (str(token), )).fetchall()[0]
         return result
 
     def query_prefix(self, prefix, line):
-        # with Timer(f'query_prefix "{prefix}"'):
-        result = self.db.execute('SELECT DISTINCT t FROM d WHERE t GLOB ? ORDER BY abs(l-?)',
-                                 (f'{prefix}*', line)).fetchall()
+        result = self.db.execute(
+            'SELECT DISTINCT t FROM d WHERE t GLOB ? ORDER BY abs(l-?)',
+            (f'{prefix}*', line)).fetchall()
         result = [i[0] for i in result]
         return result
 

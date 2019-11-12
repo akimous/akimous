@@ -268,8 +268,9 @@
                         }]
                     )
                 },
-                CompletionDocstring: ({ doc, type }) => {
+                CompletionDocstring: ({ doc, type, parameters }) => {
                     if (doc.length === 0) doc = null
+                    completion.selectedCompletionHasParameters = parameters
                     g.docs.$set({ completionDoc: doc, completionDocType: type })
                 },
                 FunctionDocumentation: ({ doc, type }) => {
@@ -324,6 +325,7 @@
                 lineNumbers: true,
                 autofocus: true,
                 viewportMargin: 20,
+                lineWrapping: g.config.editor.lineWrapping,
 
                 // addons
                 matchBrackets: true, // edit/matchbrackets

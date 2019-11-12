@@ -25,9 +25,9 @@
         
     let { layeredKeyboardControl, keymapHint } = config.keymap
 
-    $: g.app && g.app.$set({ popup: open ? g.keymapSettings : null })
-    $: g.app && (g.layeredKeyboardControl.enabled = layeredKeyboardControl)
-    $: g.app && g.keyboardControlHint.$set({ open: keymapHint })
+    $: g.ready && g.app.$set({ popup: open ? g.keymapSettings : null })
+    $: g.ready && (g.layeredKeyboardControl.enabled = layeredKeyboardControl)
+    $: g.ready && g.keyboardControlHint.$set({ open: keymapHint })
     $: setConfig('keymap', { layeredKeyboardControl, keymapHint })
     
     $: {

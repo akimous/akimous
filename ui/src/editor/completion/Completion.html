@@ -3,7 +3,7 @@
     <CompletionRow bind:this={passivePlaceholder} type="instruction" rowNumber="⇥" highlight="Tab to commit the selected item"></CompletionRow>
     {/if}
     {#each rows as {text, type, highlight, tail}, i}
-    <CompletionRow bind:this={completionRows[i]} {text} {type} {highlight} keyboardHint={getKeyboardHint(i, passive)} tail={tail||''} index={i} selected={selectedIndex===i} on:completionRowClicked={onCompletionRowClicked}></CompletionRow>
+    <CompletionRow bind:this={completionRows[i]} {text} {type} {highlight} keyboardHint={getKeyboardHint(i, passive, selectedIndex)} tail={tail||''} index={i} selected={selectedIndex===i} on:completionRowClicked={onCompletionRowClicked}></CompletionRow>
     {/each}
 </div>
 
@@ -39,7 +39,7 @@
     import { onMount } from 'svelte'
     
     import g from '../../lib/Globals'
-    import { nextFrame } from '../../lib/utils'
+    import { nextFrame } from '../../lib/Utils'
     import CompletionRow from './CompletionRow.html'
     import EventDispatcherFactory from '../../LayeredKeyboardControl/EventDispatcherFactory'
     import { CLOSED, NORMAL } from './CompletionProvider'
@@ -56,6 +56,7 @@
         open = false,
         passive = false,
         rows = [],
+        selectedCompletionHasParameters = false,
         selectedIndex = 0
     
     let cm,
@@ -155,35 +156,41 @@
     }
 
     export function requestCompletionDocstringIfNeeded(completion) {
-        let name = completion.completion
-        if (name === lastRequestedCompletionForDocstring) return
-        if (EXTRA_PREDICTIONS.has(completion.type))
+        let { text, type } = completion
+        if (text === lastRequestedCompletionForDocstring) return
+        if (EXTRA_PREDICTIONS.has(type))
             return // don't request docstring if it is not actually a completion
 
         // remove redundant punctuation
-        const match = name.match(/^[^\d\W]\w*/)
-        if (match)
-            name = match[0]
-        lastRequestedCompletionForDocstring = name
-        editor.session.send('GetCompletionDocstring', { name })
+        // const match = text.match(/^[^\d\W]\w*/)
+        // if (match)
+        //     text = match[0]
+        lastRequestedCompletionForDocstring = text
+        editor.session.send('GetCompletionDocstring', { text })
     }
 
-    export function setCompletions(rows_, firstTriggeredCharPos, type) {
+    export function setCompletions(rows_, firstTriggeredCharPos, mode) {
         rows = rows_
         if (!rows.length) {
             open = false
         } else {
             open = true
-            passive = type !== NORMAL
+            passive = mode !== NORMAL
             repositionCompletionWindow(firstTriggeredCharPos)
             requestCompletionDocstringIfNeeded(rows[0])
         }
     }
     
-    function getKeyboardHint(i, passive) {
-        if (passive) ++i
-        if (i === 0) return '␣'
-        if (i === 1) return '⇥'
+    function getKeyboardHint(i, passive, selectedIndex) {
+        if (passive) {
+            if (i === selectedIndex) return '⇥'
+            else return ''
+        }
+        if (selectedIndex === 0) {
+            if (i === 0) return '␣'
+            if (i === 1) return '⇥'
+        }
+        if (i === selectedIndex) return '⇥ ␣'
         return ''
     }
 
@@ -215,12 +222,17 @@
     export function enter(rowNumber, key) {
         if (!open) return console.error('closed')
         let row
-        if (key === 'Tab') row = rows[1 - passive]
-        else row = rowNumber ? completionRowShortcuts[rowNumber] : rows[selectedIndex]
+        if (key === 'Tab') {
+            if (passive || selectedIndex > 0) {
+                row = rows[selectedIndex]
+            } else {
+                row = rows[1]
+            }
+        } else row = rowNumber ? completionRowShortcuts[rowNumber] : rows[selectedIndex]
         if (!row) return console.error('no selected completion')
 
         completionProvider.state = CLOSED
-        let { text, tail } = row
+        let { text, tail, type } = row
         
         // avoid duplicated braces
         let shouldAddTail = tail && !tail.startsWith(key)
@@ -246,8 +258,13 @@
             cm.doc.getCursor(),
             '+completion'
         )
-        if (shouldAddTail && tail === '()')
+        console.warn(row)
+        if (shouldAddTail && tail.endsWith(')') && 
+            (selectedCompletionHasParameters ||
+             type === 'word' || 
+             type === 'word-segment')) {
             cm.execCommand('goCharLeft')
+        }
         cm.focus()
     }
 

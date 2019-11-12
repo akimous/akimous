@@ -188,7 +188,12 @@
             FileCreated: handlerFactory('files', 'created'),
             DirDeleted: handlerFactory('dirs', 'deleted'),
             FileDeleted: data => {
-                fileDeleteHandler(data) || directoryDeleteHandler(data)
+                const fileDeleted = fileDeleteHandler(data)
+                if (fileDeleted) {
+                    g.panelMiddle.closeFile(data.path)
+                } else {
+                    directoryDeleteHandler(data)
+                }
             }
         })
 

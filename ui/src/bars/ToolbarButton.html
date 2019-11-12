@@ -1,0 +1,40 @@
+<div bind:this={self} class="toolbar-button" class:active="{active}" on:click aria-label="{title}">
+    <slot></slot><i class="{iconClass}"></i>
+</div>
+
+<style>
+    .toolbar-button {
+        color: var(--basic-ui-font-color);
+        font-size: var(--ui-font-size-default);
+        min-width: var(--ui-line-height-default);
+        text-align: center;
+        box-sizing: border-box;
+        height: calc(var(--toolbar-height) - var(--panel-border-thickness));
+        display: inline-block;
+        z-index: 210;
+        flex-shrink: 0;
+    }
+
+    .toolbar-button:hover,
+    .toolbar-button.active {
+        background: var(--main-bg-color);
+    }
+
+</style>
+
+<script>
+    import { onMount, tick } from 'svelte'
+
+    import g from '../lib/Globals'
+
+    export let active = false,
+        iconClass,
+        title
+        
+    let self
+
+    onMount(async () => {
+        await tick()
+        g.tooltip.register(self)
+    })
+</script>

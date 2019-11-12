@@ -1,4 +1,4 @@
-import asyncio
+from contextlib import suppress
 import os
 import platform
 from subprocess import Popen
@@ -92,7 +92,9 @@ async def connected(msg, send, context):
 
 @handles('_disconnected')
 async def disconnected(context):
-    context.observer.stop()
+    with suppress(ValueError, SystemError):
+        # may raise ValueError: PyCapsule_GetPointer called with invalid PyCapsule object
+        context.observer.stop()
 
 
 @handles('OpenDir')

@@ -9,6 +9,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
     const compoundOperators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->))$/
     const operatorChars = /^[=+\-*/|&^~%@><!]$/
     const identifier = /^[^\d\W]\w*$/
+    const fromImport = /^\s*(import|from)\s/
     const _inParentheses = () => inParentheses(cm, c.from)
     const _inBrackets = () => inBrackets(cm, c.from)
 
@@ -39,7 +40,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         if (currentState.scopes === undefined) return
         const currentScope = currentState.scopes[currentState.scopes.length - 1]
 
-        const existSpaceBeforePreviousToken = /\s$/.test(t1.string)
+        const existSpaceBeforePreviousToken = t1.string === ' '
         const leftTextIsOperator = operators.test(leftText)
         const currentTextIsPartOfTheOperator = compoundOperators.test(leftText + currentText)
         const currentTextIsOperator = operatorChars.test(currentText)
@@ -68,14 +69,18 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             c.text[0] = `${quote} \\`
             c.text[1] = quote
         }
+        const inParentheses = _inParentheses()
+        editor.completionProvider.context.inParentheses = inParentheses
+        
         // skip if the cursor is in a string
         if (t0.type === 'comment' || (t0.type === 'string' && !(t0.end === c.to.ch))) return
         if (currentText === '') { // new line
             stripTrailingSpaces(line)
-            const inParentheses = _inParentheses()
             if (inParentheses) {
                 try {
-                    if (t0.string === '(' && /^\s*def\s/.test(line)) {
+                    const rightChar = line.charAt(c.to.ch)
+                    // [ and { is already handled by mode
+                    if (t0.string === '(' && rightChar === ')') { 
                         // add extra indentation when inserting new line at, e.g.
                         // def something(|a, b)
                         editor.cmEventDispatcher.adjustIndent(1)
@@ -83,10 +88,10 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 } catch (e) {
                     // skip this test if out of range
                 }
-            } else if ((/^\s*(if|def|for|while|with|class)\s.+[^\\:;]$/.test(line) ||
-                    /^\s*(try|except|finally)/.test(line)
-            ) && !/(:\s)|;$/.test(line) &&
-                t0.string !== ':'
+            } else if ((/^\s*(if|def|for|while|with|class)\s.+$/.test(line) ||
+                        /^\s*(try|except|finally)/.test(line)) 
+                       && !/(:\s)|;$/.test(line) 
+                       && t0.string !== ':'
             ) { // add : if needed
                 c.text[0] = c.text[0] + ':'
             } else if (c.from.ch === line.length && /[)}\]]$/.test(t0.string)) {
@@ -141,6 +146,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 (t2.type !== 'variable') && (t2.type !== 'string') && (t2.type !== 'number') // a = -3
             ) return
             ensureSpaceBefore(t0)
+        } else if (/[)\]}]/.test(leftText)) {
+            ensureSpaceBefore(t0)
         } else if (t0.string === '=' && t2.string === ' ' && /[!><=@]/.test(t1.string)) { // special case for a = b ==|2
             ensureSpaceBefore(t0)
         } else if (t0.string === '#') {
@@ -148,6 +155,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         } else if (t0.string === '>' && t1.string === '-') {
             ensureSpaceBefore(t0)
         } else if (t0.string === '.' && t1.type === null && identifier.test(currentText)) {
+            if (fromImport.test(line)) return
             // .x => self.x
             c.text[0] = `self.${currentText}`
             c.from = Pos(c.from.line, c.from.ch - 1)
@@ -173,8 +181,8 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         const from = Pos(c.from.line, c.from.ch)
         const to = Pos(c.to.line, c.to.ch + chars - 1)
         if (lines > 0) {
-            const lineContent = cm.doc.getLine(from.line)
-            const nextLineContent = cm.doc.getLine(from.line + lines)
+            const lineContent = cm.getLine(from.line)
+            const nextLineContent = cm.getLine(from.line + lines)
             if (/[,;:]$/.test(lineContent)) replaceWith = ' '
             const indent = nextLineContent.match(/^\s+/)
             if (indent)
@@ -201,7 +209,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 deleteChars(0, 3)
             } else if (/\S[=<>/*]\s$/.test(tx)) {
                 deleteChars(0, 2)
-            } else if (/\s[=+\-*/|&^%@<>!]$/.test(tx)) {
+            } else if (/\S\s[=+\-*/|&^%@<>!]$/.test(tx)) {
                 deleteChars(0, 2)
             }
         } else if (c.from.ch === cursor.ch) { // handle forward delete

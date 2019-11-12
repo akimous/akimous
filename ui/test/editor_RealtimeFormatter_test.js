@@ -1,13 +1,13 @@
+const assert = require('assert')
 Feature('Realtime Formatter')
 
-Scenario('Normal formatting', (I) => {
-    I.amOnPage('http://localhost:3179')
-    I.wait(1)
-    I.waitForElement('.file-tree-node', 5)
-    I.click('pre.CodeMirror-line')
+Scenario('Normal formatting', async (I) => {
+    await I.amOnPage('http://localhost:3178')
+    await I.wait(1)
+    await I.click('pre.CodeMirror-line')
 
     const specialKeys = new Set(['Enter', 'Space'])
-    const typeAndCompare = (inputs, displays) => {
+    const typeAndCompare = async (inputs, displays) => {
         for (const i of inputs) {
             let first = true
             if (Array.isArray(i)) {
@@ -32,9 +32,17 @@ Scenario('Normal formatting', (I) => {
         }
         if (!displays) return
         I.wait(.5)
+        const doc = await I.executeScript(function() {
+            return window.g.activeEditor.cm.getValue()
+        })
         for (const i of displays) {
-            I.see(i)
+            assert(doc.includes(i))
         }
+    }
+    const paste = async (content) => {
+        await I.executeScript(function(content) {
+            window.g.activeEditor.cm.setValue(content)
+        }, content)
     }
     const clear = () => {
         I.type(['Escape'])
@@ -42,56 +50,109 @@ Scenario('Normal formatting', (I) => {
         I.type(['Backspace'])
     }
     
-    typeAndCompare(['for i in range(5', ['Meta', 'Enter'], 'print(i'],
+    await typeAndCompare(['for i in range(5', ['Meta', 'Enter'], 'print(i'],
         ['for i in range(5):', 'print(i)'])
     I.dontSee('pprint')
     clear()
     
-    typeAndCompare(['for i in ra', ['Escape']])
-    typeAndCompare(['ng '], ['range()'])
+    await typeAndCompare(['for i in ra', ['Escape']])
+    await typeAndCompare(['ng '], ['range()'])
     clear()
     
-    typeAndCompare(['fr s'], ['from'])
+    await typeAndCompare(['fr s'], ['from'])
     I.wait(1)
-    typeAndCompare(['ph'])
-    typeAndCompare(['.'], ['from sphinx.'])
-    typeAndCompare(['io im '], ['from sphinx.io import '])
-    typeAndCompare(['rea', ['Enter']], ['from sphinx.io import read_doc'])
+    await typeAndCompare(['ph'])
+    await typeAndCompare(['.'], ['from sphinx.'])
+    await typeAndCompare(['io im '], ['from sphinx.io import '])
+    await typeAndCompare(['rea', ['Enter']], ['from sphinx.io import read_doc'])
     clear()
     
-    typeAndCompare(['"""classbla', ['Meta', 'Enter'], 'cla'])
-    I.dontSee('classbla', '.row-content')
+    await typeAndCompare(['"""classbla', ['Meta', 'Enter'], 'cla'])
+    await I.dontSee('classbla', '.row-content')
     clear()
     
-    typeAndCompare(['cla Bla', ['Enter']], ['class Bla:'])
-    typeAndCompare(['de', ['Space', '2'], ['Enter']], ['    def __init__(self):'])
-    typeAndCompare(['pas', ['Meta', 'Enter']], ['        pass'])
-    typeAndCompare(['def'])
+    await typeAndCompare(['cla C', ['Enter']], ['class C:']) // single character class
+    clear()
+    
+    await typeAndCompare(['cla Bla', ['Enter']], ['class Bla:'])
+    await typeAndCompare(['de', ['Space', '2'], ['Enter']], ['    def __init__(self):'])
+    await typeAndCompare(['pas', ['Meta', 'Enter']], ['        pass'])
+    await typeAndCompare(['def'])
     I.dontSee('def __init__', '.row-content')
     clear()
     
-    typeAndCompare(['"".sta '], ['"".startswith()'])
+    await typeAndCompare(['"".sta '], ['"".startswith()'])
     clear()
 
-    typeAndCompare(['import logz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
-    typeAndCompare(['f'])
-    typeAndCompare([' ='])
-    typeAndCompare([' '], ['logzero.LogFormatter(fmt=log_format)'])
+    await typeAndCompare(['import logz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
+    await typeAndCompare(['fmt', ['Tab']])
+    // await typeAndCompare(['f', ['Tab']])
+    await typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
     clear()
     
-    typeAndCompare(['fr bolt.g'])
-    I.wait(1)
-    typeAndCompare([' '], ['from boltons.gcutils '])
+    await typeAndCompare(['fr bolt.g'])
+    I.wait(2)
+    await typeAndCompare([' '], ['from boltons.gcutils '])
     clear()
     
-    typeAndCompare(['1==2'], ['1 == 2'])
+    await typeAndCompare(['1==2'], ['1 == 2'])
     clear()
     
-    typeAndCompare(['def somet', ['Tab']], ['def something()'])
-    typeAndCompare(['adog', ['Tab']], ['def something(a_dog)'])
+    await typeAndCompare(['def somet', ['Tab']], ['def something()'])
+    await typeAndCompare(['adog', ['Tab']], ['def something(a_dog)'])
     clear()
     
-    typeAndCompare(['adog', ['Tab']], ['a_dog ='])
+    await typeAndCompare(['adog', ['Tab']], ['a_dog ='])
     clear()
+    
+    await typeAndCompare(['fr .ml', ['Tab'], '(', ['Enter'], 'li '], 
+        ['from .ml import (', 'load_iris'])
+    I.dontSee('load_iris()')
+    clear()
+    
+    await typeAndCompare(['cl cacheadog'])
+    I.see('CacheADog', 'em')
+    await typeAndCompare([['Tab'], ['Enter']], ['class CacheADog:'])
+    clear()
+    
+    await typeAndCompare(['__adog', ['Tab']], ['__a_dog ='])
+    clear()
+    
+    await typeAndCompare(['cla C', ['Enter'], '@pr', ['Enter'], 'de adog', ['Tab']], 
+        ['class C:', '    @property', '    def a_dog(self)'])
+    clear()
+    
+    await typeAndCompare(['"%s.'])
+    I.see('Tab to commit the selected item')
+    clear()
+    
+    await typeAndCompare(['try', ['Enter'], 'pa', ['Enter'], 'ex OS', ['Enter']],
+        ['try:', '    pass', 'except OSError:'])
+    clear()
+    
+    await typeAndCompare(['cachedir=[]', ['Enter'], 'ifn any (term in ca )for te'],
+        ['if not any((term in cachedir) for te)'])
+    I.see('Tab to commit the selected item')
+    clear()
+    
+    await typeAndCompare(['pri "",flu', ['Tab'], 'Tru '], ['print("", flush=True)'])
+    clear()
+    
+    await paste('class C:\n    def __init__(self):\n        pass\n\n    def cat(self):\n' + 
+        '        pass\n\n')
+    await typeAndCompare([['Space', 'p'], ['Tab'], 'd'])
+    I.see('def', '.row-content')
+    I.dontSee('def __init__', '.row-content')
+    clear()
+    
+    // cursor should be inside of braces if completion has parameters
+    //await typeAndCompare(['"".sp ".'], ['"".split(".")'])
+    await typeAndCompare(['"".sp ".'], ['"".strip(".")'])
+    clear()
+    
+    // outside if not
+    await typeAndCompare(['"".ti +'], ['"".title() +'])
+    clear()
+    
     // pause()
 })

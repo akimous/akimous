@@ -130,33 +130,15 @@
         }
     }, copyPath]
     
-    export const keyEventHandler = {
-        handleKeyEvent(e, target) {
-            if (!target.renaming) return true
-            switch (e.key) {
-                case 'Enter':
-                    target.commitRename()
-                    break
-                case 'Escape':
-                    target.endRenaming()
-                    break
-                default:
-                    return true // if not handled
-            }
-            return false
-        },
-        handleCommand( /*command, target*/ ) {
-            return true
-        }
-    }
+    
 </script>
 
 <script>
     import { onDestroy, onMount, createEventDispatcher, setContext, getContext, tick } from 'svelte'
-    import pressure from 'pressure'
+    // import pressure from 'pressure'
     
     import g from '../lib/Globals'
-    import { binarySearch, schedule } from '../lib/Utils'
+    import { binarySearch } from '../lib/Utils'
     import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
     
     const dispatch = createEventDispatcher()
@@ -189,35 +171,34 @@
     $: allowWhiteSpace = renaming
     $: icon = isDir ? fileTypeToIcon[open ? 'folder-open' : 'folder'] : getIconByFileName(name)
     
+    async function initializePlaceholderNode(type, callback) {
+        newNode = type
+        await tick()
+        placeholderNode.methods.rename()
+        g.setFocus([g.panelLeft, g.fileTree, placeholderNode])
+        placeholderNode.renamingCommittedCallback = callback
+    }
+    
     export const methods = {
         newFile: async () => {
-            newNode = 'file'
-            await tick()
-            placeholderNode.methods.rename()
-            placeholderNode.renamingCommittedCallback = path => {
+            await initializePlaceholderNode('file', path => {
                 g.fileTree.session.send('CreateFile', { path })
                 // select newly created node after file tree updated
                 g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
-            }
+            })
         },
         newFolder: async () => {
-            newNode = 'dir'
-            await tick()
-            placeholderNode.methods.rename()
-            placeholderNode.renamingCommittedCallback = path => {
+            await initializePlaceholderNode('dir', path => {
                 g.fileTree.session.send('CreateDir', { path })
                 g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
-            }
+            })
         },
         newModule: async () => {
-            newNode = 'dir'
-            await tick()
-            placeholderNode.methods.rename()
-            placeholderNode.renamingCommittedCallback = path => {
+            await initializePlaceholderNode('dir', path => {
                 g.fileTree.session.send('CreateDir', { path })
                 g.fileTree.session.send('CreateFile', { path: [...path, '__init__.py'] })
                 g.fileTree.addNodeCreatedCallback(path, node => node.onClick())
-            }
+            })
         },
         findIn() {
             const path = getPath()
@@ -248,13 +229,32 @@
         }
     }
     
+    export const keyEventHandler = { // don't move it to module scope, or LKC will break
+        handleKeyEvent(e, target) {
+            if (!target.renaming) return true
+            switch (e.key) {
+                case 'Enter':
+                    target.commitRename()
+                    break
+                case 'Escape':
+                    target.endRenaming()
+                    break
+                default:
+                    return true // if not handled
+            }
+            return false
+        },
+        handleCommand(/* command, target */) {
+            return true
+        }
+    }
+    
     onMount(() => {
-        schedule(() => {
-            pressure.set(row, {
-                startDeepPress: () => { methods.rename() }
-            })
-        })
-
+        // schedule(() => {
+        //     pressure.set(row, {
+        //         startDeepPress: () => { methods.rename() }
+        //     })
+        // })
         if (placeholderMode)
             onClick() // select this node if it is a placeholder
         dispatch('created', { name, methods })

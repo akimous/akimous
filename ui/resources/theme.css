@@ -98,9 +98,9 @@
     --darker-green: #1E874B;
     --light-green: #55efc4;
 
-    --ao: #16a085;
-    --brighter-ao: #1abc9c;
-    --darker-ao: #117A66;
+    --cyan: #16a085;
+    --brighter-cyan: #1abc9c;
+    --darker-cyan: #117A66;
 
     --blue: #2980b9;
     --brighter-blue: #3498db;
@@ -395,8 +395,8 @@ span.tooltipped::after {
     color: var(--green);
 }
 
-.l-ao {
-    color: var(--ao);
+.l-cyan {
+    color: var(--cyan);
 }
 
 .l-slate {

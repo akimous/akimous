@@ -53,7 +53,7 @@
         self
     
     $: {
-        if (g.app) {
+        if (g.app && self) {
             if (hidden) setHidden()
             else setWidth()
         }
@@ -85,7 +85,7 @@
         tabBar.openTab('linter', 'Linter', children.linter, 'fas fa-check-circle l-green')
         tabBar.openTab('macro', 'Macro', children.macro, 'fas fa-magic l-orange')
         tabBar.openTab('docs', 'Documentation', children.docs, 'fas fa-book-open l-red')
-        tabBar.openTab('references', 'References', children.references, 'fas fa-link l-ao')
+        tabBar.openTab('references', 'References', children.references, 'fas fa-link l-cyan')
         Object.assign(g, children)
         
         // we must activate console upon initialization, or xterm will break

@@ -19,7 +19,7 @@
 </style>
 
 <script>
-    import { onMount } from 'svelte'
+    import { onMount, onDestroy } from 'svelte'
     import throttle from 'lodash.throttle'
 
     import g from '../lib/Globals'
@@ -27,16 +27,23 @@
     export let availableWidth = 0,
         path = []
     
-    let self
+    let self,
+        _resizeListener
     
     $: display = fitWidth(path, availableWidth)
 
     onMount(() => {
         const setAvailableWidth = () => {
-            availableWidth = self.getBoundingClientRect().width
+            if (self)
+                availableWidth = self.getBoundingClientRect().width
         }
-        window.addEventListener('resize', throttle(setAvailableWidth))
+        _resizeListener = throttle(setAvailableWidth)
+        window.addEventListener('resize', _resizeListener)
         setAvailableWidth()
+    })
+    
+    onDestroy(() => {
+        window.removeEventListener('resize', _resizeListener)
     })
 
     function fitWidth(path, availableWidth) {

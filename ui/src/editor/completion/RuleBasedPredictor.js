@@ -140,6 +140,11 @@ function isNot({ input }) {
     if (input === 'isn' || input === 'isnt')
         return 'is not '
 }
+
+function ifNot({ input }) {
+    if (input === 'ifn')
+        return 'if not '
+}
 /* eslint-enable */
 
 function args({ cm, input, line, ch, lineContent }) {
@@ -236,18 +241,35 @@ function suggestInitInsideClass({ topHit, line }) {
     
     const highlightedOutlineItem = g.outline.highlightedItem
     if (!highlightedOutlineItem) return
-    const classLevel = highlightedOutlineItem.level
-    const classLine = highlightedOutlineItem.line
-    let alreadyHasInit = false
-    for (let i of g.outline.outlineItems) {
-        if (i.line < classLine) continue
-        if (i.level <= classLevel && i.line > line) break
-        if (i.display === '__init__') {
-            alreadyHasInit = true
-            break
+    
+    let classOutlineIndex = -1
+    const { outlineItems, highlightedIndex } = g.outline
+ 
+    if (highlightedOutlineItem.type === 'class') {
+        classOutlineIndex = highlightedIndex
+    } else {
+        const currentLevel = highlightedOutlineItem.level
+        // TODO: binary search
+        for (let i = highlightedIndex; i >= 0; i--) {
+            const item = outlineItems[i]
+            if (item.level < currentLevel && item.type === 'class') {
+                classOutlineIndex = i
+                break
+            }
         }
     }
-    if (alreadyHasInit) return
+    const classOutlineItem = outlineItems[classOutlineIndex]
+    if (!classOutlineItem) return
+    
+    const classLevel = classOutlineItem.level
+    for (let i = classOutlineIndex; i < outlineItems.length; i++) {
+        const item = outlineItems[i]
+        if (item.level <= classLevel && item.line > line) {
+            break
+        } else if (item.display === '__init__' && item.level === classLevel + 1) {
+            return  // already has init
+        }
+    }
     return 'def __init__(self)'
 }
 
@@ -255,6 +277,13 @@ function withPostfix({ topHit }) {
     if (!topHit) return
     if (topHit.postfix)
         return topHit.text + topHit.postfix
+}
+
+// TODO: possibly a Jedi bug causing those keywords not showing up; remove if fixed in a future release
+function keywords({ input }) {
+    if ('True'.startsWith(input)) return 'True'
+    if ('False'.startsWith(input)) return 'False'
+    if ('None'.startsWith(input)) return 'None'
 }
 
 class RuleBasedPredictor {
@@ -268,11 +297,13 @@ class RuleBasedPredictor {
             importAs,
             isNone,
             isNot,
+            ifNot,
             args,
             withAs,
             sequentialVariableNaming,
             forElementInCollection,
             suggestInitInsideClass,
+            keywords,
         ]
     }
 

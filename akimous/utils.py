@@ -5,12 +5,21 @@ from importlib import resources
 from pathlib import Path
 from time import perf_counter
 
-import psutil
 from appdirs import user_config_dir
 from logzero import logger
 
 # ~/Library/Application Support/akimous
 config_directory = Path(user_config_dir('akimous'))
+psutil = None
+
+
+def set_verbosity(verbose):
+    global psutil
+    if verbose:
+        try:
+            import psutil
+        except ImportError:
+            pass
 
 
 def get_project_config(context, file_name):
@@ -80,11 +89,15 @@ class Timer:
         self.description = description
 
     def __enter__(self):
+        if not psutil:
+            return self
         logger.debug(f'Starting {self.description}; memory = {get_memory_usage()}')
         self.start = perf_counter()
         return self
 
     def __exit__(self, *args):
+        if not psutil:
+            return self
         self.end = perf_counter()
         logger.debug(f'{self.description} took {(self.end - self.start) * 1000: .3f} ms;'
                      f' memory = {get_memory_usage()}')

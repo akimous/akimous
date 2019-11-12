@@ -33,12 +33,14 @@ class FeatureDefinition:
     completion_feature_indices_require_normalization = []
     context_names_required_by_preprocessors = OrderedDict()
 
-    token_frequency = _load_token_statistics('unigram.xz')
+    token_frequency = _load_token_statistics('token.xz')
     bigram_frequency = _load_token_statistics('bigram.xz')
     trigram_frequency = _load_token_statistics('trigram.xz')
 
     @staticmethod
-    def register_feature_generator(feature_name, is_context_feature=False, normalized=False):
+    def register_feature_generator(feature_name,
+                                   is_context_feature=False,
+                                   normalized=False):
         def inner(f):
             if is_context_feature:
                 FeatureDefinition.context_features[feature_name] = f
@@ -48,8 +50,7 @@ class FeatureDefinition:
                 FeatureDefinition.completion_features[feature_name] = f
                 if normalized:
                     FeatureDefinition.completion_feature_indices_require_normalization.append(
-                        len(FeatureDefinition.completion_features) - 1
-                    )
+                        len(FeatureDefinition.completion_features) - 1)
             return f
 
         return inner
@@ -60,8 +61,7 @@ class FeatureDefinition:
             FeatureDefinition.preprocessors.append(f)
             FeatureDefinition.context_names_required_by_preprocessors = OrderedDict(
                 **FeatureDefinition.context_names_required_by_preprocessors,
-                **context_names
-            )
+                **context_names)
             return f
 
         return inner
@@ -72,7 +72,8 @@ class FeatureDefinition:
         self.n_token_features = len(FeatureDefinition.completion_features)
         self.n_features = self.n_context_features + self.n_token_features
         self.normalized_features = np.array(
-            FeatureDefinition.completion_feature_indices_require_normalization) + self.n_context_features
+            FeatureDefinition.completion_feature_indices_require_normalization
+        ) + self.n_context_features
 
         self.current_completion_start_index = 0
         self.n_samples = 0
@@ -82,9 +83,12 @@ class FeatureDefinition:
             self.name_to_feature_index[k] = i
         for i, k in enumerate(FeatureDefinition.context_features.keys()):
             self.name_to_feature_index[k] = i + self.n_token_features
-        p(to_key_value_columns(self.name_to_feature_index.keys(), self.name_to_feature_index.values()))
+        p(
+            to_key_value_columns(self.name_to_feature_index.keys(),
+                                 self.name_to_feature_index.values()))
 
-        for k, v in FeatureDefinition.context_names_required_by_preprocessors.items():
+        for k, v in FeatureDefinition.context_names_required_by_preprocessors.items(
+        ):
             setattr(self.context, k, v())
 
     # def get_stack_context_info(self, completion):
@@ -146,25 +150,26 @@ class FeatureDefinition:
     def normalize_feature(self):
         if len(self.normalized_features) == 0:
             return
-        data = self.X[self.current_completion_start_index:self.n_samples,
-                      self.normalized_features]
+        data = self.X[self.current_completion_start_index:self.n_samples, self
+                      .normalized_features]
         for i in range(data.shape[1]):
             column = data[:, i]
             minimum = column.min()
             maximum = column.max()
             if maximum - minimum < EPSILON:
                 continue
-            data[:, i] = UNIT_SCALING_FACTOR * (column - minimum) / (maximum - minimum)
-        self.X[self.current_completion_start_index:self.n_samples,
-               self.normalized_features] = data
+            data[:, i] = UNIT_SCALING_FACTOR * (column - minimum) / (maximum -
+                                                                     minimum)
+        self.X[self.current_completion_start_index:self.n_samples, self
+               .normalized_features] = data
+
 
 # ch: 0-based
 # line: 0-based
 
 
 @FeatureDefinition.register_context_preprocessor_for_token_features(
-    casefolded_doc_lines=dict
-)
+    casefolded_doc_lines=dict)
 def f(doc, line, context, **_):
     context.casefolded_doc_lines = {}
     for l in range(0, min(line, MAX_SCAN_LINES)):

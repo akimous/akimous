@@ -31,5 +31,8 @@
   "panelRight": {
     "hidden": false,
     "width": 0
+  },
+  "editor": {
+    "lineWrapping": false
   }
 }

@@ -4,39 +4,38 @@ from asyncio import (CancelledError, create_subprocess_shell, create_task,
                      subprocess)
 from collections import namedtuple
 from functools import partial
-from importlib.resources import open_binary
+from importlib import resources
 from pathlib import Path
 
 import jedi
 import pyflakes.api
 import wordsegment
 from logzero import logger
-from sklearn.externals import joblib
+from xgboost import Booster, DMatrix
 
+from .completion_utilities import is_parameter_of_def
 from .config import config
 from .doc_generator import DocGenerator  # 165ms, 13M memory
 from .modeling.feature.feature_definition import tokenize
 from .online_feature_extractor import \
     OnlineFeatureExtractor  # 90ms, 10M memory
+from .project import save_state
 from .pyflakes_reporter import PyflakesReporter
-from .utils import Timer, detect_doc_type, nop, log_exception
+from .utils import Timer, detect_doc_type, log_exception, nop
 from .websocket import register_handler
 from .word_completer import search_prefix
-from .project import save_state
-from .completion_utilities import is_parameter_of_def
-
 
 DEBUG = False
-MODEL_NAME = 'v10.model'
+MODEL_NAME = 'v11.xgb'
 PredictionRow = namedtuple('PredictionRow', ('c', 't', 's', 'p'))
 
 handles = partial(register_handler, 'editor')
 doc_generator = DocGenerator()
 
-with open_binary('akimous.resources', MODEL_NAME) as f:
-    model = joblib.load(f)  # 300 ms
-model.n_jobs = 1
-logger.info(f'Model {MODEL_NAME} loaded, n_jobs={model.n_jobs}')
+with resources.path('akimous.resources', MODEL_NAME) as path:
+    model = Booster(model_file=str(path))  # 3 ms
+    model.set_param('nthread', 1)
+logger.info(f'Model {MODEL_NAME} loaded.')
 
 
 def get_relative_path(context):
@@ -159,7 +158,10 @@ async def connected(msg, send, context):
         try:
             content = f.read()
         except UnicodeDecodeError:
-            await send('FailedToOpen', f'Failed to open file {context.path}. (only text files are supported)')
+            await send(
+                'FailedToOpen',
+                f'Failed to open file {context.path}. (only text files are supported)'
+            )
             return
         context.content = content
     # somehow risky, but it should not wait until the extractor ready
@@ -206,7 +208,8 @@ async def reload(msg, send, context):
 @handles('ActivateEditor')
 async def activate_editor(msg, send, context):
     context.shared.doc = context.doc
-    context.shared.project_config['activePanels']['middle'] = get_relative_path(context)
+    context.shared.project_config['activePanels'][
+        'middle'] = get_relative_path(context)
     save_state(context)
 
 
@@ -256,7 +259,8 @@ async def sync_range(msg, send, context):
     context.content = '\n'.join(doc)
 
     # If total number of lines changed, update from_line and below; otherwise, update changed range.
-    for i in range(from_line, to_line if to_line - from_line == len(lines) else len(doc)):
+    for i in range(from_line,
+                   to_line if to_line - from_line == len(lines) else len(doc)):
         context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
 
     if lint:
@@ -275,12 +279,13 @@ async def predict(msg, send, context):
 
     if is_parameter_of_def(context.doc, line_number, ch):
         # don't make prediction if it is defining function parameters
-        await send('Prediction', {
-            'line': line_number,
-            'ch': ch,
-            'result': [],
-            'parameterDefinition': True
-        })
+        await send(
+            'Prediction', {
+                'line': line_number,
+                'ch': ch,
+                'result': [],
+                'parameterDefinition': True
+            })
         return
     try:
         with Timer(f'Prediction ({line_number}, {ch})'):
@@ -302,12 +307,18 @@ async def predict(msg, send, context):
                 feature_extractor.extract_online(completions, line_content,
                                                  line_number, ch, context.doc,
                                                  j.call_signatures())
-                scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
+                # scores = model.predict_proba(feature_extractor.X)[:, 1] * 1000
+                d_test = DMatrix(feature_extractor.X)
+                scores = model.predict(
+                    d_test, output_margin=True, validate_features=False) * 1000
                 # c.name_with_symbol is not reliable
                 # e.g. def something(path): len(p|)
                 # will return "path="
                 result = [
-                    PredictionRow(c=c.name, t=c.type, s=int(s), p=c.name_with_symbols[len(c.name):])
+                    PredictionRow(c=c.name,
+                                  t=c.type,
+                                  s=int(s),
+                                  p=c.name_with_symbols[len(c.name):])
                     for c, s in zip(completions, scores)
                 ]
             else:
@@ -337,7 +348,10 @@ async def predict_extra(msg, send, context):
         words = search_prefix(text)
         for i, word in enumerate(words):
             if word not in results:
-                results[word] = PredictionRow(c=word, t='word', s=990 - i, p='')
+                results[word] = PredictionRow(c=word,
+                                              t='word',
+                                              s=990 - i,
+                                              p='')
 
     # 2. existing tokens
     tokens = context.feature_extractor.context.t0map.query_prefix(
@@ -348,11 +362,19 @@ async def predict_extra(msg, send, context):
 
     # 3. segmented words
     if len(results) < 6:
-        segmented_words = wordsegment.segment(text)
-        if segmented_words:
-            snake = '_'.join(segmented_words)
-            if snake not in results:
-                results[snake] = PredictionRow(c=snake, t='word-segment', s=1, p='')
+        parts = text.split('_')  # handle private variables starting with _
+        words = []
+        for part in parts:
+            if not part:
+                words.append(part)
+            else:
+                words.extend(wordsegment.segment(part))
+        snake = '_'.join(words)
+        if snake and snake not in results:
+            results[snake] = PredictionRow(c=snake,
+                                           t='word-segment',
+                                           s=1,
+                                           p='')
 
     await send('ExtraPrediction', {
         'line': line_number,
@@ -364,15 +386,16 @@ async def predict_extra(msg, send, context):
 @handles('GetCompletionDocstring')
 async def get_completion_docstring(msg, send, context):
     # get docstring
-    completion = context.currentCompletions.get(msg['name'], None)
+    completion = context.currentCompletions.get(msg['text'], None)
     if not completion:
         return
     docstring = completion.docstring(fast=False)
+    definition = None
 
     # try to follow definition if it fails to get docstring
     if not docstring:
         try:
-            definition = completion.follow_definition()
+            definition = completion.infer()
         except NotImplementedError:
             return
         if not definition:
@@ -381,16 +404,25 @@ async def get_completion_docstring(msg, send, context):
         if not docstring:
             return
 
+    if definition and hasattr(definition, 'params'):
+        parameters = definition.params
+    elif hasattr(completion, 'params'):
+        parameters = completion.params
+    else:
+        parameters = []
+
     # render doc
     doc_type = detect_doc_type(docstring)
     html = None
     if doc_type != 'text':
         with log_exception():
             html = doc_generator.make_html(docstring)
-    await send('CompletionDocstring', {
-        'doc': html if html else docstring,
-        'type': 'html' if html else 'text'
-    })
+    await send(
+        'CompletionDocstring', {
+            'doc': html if html else docstring,
+            'type': 'html' if html else 'text',
+            'parameters': bool(parameters),
+        })
 
 
 @handles('GetFunctionDocumentation')
@@ -474,7 +506,8 @@ async def find_references(msg, send, context):
     assignments = []
     usages = []
     mode = msg['type']
-    j = jedi.Script(context.content, msg['line'] + 1, msg['ch'], str(context.path))
+    j = jedi.Script(context.content, msg['line'] + 1, msg['ch'],
+                    str(context.path))
     if 'assignments' in mode:
         references = j.goto_assignments(follow_imports=True)
         if 'usages' not in mode:
@@ -484,8 +517,9 @@ async def find_references(msg, send, context):
         references = j.usages()
         definitions.extend(r for r in references if r.is_definition())
         usages.extend(r for r in references if not r.is_definition())
-    await send('ReferencesFound', {
-        'definitions': [definition_to_dict(x) for x in definitions],
-        'assignments': [definition_to_dict(x) for x in assignments],
-        'usages': [definition_to_dict(x) for x in usages]
-    })
+    await send(
+        'ReferencesFound', {
+            'definitions': [definition_to_dict(x) for x in definitions],
+            'assignments': [definition_to_dict(x) for x in assignments],
+            'usages': [definition_to_dict(x) for x in usages]
+        })

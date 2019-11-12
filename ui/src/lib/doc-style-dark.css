@@ -165,7 +165,7 @@
 
 #docs dt span.classifier,
 #docs dt span.classifier-delimiter {
-    color: var(--ao);
+    color: var(--cyan);
     font-weight: 300;
     padding-left: .5em;
 }

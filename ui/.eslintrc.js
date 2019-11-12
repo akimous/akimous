@@ -65,6 +65,7 @@ module.exports = {
                     'builtins',
                     'closable',
                     'codemirror',
+                    'const',
                     'contextmenu',
                     'coords',
                     'ctrl',
