@@ -2,9 +2,8 @@ const assert = require('assert')
 Feature('Realtime Formatter')
 
 Scenario('Normal formatting', async (I) => {
-    await I.amOnPage('http://localhost:3179')
+    await I.amOnPage('http://localhost:3178')
     await I.wait(1)
-    await I.waitForElement('.file-tree-node', 5)
     await I.click('pre.CodeMirror-line')
 
     const specialKeys = new Set(['Enter', 'Space'])
@@ -86,12 +85,13 @@ Scenario('Normal formatting', async (I) => {
     clear()
 
     await typeAndCompare(['import logz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
-    await typeAndCompare(['f', ['Tab']])
+    await typeAndCompare(['fmt', ['Tab']])
+    // await typeAndCompare(['f', ['Tab']])
     await typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
     clear()
     
     await typeAndCompare(['fr bolt.g'])
-    I.wait(1.5)
+    I.wait(2)
     await typeAndCompare([' '], ['from boltons.gcutils '])
     clear()
     
@@ -146,11 +146,13 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     // cursor should be inside of braces if completion has parameters
-    await typeAndCompare(['"".sp ".'], ['"".split(".")'])
+    //await typeAndCompare(['"".sp ".'], ['"".split(".")'])
+    await typeAndCompare(['"".sp ".'], ['"".strip(".")'])
     clear()
     
     // outside if not
     await typeAndCompare(['"".ti +'], ['"".title() +'])
+    clear()
     
     // pause()
 })

@@ -3,13 +3,14 @@ exports.config = {
     output: './testOutput',
     helpers: {
         Puppeteer: {
-            url: 'http://localhost:3179',
-            show: true,
+            url: 'http://localhost:3178',
+            show: false,
             restart: false,
             keepBrowserState: true,
             windowSize: '1280x800',
+            waitForAction: 128,
             chrome: {
-                devtools: true
+                devtools: false
             }
         },
         Editor: {

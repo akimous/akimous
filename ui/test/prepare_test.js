@@ -1,6 +1,4 @@
 // Run before any test to setup environment
-
-const assert = require('assert')
 Feature('Prepare')
 
 Scenario('Preparing', async (I) => {

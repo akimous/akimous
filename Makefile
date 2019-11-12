@@ -41,12 +41,12 @@ static:
 ### lint and test ###
 
 lint:
-	cd ui && yarn run cloc src resources ../akimous
+	cd ui && yarn run cloc --exclude-dir=testOutput,temp src resources ../akimous
 	cd ui && yarn run eslint --ext .html,.js .
 	cd ui && yarn run stylelint "resources/*.css" "src/**/*.html" "src/**/*.css"
 	poetry check
 
-test: | jstest pytest
+test: | jstest pytest uitest
 
 pytest:
 	poetry run python -m pytest -sx --ignore akimous/modeling/temp
@@ -60,7 +60,7 @@ singleuitest:
 uitest:
 	pkill -SIGINT -f "akimous --no-browser" || true
 	rm ~/Library/Application\ Support/akimous/* || true
-	make pydev &
+	poetry run python -m akimous --no-browser --port 3178 &
 	sleep 7
 	make singleuitest UNIT=test/prepare_test.js
 	make singleuitest UNIT=test/panel_FileTree_test.js

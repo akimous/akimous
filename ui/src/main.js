@@ -1,7 +1,6 @@
 import { config, projectState } from './lib/ConfigManager'
 import { Socket } from './lib/Socket'
 import g from './lib/Globals'
-import { schedule } from './lib/Utils'
 import App from './App.html'
 import './lib/doc-style-dark.css'
 import 'normalize.css/normalize.css'
