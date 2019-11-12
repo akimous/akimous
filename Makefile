@@ -58,7 +58,16 @@ singleuitest:
 	cd ui && yarn run codeceptjs run --steps ${UNIT}
 
 uitest:
-	cd ui && yarn run codeceptjs run --steps ${UNIT}
+	pkill -SIGINT -f "akimous --no-browser" || true
+	rm ~/Library/Application\ Support/akimous/* || true
+	make pydev &
+	sleep 7
+	make singleuitest UNIT=test/prepare_test.js
+	make singleuitest UNIT=test/panel_FileTree_test.js
+	make singleuitest UNIT=test/menu_File_test.js
+	make singleuitest UNIT=test/editor_RealtimeFormatter_test.js
+	pkill -SIGINT -f "akimous --no-browser"
+	sleep 3
 
 
 ### development ###
@@ -98,7 +107,7 @@ statistics:
     
 features:
 	cat akimous/modeling/temp/training_list.txt akimous/modeling/temp/testing_list.txt > akimous/modeling/temp/list.txt
-	parallel --eta --progress -a akimous/modeling/temp/list.txt poetry run python -m akimous.modeling.extract_features {}
+	parallel --eta --progress --memfree 2G --nice 17 -a akimous/modeling/temp/list.txt poetry run python -m akimous.modeling.extract_features {} 1
 
 xgboost:
 	nice -n 19 poetry run python -m akimous.modeling.train

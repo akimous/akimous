@@ -39,10 +39,16 @@ const socket = new Socket(() => {
     g.projectSession.handlers['ProjectOpened'] = data => {
         const { root } = data
         g.projectRoot = root
+        g.ready = false
+        g.focusStack = []
         Object.assign(projectState, data.projectState)
+
         if (app) app.$destroy()
         g.app = app = new App({
             target: document.body,
+            props: {
+                initialized: true,
+            }
         })
         g.runConfiguration.$set(g.projectState.runConfiguration)
         document.title = `Akimous - ${root[root.length - 1]}`

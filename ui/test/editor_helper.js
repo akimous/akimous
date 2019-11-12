@@ -26,7 +26,23 @@ class Editor extends Helper {
             }
         }
     }
-
+    
+    // use when I.click is not working for mysterious reasons
+    async doubleClickAlt(text, selector) {
+        const page = this.helpers['Puppeteer'].page
+        const elements = await page.$$(selector)
+        for (const element of elements) {
+            if (await element.evaluate(node => node.innerText) === text) {
+                await element.click({
+                    clickCount: 2,
+                    delay: .1,
+                })
+                return
+            }
+        }
+        console.warn('Element not found', text, selector)
+    }
+    
 }
 
 module.exports = Editor

@@ -7,6 +7,7 @@ exports.config = {
             show: true,
             restart: false,
             keepBrowserState: true,
+            windowSize: '1280x800',
             chrome: {
                 devtools: true
             }

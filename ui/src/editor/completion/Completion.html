@@ -232,7 +232,7 @@
         if (!row) return console.error('no selected completion')
 
         completionProvider.state = CLOSED
-        let { text, tail } = row
+        let { text, tail, type } = row
         
         // avoid duplicated braces
         let shouldAddTail = tail && !tail.startsWith(key)
@@ -258,7 +258,11 @@
             cm.doc.getCursor(),
             '+completion'
         )
-        if (shouldAddTail && tail.endsWith(')') && selectedCompletionHasParameters) {
+        console.warn(row)
+        if (shouldAddTail && tail.endsWith(')') && 
+            (selectedCompletionHasParameters ||
+             type === 'word' || 
+             type === 'word-segment')) {
             cm.execCommand('goCharLeft')
         }
         cm.focus()

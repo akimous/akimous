@@ -140,7 +140,7 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
         del sessions[client_id]
 
     except (ConnectionClosed, ConnectionClosedError) as e:
-        logger.warn(e)
+        logger.warning(e)
         for session in client_sessions.values():
             session.loop.cancel()
         del sessions[client_id]
