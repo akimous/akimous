@@ -62,7 +62,7 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     await typeAndCompare(['fr s'], ['from'])
-    I.wait(1)
+    I.wait(3)
     await typeAndCompare(['ph'])
     await typeAndCompare(['.'], ['from sphinx.'])
     await typeAndCompare(['io im '], ['from sphinx.io import '])
@@ -86,7 +86,9 @@ Scenario('Normal formatting', async (I) => {
     await typeAndCompare(['"".sta '], ['"".startswith()'])
     clear()
 
-    await typeAndCompare(['import logz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
+    await typeAndCompare(['import l'])
+    I.wait(3)
+    await typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
     await typeAndCompare(['fmt', ['Tab']])
     // await typeAndCompare(['f', ['Tab']])
     await typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
