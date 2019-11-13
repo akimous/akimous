@@ -1,5 +1,7 @@
 # Akimous
 
+[![PyPI version](https://badge.fury.io/py/akimous.svg)](https://badge.fury.io/py/akimous) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/akimous.svg)](https://pypi.python.org/pypi/akimous/)
+
 Akimous is a Python IDE with unique features boosting developers' productivity.
 
 ### Features
@@ -10,7 +12,7 @@ Akimous is a Python IDE with unique features boosting developers' productivity.
 * Real-time code formatter
 * Interactive console (integration with IPython kernel)
 
-![Screenshot](images/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/akimous/akimous/master/images/screenshot.png)
 
 For more information and documentation, visit the official website.
 
