@@ -74,8 +74,8 @@ uitest:
 	make singleuitest UNIT=test/panel_FileTree_test.js
 	make singleuitest UNIT=test/menu_File_test.js
 	make singleuitest UNIT=test/editor_RealtimeFormatter_test.js
-	pkill -9 -f "akimous --no-browser"
-	sleep 3
+	pkill -9 -f "^.+bin\/python"
+	sleep 1
 
 
 ### development ###

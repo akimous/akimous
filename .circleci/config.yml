@@ -10,6 +10,7 @@ jobs:
             - akimous-{{ .Branch }}-{{ checksum "pyproject.toml" }}
             - akimous-{{ .Branch }}
             - akimous-
+      - run: echo "export PATH=$HOME/.poetry/bin:$PATH" >> $BASH_ENV
       - run: make
       - save_cache:
           key: akimous-{{ .Branch }}-{{ checksum "pyproject.toml" }}
