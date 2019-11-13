@@ -1,6 +1,6 @@
 # Akimous
 
-[![PyPI version](https://badge.fury.io/py/akimous.svg)](https://badge.fury.io/py/akimous) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/akimous.svg)](https://pypi.python.org/pypi/akimous/)
+[![PyPI version](https://badge.fury.io/py/akimous.svg)](https://pypi.python.org/pypi/akimous/) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/akimous.svg)](https://pypi.python.org/pypi/akimous/)
 
 Akimous is a Python IDE with unique features boosting developers' productivity.
 

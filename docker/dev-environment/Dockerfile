@@ -25,7 +25,7 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 USER user
 
 # zsh
-ADD .zsh_plugins.txt .zshrc .p10k.zsh /home/user/
+ADD docker/dev-environment/* /home/user/
 RUN curl -sfL git.io/antibody | sh -s - -b /usr/local/bin &&\
     zsh -c "source ~/.zshrc"
 
