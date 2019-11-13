@@ -140,6 +140,7 @@ module.exports = {
                     'scrollable',
                     'scrollbar',
                     'scroller',
+                    'setuid',
                     'snakecase',
                     'sortable',
                     'sortablejs',

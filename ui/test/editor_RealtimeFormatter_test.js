@@ -89,8 +89,7 @@ Scenario('Normal formatting', async (I) => {
     await typeAndCompare(['import l'])
     I.wait(3)
     await typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
-    await typeAndCompare(['fmt', ['Tab']])
-    // await typeAndCompare(['f', ['Tab']])
+    await typeAndCompare(['f', ['Tab']])
     await typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
     clear()
     
@@ -150,8 +149,7 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     // cursor should be inside of braces if completion has parameters
-    //await typeAndCompare(['"".sp ".'], ['"".split(".")'])
-    await typeAndCompare(['"".sp ".'], ['"".strip(".")'])
+    await typeAndCompare(['"".sp ".'], ['"".split(".")'])
     clear()
     
     // outside if not

@@ -11,7 +11,7 @@ exports.config = {
             waitForAction: 128,
             chrome: {
                 devtools: false,
-                args: ["--no-sandbox", '--disable-setuid-sandbox'],
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
             }
         },
         Editor: {

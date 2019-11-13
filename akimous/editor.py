@@ -26,7 +26,7 @@ from .websocket import register_handler
 from .word_completer import search_prefix
 
 DEBUG = False
-MODEL_NAME = 'v11.xgb'
+MODEL_NAME = 'v12.xgb'
 PredictionRow = namedtuple('PredictionRow', ('c', 't', 's', 'p'))
 
 handles = partial(register_handler, 'editor')

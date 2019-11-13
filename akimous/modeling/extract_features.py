@@ -136,13 +136,15 @@ def run_file(file_path,
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print(
-            'Usage: python -m akimous.modeling.extract_features <path/to/a/python/file.py>'
+            'Usage: python -m akimous.modeling.extract_features '
+            '<path/to/a/python/file.py> [zero_length_prediction]\n\n'
+            '(zero_length_prediction default to True)'
         )
         sys.exit(1)
     target = sys.argv[1]
-    zero_length_prediction = True
-    if len(sys.argv) < 3 or not bool(int(sys.argv[2])):
-        zero_length_prediction = False
+    zero_length_prediction = False
+    if len(sys.argv) < 3 or bool(int(sys.argv[2])):
+        zero_length_prediction = True
 
     logzero.loglevel(logging.WARNING)
     feature_extractor = OfflineFeatureExtractor()
