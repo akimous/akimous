@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: TBD
+      - image: red8012/akimous-dev-environment:latest
     steps:
       - checkout
       - restore_cache:
