@@ -1,4 +1,4 @@
-all: | bootstrap clean static
+all: | dockerfile bootstrap clean static
 	cd ui && yarn check --verify-tree
 	cd ui && yarn run rollup -c
 	# Firefox does not support brotli on localhost
@@ -10,6 +10,9 @@ all: | bootstrap clean static
 install:
 	pip uninstall -y akimous
 	cd dist && pip install akimous*.whl
+
+dockerfile:
+	cd docker && python update.py
 
 staging: | all
 	poetry config repositories.testpypi https://test.pypi.org/legacy/
@@ -99,6 +102,9 @@ fixpoetry:
 
 update_docker:
 	cd docker && poetry run python update.py
+
+docker_image: | update_docker
+	cd docker/slim && docker build -t dev .
 
 
 ### model ###
