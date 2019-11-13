@@ -1,6 +1,6 @@
 # Akimous
 
-[![PyPI version](https://badge.fury.io/py/akimous.svg)](https://pypi.python.org/pypi/akimous/) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/akimous.svg)](https://pypi.python.org/pypi/akimous/)
+[![PyPI version](https://badge.fury.io/py/akimous.svg)](https://pypi.python.org/pypi/akimous/) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/akimous.svg)](https://pypi.python.org/pypi/akimous/) [![CircleCI](https://circleci.com/gh/akimous/akimous/tree/master.svg?style=svg)](https://circleci.com/gh/akimous/akimous/tree/master)
 
 Akimous is a Python IDE with unique features boosting developers' productivity.
 
@@ -12,7 +12,7 @@ Akimous is a Python IDE with unique features boosting developers' productivity.
 * Real-time code formatter
 * Interactive console (integration with IPython kernel)
 
-![Screenshot](https://raw.githubusercontent.com/akimous/akimous/master/images/screenshot.png)
+<img src="https://raw.githubusercontent.com/akimous/akimous/master/images/screenshot.png" alt="Screenshot" style="max-width:100%">
 
 For more information and documentation, visit the official website.
 
@@ -43,7 +43,7 @@ pip install -U akimous
 If you have difficulty installing, or you are running in a cloud environment, try the prebuilt docker image.
 
 ```sh
-# COMING SOON
+docker run -p 3179:3179 --mount type=bind,source=$HOME,target=/home/user -it akimous:latest
 ```
 
 ## Commands
