@@ -8,10 +8,24 @@ RUN set -ex &&\
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&\
     curl -sL https://deb.nodesource.com/setup_13.x | bash - &&\
     apt-get update &&\
-    apt-get -yq --no-install-recommends install yarn nodejs zopfli parallel gcc g++
+    apt-get -yq --no-install-recommends install yarn nodejs zopfli parallel gcc g++ wget
+
+# chrome
+# https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#running-puppeteer-in-docker
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+    && apt-get update \
+    && apt-get install -yq google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf \
+      --no-install-recommends \
+    && groupadd -r user && useradd -r -g user -G audio,video user \
+    && mkdir -p /home/user/Downloads \
+    && chown -R user:user /home/user \
+    && chmod -R 777 /usr/local/bin
+
+USER user
 
 # zsh
-ADD .zsh_plugins.txt .zshrc .p10k.zsh /root/
+ADD .zsh_plugins.txt .zshrc .p10k.zsh /home/user/
 RUN curl -sfL git.io/antibody | sh -s - -b /usr/local/bin &&\
     zsh -c "source ~/.zshrc"
 

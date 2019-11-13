@@ -26,7 +26,7 @@ from .websocket import register_handler
 from .word_completer import search_prefix
 
 DEBUG = False
-MODEL_NAME = 'v11.xgb'
+MODEL_NAME = 'v12.xgb'
 PredictionRow = namedtuple('PredictionRow', ('c', 't', 's', 'p'))
 
 handles = partial(register_handler, 'editor')
@@ -60,7 +60,7 @@ async def run_pylint(context, send):
         await send('OfflineLints', {
             'result': context.linter_output,
         })
-    except CancelledError:
+    except (CancelledError, AttributeError):  # may raise AttributeError after the editor is closed
         return
     except Exception as e:
         logger.exception(e)
@@ -257,6 +257,12 @@ async def sync_range(msg, send, context):
     doc = context.doc
     doc[from_line:to_line] = lines
     context.content = '\n'.join(doc)
+
+    # for whatever reason the document in the browser is not in sync with the one here
+    if to_line > len(doc):
+        logger.warning('Request doc synchronization')
+        await send('RequestFullSync', None)
+        return
 
     # If total number of lines changed, update from_line and below; otherwise, update changed range.
     for i in range(from_line,

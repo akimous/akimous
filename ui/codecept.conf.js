@@ -10,7 +10,8 @@ exports.config = {
             windowSize: '1280x800',
             waitForAction: 128,
             chrome: {
-                devtools: false
+                devtools: false,
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
             }
         },
         Editor: {

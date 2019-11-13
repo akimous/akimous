@@ -11,6 +11,13 @@ install:
 	pip uninstall -y akimous
 	cd dist && pip install akimous*.whl
 
+staging: | all
+	poetry config repositories.testpypi https://test.pypi.org/legacy/
+	poetry publish --repository testpypi
+
+publish:
+	poetry publish
+
 
 ### build ###
 
@@ -59,15 +66,15 @@ singleuitest:
 	cd ui && yarn run codeceptjs run --steps ${UNIT}
 
 uitest:
-	pkill -SIGINT -f "akimous --no-browser" || true
 	rm ~/Library/Application\ Support/akimous/* || true
+	rm ~/.config/akimous/* || true
 	poetry run python -m akimous --no-browser --port 3178 &
 	sleep 7
 	make singleuitest UNIT=test/prepare_test.js
 	make singleuitest UNIT=test/panel_FileTree_test.js
 	make singleuitest UNIT=test/menu_File_test.js
 	make singleuitest UNIT=test/editor_RealtimeFormatter_test.js
-	pkill -SIGINT -f "akimous --no-browser"
+	pkill -9 -f "akimous --no-browser"
 	sleep 3
 
 

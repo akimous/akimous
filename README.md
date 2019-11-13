@@ -38,7 +38,7 @@ pip install -U akimous
 
 ### Using  Docker Image
 
-If you have difficulty installing to local, or you are running in a cloud environment, try the prebuilt docker image.
+If you have difficulty installing, or you are running in a cloud environment, try the prebuilt docker image.
 
 ```sh
 # COMING SOON
@@ -64,11 +64,11 @@ akimous
 
 Make sure you have recent version of the following build dependencies installed.
 
-* [Node](https://nodejs.org/en/) (12+)
-* [Python](https://www.python.org) (3.7+)
+* Node (12+)
+* Python (3.7+)
 * [Poetry](https://poetry.eustace.io)
 * [Yarn](https://yarnpkg.com/)
-* [Make](https://www.gnu.org/software/make/)
+* Make
 * [Zopfli](https://github.com/google/zopfli)
 * [Parallel](https://www.gnu.org/software/parallel/)
 

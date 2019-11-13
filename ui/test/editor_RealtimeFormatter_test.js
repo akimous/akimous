@@ -1,6 +1,8 @@
 const assert = require('assert')
 Feature('Realtime Formatter')
 
+const META = (process.platform === 'darwin') ? 'Meta' : 'Control'
+
 Scenario('Normal formatting', async (I) => {
     await I.amOnPage('http://localhost:3178')
     await I.wait(1)
@@ -46,7 +48,7 @@ Scenario('Normal formatting', async (I) => {
     }
     const clear = () => {
         I.type(['Escape'])
-        I.type(['Meta', 'a'])
+        I.type([META, 'a'])
         I.type(['Backspace'])
     }
     
@@ -60,7 +62,7 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     await typeAndCompare(['fr s'], ['from'])
-    I.wait(1)
+    I.wait(3)
     await typeAndCompare(['ph'])
     await typeAndCompare(['.'], ['from sphinx.'])
     await typeAndCompare(['io im '], ['from sphinx.io import '])
@@ -84,9 +86,10 @@ Scenario('Normal formatting', async (I) => {
     await typeAndCompare(['"".sta '], ['"".startswith()'])
     clear()
 
-    await typeAndCompare(['import logz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
-    await typeAndCompare(['fmt', ['Tab']])
-    // await typeAndCompare(['f', ['Tab']])
+    await typeAndCompare(['import l'])
+    I.wait(3)
+    await typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
+    await typeAndCompare(['f', ['Tab']])
     await typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
     clear()
     
@@ -146,8 +149,7 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     // cursor should be inside of braces if completion has parameters
-    //await typeAndCompare(['"".sp ".'], ['"".split(".")'])
-    await typeAndCompare(['"".sp ".'], ['"".strip(".")'])
+    await typeAndCompare(['"".sp ".'], ['"".split(".")'])
     clear()
     
     // outside if not

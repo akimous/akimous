@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: TBD
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - akimous-{{ .Branch }}-{{ checksum "pyproject.toml" }}
+            - akimous-{{ .Branch }}
+            - akimous-
+      - run: make
+      - save_cache:
+          key: akimous-{{ .Branch }}-{{ checksum "pyproject.toml" }}
+          paths:
+            - ~/.cache/yarn
+            - ~/.cache/pypoetry
+      - run: make lint
+      - run: make test
