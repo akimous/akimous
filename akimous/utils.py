@@ -91,13 +91,15 @@ class Timer:
     def __enter__(self):
         if not psutil:
             return self
-        logger.debug(f'Starting {self.description}; memory = {get_memory_usage()}')
+        logger.debug(
+            f'Starting {self.description}; memory = {get_memory_usage()}')
         self.start = perf_counter()
         return self
 
     def __exit__(self, *args):
         if not psutil:
-            return self
+            return
         self.end = perf_counter()
-        logger.debug(f'{self.description} took {(self.end - self.start) * 1000: .3f} ms;'
-                     f' memory = {get_memory_usage()}')
+        logger.debug(
+            f'{self.description} took {(self.end - self.start) * 1000: .3f} ms;'
+            f' memory = {get_memory_usage()}')

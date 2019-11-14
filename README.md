@@ -18,19 +18,13 @@ For more information and documentation, visit the official website.
 
 ## Installation
 
-### Supported Environments
+### Prerequisite
 
-* Akimous requires Python 3.7 or newer to run. The latest two major version of Python 3 will be supported.
-* Latest versions of Firefox, Chrome and Safari are supported.
+* Python 3.7 or 3.8
+* C/C++ compiler (required by some dependencies during installation)
+* A modern browser
 
-### Dependencies
-
-Akimous has some dependencies (e.g. XGBoost) requiring a C/C++ compiler to build. It is recommended to have one of the following before installation:
-
-* gcc and g++
-* clang
-
-### Install From PyPI
+### Installing From PyPI
 
 The recommended way for installing Akimous is through PyPI.
 
@@ -38,12 +32,22 @@ The recommended way for installing Akimous is through PyPI.
 pip install -U akimous
 ```
 
-### Using  Docker Image
+### Starting Application
+
+Start it in the terminal. The browser should be automatically opened.
+
+```sh
+akimous
+```
+
+* To see available arguments, do `akimous --help`.
+
+### Using Docker Image
 
 If you have difficulty installing, or you are running in a cloud environment, try the prebuilt docker image.
 
 ```sh
-docker run -p 3179:3179 --mount type=bind,source=$HOME,target=/home/user -it akimous:latest
+docker run --mount type=bind,source=$HOME,target=/home/user -p 127.0.0.1:3179:3179 -it red8012/akimous akimous
 ```
 
 ## Commands
@@ -92,3 +96,10 @@ This program is at pre-alpha stage. Please do report issues if you run into some
 ## License
 
 [BSD-3-Clause](LICENSE)
+
+## Links
+
+* [Official website](https://akimous.com)
+* [PyPI](https://pypi.org/project/akimous/)
+* [Docker Hub](https://hub.docker.com/r/red8012/akimous)
+

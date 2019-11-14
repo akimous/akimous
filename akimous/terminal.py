@@ -4,10 +4,15 @@ from functools import partial
 from pathlib import Path
 
 from logzero import logger
-from ptyprocess import PtyProcessUnicode
 
 from .utils import nop
 from .websocket import register_handler
+
+try:
+    from ptyprocess import PtyProcessUnicode
+except ModuleNotFoundError:
+    logger.warning('ptyprocess does not support Windows, '
+                   'terminal function will be disabled')
 
 handles = partial(register_handler, 'terminal')
 
@@ -59,8 +64,9 @@ async def run_in_terminal(msg, send, context):
     if not cwd:
         cwd = str(root)
     cwd = shlex.quote(cwd)
-    pty = PtyProcessUnicode.spawn(
-        command, cwd=cwd, dimensions=(msg['rows'], msg['cols']))
+    pty = PtyProcessUnicode.spawn(command,
+                                  cwd=cwd,
+                                  dimensions=(msg['rows'], msg['cols']))
     await send('Started', None)
 
     context.pty = pty
