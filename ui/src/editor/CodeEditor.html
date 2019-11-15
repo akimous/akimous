@@ -392,7 +392,8 @@
     export function insertText(text) {
         g.activeEditor && g.activeEditor.cm.hasFocus()
         if (!cm.hasFocus()) return
-        cm.doc.replaceRange(text, cm.doc.getCursor('from'), cm.doc.getCursor('to'), '+input')
+        const nSelections = cm.listSelections().length
+        cm.replaceSelections(new Array(nSelections).fill(text))
     }
 
     export function markClean() {

@@ -11,7 +11,7 @@ license = "BSD-3-Clause"
 readme = "README.md"
 homepage = "https://akimous.com"
 repository = "https://github.com/akimous/akimous"
-documentation = "https://akimous.com/gettingStarted"
+documentation = "https://akimous.com/start"
 keywords = ["ide", "editor", "akimous"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
