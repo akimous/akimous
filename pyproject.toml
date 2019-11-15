@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "akimous"
-version = "0.1.1"
+version = "0.1.2"
 description = "An intelligent Python IDE"
 authors = ["Yu-Ann Chen <red8012@gmail.com>"]
 license = "BSD-3-Clause"
