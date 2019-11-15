@@ -189,7 +189,7 @@ span.tooltipped::after {
 /* panel */
 .panel {
     height: calc(100% - var(--indicator-height) - var(--tab-bar-height));
-    overflow-y: scroll;
+    overflow-y: auto;
     box-sizing: border-box;
 }
 
