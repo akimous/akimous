@@ -384,6 +384,7 @@
     export function save() {
         saving = true
         session.send('SaveFile', { content: cm.getValue() })
+        completion.open = false
         // preserve cursor and viewport position in case formatter changes the content
         cursorBeforeSaving = cm.getCursor()
         scrollInfoBeforeSaving = cm.getScrollInfo()
