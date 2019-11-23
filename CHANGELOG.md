@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Fix an extra space being added after closing braces. `(1, 2).`
+
 ## 0.1.2 (2019-11-15)
 
 * Fix ugly panel scrollbars on Windows.

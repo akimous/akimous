@@ -39,14 +39,13 @@
     import Linter from './panels/Linter.html'
     import References from './panels/References.html'
     
-
-    export let allowWhiteSpace = true,
-        autoHide = g.config.panelRight.hidden,
+    
+    export const allowWhiteSpace = true
+    export let autoHide = g.config.panelRight.hidden,
         children = {},
         focused = false,
         hidden = g.config.panelRight.hidden,
-        tabBar = null,
-        width = 0
+        tabBar = null
     
     let onTabChange, 
         originalWidth = g.config.panelRight.width,
