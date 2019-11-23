@@ -1,6 +1,6 @@
 <div bind:this={panel} id="find" class="panel" class:gone="{!active}" on:click="{onFocus}">
     <div class="label">Find...</div>
-    <TextInput bind:this={findText} bind:value={findText} coalesced="true" on:keydown="{onKeyDown}"></TextInput>
+    <TextInput bind:value={findText} coalesced="true" on:keydown="{onKeyDown}"></TextInput>
     <div class="button-group">
         <Button corner="0001" active={caseSensitive} on:click="{() => caseSensitive = !caseSensitive}" title="Case-Sensitive">Aa</Button>
         <Button active={regex} on:click="{() => regex = !regex}" title="Regular Expression">.*</Button>
