@@ -78,6 +78,7 @@ Scenario('Normal formatting', async (I) => {
     
     await typeAndCompare(['cla Bla', ['Enter']], ['class Bla:'])
     await typeAndCompare(['de', ['Space', '2'], ['Enter']], ['    def __init__(self):'])
+    await typeAndCompare(['.cat=1', ['Enter'], 'pr .ca)', ['Enter']], ['self.cat = 1', 'print(self.cat)'])
     await typeAndCompare(['pas', ['Meta', 'Enter']], ['        pass'])
     await typeAndCompare(['def'])
     I.dontSee('def __init__', '.row-content')

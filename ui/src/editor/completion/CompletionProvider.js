@@ -299,7 +299,7 @@ class CompletionProvider {
         const { type, postfix } = completion
         const { mode } = this
         let tail = tails[type]
-        const { isImport, isDef, isSpace, afterAt, except } = this.context
+        const { isImport, afterAt, except } = this.context
         if (mode === STRING || mode === COMMENT)
             tail = null
         else if (passiveTokenCompletionSet.has(type)) {
@@ -332,7 +332,7 @@ class CompletionProvider {
             head,
             isDef: /^\s*def\s$/.test(head),
             isDefParameter: /^\s*def\s\w+\(/.test(head),
-            isSpace: /^\s*$/.test(head),
+            // isSpace: /^\s*$/.test(head),
             afterAt: (t0 && t0.string === '@') || (t1 && t1.string === '@'),
             except: /^\s*except\s/.test(head),
         })

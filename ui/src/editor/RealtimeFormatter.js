@@ -154,7 +154,9 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             ensureSpaceBefore(t0)
         } else if (t0.string === '>' && t1.string === '-') {
             ensureSpaceBefore(t0)
-        } else if (t0.string === '.' && t1.type === null && identifier.test(currentText)) {
+        } else if (t0.string === '.' && 
+                   (t1.type === null || /[([{]/.test(t1.string)) && 
+                   identifier.test(currentText)) {
             if (fromImport.test(line)) return
             // .x => self.x
             c.text[0] = `self.${currentText}`
