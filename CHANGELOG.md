@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 (2019-11-24)
 
 * Close completion popup on saving.
 * Workaround support for Makefile syntax highlighting. (use YAML)
