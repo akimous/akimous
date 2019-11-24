@@ -59,6 +59,7 @@
     function setWidth() {
         const width = (originalWidth < 10) ? 'calc(8rem + 7vw)' : `${originalWidth}px`
         document.documentElement.style.setProperty('--panel-left-width', width)
+        if (tabBar && !tabBar.initialized) tabBar.fitTabWidth()
     }
     
     export function saveWidth() {

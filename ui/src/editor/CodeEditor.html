@@ -130,6 +130,8 @@
         textMark = null,
         uid
     
+    uid // suppressing unused export warning
+    
     let cursorBeforeSaving,
         mtime,
         oldPathString = '',
@@ -199,7 +201,10 @@
     onMount(() => {
         self = g.panelMiddle.editors[pathString]
         g.linter.clear()
-        const mode = CodeMirror.findModeByFileName(fileName)
+        let mode = CodeMirror.findModeByFileName(fileName)
+        // use YAML for Makefile mode since CodeMirror does not support Makefile.
+        if (!mode && fileName === 'Makefile')
+            mode = { mime: 'text/x-yaml' }
 
         // Step 1: Connect to websocket and read file
         const readFile = new Promise(resolve => {
@@ -301,6 +306,7 @@
                         g.linter.$set({ spellingErrors })
                 },
                 ReferencesFound: data => {
+                    g.setFocus([g.panelRight, g.references])
                     g.references.$set({
                         ...data,
                         active: true
@@ -344,12 +350,13 @@
         initializeCM.then(() => schedule(() => {
             cm.refresh() // prevent CM occasionally shifts to the right
             completionProvider = new CompletionProvider(self)
-            // only enable completionProvider when the document is a Python file
-            if (mode && mode.mode !== 'python') {
-                completionProvider.enabled = false
-            }
             realtimeFormatter = RealtimeFormatter(self, CodeMirror)
             cmEventDispatcher = new CMEventDispatcher(self)
+            // only enable completionProvider when the document is a Python file
+            if (!mode || mode.mode !== 'python') {
+                completionProvider.enabled = false
+                cmEventDispatcher.realtimeFormatting = false
+            }
             completion.bindReferences(self)
 
             // resolve Safari over-scroll jitter issue
@@ -384,6 +391,7 @@
     export function save() {
         saving = true
         session.send('SaveFile', { content: cm.getValue() })
+        completion.open = false
         // preserve cursor and viewport position in case formatter changes the content
         cursorBeforeSaving = cm.getCursor()
         scrollInfoBeforeSaving = cm.getScrollInfo()

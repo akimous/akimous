@@ -16,7 +16,8 @@ const NORMAL = 0,
     COMMENT = 2,
     FOR = 3,
     PARAMETER_DEFINITION = 4,
-    AFTER_OPERATOR = 5
+    AFTER_OPERATOR = 5,
+    OTHER_PASSIVE = 6
 const debug = true
 
 const shouldUseSequentialHighlighter = new Set([
@@ -130,10 +131,11 @@ class CompletionProvider {
             this.retrigger(lastRetriggerJob)
         }
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
-            this.mode = STRING
-            
-            const { t1, t2, input } = this.context
-            if (t2.string === 'def') {
+            const { mode } = this
+            const { t1, t2, input, isDef, isDefParameter } = this.context
+
+            if (isDef) {
+                this.mode = OTHER_PASSIVE
                 // decide whether self should be added
                 if (this.isMethodDefinition()) {
                     result.forEach(item => {
@@ -144,10 +146,16 @@ class CompletionProvider {
                         item.tail = '()'
                     })
                 }
-            } else if (!t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
+            } else if (isDefParameter) {
+                this.mode = PARAMETER_DEFINITION
+            } else if (mode !== STRING && mode !== COMMENT &&
+                       !t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
+                this.mode = OTHER_PASSIVE
                 result.forEach(item => {
                     item.tail = ' ='
                 })
+            } else {
+                this.mode = OTHER_PASSIVE
             }
             
             if (t2.string === 'class' || /[A-Z]/.test(input.charAt(0))) {
@@ -213,6 +221,7 @@ class CompletionProvider {
         })
         this.state = TRIGGERED
         this.retriggerQueue.length = 0 // clear queue
+        this.updateContext()
     }
     
     requestExtraPredictions(line, ch, input, sortedCompletions) {
@@ -246,9 +255,15 @@ class CompletionProvider {
         }
         this.state = RETRIGGERED
         const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
+        Object.assign(this.context, {
+            lineContent,
+            line,
+            ch
+        })
         this.input = input
         let sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
         this.requestExtraPredictions(line, ch, input, sortedCompletions)
+        this.updateContext()
     }
 
     sortAndFilter(input, completions) {
@@ -276,7 +291,30 @@ class CompletionProvider {
             return row.sortScore + row.score > 0
         })
         
-        // prepare common parts for addTail
+        filteredCompletions.forEach(this.addTail, this)
+        return filteredCompletions
+    }
+
+    addTail(completion) {
+        const { type, postfix } = completion
+        const { mode } = this
+        let tail = tails[type]
+        const { isImport, afterAt, except } = this.context
+        if (mode === STRING || mode === COMMENT)
+            tail = null
+        else if (passiveTokenCompletionSet.has(type)) {
+            // do nothing
+        } else if (tail === '()') {
+            if (isImport) tail = null
+            else if (postfix) tail = null
+            else if (afterAt) tail = null  // handle @property and other decorators
+            else if (except) tail = null
+        }
+        if (tail)
+            completion.tail = tail
+    }
+    
+    updateContext() {
         const { lineContent, firstTriggeredCharPos, inParentheses, cm, t0, t1 } = this.context
         this.context.isImport = false
         if (lineContent.includes(' import ')) {
@@ -291,36 +329,13 @@ class CompletionProvider {
         }
         const head = lineContent.substring(0, firstTriggeredCharPos.ch)
         Object.assign(this.context, {
+            head,
             isDef: /^\s*def\s$/.test(head),
-            isSpace: /^\s*$/.test(head),
+            isDefParameter: /^\s*def\s\w+\(/.test(head),
+            // isSpace: /^\s*$/.test(head),
             afterAt: (t0 && t0.string === '@') || (t1 && t1.string === '@'),
             except: /^\s*except\s/.test(head),
         })
-        filteredCompletions.forEach(this.addTail, this)
-        return filteredCompletions
-    }
-
-    addTail(completion) {
-        const { type, postfix } = completion
-        const { mode } = this
-        let tail = tails[type]
-        const { isImport, isDef, isSpace, afterAt, except } = this.context
-        if (mode === STRING || mode === COMMENT)
-            tail = null
-        else if (passiveTokenCompletionSet.has(type)) {
-            if (mode === PARAMETER_DEFINITION) tail = '='
-            else {
-                if (isDef) tail = '()'
-                else if (!isSpace) tail = null
-            }
-        } else if (tail === '()') {
-            if (isImport) tail = null
-            else if (postfix) tail = null
-            else if (afterAt) tail = null  // handle @property and other decorators
-            else if (except) tail = null
-        }
-        if (tail)
-            completion.tail = tail
     }
 }
 

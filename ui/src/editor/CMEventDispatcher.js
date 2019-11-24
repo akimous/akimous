@@ -26,6 +26,7 @@ class CMEventDispatcher {
             completion = editor.completion
 
         this.realtimeEvaluation = false
+        this.realtimeFormatting = true
         this._indentDelta = 0
 
         let dirtyLine = NONE
@@ -127,6 +128,7 @@ class CMEventDispatcher {
         })
 
         cm.on('changes', (cm, changes) => {
+            if (!this.realtimeFormatting) return
             if (changes[0].origin === 'setValue') return
             const cursor = doc.getCursor()
             const lineContent = cm.getLine(cursor.line)
@@ -163,6 +165,7 @@ class CMEventDispatcher {
         })
 
         cm.on('beforeChange', (cm, c) => {
+            if (!this.realtimeFormatting) return
             formatter.setContext(cm, c)
             // console.log('beforeChange', c)
             const startTime = performance.now()

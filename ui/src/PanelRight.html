@@ -39,14 +39,13 @@
     import Linter from './panels/Linter.html'
     import References from './panels/References.html'
     
-
-    export let allowWhiteSpace = true,
-        autoHide = g.config.panelRight.hidden,
+    
+    export const allowWhiteSpace = true
+    export let autoHide = g.config.panelRight.hidden,
         children = {},
         focused = false,
         hidden = g.config.panelRight.hidden,
-        tabBar = null,
-        width = 0
+        tabBar = null
     
     let onTabChange, 
         originalWidth = g.config.panelRight.width,
@@ -70,6 +69,7 @@
     function setWidth() {
         const width = (originalWidth < 10) ? 'calc(8rem + 7vw)' : `${originalWidth}px`
         document.documentElement.style.setProperty('--panel-right-width', width)
+        if (tabBar && !tabBar.initialized) tabBar.fitTabWidth()
     }
     
     export function saveWidth() {

@@ -16,25 +16,29 @@ function bindHotkeys() {
     })
 
     hotkey('mod + f', () => {
-        g.find.$set({ active: true })
         g.setFocus([g.panelRight, g.find])
         g.find.$set({ 
+            active: true,
             replaceMode: false,
             findInDirectory: null,
             matches: [],
             selectedIndex: -1,
         })
-        g.find.findText.focus()
+        requestAnimationFrame(() => {
+            g.find.findTextInput.focus()
+        })
     })
 
     const replaceMode = () => {
-        g.find.$set({ active: true })
         g.setFocus([g.panelRight, g.find])
         g.find.$set({ 
+            active: true,
             replaceMode: true,
             findInDirectory: null,
         })
-        g.find.findText.focus()
+        requestAnimationFrame(() => {
+            g.find.findTextInput.focus()
+        })
     }
     hotkey('mod + alt + f', replaceMode)
     hotkey('mod + h', replaceMode)

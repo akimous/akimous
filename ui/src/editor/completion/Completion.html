@@ -50,7 +50,8 @@
         'full-statement'
     ])
 
-    export let closable = true,
+    export const closable = true
+    export let
         completionProvider = null,
         keyEventHandler = null,
         open = false,
@@ -258,7 +259,6 @@
             cm.doc.getCursor(),
             '+completion'
         )
-        console.warn(row)
         if (shouldAddTail && tail.endsWith(')') && 
             (selectedCompletionHasParameters ||
              type === 'word' || 
