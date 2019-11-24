@@ -163,7 +163,8 @@ module.exports = {
                     'unshift',
                     'utils',
                     'viewport',
-                    'yapf'
+                    'yaml',
+                    'yapf',
                 ],
                 skipIfMatch: [
                     'http://[^s]*',

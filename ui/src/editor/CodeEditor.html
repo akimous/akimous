@@ -130,7 +130,7 @@
         textMark = null,
         uid
     
-    uid // supressing unused export warning
+    uid // suppressing unused export warning
     
     let cursorBeforeSaving,
         mtime,
@@ -201,7 +201,10 @@
     onMount(() => {
         self = g.panelMiddle.editors[pathString]
         g.linter.clear()
-        const mode = CodeMirror.findModeByFileName(fileName)
+        let mode = CodeMirror.findModeByFileName(fileName)
+        // use YAML for Makefile mode since CodeMirror does not support Makefile.
+        if (!mode && fileName === 'Makefile')
+            mode = { mime: 'text/x-yaml' }
 
         // Step 1: Connect to websocket and read file
         const readFile = new Promise(resolve => {
