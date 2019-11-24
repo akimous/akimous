@@ -156,7 +156,7 @@ Scenario('Normal formatting', async (I) => {
     await typeAndCompare(['"".ti +'], ['"".title() +'])
     clear()
     
-    await typeAndCompare(['(1,2).'], ['(1, 2).']) // should not be `(1, 2) .`
+    await typeAndCompare(['(1,2).c '], ['(1, 2).count()']) // should not be `(1, 2) .`
     clear()
     // pause()
 })

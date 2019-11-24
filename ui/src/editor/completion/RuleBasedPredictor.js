@@ -247,7 +247,7 @@ function suggestInitInsideClass({ topHit, line }) {
  
     if (highlightedOutlineItem.type === 'class') {
         classOutlineIndex = highlightedIndex
-    } else {
+    } else if (outlineItems.length) {
         const currentLevel = highlightedOutlineItem.level
         // TODO: binary search
         for (let i = highlightedIndex; i >= 0; i--) {
