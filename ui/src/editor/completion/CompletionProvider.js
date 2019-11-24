@@ -130,7 +130,9 @@ class CompletionProvider {
             this.retrigger(lastRetriggerJob)
         }
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
-            this.mode = STRING
+            const { mode } = this
+            if (mode === NORMAL)
+                this.mode = STRING
             
             const { t1, t2, input } = this.context
             if (t2.string === 'def') {
@@ -144,7 +146,8 @@ class CompletionProvider {
                         item.tail = '()'
                     })
                 }
-            } else if (!t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
+            } else if (mode !== STRING && mode !== COMMENT &&
+                       !t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
                 result.forEach(item => {
                     item.tail = ' ='
                 })
