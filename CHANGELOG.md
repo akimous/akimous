@@ -7,7 +7,8 @@
 * Fix an extra space being added after closing braces. `(1, 2).`
 * Fix `=` being added as tail in dictionary completion for comments/strings.
 * Fix find text input not correctly focused when hotkey `command + f` is pressed.
-* Fixpanel right does not automatically pop up when references are requested.
+* Fix panel right does not automatically pop up when references are requested.
+* Fix tab bar is not correctly initialized if the panel is hidden during start up.
 
 ## 0.1.2 (2019-11-15)
 

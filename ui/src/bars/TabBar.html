@@ -27,7 +27,8 @@
     import Tab from './Tab.html'
     import { OTHERS } from './Tab.html'
 
-    export let tabData = [],
+    export let initialized = false, // set to true after the tab width is first adjusted
+        tabData = [],
         tabs = {}
 
     let tabBar,
@@ -36,7 +37,7 @@
     onMount(async () => {
         await tick()
         Sortable.create(tabBar, { animation: 0 })
-        new elementQueries.ResizeSensor(tabBar, fitTabWidth)
+        // ResizeSensor is initialized in _fitTabWidth
     })
     
     function tabDestroyed({ detail }) {
@@ -48,8 +49,8 @@
     export async function openTab(id, name, view, icon, type = OTHERS) {
         tabData.push({ id, name, view, icon, type })
         tabData = tabData // force update
-        fitTabWidth()
         await tick()
+        fitTabWidth()
         view.tab = tabs[id] // eslint-disable-line require-atomic-updates
     }
 
@@ -71,8 +72,13 @@
     }
 
     function _fitTabWidth() {
-        if (!tabBar) // tab bar not ready
+        if (!tabBar || !tabBar.offsetParent) // tab bar not ready or panel is hidden
             return
+        if (!initialized) {
+            new elementQueries.ResizeSensor(tabBar, fitTabWidth)
+            initialized = true
+            return // the remaining part will be triggered by ResizeSensor
+        }
         const tabBarWidth = tabBar.getBoundingClientRect().width
         const _tabs = Object.values(tabs)
         if (!_tabs.length) return
