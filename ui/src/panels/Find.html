@@ -1,6 +1,6 @@
 <div bind:this={panel} id="find" class="panel" class:gone="{!active}" on:click="{onFocus}">
     <div class="label">Find...</div>
-    <TextInput bind:value={findText} coalesced="true" on:keydown="{onKeyDown}"></TextInput>
+    <TextInput bind:this={findTextInput} bind:value={findText} coalesced="true" on:keydown="{onKeyDown}"></TextInput>
     <div class="button-group">
         <Button corner="0001" active={caseSensitive} on:click="{() => caseSensitive = !caseSensitive}" title="Case-Sensitive">Aa</Button>
         <Button active={regex} on:click="{() => regex = !regex}" title="Regular Expression">.*</Button>
@@ -16,7 +16,7 @@
     </div>
     {#if replaceMode}
     <div class="label">Replace with...</div>
-    <TextInput bind:this={replaceText} bind:value={replaceText} coalesced="true"></TextInput>
+    <TextInput bind:this={replaceTextInput} bind:value={replaceText} coalesced="true"></TextInput>
     <div class="button-group">
         <Button corner="0011" on:click="{replaceAll}" title="Replace All Occurances">All</Button>
         <span class="gap"></span>
@@ -152,6 +152,7 @@
         currentLine = 0,
         findInDirectory = null,
         findText = '',
+        findTextInput = null,
         highlightOverlay = null,
         matches = [],
         nFiles = 0,
@@ -159,6 +160,7 @@
         regex = false,
         replaceMode = false,
         replaceText = '',
+        replaceTextInput = null,
         selectedIndex = -1,
         selectedMatches = new Set(),
         subdirectory = true,

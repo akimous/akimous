@@ -24,7 +24,9 @@ function bindHotkeys() {
             matches: [],
             selectedIndex: -1,
         })
-        g.find.findText.focus()
+        requestAnimationFrame(() => {
+            g.find.findTextInput.focus()
+        })
     })
 
     const replaceMode = () => {
@@ -34,7 +36,9 @@ function bindHotkeys() {
             replaceMode: true,
             findInDirectory: null,
         })
-        g.find.findText.focus()
+        requestAnimationFrame(() => {
+            g.find.findTextInput.focus()
+        })
     }
     hotkey('mod + alt + f', replaceMode)
     hotkey('mod + h', replaceMode)
