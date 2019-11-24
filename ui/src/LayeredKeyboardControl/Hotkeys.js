@@ -16,9 +16,9 @@ function bindHotkeys() {
     })
 
     hotkey('mod + f', () => {
-        g.find.$set({ active: true })
         g.setFocus([g.panelRight, g.find])
         g.find.$set({ 
+            active: true,
             replaceMode: false,
             findInDirectory: null,
             matches: [],
@@ -30,9 +30,9 @@ function bindHotkeys() {
     })
 
     const replaceMode = () => {
-        g.find.$set({ active: true })
         g.setFocus([g.panelRight, g.find])
         g.find.$set({ 
+            active: true,
             replaceMode: true,
             findInDirectory: null,
         })

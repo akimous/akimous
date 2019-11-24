@@ -306,6 +306,7 @@
                         g.linter.$set({ spellingErrors })
                 },
                 ReferencesFound: data => {
+                    g.setFocus([g.panelRight, g.references])
                     g.references.$set({
                         ...data,
                         active: true
