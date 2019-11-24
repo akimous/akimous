@@ -9,6 +9,8 @@
 * Fix find text input not correctly focused when hotkey `command + f` is pressed.
 * Fix panel right does not automatically pop up when references are requested.
 * Fix tab bar is not correctly initialized if the panel is hidden during start up.
+* Fix `.a` not correctly formatted as `self.a` after an opening brace.
+* Fix realtime formatter being triggered for non-python files.
 
 ## 0.1.2 (2019-11-15)
 

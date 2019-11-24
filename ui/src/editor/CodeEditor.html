@@ -350,12 +350,13 @@
         initializeCM.then(() => schedule(() => {
             cm.refresh() // prevent CM occasionally shifts to the right
             completionProvider = new CompletionProvider(self)
-            // only enable completionProvider when the document is a Python file
-            if (mode && mode.mode !== 'python') {
-                completionProvider.enabled = false
-            }
             realtimeFormatter = RealtimeFormatter(self, CodeMirror)
             cmEventDispatcher = new CMEventDispatcher(self)
+            // only enable completionProvider when the document is a Python file
+            if (!mode || mode.mode !== 'python') {
+                completionProvider.enabled = false
+                cmEventDispatcher.realtimeFormatting = false
+            }
             completion.bindReferences(self)
 
             // resolve Safari over-scroll jitter issue
