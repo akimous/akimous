@@ -182,6 +182,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         let replaceWith = ''
         const from = Pos(c.from.line, c.from.ch)
         const to = Pos(c.to.line, c.to.ch + chars - 1)
+        if (to.ch < 0) to.ch = 0
         if (lines > 0) {
             const lineContent = cm.getLine(from.line)
             const nextLineContent = cm.getLine(from.line + lines)

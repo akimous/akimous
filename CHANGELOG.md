@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Select the name automatically when renaming files.
+* Fix broken forward delete caused by realtime formatter.
 
 ## 0.2.0 (2019-11-24)
 

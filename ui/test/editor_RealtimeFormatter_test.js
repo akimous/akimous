@@ -51,7 +51,7 @@ Scenario('Normal formatting', async (I) => {
         I.type([META, 'a'])
         I.type(['Backspace'])
     }
-    
+        
     await typeAndCompare(['for i in range(5', ['Meta', 'Enter'], 'print(i'],
         ['for i in range(5):', 'print(i)'])
     I.dontSee('pprint')
@@ -158,6 +158,10 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     await typeAndCompare(['(1,2).c '], ['(1, 2).count()']) // should not be `(1, 2) .`
+    clear()
+    
+    // forward delete
+    await typeAndCompare(['1', ['Enter'], ['Enter'], '23', ['ArrowUp'], ['Delete']], ['1\n23'])
     clear()
     // pause()
 })
