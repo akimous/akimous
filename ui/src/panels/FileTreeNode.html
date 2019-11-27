@@ -171,6 +171,13 @@
     
     $: allowWhiteSpace = renaming
     $: icon = isDir ? fileTypeToIcon[open ? 'folder-open' : 'folder'] : getIconByFileName(name)
+    $: {
+        if (input) { // don't use renaming, or the function will be called twice
+            const i = name.lastIndexOf('.')
+            if (i > 0) input.setSelectionRange(0, i)
+            else input.setSelectionRange(0, name.length)
+        }
+    }
     
     async function initializePlaceholderNode(type, callback) {
         newNode = type
