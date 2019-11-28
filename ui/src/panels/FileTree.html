@@ -89,9 +89,12 @@
         handlers['DirOpened'] = message => {
             if (message.path.length) {
                 const node = getNode(message.path)
-                node.dirs = sortAndAddUid(message.dirs)
-                node.files = sortAndAddUid(message.files)
-            } else {
+                node.$set({
+                    dirs: sortAndAddUid(message.dirs),
+                    files: sortAndAddUid(message.files),
+                    open: true, // set to true again, because this might be triggered by backend restoring opened folders
+                })
+            } else { // project root
                 dirs = sortAndAddUid(message.dirs)
                 files = sortAndAddUid(message.files)
             }

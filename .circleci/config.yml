@@ -3,6 +3,7 @@ jobs:
   build:
     docker:
       - image: red8012/akimous-dev-environment:latest
+    resource_class: small
     steps:
       - checkout
       - restore_cache:
