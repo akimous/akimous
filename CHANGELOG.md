@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 (2019-12-01)
 
 * Select the name automatically when renaming files.
 * Fix broken forward delete caused by realtime formatter.
