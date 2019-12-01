@@ -4,6 +4,8 @@
 
 * Select the name automatically when renaming files.
 * Fix broken forward delete caused by realtime formatter.
+* Remember opened folders in file tree.
+* Prevent context menu going out of the viewport.
 
 ## 0.2.0 (2019-11-24)
 
