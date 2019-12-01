@@ -1,17 +1,19 @@
-from contextlib import suppress
 import os
 import platform
-from subprocess import Popen
+from asyncio import sleep
+from contextlib import suppress
 from functools import partial
 from pathlib import Path
 from shutil import rmtree
+from subprocess import Popen
 
 from logzero import logger
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 from send2trash import send2trash
 from send2trash.exceptions import TrashPermissionError
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
+from .project import save_state
 from .websocket import register_handler
 
 
@@ -109,10 +111,47 @@ async def open_dir(msg, send, context):
     start_monitor(path, context)
     await send('DirOpened', result)
 
+    # store opened folders
+    opened_folders = context.shared.project_config['openedFolders']
+    pointer = opened_folders
+    dirty = False
+    for part in path.relative_to(context.shared.project_root).parts:
+        next_pointer = pointer.get(part)
+        if not next_pointer:
+            pointer[part] = {}
+            next_pointer = pointer[part]
+            dirty = True
+        pointer = next_pointer
+    if dirty:
+        save_state(context)
+
+    # restore opened folders when project root is opened
+    if not msg['path']:
+        await restore_opened_folders([], opened_folders, send, context)
+
+
+async def restore_opened_folders(path, pointer, send, context):
+    for k, v in pointer.items():
+        await sleep(0)
+        await open_dir({'path': path + [k]}, send, context)
+        await restore_opened_folders(path + [k], v, send, context)
+
 
 @handles('CloseDir')
 async def close_dir(msg, send, context):
-    stop_monitor(Path(context.shared.project_root, *msg['path']), context)
+    path = Path(context.shared.project_root, *msg['path'])
+    stop_monitor(path, context)
+
+    # remove from opened folders
+    parts = path.relative_to(context.shared.project_root).parts
+    pointer = context.shared.project_config['openedFolders']
+    for part in parts[:-1]:
+        next_pointer = pointer.get(part)
+        if not next_pointer:
+            return
+        pointer = next_pointer
+    del pointer[parts[-1]]
+    save_state(context)
 
 
 @handles('Rename')

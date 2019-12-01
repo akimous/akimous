@@ -59,6 +59,7 @@ module.exports = {
                     'args',
                     'async',
                     'autofocus',
+                    'backend',
                     'backquote',
                     'beforeunload',
                     'breakpoint',

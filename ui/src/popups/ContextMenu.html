@@ -1,5 +1,5 @@
 {#if open}
-<div id="context-menu" class="popup" style="top:{y}px; left:{x}px;">
+<div id="context-menu" bind:this={self} class="popup" style="top:{y}px; left:{x}px;">
     {#each items as item, i}
     {#if item.divider}
     <ContextMenuDivider></ContextMenuDivider>
@@ -45,6 +45,7 @@
         open = false,
         selectedID = -1,
         selectedRow = null,
+        self = null,
         target = null,
         x = 0,
         y = 0
@@ -61,6 +62,18 @@
             g.pushFocus(g.contextMenu)
         } else {
             g.popFocus(g.contextMenu)
+        }
+    }
+    $: { // prevent context menu going out of the viewport
+        if (self) {
+            const { right, bottom, width, height } = self.getBoundingClientRect()
+            const { innerWidth, innerHeight } = window
+            if (bottom > innerHeight) {
+                y = Math.max(innerHeight - height, 0)
+            }
+            if (right > innerWidth) {
+                x = Math.max(innerWidth - width, 0)
+            }
         }
     }
         
