@@ -15,6 +15,9 @@ from .websocket import register_handler
 
 class PersistentConfig:
     def __init__(self):
+        with resources.open_text('akimous.resources',
+                                 'default_project_state.json') as f:
+            self._default = json.load(f)
         self.db = sqlite3.connect(str(config_directory / 'projects.db3'),
                                   isolation_level=None)
         self.db.execute(
@@ -27,16 +30,13 @@ class PersistentConfig:
                         (key, j))
 
     def __getitem__(self, key):
-        with resources.open_text('akimous.resources',
-                                 'default_project_state.json') as f:
-            default = json.load(f)
         key = str(key)
         result = self.db.execute('SELECT v FROM c WHERE k=?',
                                  (key, )).fetchall()
         result = json.loads(result[0][0]) if result else {}
 
         # create default value if not exist
-        result = merge_dict(default, result)
+        result = merge_dict(self._default, result)
 
         # convert paths to tuples
         result['openedFiles'] = list(tuple(i) for i in result['openedFiles'])
@@ -61,7 +61,9 @@ async def open_project(msg, send, context):
 
     # remove nonexistence files
     opened_files = sc.project_config['openedFiles']
-    opened_files = [i for i in opened_files if (sc.project_root / Path(*i)).is_file()]
+    opened_files = [
+        i for i in opened_files if (sc.project_root / Path(*i)).is_file()
+    ]
     sc.project_config['openedFiles'] = opened_files
 
     await send('ProjectOpened', {
