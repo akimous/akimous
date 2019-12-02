@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Avoid reference panel to open duplicated editors
+
 ## 0.3.0 (2019-12-01)
 
 * Select the name automatically when renaming files.

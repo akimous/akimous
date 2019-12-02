@@ -39,7 +39,12 @@ logger.info(f'Model {MODEL_NAME} loaded.')
 
 
 def get_relative_path(context):
-    return tuple(context.path.relative_to(context.shared.project_root).parts)
+    try:
+        return tuple(
+            context.path.relative_to(context.shared.project_root).parts)
+    except ValueError:
+        # the file does not belong to the project folder
+        return tuple(context.path.parts)
 
 
 async def run_pylint(context, send):
@@ -60,7 +65,8 @@ async def run_pylint(context, send):
         await send('OfflineLints', {
             'result': context.linter_output,
         })
-    except (CancelledError, AttributeError):  # may raise AttributeError after the editor is closed
+    except (CancelledError, AttributeError):
+        # may raise AttributeError after the editor is closed
         return
     except Exception as e:
         logger.exception(e)
@@ -493,9 +499,15 @@ async def find_usage(msg, send, context):
     await send('UsagesFound', results)
 
 
-def definition_to_dict(d):
+def definition_to_dict(d, project_root):
+    # use relative path if possible
+    # otherwise, the GUI will open two editors, one with relative path and one with absolute path
+    path = Path(d.module_path)
+    if project_root in path.parents:
+        path = path.relative_to(project_root)
+
     return {
-        'path': Path(d.module_path).parts,
+        'path': path.parts,
         'module': d.module_name,
         'builtin': d.in_builtin_module(),
         'definition': d.is_definition(),
@@ -523,9 +535,13 @@ async def find_references(msg, send, context):
         references = j.usages()
         definitions.extend(r for r in references if r.is_definition())
         usages.extend(r for r in references if not r.is_definition())
+
+    project_root = context.shared.project_root
     await send(
         'ReferencesFound', {
-            'definitions': [definition_to_dict(x) for x in definitions],
-            'assignments': [definition_to_dict(x) for x in assignments],
-            'usages': [definition_to_dict(x) for x in usages]
+            'definitions':
+            [definition_to_dict(x, project_root) for x in definitions],
+            'assignments':
+            [definition_to_dict(x, project_root) for x in assignments],
+            'usages': [definition_to_dict(x, project_root) for x in usages]
         })
