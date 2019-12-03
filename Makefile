@@ -57,7 +57,7 @@ lint:
 	cd ui && yarn run stylelint "resources/*.css" "src/**/*.html" "src/**/*.css"
 	poetry check
 
-test: | jstest pytest uitest
+test: jstest pytest | uitest
 
 pytest:
 	poetry run python -m pytest -sx --ignore akimous/modeling/temp

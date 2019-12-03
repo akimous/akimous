@@ -5,7 +5,7 @@ Scenario('Preparing', async (I) => {
     await I.amOnPage('http://localhost:3178')
     await I.wait(1)
     I.click('.path > .text-input > input')
-    for (let i = 0; i < 100; i++)
+    for (let i = 0; i < 50; i++)
         I.type(['Backspace'])
     I.type(['Enter'])
     I.click('.button.open')
