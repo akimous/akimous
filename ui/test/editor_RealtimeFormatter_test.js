@@ -38,7 +38,7 @@ Scenario('Normal formatting', async (I) => {
             return window.g.activeEditor.cm.getValue()
         })
         for (const i of displays) {
-            assert(doc.includes(i))
+            assert(doc.includes(i), `Not found: ${i}\nActual:\n${doc}`)
         }
     }
     const paste = async (content) => {

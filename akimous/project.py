@@ -4,6 +4,7 @@ from functools import partial
 from importlib import resources
 from pathlib import Path
 
+from git import InvalidGitRepositoryError, Repo
 from logzero import logger
 
 from .config import config, set_config
@@ -66,10 +67,21 @@ async def open_project(msg, send, context):
     ]
     sc.project_config['openedFiles'] = opened_files
 
+    # query git status
+    try:
+        sc.repo = Repo(sc.project_root)
+    except InvalidGitRepositoryError:
+        sc.repo = None
+
     await send('ProjectOpened', {
         'root': sc.project_root.parts,
-        'projectState': sc.project_config
+        'projectState': sc.project_config,
     })
+    if sc.repo:
+        await send('GitStatusUpdated', {
+            'branch': sc.repo.active_branch.name,
+            'dirty': sc.repo.is_dirty(),
+        })
     SpellChecker(context)
     await set_config({'lastOpenedFolder': str(sc.project_root)}, None, context)
 

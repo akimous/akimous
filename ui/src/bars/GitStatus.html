@@ -1,0 +1,45 @@
+<div id="git-status" class="non-selectable" class:dirty>
+    <i class="fas fa-code-branch"></i> {branch}
+</div>
+
+<style>
+    #git-status {
+        position: relative;
+        display: inline-block;
+        font-size: var(--ui-font-size-small);
+        flex-shrink: 0;
+        padding: 0 .5rem 0 .5rem;
+        color: var(--light-green);
+    }
+    
+    i {
+        padding-right: .5rem;
+    }
+    
+    #git-status.dirty {
+        color: var(--light-red);
+    }
+
+</style>
+
+<script>
+    import { onMount, tick } from 'svelte'
+
+    import g from '../lib/Globals'
+
+    export let branch = '',
+        dirty = false
+
+    onMount(async () => {
+        g.projectSession.handlers['GitStatusUpdated'] = data => {
+            branch = data.branch
+            dirty = data.dirty
+        }
+        await tick()
+        g.tooltip.register([
+            //            indentSwitch,
+            //            cursorPosition,
+        ])
+    })
+
+</script>
