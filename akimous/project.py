@@ -67,23 +67,23 @@ async def open_project(msg, send, context):
     ]
     sc.project_config['openedFiles'] = opened_files
 
+    SpellChecker(context)
+    await send('ProjectOpened', {
+        'root': sc.project_root.parts,
+        'projectState': sc.project_config,
+    })
+    await set_config({'lastOpenedFolder': str(sc.project_root)}, None, context)
+
     # query git status
     try:
         sc.repo = Repo(sc.project_root)
     except InvalidGitRepositoryError:
         sc.repo = None
-
-    await send('ProjectOpened', {
-        'root': sc.project_root.parts,
-        'projectState': sc.project_config,
-    })
     if sc.repo:
         await send('GitStatusUpdated', {
             'branch': sc.repo.active_branch.name,
             'dirty': sc.repo.is_dirty(),
         })
-    SpellChecker(context)
-    await set_config({'lastOpenedFolder': str(sc.project_root)}, None, context)
 
 
 @handles('SetProjectState')
