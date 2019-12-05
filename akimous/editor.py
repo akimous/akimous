@@ -35,7 +35,7 @@ doc_generator = DocGenerator()
 with resources.path('akimous.resources', MODEL_NAME) as _path:
     model = Booster(model_file=str(_path))  # 3 ms
     model.set_param('nthread', 1)
-logger.info('Model % loaded.', MODEL_NAME)
+logger.info('Model %s loaded.', MODEL_NAME)
 
 
 def get_relative_path(context):
@@ -154,6 +154,7 @@ async def post_content_change(context, send):
 
 @handles('_connected')
 async def connected(msg, send, context):
+    context.warmed_up = False
     context.doc = []
     context.linter_task = create_task(nop())
     # open file
@@ -184,6 +185,12 @@ async def connected(msg, send, context):
     # skip all completion, linting etc. if it is not a Python file
     if not context.is_python:
         return
+
+
+async def warm_up(context, send):
+    if context.warmed_up:
+        return
+    context.warmed_up = True
     await post_content_change(context, send)
 
 
@@ -214,9 +221,12 @@ async def reload(msg, send, context):
 @handles('ActivateEditor')
 async def activate_editor(msg, send, context):
     context.shared.doc = context.doc
-    context.shared.project_config['activePanels'][
-        'middle'] = get_relative_path(context)
-    save_state(context)
+    # When the editor is activated by user (not when initializing)
+    if not msg:
+        await warm_up(context, send)
+        context.shared.project_config['activePanels'][
+            'middle'] = get_relative_path(context)
+        save_state(context)
 
 
 @handles('Mtime')
