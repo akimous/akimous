@@ -32,10 +32,10 @@ PredictionRow = namedtuple('PredictionRow', ('c', 't', 's', 'p'))
 handles = partial(register_handler, 'editor')
 doc_generator = DocGenerator()
 
-with resources.path('akimous.resources', MODEL_NAME) as path:
-    model = Booster(model_file=str(path))  # 3 ms
+with resources.path('akimous.resources', MODEL_NAME) as _path:
+    model = Booster(model_file=str(_path))  # 3 ms
     model.set_param('nthread', 1)
-logger.info(f'Model {MODEL_NAME} loaded.')
+logger.info('Model % loaded.', MODEL_NAME)
 
 
 def get_relative_path(context):
@@ -408,7 +408,7 @@ async def get_completion_docstring(msg, send, context):
     if not docstring:
         try:
             definition = completion.infer()
-        except NotImplementedError:
+        except (NotImplementedError, AttributeError):
             return
         if not definition:
             return
