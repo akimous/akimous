@@ -80,8 +80,12 @@ async def open_project(msg, send, context):
     except InvalidGitRepositoryError:
         sc.repo = None
     if sc.repo:
+        try:
+            branch = sc.repo.active_branch.name
+        except TypeError:
+            branch = '(detached)'
         await send('GitStatusUpdated', {
-            'branch': sc.repo.active_branch.name,
+            'branch': branch,
             'dirty': sc.repo.is_dirty(),
         })
 
