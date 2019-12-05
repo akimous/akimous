@@ -5,7 +5,7 @@ const META = (process.platform === 'darwin') ? 'Meta' : 'Control'
 
 Scenario('Normal formatting', async (I) => {
     await I.amOnPage('http://localhost:3178')
-    await I.wait(1)
+    await I.wait(3)
     await I.click('pre.CodeMirror-line')
 
     const specialKeys = new Set(['Enter', 'Space'])

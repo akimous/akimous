@@ -18,4 +18,7 @@ Scenario('Preparing', async (I) => {
     await I.doubleClickAlt('fixture', '.display-name')
     await I.wait(1)
     await I.doubleClickAlt('empty.py', '.display-name')
+    
+    await I.wait(2)
+    await I.click('pre.CodeMirror-line')
 })
