@@ -115,7 +115,7 @@ async def run_spell_checker(context, send):
         tokens = tokenize(context.content)
         await send(
             'SpellingErrors',
-            {'result': context.shared.spell_checker.check_spelling(tokens)})
+            {'result': await context.shared.spell_checker.check_spelling(tokens)})
 
 
 async def run_pyflakes(context, send):
