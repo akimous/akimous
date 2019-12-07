@@ -109,7 +109,7 @@
         previousFocusStack = null
     
     export const keyEventHandler = {
-        handleKeyEvent(e, target) {
+        handleKeyEvent(e) {
             const { key } = e
             for (const button of buttons) {
                 if (button.hotkeys && button.hotkeys.includes(key)) {
