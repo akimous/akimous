@@ -136,6 +136,14 @@ async def warm_up_jedi(context):
     jedi.Script('\n'.join(context.doc), len(context.doc), 0,
                 str(context.path)).completions()
 
+    await jedi_preload_modules(context, 0, len(context.doc))
+
+
+async def jedi_preload_modules(context, start_line, end_line):
+    if end_line > 32:
+        end_line = 32
+    await preload_modules(context.doc[start_line:end_line])
+
 
 async def post_content_change(context, send):
     with Timer('Post content change'):
@@ -284,6 +292,9 @@ async def sync_range(msg, send, context):
     for i in range(from_line,
                    to_line if to_line - from_line == len(lines) else len(doc)):
         context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
+
+    if to_line < 32:
+        await jedi_preload_modules(context, from_line, to_line)
 
     if lint:
         await run_spell_checker(context, send)

@@ -159,6 +159,9 @@
     export function requestCompletionDocstringIfNeeded(completion) {
         let { text, type } = completion
         if (text === lastRequestedCompletionForDocstring) return
+        // don't disable request when doc panel is hidden, 
+        // or completion cannot determine whether a function has parameters
+        
         if (EXTRA_PREDICTIONS.has(type))
             return // don't request docstring if it is not actually a completion
 

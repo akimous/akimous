@@ -32,7 +32,7 @@ initializer_thread = Thread(target=_initialize)
 
 
 def initialize(event_loop):
-    event_loop.call_later(.1, initializer_thread.start)
+    event_loop.call_later(.01, initializer_thread.start)
 
 
 def search_prefix(s):
