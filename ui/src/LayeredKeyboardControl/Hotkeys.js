@@ -53,11 +53,8 @@ function bindHotkeys() {
         g.find.findPreviousButton.flash()
     })
 
-    hotkey('mod + `', () => {
-        if (!g.activeEditor) return
-        const { filePath } = g.activeEditor
-        filePath && g.panelMiddle.closeFile(filePath)
-    })
+    hotkey('mod + alt + w', g.close)
+    hotkey('mod + alt + shift + w', g.closeAll)
 
     const canBeRenamed = token => {
         return token.string.length > 0 && token.type &&

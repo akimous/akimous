@@ -67,6 +67,20 @@ const g = {
             })
         }
     },
+    close() {
+        if (!g.activeEditor) return
+        const { filePath } = g.activeEditor
+        filePath && g.panelMiddle.closeFile(filePath)
+    },
+    closeAll() {
+        if (!g.activeEditor) return
+        const { editors } = g.panelMiddle
+        for (let path in editors) {
+            const editor = editors[path]
+            if (editor && editor.clean)
+                g.panelMiddle.closeView(editor)
+        }
+    },
     saveFile() {
         g.activeEditor && g.activeEditor.save()
     },
