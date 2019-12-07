@@ -11,14 +11,14 @@ Scenario('Preparing', async (I) => {
     I.click('.button.open')
     await I.wait(1)
     await I.waitForElement('.file-tree-node', 5)
-    await I.wait(1)
+    await I.wait(.5)
     
     await I.doubleClickAlt('tests', '.display-name')
-    await I.wait(1)
+    await I.wait(.5)
     await I.doubleClickAlt('fixture', '.display-name')
-    await I.wait(1)
+    await I.wait(.5)
     await I.doubleClickAlt('empty.py', '.display-name')
     
-    await I.wait(2)
+    await I.wait(1)
     await I.click('pre.CodeMirror-line')
 })

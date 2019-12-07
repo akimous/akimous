@@ -76,7 +76,7 @@ uitest:
 	rm ~/Library/Application\ Support/akimous/* || true
 	rm ~/.config/akimous/* || true
 	poetry run python -m akimous --no-browser --port 3178 &
-	sleep 7
+	sleep 5
 	make singleuitest UNIT=test/prepare_test.js
 	make singleuitest UNIT=test/panel_FileTree_test.js
 	make singleuitest UNIT=test/menu_File_test.js
