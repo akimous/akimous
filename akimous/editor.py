@@ -16,6 +16,7 @@ from xgboost import Booster, DMatrix
 from .completion_utilities import is_parameter_of_def
 from .config import config
 from .doc_generator import DocGenerator  # 165ms, 13M memory
+from .jedi_preloader import preload_modules
 from .modeling.feature.feature_definition import tokenize
 from .online_feature_extractor import \
     OnlineFeatureExtractor  # 90ms, 10M memory
@@ -113,9 +114,10 @@ async def run_spell_checker(context, send):
         return
     with Timer('Spelling check'):
         tokens = tokenize(context.content)
-        await send(
-            'SpellingErrors',
-            {'result': await context.shared.spell_checker.check_spelling(tokens)})
+        await send('SpellingErrors', {
+            'result':
+            await context.shared.spell_checker.check_spelling(tokens)
+        })
 
 
 async def run_pyflakes(context, send):
