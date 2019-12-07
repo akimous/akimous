@@ -8,7 +8,7 @@ exports.config = {
             restart: false,
             keepBrowserState: true,
             windowSize: '1280x800',
-            waitForAction: 80,
+            waitForAction: 50,
             chrome: {
                 devtools: false,
                 args: ['--no-sandbox', '--disable-setuid-sandbox'],

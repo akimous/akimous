@@ -17,5 +17,5 @@ jobs:
           paths:
             - ~/.cache/yarn
             - ~/.cache/pypoetry
-      - run: make lint
-      - run: make test
+      - run: make lint -j4
+      - run: make test -j4

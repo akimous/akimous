@@ -51,10 +51,14 @@ static:
 
 ### lint and test ###
 
-lint:
+lint: _cloc _eslint _stylelint _poetrycheck
+_cloc:
 	cd ui && yarn run cloc --exclude-dir=testOutput,temp src resources ../akimous
+_eslint:
 	cd ui && yarn run eslint --ext .html,.js .
+_stylelint:
 	cd ui && yarn run stylelint "resources/*.css" "src/**/*.html" "src/**/*.css"
+_poetrycheck:
 	poetry check
 
 test: jstest pytest | uitest
