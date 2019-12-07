@@ -57,7 +57,7 @@ export default {
             keep_classnames: true,
             keep_fnames: true,
             compress: {
-                drop_console: true,
+                pure_funcs: ['console.log', 'console.info', 'console.debug'],
                 passes: 1
             },
             mangle: false, // mangling is likely to break xterm

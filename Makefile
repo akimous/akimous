@@ -2,8 +2,8 @@ all: | dockerfile bootstrap clean static
 	cd ui && yarn check --verify-tree
 	cd ui && yarn run rollup -c
 	# Firefox does not support brotli on localhost
-	cd akimous_ui/ && zopfli *.js *.css *.map *.html && rm *.js *.css *.map *.html
-	cd akimous_ui/webfonts && zopfli *.css && rm *.css
+	cd akimous_ui/ && zopfli --i1 *.js *.css *.map *.html && rm *.js *.css *.map *.html
+	cd akimous_ui/webfonts && zopfli --i1 *.css && rm *.css
 	poetry build
 	poetry install
 
