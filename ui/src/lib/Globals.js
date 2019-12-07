@@ -40,11 +40,8 @@ const g = {
         this.onFocusChanged()
     },
     pushFocus(x) {
-        // console.log('push focus', x)
         const focusStack = this.focusStack
-        for (let i = 0; i < focusStack.length; i++) {
-            if (focusStack[i] === x) return
-        }
+        if (focusStack.includes(x)) return
         focusStack.push(x)
         this.onFocusChanged()
     },

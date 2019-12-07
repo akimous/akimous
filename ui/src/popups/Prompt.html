@@ -1,4 +1,4 @@
-{#if active}
+{#if open}
 <div id="prompt-modal" class="popup">
     <div class="icon-area">
         <i class="icon {icon}" aria-hidden="true"></i>
@@ -6,7 +6,7 @@
     <div class="text">{@html content}</div>
     <div class="buttons non-selectable">
         {#each buttons as button}
-        <div class="button {button.style}" on:click="{() => onClickButton(button)}"> {button.text} </div>
+        <div bind:this={children[button.text]} class="button {button.style}" on:click="{() => onClickButton(button)}" aria-label="{getTooltipString(button)}"> {button.text} </div>
         {/each}
     </div>
 </div>
@@ -88,21 +88,61 @@
 </style>
    
 
-<script>
+<script>    
     import g from '../lib/Globals'
 
-    export let active = false,
+    export let open = false,
         content = '',
-        buttons = [{
-            text: 'Yes',
-            style: 'success'
-        }, {
-            text: 'No',
-            style: 'danger'
-        }],
+        buttons = [
+            // {
+            //     text: 'Yes',
+            //     style: 'success'
+            // }, {
+            //     text: 'No',
+            //     style: 'danger'
+            // }
+        ],
         icon = 'far fa-question-circle'
     
     const queue = []
+    let children = {},
+        previousFocusStack = null
+    
+    export const keyEventHandler = {
+        handleKeyEvent(e, target) {
+            const { key } = e
+            for (const button of buttons) {
+                if (button.hotkeys && button.hotkeys.includes(key)) {
+                    onClickButton(button)
+                    return false
+                }
+            }
+            return false
+        }
+    }
+    
+    $: {
+        g.tooltip && g.tooltip.register(Object.values(children).filter(x => x))
+    }
+    $: {
+        if (open) {
+            previousFocusStack = g.focusStack
+            g.focusStack = [g.prompt]
+        } else {
+            if (previousFocusStack) {
+                g.focusStack = previousFocusStack
+                previousFocusStack = null
+            }
+            if (g.ready) {
+                g.tooltip.mouseLeaveListener()
+                if (g.focus.constructor.name === 'CodeEditor') {
+                    g.focus.cm.focus()
+                }
+            }  
+        }
+        g.app && g.app.$set({ popup: open ? g.prompt : null })
+    }
+    
 
     function setProps(props) {
         icon = props.icon
@@ -110,12 +150,12 @@
         buttons = props.buttons
     }
 
-    export function open(props) {
+    export function prompt(props) {
         queue.push(props)
         if (queue.length == 1) {
             setProps(props)
         }
-        active = true
+        open = true
         g.activeEditor && g.activeEditor.completion.$set({ open: false })
     }
 
@@ -126,6 +166,17 @@
             setProps(queue[0])
             return
         }
-        active = false
+        open = false
+    }
+    
+    function getTooltipString(button) {
+        let s = 'Hotkey: '
+        const keys = button.hotkeys
+        for (let i = 0; i < keys.length; i++) {
+            if (i > 0)
+                s += ' or '
+            s += `"${keys[i]}"`
+        }
+        return s
     }
 </script>

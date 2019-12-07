@@ -185,6 +185,9 @@
 
     export function dismissPopups() {
         let { name } = popup.constructor
+        if (g.focus === g.prompt) {
+            return // don't allow prompt to be dismissed by clicking outside the modal
+        }
         name = name.charAt(0).toLowerCase() + name.slice(1)
         const toolbarButton = g.toolbar[name]
         if (toolbarButton) {
