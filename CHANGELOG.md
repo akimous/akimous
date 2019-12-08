@@ -1,8 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 (2019-12-08)
 
-* Avoid reference panel to open duplicated editors
+* Avoid reference panel to open duplicated editors.
+* Warm up editor lazily to improve start up time when a lot of files are open.
+* Preload Jedi modules to speed up first completion.
+* Implement "Close" and "Close All" in file menu.
+* Allow keyboard input (y/n) in prompts (e.g. closing an unsaved file).
+* Implement basic git integration (show file and branch status).
 
 ## 0.3.0 (2019-12-01)
 
