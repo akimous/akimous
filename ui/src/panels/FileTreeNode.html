@@ -40,12 +40,7 @@
         background: var(--ui-highlight-color);
         color: white;
     }
-
-
-    .file-tree-node:hover .display-name {
-        filter: brightness(1.4);
-    }
-
+    
     .icon {
         width: 1rem;
         min-height: 1rem;
@@ -54,12 +49,12 @@
         background-size: 100% 100% !important;
         text-align: center;
     }
-
+    
     .display-name {
         padding-left: 0.3rem;
         vertical-align: middle;
     }
-
+    
     input.display-name {
         border-radius: var(--small-radius);
         font-size: var(--ui-font-size-default);
@@ -69,6 +64,10 @@
     .hidden-file .icon,
     .hidden-file .display-name {
         opacity: 0.6;
+    }
+    
+    .file-tree-node:hover > .display-name {
+        filter: brightness(1.4);
     }
     
     .staged {
