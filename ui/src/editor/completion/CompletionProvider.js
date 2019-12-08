@@ -133,6 +133,7 @@ class CompletionProvider {
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             const { mode } = this
             const { t1, t2, input, isDef, isDefParameter } = this.context
+            this.state = RESPONDED
 
             if (isDef) {
                 this.mode = OTHER_PASSIVE
