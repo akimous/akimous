@@ -249,7 +249,7 @@ class CompletionProvider {
             this.retriggerQueue.push({ lineContent, line, ch })
             return
         }
-        if (this.firstTriggeredCharPos.ch === ch) {
+        if (ch <= this.firstTriggeredCharPos.ch) {
             this.completion.$set({ open: false })
             this.state = CLOSED
             return
@@ -331,8 +331,8 @@ class CompletionProvider {
         const head = lineContent.substring(0, firstTriggeredCharPos.ch)
         Object.assign(this.context, {
             head,
-            isDef: /^\s*def\s$/.test(head),
-            isDefParameter: /^\s*def\s\w+\(/.test(head),
+            isDef: /^\s*(async\s)?def\s$/.test(head),
+            isDefParameter: /^\s*(async\s)?def\s\w+\(/.test(head),
             // isSpace: /^\s*$/.test(head),
             afterAt: (t0 && t0.string === '@') || (t1 && t1.string === '@'),
             except: /^\s*except\s/.test(head),
