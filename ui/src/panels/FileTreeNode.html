@@ -1,7 +1,7 @@
 <div bind:this={row} on:mousedown="{onClick}" on:dblclick="{onDoubleClick}" on:contextmenu="{onContextMenu}" class="file-tree-node" class:selected class:hidden-file="{name.startsWith('.')}" style="padding-left: {0.3 + level}rem;">
     <span class="icon {icon}"></span> 
     {#if !renaming}
-    <span class="display-name">
+    <span class="display-name {status}">
         {name}
     </span> 
     {:else}
@@ -40,11 +40,7 @@
         background: var(--ui-highlight-color);
         color: white;
     }
-
-    .file-tree-node:hover {
-        color: white;
-    }
-
+    
     .icon {
         width: 1rem;
         min-height: 1rem;
@@ -53,12 +49,12 @@
         background-size: 100% 100% !important;
         text-align: center;
     }
-
+    
     .display-name {
         padding-left: 0.3rem;
         vertical-align: middle;
     }
-
+    
     input.display-name {
         border-radius: var(--small-radius);
         font-size: var(--ui-font-size-default);
@@ -68,6 +64,20 @@
     .hidden-file .icon,
     .hidden-file .display-name {
         opacity: 0.6;
+    }
+    
+    .file-tree-node:hover > .display-name {
+        filter: brightness(1.4);
+    }
+    
+    .staged {
+        color: var(--light-green);
+    }
+    .changed {
+        color: var(--light-blue);
+    }
+    .untracked {
+        color: var(--light-red);
     }
 
 </style>
@@ -165,7 +175,8 @@
         renaming = false,
         renamingCommittedCallback = null,
         row = null,
-        selected = false
+        selected = false,
+        status = ''
     
     let cancelAllSelectionListener
     
@@ -266,6 +277,13 @@
         if (placeholderMode)
             onClick() // select this node if it is a placeholder
         dispatch('created', { name, methods })
+        
+        // update git status
+        const pathString = getPath().join('/')        
+        const { changed, staged, untracked } = g.gitStatus
+        if (changed.has(pathString)) status = 'changed'
+        else if (staged.has(pathString)) status = 'staged'
+        else if (untracked.has(pathString)) status = 'untracked'
     })
 
     onDestroy(() => {

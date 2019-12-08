@@ -1,5 +1,5 @@
-import asyncio
 import sqlite3
+from asyncio import sleep
 from threading import Thread
 
 import wordsegment
@@ -49,6 +49,6 @@ def is_prefix(s):
                   (s[:3], f'{s[3:]}*')).fetchall())
 
 
-def wait_until_initialized():
-    if not initialized:
-        initializer_thread.join()
+async def wait_until_initialized():
+    while not initialized:
+        await sleep(.1)

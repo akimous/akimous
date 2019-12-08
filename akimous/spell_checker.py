@@ -90,8 +90,8 @@ class SpellChecker:
                 project_dictionary = json.load(f)
             self.project_dictionary.update(project_dictionary)
 
-    def check_spelling(self, tokens):
-        wait_until_initialized()
+    async def check_spelling(self, tokens):
+        await wait_until_initialized()
         checked = set('')  # both checked tokens and words
         imported_names = set()
         spelling_errors = []

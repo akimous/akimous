@@ -1,4 +1,6 @@
 <div id="toolbar">
+    <GitStatus bind:this={children.gitStatus} />
+    <span class="gap">|</span>
     <MenuBar bind:this={children.menuBar} />
     <PathIndicator bind:this={children.pathIndicator} />
     <ToolbarButton on:click="{() => togglePopup('linterOptions')}" iconClass="fas fa-check-circle" title="Beautifier and Linter Options" />
@@ -49,6 +51,8 @@
     import { onMount } from 'svelte'
     
     import g from '../lib/Globals'
+    import GitStatus from './GitStatus.html'
+    import MenuBar from './MenuBar.html'
     import NotificationBar from './NotificationBar.html'
     import NotificationHistory from '../popups/NotificationHistory.html'
     import LinterOptions from '../popups/LinterOptions.html'
@@ -56,7 +60,6 @@
     import KeymapSettings from '../popups/KeymapSettings.html'
     import TabNumber from './TabNumber.html'
     import ToolbarButton from './ToolbarButton.html'
-    import MenuBar from './MenuBar.html'
     import CursorPosition from './CursorPosition.html'
     import CommandPalette from './CommandPalette.html'
     import PathIndicator from './PathIndicator.html'

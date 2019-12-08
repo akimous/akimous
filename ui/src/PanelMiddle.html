@@ -181,26 +181,29 @@
         if (!editor) return // if not opened
         // if the file has been edited, prompt for saving
         if (!editor.clean) {
-            g.prompt.open({
+            g.prompt.prompt({
                 icon: 'far fa-hdd',
                 content: `Do you want to save the changes you made in <em>${editor.fileName}</em> ?`,
                 buttons: [{
                     text: 'Don\'t Save',
                     style: 'danger',
+                    hotkeys: ['n', 'd'],
                     action: () => {
                         editor.$set({ clean: true })
                         closeFile(filePath)
-                    }
+                    },
                 }, {
                     text: 'Cancel',
                     style: 'dismiss',
+                    hotkeys: ['c', 'Escape'],
                 }, {
                     text: 'Save',
                     style: 'success',
+                    hotkeys: ['y', 's'],
                     action: () => {
                         editor.save()
                         editor.shouldClose = true
-                    }
+                    },
                 }]
             })
             return

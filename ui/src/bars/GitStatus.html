@@ -1,0 +1,75 @@
+<div bind:this={self} id="git-status" class="non-selectable" class:dirty aria-label="Git Branch">
+    <i class="fas fa-code-branch"></i> {branch}
+</div>
+
+<style>
+    #git-status {
+        position: relative;
+        display: inline-block;
+        font-size: var(--ui-font-size-small);
+        flex-shrink: 0;
+        padding: 0 .5rem 0 .5rem;
+        color: var(--light-green);
+    }
+    
+    i {
+        padding-right: .5rem;
+    }
+    
+    #git-status.dirty {
+        color: var(--light-red);
+    }
+
+</style>
+
+<script>
+    import { onMount, tick } from 'svelte'
+
+    import g from '../lib/Globals'
+    import { schedule } from '../lib/Utils'
+
+    export let branch = '',
+        busy = false,
+        changed = new Set(),
+        dirty = false,
+        staged = new Set(),
+        untracked = new Set()
+    
+    let self = null
+
+    onMount(async () => {
+        g.projectSession.handlers['GitStatusUpdated'] = data => {
+            changed = new Set(data.changed.map(x => x.join('/')))
+            staged = new Set(data.staged.map(x => x.join('/')))
+            untracked = new Set(data.untracked.map(x => x.join('/')))
+            busy = false
+            schedule(() => {
+                branch = data.branch
+                dirty = data.dirty
+                const { getNode } = g.fileTree
+                for (const status of ['untracked', 'changed', 'staged']) {
+                    const prop = { status }
+                    for (const path of data[status]) {
+                        try {
+                            const node = getNode(path)
+                            node.$set(prop)
+                        } catch {
+                            // do nothing
+                        }
+                    }
+                }
+                
+            })
+        }
+        await tick()
+        g.tooltip.register([self])
+        window.addEventListener('focus', requestGitStatusUpdate)
+    })
+    
+    export function requestGitStatusUpdate() {
+        if (busy) return
+        busy = true
+        schedule(() => g.projectSession.send('RequestGitStatusUpdate'))
+    }
+
+</script>

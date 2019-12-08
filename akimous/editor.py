@@ -16,6 +16,7 @@ from xgboost import Booster, DMatrix
 from .completion_utilities import is_parameter_of_def
 from .config import config
 from .doc_generator import DocGenerator  # 165ms, 13M memory
+from .jedi_preloader import preload_modules
 from .modeling.feature.feature_definition import tokenize
 from .online_feature_extractor import \
     OnlineFeatureExtractor  # 90ms, 10M memory
@@ -32,14 +33,19 @@ PredictionRow = namedtuple('PredictionRow', ('c', 't', 's', 'p'))
 handles = partial(register_handler, 'editor')
 doc_generator = DocGenerator()
 
-with resources.path('akimous.resources', MODEL_NAME) as path:
-    model = Booster(model_file=str(path))  # 3 ms
+with resources.path('akimous.resources', MODEL_NAME) as _path:
+    model = Booster(model_file=str(_path))  # 3 ms
     model.set_param('nthread', 1)
-logger.info(f'Model {MODEL_NAME} loaded.')
+logger.info('Model %s loaded.', MODEL_NAME)
 
 
 def get_relative_path(context):
-    return tuple(context.path.relative_to(context.shared.project_root).parts)
+    try:
+        return tuple(
+            context.path.relative_to(context.shared.project_root).parts)
+    except ValueError:
+        # the file does not belong to the project folder
+        return tuple(context.path.parts)
 
 
 async def run_pylint(context, send):
@@ -60,7 +66,8 @@ async def run_pylint(context, send):
         await send('OfflineLints', {
             'result': context.linter_output,
         })
-    except (CancelledError, AttributeError):  # may raise AttributeError after the editor is closed
+    except (CancelledError, AttributeError):
+        # may raise AttributeError after the editor is closed
         return
     except Exception as e:
         logger.exception(e)
@@ -107,9 +114,10 @@ async def run_spell_checker(context, send):
         return
     with Timer('Spelling check'):
         tokens = tokenize(context.content)
-        await send(
-            'SpellingErrors',
-            {'result': context.shared.spell_checker.check_spelling(tokens)})
+        await send('SpellingErrors', {
+            'result':
+            await context.shared.spell_checker.check_spelling(tokens)
+        })
 
 
 async def run_pyflakes(context, send):
@@ -130,6 +138,14 @@ async def warm_up_jedi(context):
     jedi.Script('\n'.join(context.doc), len(context.doc), 0,
                 str(context.path)).completions()
 
+    await jedi_preload_modules(context, 0, len(context.doc))
+
+
+async def jedi_preload_modules(context, start_line, end_line):
+    if end_line > 32:
+        end_line = 32
+    await preload_modules(context.doc[start_line:end_line])
+
 
 async def post_content_change(context, send):
     with Timer('Post content change'):
@@ -148,6 +164,7 @@ async def post_content_change(context, send):
 
 @handles('_connected')
 async def connected(msg, send, context):
+    context.warmed_up = False
     context.doc = []
     context.linter_task = create_task(nop())
     # open file
@@ -178,6 +195,12 @@ async def connected(msg, send, context):
     # skip all completion, linting etc. if it is not a Python file
     if not context.is_python:
         return
+
+
+async def warm_up(context, send):
+    if context.warmed_up:
+        return
+    context.warmed_up = True
     await post_content_change(context, send)
 
 
@@ -208,9 +231,12 @@ async def reload(msg, send, context):
 @handles('ActivateEditor')
 async def activate_editor(msg, send, context):
     context.shared.doc = context.doc
-    context.shared.project_config['activePanels'][
-        'middle'] = get_relative_path(context)
-    save_state(context)
+    # When the editor is activated by user (not when initializing)
+    if not msg:
+        await warm_up(context, send)
+        context.shared.project_config['activePanels'][
+            'middle'] = get_relative_path(context)
+        save_state(context)
 
 
 @handles('Mtime')
@@ -268,6 +294,9 @@ async def sync_range(msg, send, context):
     for i in range(from_line,
                    to_line if to_line - from_line == len(lines) else len(doc)):
         context.feature_extractor.fill_preprocessor_context(doc[i], i, doc)
+
+    if to_line < 32:
+        await jedi_preload_modules(context, from_line, to_line)
 
     if lint:
         await run_spell_checker(context, send)
@@ -402,7 +431,7 @@ async def get_completion_docstring(msg, send, context):
     if not docstring:
         try:
             definition = completion.infer()
-        except NotImplementedError:
+        except (NotImplementedError, AttributeError):
             return
         if not definition:
             return
@@ -493,9 +522,15 @@ async def find_usage(msg, send, context):
     await send('UsagesFound', results)
 
 
-def definition_to_dict(d):
+def definition_to_dict(d, project_root):
+    # use relative path if possible
+    # otherwise, the GUI will open two editors, one with relative path and one with absolute path
+    path = Path(d.module_path)
+    if project_root in path.parents:
+        path = path.relative_to(project_root)
+
     return {
-        'path': Path(d.module_path).parts,
+        'path': path.parts,
         'module': d.module_name,
         'builtin': d.in_builtin_module(),
         'definition': d.is_definition(),
@@ -523,9 +558,13 @@ async def find_references(msg, send, context):
         references = j.usages()
         definitions.extend(r for r in references if r.is_definition())
         usages.extend(r for r in references if not r.is_definition())
+
+    project_root = context.shared.project_root
     await send(
         'ReferencesFound', {
-            'definitions': [definition_to_dict(x) for x in definitions],
-            'assignments': [definition_to_dict(x) for x in assignments],
-            'usages': [definition_to_dict(x) for x in usages]
+            'definitions':
+            [definition_to_dict(x, project_root) for x in definitions],
+            'assignments':
+            [definition_to_dict(x, project_root) for x in assignments],
+            'usages': [definition_to_dict(x, project_root) for x in usages]
         })

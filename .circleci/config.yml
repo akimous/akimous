@@ -3,7 +3,6 @@ jobs:
   build:
     docker:
       - image: red8012/akimous-dev-environment:latest
-    resource_class: small
     steps:
       - checkout
       - restore_cache:
@@ -18,5 +17,5 @@ jobs:
           paths:
             - ~/.cache/yarn
             - ~/.cache/pypoetry
-      - run: make lint
-      - run: make test
+      - run: make lint -j4
+      - run: make test -j4

@@ -4,6 +4,7 @@ from functools import partial
 from importlib import resources
 from pathlib import Path
 
+from git import InvalidGitRepositoryError, Repo
 from logzero import logger
 
 from .config import config, set_config
@@ -15,6 +16,9 @@ from .websocket import register_handler
 
 class PersistentConfig:
     def __init__(self):
+        with resources.open_text('akimous.resources',
+                                 'default_project_state.json') as f:
+            self._default = json.load(f)
         self.db = sqlite3.connect(str(config_directory / 'projects.db3'),
                                   isolation_level=None)
         self.db.execute(
@@ -27,16 +31,13 @@ class PersistentConfig:
                         (key, j))
 
     def __getitem__(self, key):
-        with resources.open_text('akimous.resources',
-                                 'default_project_state.json') as f:
-            default = json.load(f)
         key = str(key)
         result = self.db.execute('SELECT v FROM c WHERE k=?',
                                  (key, )).fetchall()
         result = json.loads(result[0][0]) if result else {}
 
         # create default value if not exist
-        result = merge_dict(default, result)
+        result = merge_dict(self._default, result)
 
         # convert paths to tuples
         result['openedFiles'] = list(tuple(i) for i in result['openedFiles'])
@@ -61,15 +62,48 @@ async def open_project(msg, send, context):
 
     # remove nonexistence files
     opened_files = sc.project_config['openedFiles']
-    opened_files = [i for i in opened_files if (sc.project_root / Path(*i)).is_file()]
+    opened_files = [
+        i for i in opened_files if (sc.project_root / Path(*i)).is_file()
+    ]
     sc.project_config['openedFiles'] = opened_files
 
+    SpellChecker(context)
     await send('ProjectOpened', {
         'root': sc.project_root.parts,
-        'projectState': sc.project_config
+        'projectState': sc.project_config,
     })
-    SpellChecker(context)
     await set_config({'lastOpenedFolder': str(sc.project_root)}, None, context)
+
+    sc.repo = None
+
+
+@handles('RequestGitStatusUpdate')
+async def request_git_status_update(msg, send, context):
+    sc = context.shared
+    if not sc.repo:
+        try:
+            sc.repo = Repo(sc.project_root)
+            logger.warning(sc.repo.untracked_files)
+        except InvalidGitRepositoryError:
+            return
+    repo = sc.repo
+    try:
+        branch = repo.active_branch.name
+    except TypeError:
+        branch = '(detached)'
+
+    root = context.shared.project_root
+    untracked = [Path(i).parts for i in repo.untracked_files]
+    changed = [Path(i.a_path).parts for i in repo.index.diff(None)]
+    staged = [Path(i.a_path).parts for i in repo.index.diff('HEAD')]
+    await send(
+        'GitStatusUpdated', {
+            'branch': branch,
+            'dirty': repo.is_dirty(),
+            'untracked': untracked,
+            'changed': changed,
+            'staged': staged,
+        })
 
 
 @handles('SetProjectState')

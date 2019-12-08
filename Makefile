@@ -2,8 +2,8 @@ all: | dockerfile bootstrap clean static
 	cd ui && yarn check --verify-tree
 	cd ui && yarn run rollup -c
 	# Firefox does not support brotli on localhost
-	cd akimous_ui/ && zopfli *.js *.css *.map *.html && rm *.js *.css *.map *.html
-	cd akimous_ui/webfonts && zopfli *.css && rm *.css
+	cd akimous_ui/ && zopfli --i1 *.js *.css *.map *.html && rm *.js *.css *.map *.html
+	cd akimous_ui/webfonts && zopfli --i1 *.css && rm *.css
 	poetry build
 	poetry install
 
@@ -51,13 +51,17 @@ static:
 
 ### lint and test ###
 
-lint:
+lint: _cloc _eslint _stylelint _poetrycheck
+_cloc:
 	cd ui && yarn run cloc --exclude-dir=testOutput,temp src resources ../akimous
+_eslint:
 	cd ui && yarn run eslint --ext .html,.js .
+_stylelint:
 	cd ui && yarn run stylelint "resources/*.css" "src/**/*.html" "src/**/*.css"
+_poetrycheck:
 	poetry check
 
-test: | jstest pytest uitest
+test: jstest pytest | uitest
 
 pytest:
 	poetry run python -m pytest -sx --ignore akimous/modeling/temp
@@ -72,7 +76,7 @@ uitest:
 	rm ~/Library/Application\ Support/akimous/* || true
 	rm ~/.config/akimous/* || true
 	poetry run python -m akimous --no-browser --port 3178 &
-	sleep 7
+	sleep 5
 	make singleuitest UNIT=test/prepare_test.js
 	make singleuitest UNIT=test/panel_FileTree_test.js
 	make singleuitest UNIT=test/menu_File_test.js

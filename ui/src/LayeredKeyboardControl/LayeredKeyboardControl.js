@@ -185,13 +185,14 @@ class LayeredKeyboardControl {
             }
             switch (e.key) {
                 case 'Shift':
+                    if (!g.activeEditor) break
                     g.activeEditor.cm.display.shift = false
                     return true
                     // break // this will interfere with hotkey
                 case ' ':
                     spacePressed = false
                     if (g.focus.allowWhiteSpace) return true
-                    if (!this.commandSent && this.sendCommand(e) &&
+                    if (!this.commandSent && this.sendCommand(e) && g.activeEditor &&
                         e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
                         g.activeEditor.insertText(' ')
                     }
