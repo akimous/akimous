@@ -97,6 +97,7 @@
             } else { // project root
                 dirs = sortAndAddUid(message.dirs)
                 files = sortAndAddUid(message.files)
+                schedule(() => g.gitStatus.requestGitStatusUpdate())
             }
             moveToFirstChildWhenReady()
         }
@@ -161,6 +162,7 @@
                             callback(getNode(path))
                         })
                     }
+                    g.gitStatus.requestGitStatusUpdate()
                 } else if (eventType === 'deleted') {
                     if (name === arr[position].name)
                         arr.splice(position, 1)

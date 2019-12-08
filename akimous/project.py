@@ -74,19 +74,35 @@ async def open_project(msg, send, context):
     })
     await set_config({'lastOpenedFolder': str(sc.project_root)}, None, context)
 
-    # query git status
-    try:
-        sc.repo = Repo(sc.project_root)
-    except InvalidGitRepositoryError:
-        sc.repo = None
-    if sc.repo:
+    sc.repo = None
+
+
+@handles('RequestGitStatusUpdate')
+async def request_git_status_update(msg, send, context):
+    sc = context.shared
+    if not sc.repo:
         try:
-            branch = sc.repo.active_branch.name
-        except TypeError:
-            branch = '(detached)'
-        await send('GitStatusUpdated', {
+            sc.repo = Repo(sc.project_root)
+            logger.warning(sc.repo.untracked_files)
+        except InvalidGitRepositoryError:
+            return
+    repo = sc.repo
+    try:
+        branch = repo.active_branch.name
+    except TypeError:
+        branch = '(detached)'
+
+    root = context.shared.project_root
+    untracked = [Path(i).parts for i in repo.untracked_files]
+    changed = [Path(i.a_path).parts for i in repo.index.diff(None)]
+    staged = [Path(i.a_path).parts for i in repo.index.diff('HEAD')]
+    await send(
+        'GitStatusUpdated', {
             'branch': branch,
-            'dirty': sc.repo.is_dirty(),
+            'dirty': repo.is_dirty(),
+            'untracked': untracked,
+            'changed': changed,
+            'staged': staged,
         })
 
 
