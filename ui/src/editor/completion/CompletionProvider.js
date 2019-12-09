@@ -149,6 +149,8 @@ class CompletionProvider {
                 }
             } else if (isDefParameter) {
                 this.mode = PARAMETER_DEFINITION
+            } else if (mode === STRING || mode === COMMENT) {
+                // Do nothing and keep mode, because tails should not be added in these cases
             } else if (mode !== STRING && mode !== COMMENT &&
                        !t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
                 this.mode = OTHER_PASSIVE

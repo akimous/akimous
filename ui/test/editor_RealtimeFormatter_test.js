@@ -164,5 +164,10 @@ Scenario('Normal formatting', async (I) => {
     // forward delete
     await typeAndCompare(['1', ['Enter'], ['Enter'], '23', ['ArrowUp'], ['Delete']], ['1\n23'])
     clear()
+    
+    // should not add tail for strings and comments
+    await typeAndCompare(['# demo', ['Tab']])
+    I.dontSee('demo =')
+    clear()
     // pause()
 })
