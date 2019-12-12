@@ -48,6 +48,7 @@
 
 <script>
     import { onDestroy, onMount, createEventDispatcher } from 'svelte'
+    import detectIndent from 'detect-indent'
 
     import CMEventDispatcher from './CMEventDispatcher'
     import RealtimeFormatter from './RealtimeFormatter'
@@ -133,6 +134,7 @@
     uid // suppressing unused export warning
     
     let cursorBeforeSaving,
+        detectedIndentation = {},
         mtime,
         oldPathString = '',
         previousHighlightOverlay = null,
@@ -169,6 +171,7 @@
         if (active && session && cm) {
             nextFrame(() => {
                 cm.refresh()
+                updateIndentationIndicator()
                 session.send('ActivateEditor')
             })
         }
@@ -346,6 +349,11 @@
 
         // Step 3: Do the rest of things (about 20 ms)
         initializeCM.then(() => schedule(() => {
+            detectedIndentation = detectIndent(cm.getValue())
+            if (active && detectedIndentation.type) { // indentation detected
+                updateIndentationIndicator()
+            }
+            
             cm.refresh() // prevent CM occasionally shifts to the right
             completionProvider = new CompletionProvider(self)
             realtimeFormatter = RealtimeFormatter(self, CodeMirror)
@@ -384,7 +392,16 @@
         g.linter.clear()
         session.send('Close')
         session.close()
-    })    
+    })
+    
+    function updateIndentationIndicator() {
+        if (detectedIndentation.type) { // indentation detected
+            g.cursorPosition.$set({
+                indentSize: detectedIndentation.amount,
+                indentWithTabs: detectedIndentation.type === 'tab'
+            })
+        }
+    }
 
     export function save() {
         saving = true

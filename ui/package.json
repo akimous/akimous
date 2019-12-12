@@ -25,6 +25,7 @@
         "cloc": "^2.5.0",
         "codemirror": "^5.49.2",
         "css-element-queries": "^1.2.2",
+        "detect-indent": "^6.0.0",
         "devicon": "^2.0.0",
         "katex": "^0.11.1",
         "keyboardjs": "^2.5.1",
