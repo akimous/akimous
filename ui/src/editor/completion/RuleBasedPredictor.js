@@ -130,20 +130,23 @@ function importAs({ lineContent, topHit }) {
     return topHit.text + ' as '
 }
 
-function isNone({ input }) {
-    if (input === 'is')
-        return 'is None'
-}
-
 /* eslint-disable */
-function isNot({ input }) {
-    if (input === 'isn' || input === 'isnt')
-        return 'is not '
-}
-
-function ifNot({ input }) {
-    if (input === 'ifn')
-        return 'if not '
+function fixedShorthand({ input }) {
+    if (input.length > 3 && input.startsWith('for'))
+        return `for ${input.substring(3)} in `
+    switch (input) {
+        case 'is':
+            return 'is None'
+        case 'isn':
+        case 'isnt':
+            return 'is not '
+        case 'isnn':
+            return 'is not None'
+        case 'ifn':
+            return 'if not '
+        case 'adef':
+            return 'async def '
+    }
 }
 /* eslint-enable */
 
@@ -295,9 +298,7 @@ class RuleBasedPredictor {
             fixedPredictionForImport,
             fromImport,
             importAs,
-            isNone,
-            isNot,
-            ifNot,
+            fixedShorthand,
             args,
             withAs,
             sequentialVariableNaming,

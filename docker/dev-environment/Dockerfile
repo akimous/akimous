@@ -33,8 +33,6 @@ RUN curl -sfL git.io/antibody | sh -s - -b /usr/local/bin &&\
 RUN set -ex &&\
     pip install --upgrade pip &&\
     curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python &&\
-    cd ~/.poetry/lib/poetry/_vendor/ &&\
-    cp -a py3.7 py3.8 &&\
     cd ~
 
 CMD ["/bin/zsh"]

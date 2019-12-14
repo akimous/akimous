@@ -45,7 +45,7 @@ class HTTPHandler:
         package = self.resource_mapping.get(package, None)
         return package, file
 
-    def process_request(self, path, _):
+    async def process_request(self, path, _):
         if path.startswith('/ws/'):
             return None
         logger.info('Serving %s', path)

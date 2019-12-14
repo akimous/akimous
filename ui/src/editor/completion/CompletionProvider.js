@@ -133,6 +133,7 @@ class CompletionProvider {
         editor.session.handlers['ExtraPrediction'] = ({ result }) => {
             const { mode } = this
             const { t1, t2, input, isDef, isDefParameter } = this.context
+            this.state = RESPONDED
 
             if (isDef) {
                 this.mode = OTHER_PASSIVE
@@ -148,6 +149,8 @@ class CompletionProvider {
                 }
             } else if (isDefParameter) {
                 this.mode = PARAMETER_DEFINITION
+            } else if (mode === STRING || mode === COMMENT) {
+                // Do nothing and keep mode, because tails should not be added in these cases
             } else if (mode !== STRING && mode !== COMMENT &&
                        !t2.type && !t1.type && t2.start === t2.end && !t1.string.trim()) {
                 this.mode = OTHER_PASSIVE
@@ -248,7 +251,7 @@ class CompletionProvider {
             this.retriggerQueue.push({ lineContent, line, ch })
             return
         }
-        if (this.firstTriggeredCharPos.ch === ch) {
+        if (ch <= this.firstTriggeredCharPos.ch) {
             this.completion.$set({ open: false })
             this.state = CLOSED
             return
@@ -285,12 +288,7 @@ class CompletionProvider {
         completions.sort((a, b) => b.sortScore - a.sortScore + b.score - a.score)
         if (debug) console.log('CompletionProvider.sort', input, completions)
 
-        const { type } = this.completion
-        const filteredCompletions = completions.filter(row => {
-            if (type !== NORMAL && row.text.length < 2) return false
-            return row.sortScore + row.score > 0
-        })
-        
+        const filteredCompletions = completions.filter(row => row.sortScore + row.score > 0)
         filteredCompletions.forEach(this.addTail, this)
         return filteredCompletions
     }
@@ -330,8 +328,8 @@ class CompletionProvider {
         const head = lineContent.substring(0, firstTriggeredCharPos.ch)
         Object.assign(this.context, {
             head,
-            isDef: /^\s*def\s$/.test(head),
-            isDefParameter: /^\s*def\s\w+\(/.test(head),
+            isDef: /^\s*(async\s)?def\s$/.test(head),
+            isDefParameter: /^\s*(async\s)?def\s\w+\(/.test(head),
             // isSpace: /^\s*$/.test(head),
             afterAt: (t0 && t0.string === '@') || (t1 && t1.string === '@'),
             except: /^\s*except\s/.test(head),
