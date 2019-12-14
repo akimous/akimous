@@ -94,13 +94,3 @@ class PrefixTokenMap:
 
     def __del__(self):
         self._conn.close()
-
-
-if __name__ == '__main__':
-    p = PrefixTokenMap()
-    p.add(1, 'arstais')
-    p.add(3, 'arstais')
-    print(p.query_max('arstais'))
-    print(p.query_min('arstais'))
-    print(p.query_min_max('arstais'))
-    print(p.query_prefix('ars', 1))
