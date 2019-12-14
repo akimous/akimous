@@ -39,12 +39,11 @@ class OfflineFeatureExtractor(FeatureDefinition):
         self.completions.append(completion.name)
 
         completion_data_type = 'unknown'
-        # TODO: this try-except can be removed if Jedi is upgraded to > 0.12.1
         try:
             definitions = completion.infer()
             if definitions:
                 completion_data_type = definitions[0].name
-        except:
+        except AttributeError:
             pass
 
         if id(self.last_token) != id(token):
