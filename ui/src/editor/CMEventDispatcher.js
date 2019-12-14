@@ -271,6 +271,13 @@ class CMEventDispatcher {
                 } else if (c.origin === '+delete') {
                     shouldDismissCompletionOnCursorActivity = false
                     formatter.deleteHandler()
+                } else if (c.origin === 'paste') {
+                    let isInFunctionSignatureDefinition = false
+                    const [t0, t1, t2] = getNTokens(3, {
+                        line: c.from.line,
+                        ch: c.from.ch
+                    })
+                    formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
                 }
             } catch (e) {
                 console.error(e)
