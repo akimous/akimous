@@ -60,7 +60,7 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     await typeAndCompare(['fr s'], ['from'])
-    I.waitForCompletionOrContinueIn(3)
+    I.waitForCompletionOrContinueIn(5)
     await typeAndCompare(['ph'])
     await typeAndCompare(['.'], ['from sphinx.'])
     await typeAndCompare(['io im '], ['from sphinx.io import '])
@@ -86,14 +86,14 @@ Scenario('Normal formatting', async (I) => {
     clear()
 
     await typeAndCompare(['import l'])
-    I.waitForCompletionOrContinueIn(3)
+    I.waitForCompletionOrContinueIn(5)
     await typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
     await typeAndCompare(['f', ['Tab']])
     await typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
     clear()
     
     await typeAndCompare(['fr bolt.g'])
-    I.waitForCompletionOrContinueIn(3)
+    I.waitForCompletionOrContinueIn(5)
     await typeAndCompare([' '], ['from boltons.gcutils '])
     clear()
     
