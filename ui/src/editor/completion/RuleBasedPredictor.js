@@ -140,6 +140,8 @@ function fixedShorthand({ input }) {
         case 'isn':
         case 'isnt':
             return 'is not '
+        case 'isnn':
+            return 'is not None'
         case 'ifn':
             return 'if not '
         case 'adef':

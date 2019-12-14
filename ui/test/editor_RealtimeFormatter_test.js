@@ -5,7 +5,7 @@ const META = (process.platform === 'darwin') ? 'Meta' : 'Control'
 
 Scenario('Normal formatting', async (I) => {
     await I.amOnPage('http://localhost:3178')
-    await I.wait(2)
+    await I.waitForFrames(7)
     await I.click('pre.CodeMirror-line')
 
     const specialKeys = new Set(['Enter', 'Space'])
@@ -20,12 +20,12 @@ Scenario('Normal formatting', async (I) => {
                 for (const j of i) {
                     if (!/[0-9a-zA-Z]/.test(j)){
                         I.pressKey(j)
-                        if (/[\s"(),[\]]/.test(j))
+                        if (/[\s"(),[\]{}]/.test(j))
                             continue
-                        I.waitForCompletionOrContinue(.5)
+                        I.waitForCompletionOrContinueIn(.5)
                     } else if (first) {
                         I.pressKey(j)
-                        I.waitForCompletionOrContinue(.5)
+                        I.waitForCompletionOrContinueIn(.5)
                         first = false
                     } else {
                         I.pressKey(j)
@@ -34,10 +34,7 @@ Scenario('Normal formatting', async (I) => {
             }
         }
         if (!displays) return
-        I.wait(.2)
-        const doc = await I.executeScript(function() {
-            return window.g.activeEditor.cm.getValue()
-        })
+        const doc = await I.getDoc()
         for (const i of displays) {
             assert(doc.includes(i), `Not found: ${i}\nActual:\n${doc}`)
         }
@@ -63,7 +60,7 @@ Scenario('Normal formatting', async (I) => {
     clear()
     
     await typeAndCompare(['fr s'], ['from'])
-    I.waitForCompletionOrContinue(3)
+    I.waitForCompletionOrContinueIn(3)
     await typeAndCompare(['ph'])
     await typeAndCompare(['.'], ['from sphinx.'])
     await typeAndCompare(['io im '], ['from sphinx.io import '])
@@ -89,14 +86,14 @@ Scenario('Normal formatting', async (I) => {
     clear()
 
     await typeAndCompare(['import l'])
-    I.waitForCompletionOrContinue(3)
+    I.waitForCompletionOrContinueIn(3)
     await typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
     await typeAndCompare(['f', ['Tab']])
     await typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
     clear()
     
     await typeAndCompare(['fr bolt.g'])
-    I.waitForCompletionOrContinue(3)
+    I.waitForCompletionOrContinueIn(3)
     await typeAndCompare([' '], ['from boltons.gcutils '])
     clear()
     
@@ -168,6 +165,11 @@ Scenario('Normal formatting', async (I) => {
     // should not add tail for strings and comments
     await typeAndCompare(['# demo', ['Tab']])
     I.dontSee('demo =')
+    clear()
+    
+    // single character variable should still be completed
+    await typeAndCompare(['for k,v in {}.i', ['Enter'], 'v.'],
+        ['for k, v in {}.items():', 'v.'])
     clear()
     // pause()
 })

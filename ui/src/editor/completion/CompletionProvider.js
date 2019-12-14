@@ -288,12 +288,7 @@ class CompletionProvider {
         completions.sort((a, b) => b.sortScore - a.sortScore + b.score - a.score)
         if (debug) console.log('CompletionProvider.sort', input, completions)
 
-        const { type } = this.completion
-        const filteredCompletions = completions.filter(row => {
-            if (type !== NORMAL && row.text.length < 2) return false
-            return row.sortScore + row.score > 0
-        })
-        
+        const filteredCompletions = completions.filter(row => row.sortScore + row.score > 0)
         filteredCompletions.forEach(this.addTail, this)
         return filteredCompletions
     }

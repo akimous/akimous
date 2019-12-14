@@ -43,7 +43,7 @@ class Editor extends Helper {
         console.warn('Element not found', text, selector)
     }
 
-    async waitForCompletionOrContinue(timeout = 1.) {
+    async waitForCompletionOrContinueIn(timeout = 1.) {
         const page = this.helpers['Puppeteer'].page
         try {
             await page.waitForSelector('.completion', {
@@ -53,6 +53,36 @@ class Editor extends Helper {
         } catch {
             // do nothing
         }
+    }
+    
+    async waitForFrames(n) {
+        const page = this.helpers['Puppeteer'].page
+        return await page.evaluate(function(counter) {
+            return new Promise(function(resolve) {
+                function count() {
+                    counter -= 1
+                    if (counter > 0) {
+                        requestAnimationFrame(count)
+                    } else {
+                        resolve(true)
+                    }
+                }
+                setTimeout(count, 1)
+            })
+        }, n)
+    }
+            
+    async getDoc() {
+        const page = this.helpers['Puppeteer'].page
+        return await page.evaluate(function() {
+            return new Promise(function(resolve) {
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        resolve(window.g.activeEditor.cm.getValue())
+                    })
+                })
+            })
+        })
     }
 }
 
