@@ -83,7 +83,6 @@ async def request_git_status_update(msg, send, context):
     if not sc.repo:
         try:
             sc.repo = Repo(sc.project_root)
-            logger.warning(sc.repo.untracked_files)
         except InvalidGitRepositoryError:
             return
     repo = sc.repo
