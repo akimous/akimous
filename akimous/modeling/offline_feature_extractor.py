@@ -43,7 +43,7 @@ class OfflineFeatureExtractor(FeatureDefinition):
             definitions = completion.infer()
             if definitions:
                 completion_data_type = definitions[0].name
-        except AttributeError:
+        except:
             pass
 
         if id(self.last_token) != id(token):
