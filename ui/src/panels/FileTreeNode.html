@@ -232,8 +232,10 @@
                 replaceMode: false,
             })
             g.setFocus([g.panelRight, g.find])
-            g.find.findText.focus()
-            g.find.findInDirectory()
+            requestAnimationFrame(() => {
+                g.find.findTextInput.focus()
+                g.find.findInDirectories()
+            })
         },
         replaceIn() {
             this.findIn()

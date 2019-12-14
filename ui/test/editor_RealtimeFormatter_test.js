@@ -171,5 +171,9 @@ Scenario('Normal formatting', async (I) => {
     await typeAndCompare(['for k,v in {}.i', ['Enter'], 'v.'],
         ['for k, v in {}.items():', 'v.'])
     clear()
+    
+    // should not become `int(context )`
+    await typeAndCompare(['def t(context=1)', ['Enter'], 'int(con '], ['int(context)'])
+    clear()
     // pause()
 })

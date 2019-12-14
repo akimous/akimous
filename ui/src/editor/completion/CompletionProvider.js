@@ -35,7 +35,8 @@ const tails = {
     'keyword': ' ',
     'module': ' ',
     'variable': ' ',
-    'param': ' ', // probably not reliable, see predict in editor.py
+    // adding tail to param will likely introduce problems
+    // 'param': ' ', // probably not reliable, see predict in editor.py
     // 'statement': ' ', // good for `if xxx_and` but bad for `int(xxx|)`
 }
 
