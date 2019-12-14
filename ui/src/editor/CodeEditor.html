@@ -254,6 +254,7 @@
                     mtime = data.mtime
                     g.notificationBar.show(
                         'question',
+                        // the message is used in panelMiddle.closeFile()
                         `The file "<b>${fileName}</b>" has been modified by another program. Do you want to reload it?`, [{
                             name: 'Reload',
                             callback: () => session.send('Reload', {})
@@ -265,6 +266,7 @@
                     // prompt to close if deleted or moved
                     g.notificationBar.show(
                         'question',
+                        // the message is used in panelMiddle.closeFile()
                         `The file "<b>${fileName}</b>" has been deleted or moved to another place. Do you want to close it?`, [{
                             name: 'Close',
                             callback: () => {
