@@ -135,9 +135,13 @@
             }
             if (g.ready) {
                 g.tooltip.mouseLeaveListener()
-                if (g.focus.constructor.name === 'CodeEditor') {
-                    g.focus.cm.focus()
-                }
+                requestAnimationFrame(() => {
+                    const { focus } = g
+                    if (focus.constructor.name === 'CodeEditor') {
+                        // cm might be null
+                        focus.cm && focus.cm.focus()
+                    }
+                })
             }  
         }
         g.app && g.app.$set({ popup: open ? g.prompt : null })
