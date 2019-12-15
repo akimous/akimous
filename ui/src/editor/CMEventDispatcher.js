@@ -253,7 +253,7 @@ class CMEventDispatcher {
                             else if (t0.type === 'comment') completionProvider.mode = COMMENT
                             // must go after the first two, or completion will not be passive inside strings/comments
                             // int(1, base=|)
-                            else if (isInputDot || input === '=') completionProvider.mode = NORMAL 
+                            else if (isInputDot) completionProvider.mode = NORMAL 
                             else if (isInputOperator) completionProvider.mode = AFTER_OPERATOR
                             else if (t1.string === 'for') completionProvider.mode = FOR
                             else if (/\s*for\s/.test(newLineContent) && 

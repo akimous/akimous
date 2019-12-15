@@ -77,7 +77,7 @@ class CompletionProvider {
         this.completion = editor.completion
         this.enabled = true
         this.state = CLOSED
-        this.mode = NORMAL
+        this.mode = NORMAL // modes are set in beforeChange of CMEventDispatcher
         
         this.context = editor.context
         this.sorter = new Sorter()

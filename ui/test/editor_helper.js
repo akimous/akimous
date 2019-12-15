@@ -1,4 +1,7 @@
+const assert = require('assert')
 const Helper = codeceptjs.helper
+const SPECIAL_KEYS = new Set(['Enter', 'Space', 'Tab', 'Escape'])
+const META = (process.platform === 'darwin') ? 'Meta' : 'Control'
 
 class Editor extends Helper {
 
@@ -17,14 +20,17 @@ class Editor extends Helper {
     async type(input) {
         const page = this.helpers['Puppeteer'].page
         const { keyboard } = page
-        if (Array.isArray(input)) {
-            for (const i of input) {
-                await keyboard.down(i)
-            }
-            for (const i of input.reverse()) {
-                await keyboard.up(i)
-            }
+        if (!Array.isArray(input)) {
+            assert(false, 'Only array is supported for type()')
         }
+        await this.waitForFrames(1)
+        for (const i of input) {
+            await keyboard.down(i)
+        }
+        for (const i of input.reverse()) {
+            await keyboard.up(i)
+        }
+        await this.waitForFrames(1)
     }
 
     // use when I.click is not working for mysterious reasons
@@ -71,7 +77,14 @@ class Editor extends Helper {
             })
         }, n)
     }
-            
+    
+    async setDoc(content) {
+        const page = this.helpers['Puppeteer'].page
+        return await page.evaluate(function(content) {
+            window.g.activeEditor.cm.setValue(content)
+        }, content)
+    }
+    
     async getDoc() {
         const page = this.helpers['Puppeteer'].page
         return await page.evaluate(function() {
@@ -83,6 +96,54 @@ class Editor extends Helper {
                 })
             })
         })
+    }
+        
+    async disableRealtimeFormatter() {
+        const page = this.helpers['Puppeteer'].page
+        return await page.evaluate(function() {
+            g.config.formatter.realtime = false
+        })
+    }
+        
+    async typeAndCompare(inputs, displays) {
+        const page = this.helpers['Puppeteer'].page
+        const { keyboard } = page
+        const delay = { delay: 50 }
+        for (const i of inputs) {
+            let first = true
+            if (Array.isArray(i)) {
+                await this.type(i)
+            } else if (SPECIAL_KEYS.has(i)) {
+                await this.waitForCompletionOrContinueIn(.3)
+                await keyboard.press(i, delay)
+            } else {
+                for (const j of i) {
+                    if (!/[0-9a-zA-Z]/.test(j)){
+                        await keyboard.press(j, delay)
+                        if (/[\s"(),[\]{}]/.test(j))
+                            continue
+                        await this.waitForCompletionOrContinueIn(.5)
+                    } else if (first) {
+                        await keyboard.press(j)
+                        await this.waitForCompletionOrContinueIn(.5)
+                        first = false
+                    } else {
+                        await keyboard.press(j, delay)
+                    }
+                }
+            }
+        }
+        if (!displays) return
+        const doc = await this.getDoc()
+        for (const i of displays) {
+            assert(doc.includes(i), `Not found: ${i}\nActual:\n${doc}`)
+        }
+    }
+    
+    async clear() {
+        await this.type(['Escape'])
+        await this.type([META, 'a'])
+        await this.type(['Backspace'])
     }
 }
 

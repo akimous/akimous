@@ -7,176 +7,134 @@ Scenario('Normal formatting', async (I) => {
     await I.amOnPage('http://localhost:3178')
     await I.waitForFrames(10)
     await I.click('pre.CodeMirror-line')
-
-    const specialKeys = new Set(['Enter', 'Space'])
-    const typeAndCompare = async (inputs, displays) => {
-        for (const i of inputs) {
-            let first = true
-            if (Array.isArray(i)) {
-                I.type(i)
-            } else if (specialKeys.has(i)) {
-                I.pressKey(i)
-            } else {
-                for (const j of i) {
-                    if (!/[0-9a-zA-Z]/.test(j)){
-                        I.pressKey(j)
-                        if (/[\s"(),[\]{}]/.test(j))
-                            continue
-                        I.waitForCompletionOrContinueIn(.5)
-                    } else if (first) {
-                        I.pressKey(j)
-                        I.waitForCompletionOrContinueIn(.5)
-                        first = false
-                    } else {
-                        I.pressKey(j)
-                    }
-                }
-            }
-        }
-        if (!displays) return
-        const doc = await I.getDoc()
-        for (const i of displays) {
-            assert(doc.includes(i), `Not found: ${i}\nActual:\n${doc}`)
-        }
-    }
-    const setDoc = async (content) => {
-        await I.executeScript(function(content) {
-            window.g.activeEditor.cm.setValue(content)
-        }, content)
-    }
-    const clear = () => {
-        I.type(['Escape'])
-        I.type([META, 'a'])
-        I.type(['Backspace'])
-    }
         
-    await typeAndCompare(['for i in range(5', ['Meta', 'Enter'], 'print(i'],
+    I.typeAndCompare(['for i in range(5', ['Meta', 'Enter'], 'print(i'],
         ['for i in range(5):', 'print(i)'])
     I.dontSee('pprint')
-    clear()
-
-    await typeAndCompare(['for i in ra', ['Escape']])
-    await typeAndCompare(['ng '], ['range()'])
-    clear()
+    I.clear()
     
-    await typeAndCompare(['fr s'], ['from'])
+    I.typeAndCompare(['for i in ra', 'Escape'])
+    I.typeAndCompare(['ng '], ['range()'])
+    I.clear()
+    
+    I.typeAndCompare(['fr s'], ['from'])
     I.waitForCompletionOrContinueIn(5)
-    await typeAndCompare(['ph'])
-    await typeAndCompare(['.'], ['from sphinx.'])
-    await typeAndCompare(['io im '], ['from sphinx.io import '])
-    await typeAndCompare(['rea', ['Enter']], ['from sphinx.io import read_doc'])
-    clear()
+    I.typeAndCompare(['ph'])
+    I.typeAndCompare(['.'], ['from sphinx.'])
+    I.typeAndCompare(['io im '], ['from sphinx.io import '])
+    I.typeAndCompare(['rea', 'Enter'], ['from sphinx.io import read_doc'])
+    I.clear()
     
-    await typeAndCompare(['"""classbla', ['Meta', 'Enter'], 'cla'])
-    await I.dontSee('classbla', '.row-content')
-    clear()
+    I.typeAndCompare(['"""classbla', ['Meta', 'Enter'], 'cla'])
+    I.dontSee('classbla', '.row-content')
+    I.clear()
     
-    await typeAndCompare(['cla C', ['Enter']], ['class C:']) // single character class
-    clear()
+    I.typeAndCompare(['cla C', 'Enter'], ['class C:']) // single character class
+    I.clear()
     
-    await typeAndCompare(['cla Bla', ['Enter']], ['class Bla:'])
-    await typeAndCompare(['de', ['Space', '2'], ['Enter']], ['    def __init__(self):'])
-    await typeAndCompare(['.cat=1', ['Enter'], 'pr .ca)', ['Enter']], ['self.cat = 1', 'print(self.cat)'])
-    await typeAndCompare(['pas', ['Meta', 'Enter']], ['        pass'])
-    await typeAndCompare(['def'])
+    I.typeAndCompare(['cla Bla', 'Enter'], ['class Bla:'])
+    I.typeAndCompare(['de', ['Space', '2'], 'Enter'], ['    def __init__(self):'])
+    I.typeAndCompare(['.cat=1', 'Enter', 'pr .ca)', 'Enter'], ['self.cat = 1', 'print(self.cat)'])
+    I.typeAndCompare(['pas', ['Meta', 'Enter']], ['        pass'])
+    I.typeAndCompare(['def'])
     I.dontSee('def __init__', '.row-content')
-    clear()
+    I.clear()
     
-    await typeAndCompare(['"".sta '], ['"".startswith()'])
-    clear()
-
-    await typeAndCompare(['import l'])
+    I.typeAndCompare(['"".sta '], ['"".startswith()'])
+    I.clear()
+    
+    I.typeAndCompare(['import l'])
     I.waitForCompletionOrContinueIn(5)
-    await typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', ['Enter'], 'logz.LF('])
-    await typeAndCompare(['f', ['Tab']])
-    await typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
-    clear()
+    I.typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', 'Enter', 'logz.LF('])
+    I.typeAndCompare(['f', 'Tab'])
+    I.typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
+    I.clear()
     
-    await typeAndCompare(['fr bolt.g'])
+    I.typeAndCompare(['fr bolt.g'])
     I.waitForCompletionOrContinueIn(5)
-    await typeAndCompare([' '], ['from boltons.gcutils '])
-    clear()
+    I.typeAndCompare([' '], ['from boltons.gcutils '])
+    I.clear()
     
-    await typeAndCompare(['1==2'], ['1 == 2'])
-    clear()
+    I.typeAndCompare(['1==2'], ['1 == 2'])
+    I.clear()
     
-    await typeAndCompare(['def somet', ['Tab']], ['def something()'])
-    await typeAndCompare(['adog', ['Tab']], ['def something(a_dog)'])
-    clear()
+    I.typeAndCompare(['def somet', 'Tab'], ['def something()'])
+    I.typeAndCompare(['adog', 'Tab'], ['def something(a_dog)'])
+    I.clear()
     
-    await typeAndCompare(['adog', ['Tab']], ['a_dog ='])
-    clear()
+    I.typeAndCompare(['adog', 'Tab'], ['a_dog ='])
+    I.clear()
     
-    await typeAndCompare(['fr .ml', ['Tab'], '(', ['Enter'], 'li '], 
+    I.typeAndCompare(['fr .ml', 'Tab', '(', 'Enter', 'li '], 
         ['from .ml import (', 'load_iris'])
     I.dontSee('load_iris()')
-    clear()
+    I.clear()
     
-    await typeAndCompare(['cl cacheadog'])
+    I.typeAndCompare(['cl cacheadog'])
     I.see('CacheADog', 'em')
-    await typeAndCompare([['Tab'], ['Enter']], ['class CacheADog:'])
-    clear()
+    I.typeAndCompare(['Tab', 'Enter'], ['class CacheADog:'])
+    I.clear()
     
-    await typeAndCompare(['__adog', ['Tab']], ['__a_dog ='])
-    clear()
+    I.typeAndCompare(['__adog', 'Tab'], ['__a_dog ='])
+    I.clear()
     
-    await typeAndCompare(['cla C', ['Enter'], '@pr', ['Enter'], 'de adog', ['Tab']], 
+    I.typeAndCompare(['cla C', 'Enter', '@pr', 'Enter', 'de adog', 'Tab'], 
         ['class C:', '    @property', '    def a_dog(self)'])
-    clear()
+    I.clear()
     
-    await typeAndCompare(['"%s.'])
+    I.typeAndCompare(['"%s.'])
     I.see('Tab to commit the selected item')
-    clear()
+    I.clear()
     
-    await typeAndCompare(['try', ['Enter'], 'pa', ['Enter'], 'ex OS', ['Enter']],
+    I.typeAndCompare(['try', 'Enter', 'pa', 'Enter', 'ex OS', 'Enter'],
         ['try:', '    pass', 'except OSError:'])
-    clear()
+    I.clear()
     
-    await typeAndCompare(['cachedir=[]', ['Enter'], 'ifn any (term in ca )for te'],
+    I.typeAndCompare(['cachedir=[]', 'Enter', 'ifn any (term in ca )for te'],
         ['if not any((term in cachedir) for te)'])
     I.see('Tab to commit the selected item')
-    clear()
+    I.clear()
     
-    await typeAndCompare(['pri "",flu', ['Tab'], 'Tru '], ['print("", flush=True)'])
-    clear()
+    I.typeAndCompare(['pri "",flu', 'Tab', 'Tru '], ['print("", flush=True)'])
+    I.clear()
     
-    await setDoc('class C:\n    def __init__(self):\n        pass\n\n    def cat(self):\n' + 
+    I.setDoc('class C:\n    def __init__(self):\n        pass\n\n    def cat(self):\n' + 
         '        pass\n\n')
-    await typeAndCompare([['Space', 'p'], ['Tab'], 'd'])
+    I.typeAndCompare([['Space', 'p'], 'Tab', 'd'])
     I.see('def', '.row-content')
     I.dontSee('def __init__', '.row-content')
-    clear()
+    I.clear()
     
     // cursor should be inside of braces if completion has parameters
-    await typeAndCompare(['"".sp ".'], ['"".split(".")'])
-    clear()
+    I.typeAndCompare(['"".sp ".'], ['"".split(".")'])
+    I.clear()
     
     // outside if not
-    await typeAndCompare(['"".ti +'], ['"".title() +'])
-    clear()
+    I.typeAndCompare(['"".ti +'], ['"".title() +'])
+    I.clear()
     
-    await typeAndCompare(['(1,2).c '], ['(1, 2).count()']) // should not be `(1, 2) .`
-    clear()
+    I.typeAndCompare(['(1,2).c '], ['(1, 2).count()']) // should not be `(1, 2) .`
+    I.clear()
     
     // forward delete
-    await typeAndCompare(['1', ['Enter'], ['Enter'], '23', ['ArrowUp'], ['Delete']], ['1\n23'])
-    clear()
+    I.typeAndCompare(['1', 'Enter', 'Enter', '23', ['ArrowUp'], ['Delete']], ['1\n23'])
+    I.clear()
     
     // should not add tail for strings and comments
-    await typeAndCompare(['# demo', ['Tab']])
+    I.typeAndCompare(['# demo', 'Tab'])
     I.dontSee('demo =')
-    clear()
+    I.clear()
     
     // single character variable should still be completed
-    await typeAndCompare(['for k,v in {}.i', ['Enter'], 'v.'],
+    I.typeAndCompare(['for k,v in {}.i', 'Enter', 'v.'],
         ['for k, v in {}.items():', 'v.'])
-    clear()
+    I.clear()
     
     // should not become `int(context )`
-    await typeAndCompare(['def t(context=1)', ['Enter'], 'int(con '], ['int(context)'])
-    clear()
+    I.typeAndCompare(['def t(context=1)', 'Enter', 'int(con '], ['int(context)'])
+    I.clear()
     
-    await typeAndCompare(['a=[]', ['Enter'], 'a[1:2+3'], ['a[1:2+3]'])
-    clear()
+    I.typeAndCompare(['a=[]', 'Enter', 'a[1:2+3'], ['a[1:2+3]'])
+    I.clear()
     // pause()
 })
