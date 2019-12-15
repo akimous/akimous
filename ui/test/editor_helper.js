@@ -101,7 +101,7 @@ class Editor extends Helper {
     async disableRealtimeFormatter() {
         const page = this.helpers['Puppeteer'].page
         return await page.evaluate(function() {
-            g.config.formatter.realtime = false
+            window.g.config.formatter.realtime = false
         })
     }
         

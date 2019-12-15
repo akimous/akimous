@@ -1,7 +1,4 @@
-const assert = require('assert')
 Feature('Realtime Formatter')
-
-const META = (process.platform === 'darwin') ? 'Meta' : 'Control'
 
 Scenario('Normal formatting', async (I) => {
     await I.amOnPage('http://localhost:3178')
