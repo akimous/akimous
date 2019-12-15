@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "akimous"
-version = "0.4.0"
+version = "0.5.0"
 description = "An intelligent Python IDE"
 authors = ["Yu-Ann Chen <red8012@gmail.com>"]
 license = "BSD-3-Clause"
@@ -14,7 +14,7 @@ repository = "https://github.com/akimous/akimous"
 documentation = "https://akimous.com/start"
 keywords = ["ide", "editor", "akimous"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Environment :: Web Environment",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.7",
