@@ -47,8 +47,10 @@ Scenario('Normal formatting', async (I) => {
     I.typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
     I.clear()
     
-    I.typeAndCompare(['fr bolt.g'])
-    I.waitForCompletionOrContinueIn(7)
+    I.typeAndCompare(['fr bolt'])
+    I.waitForCompletionOrContinueIn(5)
+    I.typeAndCompare(['.g'])
+    I.waitForCompletionOrContinueIn(5)
     I.typeAndCompare([' '], ['from boltons.gcutils '])
     I.clear()
     
