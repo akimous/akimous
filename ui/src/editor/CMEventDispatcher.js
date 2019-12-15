@@ -21,9 +21,8 @@ class CMEventDispatcher {
     constructor(editor) {
         const cm = editor.cm,
             doc = cm.doc,
-            formatter = editor.realtimeFormatter,
-            completionProvider = editor.completionProvider,
-            completion = editor.completion
+            formatter = editor.realtimeFormatter
+        const { completionProvider, completion, context } = editor
 
         this.realtimeEvaluation = false
         this.realtimeFormatting = true
@@ -179,7 +178,7 @@ class CMEventDispatcher {
                         line: c.from.line,
                         ch: c.from.ch
                     })
-                    Object.assign(completionProvider.context, { t0, t1, t2 })
+                    Object.assign(context, { t0, t1, t2, inParentheses: null, inBrackets: null })
 
                     // for forcing passive in function definition
                     let isInFunctionSignatureDefinition = false
@@ -197,12 +196,18 @@ class CMEventDispatcher {
                                 let { pos } = cm.scanForBracket(c.from, -1, undefined, {
                                     bracketRegex: /[()]/
                                 })
+                                context.inParentheses = {...pos} // must copy, or getNTokens will change it
                                 // eslint-disable-next-line
                                 const [tr1, tr2, tr3] = getNTokens(3, pos)
                                 if (tr3.string === 'def')
                                     isInFunctionSignatureDefinition = true
                                 if (isInFunctionSignatureDefinition && t0.string !== '=')
-                                    completionProvider.type = PARAMETER_DEFINITION
+                                    completionProvider.mode = PARAMETER_DEFINITION
+                            } else if (currentScope.type === ']') {
+                                let { pos } = cm.scanForBracket(c.from, -1, undefined, {
+                                    bracketRegex: /[[\]]/
+                                })
+                                context.inBrackets = pos
                             }
                         }
                         if (!cm.somethingSelected()) {

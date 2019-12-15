@@ -50,6 +50,7 @@
     import { onDestroy, onMount, createEventDispatcher } from 'svelte'
     import detectIndent from 'detect-indent'
 
+    import Context from './Context'
     import CMEventDispatcher from './CMEventDispatcher'
     import RealtimeFormatter from './RealtimeFormatter'
     import { CompletionProvider } from './completion/CompletionProvider'
@@ -106,7 +107,9 @@
 
 
     const dispatch = createEventDispatcher()
-        
+    
+    export const context = new Context()
+    
     export let active = false,
         clean = true,
         cm = null,
@@ -346,6 +349,7 @@
                 gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
                 extraKeys // keymap
             })
+            context.bind(cm)
             mtime = data.mtime
         })
 
@@ -357,7 +361,7 @@
             }
             
             cm.refresh() // prevent CM occasionally shifts to the right
-            completionProvider = new CompletionProvider(self)
+            completionProvider = Object.preventExtensions(new CompletionProvider(self))
             realtimeFormatter = RealtimeFormatter(self, CodeMirror)
             cmEventDispatcher = new CMEventDispatcher(self)
             // only enable completionProvider when the document is a Python file

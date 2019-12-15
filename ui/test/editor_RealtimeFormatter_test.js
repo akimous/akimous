@@ -5,7 +5,7 @@ const META = (process.platform === 'darwin') ? 'Meta' : 'Control'
 
 Scenario('Normal formatting', async (I) => {
     await I.amOnPage('http://localhost:3178')
-    await I.waitForFrames(7)
+    await I.waitForFrames(10)
     await I.click('pre.CodeMirror-line')
 
     const specialKeys = new Set(['Enter', 'Space'])
@@ -174,6 +174,9 @@ Scenario('Normal formatting', async (I) => {
     
     // should not become `int(context )`
     await typeAndCompare(['def t(context=1)', ['Enter'], 'int(con '], ['int(context)'])
+    clear()
+    
+    await typeAndCompare(['a=[]', ['Enter'], 'a[1:2+3'], ['a[1:2+3]'])
     clear()
     // pause()
 })
