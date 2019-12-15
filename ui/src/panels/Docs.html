@@ -126,7 +126,7 @@
         active
     })
 
-    let lastTokenStart = { line: 0, ch: 0 }
+    let lastTokenStart = Pos(0, 0)
 
     function findParameterName(cm, char, pos) {
         if (char === '=') {

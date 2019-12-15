@@ -258,7 +258,7 @@
         
         cm.replaceRange(
             text,
-            completionProvider.firstTriggeredCharPos,
+            completionProvider.context.firstTriggeredCharPos,
             cm.doc.getCursor(),
             '+completion'
         )

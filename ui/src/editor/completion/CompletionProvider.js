@@ -3,7 +3,7 @@ import camelCase from 'lodash.camelcase'
 import g from '../../lib/Globals'
 import Sorter from './Sorter'
 import RuleBasedPredictor from './RuleBasedPredictor'
-import { highlightSequentially } from '../../lib/Utils'
+import { highlightSequentially, Pos } from '../../lib/Utils'
 
 // state
 const CLOSED = 0,
@@ -35,7 +35,8 @@ const tails = {
     'keyword': ' ',
     'module': ' ',
     'variable': ' ',
-    'param': ' ', // probably not reliable, see predict in editor.py
+    // adding tail to param will likely introduce problems
+    // 'param': ' ', // probably not reliable, see predict in editor.py
     // 'statement': ' ', // good for `if xxx_and` but bad for `int(xxx|)`
 }
 
@@ -74,29 +75,24 @@ class CompletionProvider {
     constructor(editor) {
         this.editor = editor
         this.completion = editor.completion
-        this.sorter = new Sorter()
-        this.context = { cm: this.editor.cm }
-        this.ruleBasedPredictor = new RuleBasedPredictor(this.context)
         this.enabled = true
         this.state = CLOSED
-        this.mode = NORMAL
+        this.mode = NORMAL // modes are set in beforeChange of CMEventDispatcher
+        
+        this.context = editor.context
+        this.sorter = new Sorter()
+        this.ruleBasedPredictor = new RuleBasedPredictor(this.context)
 
-        this.firstTriggeredCharPos = {
-            line: 0,
-            ch: 0
-        }
-        this.triggeredCharOffset = 0
-        this.lineContent = ''
-        this.isClassDefinition = false
         this.currentCompletions = []
-        this.input = ''
         this.retriggerQueue = []
+        this.startTime = performance.now()
 
         editor.session.handlers['Prediction'] = data => {
             if (debug) console.log('CompletionProvider.receive', data)
             const { line, ch } = data
-            let input = this.lineContent.slice(this.firstTriggeredCharPos.ch, ch) || ''
-            this.input = input
+            let { lineContent, firstTriggeredCharPos } = this.context
+            let input = lineContent.slice(firstTriggeredCharPos.ch, ch) || ''
+            this.context.input = input
             this.state = RESPONDED
             this.currentCompletions = data.result
             if (data.result.length < 1) {
@@ -116,7 +112,7 @@ class CompletionProvider {
                 }
             }
             
-            const sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
+            const sortedCompletions = this.sortAndFilter(this.currentCompletions)
 
             if (this.mode === NORMAL) {
                 this.requestExtraPredictions(line, ch, input, sortedCompletions)
@@ -168,7 +164,7 @@ class CompletionProvider {
                     item.text = camel
                 })
             }
-            const sortedCompletions = this.sortAndFilter(this.input, result)
+            const sortedCompletions = this.sortAndFilter(result)
             this.deduplicateAndSetCompletions(sortedCompletions)
         }
     }
@@ -202,7 +198,7 @@ class CompletionProvider {
                 set.add(v.text)
                 return true
             }),
-            this.firstTriggeredCharPos,
+            this.context.firstTriggeredCharPos,
             this.mode
         )
     }
@@ -210,15 +206,11 @@ class CompletionProvider {
     trigger(lineContent, line, ch, triggeredCharOffset) {
         if (!this.enabled) return
         this.startTime = performance.now()
-        this.firstTriggeredCharPos.line = line
-        this.firstTriggeredCharPos.ch = ch + triggeredCharOffset
-        this.triggeredCharOffset = triggeredCharOffset
-        this.lineContent = lineContent
         this.editor.session.send('Predict', [line, ch, lineContent])
-        this.isClassDefinition = /^\s*class\s/.test(lineContent)
         Object.assign(this.context, {
-            firstTriggeredCharPos: this.firstTriggeredCharPos,
-            lineContent: this.lineContent,
+            firstTriggeredCharPos: Pos(line, ch + triggeredCharOffset),
+            triggeredCharOffset,
+            lineContent,
             line,
             ch
         })
@@ -244,32 +236,34 @@ class CompletionProvider {
 
     retrigger({ lineContent, line, ch }) {
         if (!this.enabled) return
-        if (this.triggeredCharOffset && this.firstTriggeredCharPos.ch === ch - 1)
+        const { triggeredCharOffset, firstTriggeredCharPos } = this.context
+        if (triggeredCharOffset && firstTriggeredCharPos.ch === ch - 1)
             return // should not do anything if it is just triggered and nothing else is typed
         if (this.state === TRIGGERED) {
             // enqueue retrigger requests if there's any in-flight requests
             this.retriggerQueue.push({ lineContent, line, ch })
             return
         }
-        if (ch <= this.firstTriggeredCharPos.ch) {
+        if (ch <= firstTriggeredCharPos.ch) {
             this.completion.$set({ open: false })
             this.state = CLOSED
             return
         }
         this.state = RETRIGGERED
-        const input = lineContent.slice(this.firstTriggeredCharPos.ch, ch)
+        const input = lineContent.slice(firstTriggeredCharPos.ch, ch)
         Object.assign(this.context, {
+            input,
             lineContent,
             line,
             ch
         })
-        this.input = input
-        let sortedCompletions = this.sortAndFilter(input, this.currentCompletions)
+        let sortedCompletions = this.sortAndFilter(this.currentCompletions)
         this.requestExtraPredictions(line, ch, input, sortedCompletions)
         this.updateContext()
     }
 
-    sortAndFilter(input, completions) {
+    sortAndFilter(completions) {
+        const { input } = this.context
         if (!input) { // for prediction immediately after dot or operator
             completions.forEach(i => {
                 i.sortScore = 1
@@ -328,6 +322,7 @@ class CompletionProvider {
         const head = lineContent.substring(0, firstTriggeredCharPos.ch)
         Object.assign(this.context, {
             head,
+            isClassDefinition: /^\s*class\s/.test(head),
             isDef: /^\s*(async\s)?def\s$/.test(head),
             isDefParameter: /^\s*(async\s)?def\s\w+\(/.test(head),
             // isSpace: /^\s*$/.test(head),

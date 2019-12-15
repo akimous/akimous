@@ -81,6 +81,7 @@ uitest:
 	make singleuitest UNIT=test/panel_FileTree_test.js
 	make singleuitest UNIT=test/menu_File_test.js
 	make singleuitest UNIT=test/editor_RealtimeFormatter_test.js
+	make singleuitest UNIT=test/editor_Completion_test.js
 	pkill -9 -f "^.+bin\/python"
 	sleep 1
 

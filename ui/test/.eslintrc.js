@@ -23,8 +23,10 @@ module.exports = {
                 skipWords: [
                     'codeceptjs',
                     'dont',
+                    'formatter',
                     'jupyter',
                     'popup',
+                    'realtime',
                 ],
                 skipIfMatch: [
                     'http://[^s]*',

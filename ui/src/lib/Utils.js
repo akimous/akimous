@@ -175,13 +175,13 @@ function inParentheses(cm, cursor) {
     return inSomething(cm, cursor, '(', ')')
 }
 
-function inBrackets(cm, cursor) {
-    return inSomething(cm, cursor, '[', ']')
-}
-
-function inBraces(cm, cursor) {
-    return inSomething(cm, cursor, '{', '}')
-}
+//function inBrackets(cm, cursor) {
+//    return inSomething(cm, cursor, '[', ']')
+//}
+//
+//function inBraces(cm, cursor) {
+//    return inSomething(cm, cursor, '{', '}')
+//}
 
 /**
  * Emphasize input in target for completion display.
@@ -275,8 +275,8 @@ export {
     isStringOrComment,
     inSomething,
     inParentheses,
-    inBrackets,
-    inBraces,
+    // inBrackets,
+    // inBraces,
     highlightSequentially,
     joinPath,
     capitalize,

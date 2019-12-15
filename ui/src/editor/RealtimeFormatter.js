@@ -1,22 +1,20 @@
-import { inParentheses, inBrackets } from '../lib/Utils'
 import { config } from '../lib/ConfigManager'
 
 const RealtimeFormatter = (editor, CodeMirror) => {
     let cm, c
     const Pos = CodeMirror.Pos
+    const { context } = editor
 
     const operators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->)|[+\-*/%&|^~<>!@=])$/
     const compoundOperators = /((\/\/=|>>=|<<=|\*\*=)|([+\-*/%&|^@!<>=]=)|(<>|<<|>>|\/\/|\*\*|->))$/
     const operatorChars = /^[=+\-*/|&^~%@><!]$/
     const identifier = /^[^\d\W]\w*$/
     const fromImport = /^\s*(import|from)\s/
-    const _inParentheses = () => inParentheses(cm, c.from)
-    const _inBrackets = () => inBrackets(cm, c.from)
 
     const ensureSpaceBefore = (t0) => {
         if (/\s+/.test(t0.string)) return // don't duplicate spaces
         c.text[0] = ' ' + c.text[0]
-        const pos = {...editor.completionProvider.firstTriggeredCharPos}
+        const pos = {...context.firstTriggeredCharPos}
         pos.ch++
     }
     const stripTrailingSpaces = (line) => {
@@ -69,14 +67,12 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             c.text[0] = `${quote} \\`
             c.text[1] = quote
         }
-        const inParentheses = _inParentheses()
-        editor.completionProvider.context.inParentheses = inParentheses
         
         // skip if the cursor is in a string
         if (t0.type === 'comment' || (t0.type === 'string' && !(t0.end === c.to.ch))) return
         if (currentText === '') { // new line
             stripTrailingSpaces(line)
-            if (inParentheses) {
+            if (context.inParentheses) {
                 try {
                     const rightChar = line.charAt(c.to.ch)
                     // [ and { is already handled by mode
@@ -111,7 +107,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
             return
         } else if (t0.string === ',' && !/^[)}\]]/.test(currentText)) {
             c.text[0] = ' ' + c.text[0]
-        } else if (t0.string === ':' && !_inBrackets()) {
+        } else if (t0.string === ':' && !context.inBrackets) {
             c.text[0] = ' ' + c.text[0]
         } else if (currentText === '=') {
             if (lastChar === '=' && !/\s+/.test(t1.string) && leftText[leftText.length - 2] !== ' ') { 
@@ -135,7 +131,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
         } else if (currentTextIsOperator) {
             if (currentTextIsPartOfTheOperator) return
             if (/[(,]/.test(t0.string)) return
-            if (_inBrackets()) return
+            if (context.inBrackets) return
             if (isInFunctionSignatureDefinition) return // def a(n=|-1) should not add space at |
             if (t0.string === 'e' && /[0-9]$/.test(t1.string)) return
             ensureSpaceBefore(t0)

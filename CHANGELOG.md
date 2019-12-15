@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0 (2019-12-15)
+
+* Automatically detect indentation unit and size.
+* Automatically dismiss "file changed" notification on file close.
+* Fix backspace does not refresh completion in ExtraPrediction.
+* Fix completion window not closed on character deletion.
+* Fix `async def` not handled in CompletionProvider.
+* Fix incorrectly adding tails for strings and comments.
+* Fix single character variable name not being completed.
+* Fix pasting text not triggering realtime formatter.
+* Fix broken prompt when not saving file.
+* Fix broken focus for findInDirectory.
+
 ## 0.4.0 (2019-12-08)
 
 * Avoid reference panel to open duplicated editors.

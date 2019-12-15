@@ -229,7 +229,6 @@
             hotkey: '⌘L',
             icon: 'fas fa-grip-lines',
             callback: () => g.commandPalette.promptForInput('Go to line:', (line) => {
-                console.log('meow')
                 if (!g.activeEditor) return
                 g.activeEditor.cm.setCursor(+line - 1, 0)
                 g.CMCommand('goLineStartSmart')
