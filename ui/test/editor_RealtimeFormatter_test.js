@@ -48,7 +48,7 @@ Scenario('Normal formatting', async (I) => {
     I.clear()
     
     I.typeAndCompare(['fr bolt.g'])
-    I.waitForCompletionOrContinueIn(5)
+    I.waitForCompletionOrContinueIn(7)
     I.typeAndCompare([' '], ['from boltons.gcutils '])
     I.clear()
     
