@@ -82,9 +82,9 @@ const g = {
         g.activeEditor && g.activeEditor.save()
     },
     saveAll() {
-        const pathToEditor = g.panelMiddle.pathToEditor
-        for (let path in pathToEditor) {
-            const editor = pathToEditor[path]
+        const { editors } = g.panelMiddle
+        for (let path in editors) {
+            const editor = editors[path]
             if (!editor.clean)
                 editor.save()
         }

@@ -246,6 +246,7 @@
                     let message = `"<b>${fileName}</b>"`
                     message += data.content ? ' formatted and saved.' : ' saved.'
                     g.notificationBar.show('success', message)
+                    g.gitStatus.requestGitStatusUpdate()
                 },
                 Reloaded: data => {
                     // prompt to reload if modified by another program
