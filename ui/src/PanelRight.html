@@ -30,6 +30,7 @@
     import g from './lib/Globals'
     import { setConfig } from './lib/ConfigManager'
     import { onTabChangeFactory } from './lib/UIUtils'
+    import { nextFrame } from './lib/Utils'
     
     import TabBar from './bars/TabBar.html'
     import Console from './panels/Console.html'
@@ -69,7 +70,13 @@
     function setWidth() {
         const width = (originalWidth < 10) ? 'calc(8rem + 7vw)' : `${originalWidth}px`
         document.documentElement.style.setProperty('--panel-right-width', width)
-        if (tabBar && !tabBar.initialized) tabBar.fitTabWidth()
+        if (tabBar && !tabBar.initialized) {
+            tabBar.fitTabWidth()
+            nextFrame(() => {
+                const panel = children[g.projectState.activePanels.right]
+                panel && panel.$set({ active: true })
+            })
+        }
     }
     
     export function saveWidth() {
@@ -77,8 +84,8 @@
     }
     
     onMount(async () => {
-        setWidth()
         if (hidden) setHidden()
+        else setWidth()
         onTabChange = onTabChangeFactory(tabBar, children, 'right')
         tabBar.openTab('console', 'Console', children.console, 'fas fa-desktop l-purple')
         tabBar.openTab('find', 'Find', children.find, 'fas fa-search l-blue')
@@ -90,7 +97,8 @@
         
         // we must activate console upon initialization, or xterm will break
         await tick()
-        children[g.projectState.activePanels.right].$set({ active: true })
+        if (!hidden)
+            children[g.projectState.activePanels.right].$set({ active: true })
     })
 
     export const closeView = () => {
@@ -98,5 +106,3 @@
     }
 
 </script>
-
-

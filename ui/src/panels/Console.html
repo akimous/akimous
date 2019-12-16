@@ -87,6 +87,7 @@
     
     async function initialize() {
         if (initializing) return
+        if (g.panelRight.hidden) return
         initializing = true
         await tick()
         
@@ -160,6 +161,7 @@
     }
 
     export function runInTerminal() {
+        g.panelRight.hidden = false
         active = true
         const { mode, shellCommands, shellCommandIndex, args, cwd } = g.runConfiguration
 
