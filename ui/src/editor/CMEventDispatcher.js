@@ -128,7 +128,7 @@ class CMEventDispatcher {
 
         cm.on('changes', (cm, changes) => {
             if (!this.realtimeFormatting) return
-            const { origin, text } = changes[0]
+            const { origin } = changes[0]
             if (origin === 'setValue') return
             const cursor = doc.getCursor()
             const lineContent = cm.getLine(cursor.line)

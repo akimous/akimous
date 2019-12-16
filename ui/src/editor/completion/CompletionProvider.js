@@ -100,7 +100,6 @@ class CompletionProvider {
         editor.session.handlers['Prediction'] = data => {
             if (debug) console.log('CompletionProvider.receive', data)
             const { line, ch } = data
-            let { lineContent, firstTriggeredCharPos } = this.context
             this.setInput(ch)
             let { input } = this.context
             this.state = RESPONDED
