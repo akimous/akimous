@@ -228,11 +228,7 @@
             text: 'Line',
             hotkey: '⌘L',
             icon: 'fas fa-grip-lines',
-            callback: () => g.commandPalette.promptForInput('Go to line:', (line) => {
-                if (!g.activeEditor) return
-                g.activeEditor.cm.setCursor(+line - 1, 0)
-                g.CMCommand('goLineStartSmart')
-            })
+            callback: () => g.commandPalette.promptForInput('Go to line:', g.goToLine)
         }, {
             //     text: 'Last Edit Location',
             //     icon: 'fas fa-arrow-left',

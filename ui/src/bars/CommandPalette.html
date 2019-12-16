@@ -1,8 +1,9 @@
-<div id="command-palette" class="non-selectable" class:gone="{!active}">
+{#if active}
+<div id="command-palette" class="non-selectable">
     <span class="message">{message}</span>
     <input bind:this={input} bind:value type="text" spellcheck="false" on:keydown="{onKeyDown}" />
 </div>
-
+{/if}
 
 <style>
     #command-palette {
@@ -46,11 +47,28 @@
         message = '',
         value = ''
     
-    $: active && onActivation()
+    let previousFocusStack = null
     
-    function onActivation() {
+    $: {
+        if (active) {
+            activate()
+        } else {
+            deactivate()
+        }
+    }
+    
+    function activate() {
+        previousFocusStack = g.focusStack
         g.setFocus([g.commandPalette])
-        input.focus()
+        requestAnimationFrame(() => {
+            input.focus()
+        })
+    }
+    
+    function deactivate() {
+        if (previousFocusStack) {
+            g.setFocus(previousFocusStack)
+        }
     }
 
     export function show() {
@@ -66,6 +84,8 @@
 
     export function onKeyDown() {
         if (event.key === 'Enter') {
+            event.stopPropagation()
+            event.preventDefault()
             const { value } = input
             callback(value)
             active = false

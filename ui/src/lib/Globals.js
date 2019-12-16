@@ -89,6 +89,21 @@ const g = {
                 editor.save()
         }
     },
+    goToLine(line) {
+        if (!g.activeEditor) return
+        const { cm } = g.activeEditor
+        requestAnimationFrame(() => {
+            const pos = {
+                line: +line - 1,
+                ch: 0
+            }
+            cm.setCursor(pos)
+            const margin = (cm.getScrollInfo().clientHeight / 2) - 10
+            cm.scrollIntoView(pos, margin)
+            cm.execCommand('goLineStartSmart')
+            cm.focus()
+        })
+    },
     CMCommand(command) {
         if (!g.activeEditor) return
         const { cm } = g.activeEditor
