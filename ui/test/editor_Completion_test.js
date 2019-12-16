@@ -32,7 +32,7 @@ Scenario('Without realtime formatting', async (I) => {
     
     I.typeAndCompare(['cla Bla:', 'Enter'], ['class Bla:'])
     I.typeAndCompare(['de', ['Space', '2'], ':', 'Enter'], ['    def __init__(self):'])
-    I.typeAndCompare(['se.cat=1', 'Enter', 'pr se.ca)', 'Enter'], ['self.cat=1', 'print(self.cat)'])
+    I.typeAndCompare(['se.cat=1', 'Enter', 'pr se.c)', 'Enter'], ['self.cat=1', 'print(self.cat)'])
     I.typeAndCompare(['pas', ['Meta', 'Enter']], ['        pass'])
     I.typeAndCompare(['def'])
     I.dontSee('def __init__', '.row-content')

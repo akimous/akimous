@@ -31,7 +31,7 @@ Scenario('Normal formatting', async (I) => {
     
     I.typeAndCompare(['cla Bla', 'Enter'], ['class Bla:'])
     I.typeAndCompare(['de', ['Space', '2'], 'Enter'], ['    def __init__(self):'])
-    I.typeAndCompare(['.cat=1', 'Enter', 'pr .ca)', 'Enter'], ['self.cat = 1', 'print(self.cat)'])
+    I.typeAndCompare(['.cat=1', 'Enter', 'pr .c)', 'Enter'], ['self.cat = 1', 'print(self.cat)'])
     I.typeAndCompare(['pas', ['Meta', 'Enter']], ['        pass'])
     I.typeAndCompare(['def'])
     I.dontSee('def __init__', '.row-content')
