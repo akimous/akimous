@@ -114,7 +114,7 @@ class Editor extends Helper {
             if (Array.isArray(i)) {
                 await this.type(i)
             } else if (SPECIAL_KEYS.has(i)) {
-                await this.waitForCompletionOrContinueIn(.3)
+                await this.waitForCompletionOrContinueIn(.5)
                 await keyboard.press(i, delay)
             } else {
                 for (const j of i) {
