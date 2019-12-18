@@ -295,7 +295,6 @@ class CMEventDispatcher {
         cm.on('contextmenu', (cm, event) => {
             if (!event.ctrlKey && !event.metaKey && !event.altKey)
                 return
-            const cursor = cm.coordsChar({left: event.x - 1, top: event.y - 1})
             const type = []
             if (event.ctrlKey || event.metaKey) {
                 type.push('assignments')
@@ -303,11 +302,8 @@ class CMEventDispatcher {
             if (event.altKey) {
                 type.push('usages')
             }
-            editor.session.send('FindReferences', {
-                type,
-                line: cursor.line,
-                ch: cursor.ch
-            })
+            const cursor = cm.coordsChar({left: event.x - 1, top: event.y - 1})
+            editor.findReferences(type, cursor)
             event.preventDefault()
         })
     }

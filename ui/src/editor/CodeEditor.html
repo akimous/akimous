@@ -461,4 +461,18 @@
                 })
         })
     }
+    
+    /**
+     * Let Jedi find references of the variable at cursor position
+     * @param {Array} type ['assignments', 'usages']
+     */
+    export function findReferences(type, cursor) {
+        if (!cursor)
+            cursor = cm.getCursor()
+        session.send('FindReferences', {
+            type,
+            line: cursor.line,
+            ch: cursor.ch
+        })
+    }
 </script>
