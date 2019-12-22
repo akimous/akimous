@@ -114,11 +114,13 @@ class Editor extends Helper {
             if (Array.isArray(i)) {
                 await this.type(i)
             } else if (SPECIAL_KEYS.has(i)) {
-                await this.waitForCompletionOrContinueIn(.5)
+                await this.waitForCompletionOrContinueIn(.3)
                 await keyboard.press(i, delay)
             } else {
                 for (const j of i) {
                     if (!/[0-9a-zA-Z]/.test(j)){
+                        if (j === ' ')
+                            await this.waitForCompletionOrContinueIn(.5)
                         await keyboard.press(j, delay)
                         if (/[\s"(),[\]{}]/.test(j))
                             continue
