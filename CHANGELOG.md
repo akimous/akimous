@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.1 (2019-12-22)
+
+* Fix console not correctly initialized if a run is triggered when panel right is hidden.
+* Fix broken completion provider (`t=T` not providing `TokenMap` as completion).
+* Fix file tree git status not updated if going from changed to clean.
+* Fix "Save All" not working.
+* Fix tab color not correctly updated on save.
+* Fix "go to line" not properly focused.
+* Implement missing menu commands (save file, save all, undo, select all, assignments, usages).
+
 ## 0.5.0 (2019-12-15)
 
 * Automatically detect indentation unit and size.
