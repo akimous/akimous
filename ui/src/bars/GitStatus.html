@@ -24,6 +24,7 @@
 
 <script>
     import { onMount, tick } from 'svelte'
+    import isEqual from 'lodash.isequal'
 
     import g from '../lib/Globals'
     import { schedule } from '../lib/Utils'
@@ -34,16 +35,41 @@
         dirty = false,
         staged = new Set(),
         untracked = new Set()
-    
+
     let self = null
 
     onMount(async () => {
         g.projectSession.handlers['GitStatusUpdated'] = data => {
-            changed = new Set(data.changed.map(x => x.join('/')))
-            staged = new Set(data.staged.map(x => x.join('/')))
-            untracked = new Set(data.untracked.map(x => x.join('/')))
             busy = false
+            const newChanged = new Set(data.changed.map(x => x.join('/')))
+            const newStaged = new Set(data.staged.map(x => x.join('/')))
+            const newUntracked = new Set(data.untracked.map(x => x.join('/')))
+            if (isEqual(changed, newChanged) &&
+                isEqual(staged, newStaged) &&
+                isEqual(untracked, newUntracked)) {
+                return
+            }
+            changed = newChanged
+            staged = newStaged
+            untracked = newUntracked
+            
             schedule(() => {
+                function clearOldStatus(root) {
+                    const { children } = root
+                    const reset = { status: '' }
+                    for (const name in children) {
+                        const node = children[name]
+                        if (node.status) {
+                            node.$set(reset)
+                        }
+                        if (node.isDir) {
+                            clearOldStatus(node)
+                        }
+                    }
+                }
+                clearOldStatus(g.fileTree)
+
+                // apply new status
                 branch = data.branch
                 dirty = data.dirty
                 const { getNode } = g.fileTree
@@ -58,14 +84,13 @@
                         }
                     }
                 }
-                
             })
         }
         await tick()
         g.tooltip.register([self])
         window.addEventListener('focus', requestGitStatusUpdate)
     })
-    
+
     export function requestGitStatusUpdate() {
         if (busy) return
         busy = true

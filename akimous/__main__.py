@@ -28,6 +28,12 @@ args = parser.parse_args()
 set_verbosity(args.verbose)
 logzero.loglevel(DEBUG if args.verbose else INFO)
 
+try:
+    from importlib.metadata import version
+    logzero.logger.info('Starting Akimous %s', version('akimous'))
+except ModuleNotFoundError:
+    pass
+
 with Timer('initialization'), toggle_gc:
     from .websocket import start_server
     from . import project

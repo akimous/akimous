@@ -119,6 +119,8 @@ class Editor extends Helper {
             } else {
                 for (const j of i) {
                     if (!/[0-9a-zA-Z]/.test(j)){
+                        if (j === ' ')
+                            await this.waitForCompletionOrContinueIn(.5)
                         await keyboard.press(j, delay)
                         if (/[\s"(),[\]{}]/.test(j))
                             continue

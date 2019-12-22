@@ -128,7 +128,8 @@ class CMEventDispatcher {
 
         cm.on('changes', (cm, changes) => {
             if (!this.realtimeFormatting) return
-            if (changes[0].origin === 'setValue') return
+            const { origin } = changes[0]
+            if (origin === 'setValue') return
             const cursor = doc.getCursor()
             const lineContent = cm.getLine(cursor.line)
             
@@ -145,7 +146,6 @@ class CMEventDispatcher {
             }
 
             // handles Jedi sync if the change isn't a single-char input
-            const origin = changes[0].origin
             const { state } = completionProvider
             if (origin !== '+input' && origin !== '+completion' && origin !== '+delete') {
                 syncIfNeeded(changes)
@@ -295,7 +295,6 @@ class CMEventDispatcher {
         cm.on('contextmenu', (cm, event) => {
             if (!event.ctrlKey && !event.metaKey && !event.altKey)
                 return
-            const cursor = cm.coordsChar({left: event.x - 1, top: event.y - 1})
             const type = []
             if (event.ctrlKey || event.metaKey) {
                 type.push('assignments')
@@ -303,11 +302,8 @@ class CMEventDispatcher {
             if (event.altKey) {
                 type.push('usages')
             }
-            editor.session.send('FindReferences', {
-                type,
-                line: cursor.line,
-                ch: cursor.ch
-            })
+            const cursor = cm.coordsChar({left: event.x - 1, top: event.y - 1})
+            editor.findReferences(type, cursor)
             event.preventDefault()
         })
     }

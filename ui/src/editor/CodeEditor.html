@@ -232,7 +232,6 @@
                 FileSaved: data => {
                     mtime = data.mtime
                     saving = false
-                    markClean()
                     if (shouldClose)
                         g.panelMiddle.closeFile(filePath)
                     else if (data.content) {
@@ -243,9 +242,11 @@
                             cm.scrollTo(scrollInfoBeforeSaving.left, scrollInfoBeforeSaving.top)
                         }
                     }
+                    markClean() // must go after cm.setValue()
                     let message = `"<b>${fileName}</b>"`
                     message += data.content ? ' formatted and saved.' : ' saved.'
                     g.notificationBar.show('success', message)
+                    g.gitStatus.requestGitStatusUpdate()
                 },
                 Reloaded: data => {
                     // prompt to reload if modified by another program
@@ -458,6 +459,20 @@
                     outlineItems: outline,
                     currentLine: cm.getCursor().line
                 })
+        })
+    }
+    
+    /**
+     * Let Jedi find references of the variable at cursor position
+     * @param {Array} type ['assignments', 'usages']
+     */
+    export function findReferences(type, cursor) {
+        if (!cursor)
+            cursor = cm.getCursor()
+        session.send('FindReferences', {
+            type,
+            line: cursor.line,
+            ch: cursor.ch
         })
     }
 </script>

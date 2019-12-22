@@ -72,6 +72,16 @@ class CompletionProvider {
     //       return this._state
     //   }
 
+    setInput(ch) {
+        const { lineContent, firstTriggeredCharPos } = this.context
+        let input = lineContent.slice(firstTriggeredCharPos.ch, ch)
+        if (/^(\W|\s)/.test(input)) {
+            input = input.substring(1)
+            firstTriggeredCharPos.ch += 1
+        }
+        this.context.input = input
+    }
+    
     constructor(editor) {
         this.editor = editor
         this.completion = editor.completion
@@ -90,9 +100,8 @@ class CompletionProvider {
         editor.session.handlers['Prediction'] = data => {
             if (debug) console.log('CompletionProvider.receive', data)
             const { line, ch } = data
-            let { lineContent, firstTriggeredCharPos } = this.context
-            let input = lineContent.slice(firstTriggeredCharPos.ch, ch) || ''
-            this.context.input = input
+            this.setInput(ch)
+            let { input } = this.context
             this.state = RESPONDED
             this.currentCompletions = data.result
             if (data.result.length < 1) {
@@ -237,6 +246,7 @@ class CompletionProvider {
     retrigger({ lineContent, line, ch }) {
         if (!this.enabled) return
         const { triggeredCharOffset, firstTriggeredCharPos } = this.context
+        this.context.lineContent = lineContent
         if (triggeredCharOffset && firstTriggeredCharPos.ch === ch - 1)
             return // should not do anything if it is just triggered and nothing else is typed
         if (this.state === TRIGGERED) {
@@ -244,26 +254,27 @@ class CompletionProvider {
             this.retriggerQueue.push({ lineContent, line, ch })
             return
         }
+        Object.assign(this.context, { lineContent, line, ch }) // must assign before setInput()
+        this.setInput(ch)
+        const { input } = this.context
         if (ch <= firstTriggeredCharPos.ch) {
             this.completion.$set({ open: false })
             this.state = CLOSED
             return
         }
         this.state = RETRIGGERED
-        const input = lineContent.slice(firstTriggeredCharPos.ch, ch)
-        Object.assign(this.context, {
-            input,
-            lineContent,
-            line,
-            ch
-        })
+        if (this.mode === AFTER_OPERATOR && input.length) {
+            // with another non-empty input after AFTER_OPERATOR is set, reset to normal mode
+            this.mode = NORMAL
+        }
+        
         let sortedCompletions = this.sortAndFilter(this.currentCompletions)
         this.requestExtraPredictions(line, ch, input, sortedCompletions)
         this.updateContext()
     }
 
     sortAndFilter(completions) {
-        const { input } = this.context
+        let input = this.context.input
         if (!input) { // for prediction immediately after dot or operator
             completions.forEach(i => {
                 i.sortScore = 1
