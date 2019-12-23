@@ -1,5 +1,6 @@
 import json
 import shlex
+import sys
 from asyncio import (CancelledError, create_subprocess_shell, create_task,
                      subprocess)
 from collections import namedtuple
@@ -11,7 +12,6 @@ import jedi
 import pyflakes.api
 import wordsegment
 from logzero import logger
-from xgboost import Booster, DMatrix
 
 from .completion_utilities import is_parameter_of_def
 from .config import config
@@ -25,6 +25,15 @@ from .pyflakes_reporter import PyflakesReporter
 from .utils import Timer, detect_doc_type, log_exception, nop
 from .websocket import register_handler
 from .word_completer import search_prefix
+
+# prevent pandas being imported by xgboost (save ~500ms)
+_pandas = sys.modules.get('pandas', None)
+if _pandas:
+    from xgboost.core import Booster, DMatrix
+else:
+    sys.modules['pandas'] = None
+    from xgboost.core import Booster, DMatrix
+    del sys.modules['pandas']
 
 DEBUG = False
 MODEL_NAME = 'v12.xgb'
