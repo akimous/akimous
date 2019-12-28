@@ -265,6 +265,15 @@ class CircularBuffer {
     }
 }
 
+function toPathString(path, absolute = false) {
+    if (absolute) {
+        path = g.projectRoot.concat(path)
+    }
+    let pathString = path.join(g.pathSeparator)
+    pathString = pathString.replace(g.pathSeparator + g.pathSeparator, g.pathSeparator)
+    return pathString
+}
+
 export {
     binarySearch,
     schedule,
@@ -282,4 +291,5 @@ export {
     capitalize,
     highlightMatch,
     CircularBuffer,
+    toPathString,
 }

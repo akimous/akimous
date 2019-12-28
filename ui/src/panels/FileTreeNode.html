@@ -86,9 +86,15 @@
 </style>
 
 <script context="module">
-    const copyPath = {
+    const copyRelativePath = {
         text: 'Copy Path',
         icon: 'fas fa-link',
+        clipboardText: null
+    }
+    
+    const copyAbsolutePath = {
+        text: 'Copy Path',
+        icon: '',
         clipboardText: null
     }
     
@@ -142,7 +148,7 @@
         callback: (target) => {
             target.openInFileManager()
         }
-    }, copyPath]
+    }, copyRelativePath, copyAbsolutePath]
     
     
 </script>
@@ -152,7 +158,7 @@
     // import pressure from 'pressure'
     
     import g from '../lib/Globals'
-    import { binarySearch } from '../lib/Utils'
+    import { binarySearch, toPathString } from '../lib/Utils'
     import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
     
     const dispatch = createEventDispatcher()
@@ -347,9 +353,11 @@
     }
 
     export function onContextMenu(e) {
-        dispatch('nodeSelected', getPath())
+        let path = getPath()
+        dispatch('nodeSelected', path)
         selected = true
-        copyPath.clipboardText = getAbsolutePath()
+        copyRelativePath.clipboardText = toPathString(path, false)
+        copyAbsolutePath.clipboardText = toPathString(path, true)
         g.contextMenu.$set({
             open: true,
             x: e.clientX,
@@ -461,12 +469,5 @@
         g.fileTree.session.send('OpenInFileManager', {
             path: getPath(),
         })
-    }
-
-    export function getAbsolutePath() {
-        const path = g.projectRoot.concat(getPath())
-        let pathString = path.join(g.pathSeparator)
-        pathString = pathString.replace(g.pathSeparator + g.pathSeparator, g.pathSeparator)
-        return pathString
     }
 </script>
