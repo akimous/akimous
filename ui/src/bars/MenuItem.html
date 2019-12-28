@@ -239,12 +239,14 @@
             divider: true
         }, {
             text: 'Assignments',
+            hotkey: 'F12',
             callback: () => g.activeEditor && g.activeEditor.findReferences(['assignments'])
         },{
             text: 'Usages',
             callback: () => g.activeEditor && g.activeEditor.findReferences(['usages'])
         }, {
             text: 'Assignments and Usages',
+            hotkey: '⇧F12',
             callback: () => g.activeEditor && g.activeEditor.findReferences(['assignments', 'usages'])
         }, ],
         Help: [{
