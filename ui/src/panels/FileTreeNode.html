@@ -256,6 +256,11 @@
             g.fileTree.session.send('Delete', {
                 path: getPath(),
             })
+        },
+        openInFileManager() {
+            g.fileTree.session.send('OpenInFileManager', {
+                path: getPath(),
+            })
         }
     }
     
@@ -464,10 +469,5 @@
             return node
         }
     }
-
-    export function openInFileManager() {
-        g.fileTree.session.send('OpenInFileManager', {
-            path: getPath(),
-        })
-    }
+    
 </script>
