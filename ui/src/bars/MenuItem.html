@@ -193,12 +193,17 @@
             callback: () => g.CMCommand('splitSelectionByLine')
         }, ],
         View: [{
+            text: 'Fold All',
+            callback: () => g.CMCommand('foldAll')
+        }, {
             text: 'Fold',
             hotkey: '␣ -',
+            icon: 'fas fa-minus',
             callback: () => g.CMCommand('fold')
         }, {
             text: 'Unfold',
             hotkey: '␣ =',
+            icon: 'fas fa-plus',
             callback: () => g.CMCommand('unfold')
         }, {
             text: 'Unfold All',
