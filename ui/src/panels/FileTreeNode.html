@@ -389,7 +389,7 @@
             if (placeholderMode) {
                 name = input.value
                 const path = getPath()
-                const { isDir } = parent
+                const { isDir } = parent()
                 if (!isDir)
                     path.splice(-2, 1) // remove if its parent is a file, not the real parent
                 if (renamingCommittedCallback)
@@ -455,8 +455,8 @@
             if (firstChild) return firstChild
             const sibling = getSibling(1)
             if (sibling && sibling !== self()) return sibling
-            if (!parent.sibling) return null
-            return parent.getSibling(1)
+            if (!parent().sibling) return null
+            return parent().getSibling(1)
         } else {
             const sibling = getSibling(-1)
             if (!sibling || sibling === self()) return parent()
