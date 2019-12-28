@@ -60,6 +60,8 @@ def get_relative_path(context):
 async def run_pylint(context, send):
     if not config['linter']['pylint']:
         return
+    if context.path.suffix != '.py':
+        return
     try:
         with Timer('Linting'):
             absolute_path = context.path.absolute()
@@ -85,6 +87,8 @@ async def run_pylint(context, send):
 async def run_yapf(context):
     if not config['formatter']['yapf']:
         return
+    if context.path.suffix != '.py':
+        return
     with log_exception():
         with Timer('YAPF'):
             absolute_path = context.path.absolute()
@@ -102,6 +106,8 @@ async def run_yapf(context):
 
 async def run_isort(context):
     if not config['formatter']['isort']:
+        return
+    if context.path.suffix != '.py':
         return
     with log_exception():
         with Timer('Sorting'):
@@ -131,6 +137,8 @@ async def run_spell_checker(context, send):
 
 async def run_pyflakes(context, send):
     if not config['linter']['pyflakes']:
+        return
+    if context.path.suffix != '.py':
         return
     reporter = context.pyflakes_reporter
     reporter.clear()
