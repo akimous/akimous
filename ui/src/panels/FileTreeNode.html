@@ -455,8 +455,12 @@
             if (firstChild) return firstChild
             const sibling = getSibling(1)
             if (sibling && sibling !== self()) return sibling
-            if (!parent().sibling) return null
-            return parent().getSibling(1)
+            let node = parent()
+            while (node) {
+                const sibling = node.getSibling(1)
+                if (sibling && sibling !== node) return sibling
+                node = node.parent()
+            }
         } else {
             const sibling = getSibling(-1)
             if (!sibling || sibling === self()) return parent()

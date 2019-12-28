@@ -109,7 +109,7 @@
     }, {
         text: 'Open in File Manager',
         icon: 'fas fa-external-link-alt',
-        callback: (target) => {
+        callback: () => {
             g.fileTree.session.send('OpenInFileManager', {
                 path: view.filePath,
             })
