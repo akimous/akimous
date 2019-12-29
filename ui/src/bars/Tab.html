@@ -1,4 +1,4 @@
-<span bind:this={tab} class="tab non-selectable" class:active class:dirty={!clean} style="padding:0 {padding}px" on:click={activate} on:dblclick={close} on:mouseenter={mouseEnter} on:mouseleave={mouseLeave} aria-label={name}>
+<span bind:this={tab} class="tab non-selectable" class:active class:dirty={!clean} style="padding:0 {padding}px" on:click={activate} on:dblclick={close} on:contextmenu="{onContextMenu}" on:mouseenter={mouseEnter} on:mouseleave={mouseLeave} aria-label={name}>
     <!-- if the two spans sitting on different lines means there is a space in between-->
     <span bind:this={iconSpan} class="icon {icon}" class:icon-height-adjustment={name}></span>{#if type===FILE}<span bind:this={text} class="text">{name}</span>{/if}
 </span>
@@ -58,11 +58,25 @@
 <script context="module">
     export const FILE = 0,
         OTHERS = 1
+    
+    const copyRelativePath = {
+        text: 'Copy Relative Path',
+        icon: 'fas fa-link',
+        clipboardText: null
+    }
+    
+    const copyAbsolutePath = {
+        text: 'Copy Absolute Path',
+        icon: '',
+        clipboardText: null
+    }
+    
 </script>
 
 <script>
     import { onDestroy, createEventDispatcher } from 'svelte'
-
+    
+    import { getRem, toPathString } from '../lib/Utils'
     import g from '../lib/Globals'
     
     export let active = false,
@@ -79,6 +93,28 @@
         text
 
     const dispatch = createEventDispatcher()
+    const contextMenu = [{
+        text: 'Close Other',
+        icon: 'fas fa-times',
+        callback: () => {
+            activate()
+            g.closeAll(true)
+        }
+    }, {
+        text: 'Close All Saved',
+        icon: 'fas fa-times-circle',
+        callback: g.closeAll
+    }, {
+        divider: true
+    }, {
+        text: 'Open in File Manager',
+        icon: 'fas fa-external-link-alt',
+        callback: () => {
+            g.fileTree.session.send('OpenInFileManager', {
+                path: view.filePath,
+            })
+        }
+    }, copyRelativePath, copyAbsolutePath]
 
     onDestroy(() => {
         dispatch('tabDestroyed', { id })
@@ -129,5 +165,22 @@
     export function autoWidth() {
         tab.style.width = ''
     }
+    
+    export function onContextMenu(e) {
+        if (type !== FILE) return
+        copyRelativePath.clipboardText = toPathString(view.filePath, false)
+        copyAbsolutePath.clipboardText = toPathString(view.filePath, true)
+        const rem = getRem()
+        const { bottom } = tab.getBoundingClientRect()
+        
+        g.contextMenu.$set({
+            open: true,
+            x: e.clientX - rem * 7,
+            y: bottom + rem * 0.5,
+            items: contextMenu,
+        })
+        e.preventDefault()
+    }
+
 </script>
 

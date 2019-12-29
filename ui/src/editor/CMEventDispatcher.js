@@ -12,7 +12,7 @@ import {
     AFTER_OPERATOR,
 } from './completion/CompletionProvider'
 import { OPERATOR } from './RegexDefinitions'
-import { schedule, nextFrame } from '../lib/Utils'
+import { schedule, nextFrame, getRem } from '../lib/Utils'
 
 const NONE = -1
 const OFFSET_BYPASS_TOKEN_TYPES = new Set(['operator', 'punctuation'])
@@ -132,7 +132,7 @@ class CMEventDispatcher {
             if (origin === 'setValue') return
             const cursor = doc.getCursor()
             const lineContent = cm.getLine(cursor.line)
-            
+
             // adjust indent
             let i = this._indentDelta
             this._indentDelta = 0 // must set to 0 immediately or it will run into infinite loop
@@ -196,7 +196,7 @@ class CMEventDispatcher {
                                 let { pos } = cm.scanForBracket(c.from, -1, undefined, {
                                     bracketRegex: /[()]/
                                 })
-                                context.inParentheses = {...pos} // must copy, or getNTokens will change it
+                                context.inParentheses = { ...pos } // must copy, or getNTokens will change it
                                 // eslint-disable-next-line
                                 const [tr1, tr2, tr3] = getNTokens(3, pos)
                                 if (tr3.string === 'def')
@@ -253,15 +253,14 @@ class CMEventDispatcher {
                             else if (t0.type === 'comment') completionProvider.mode = COMMENT
                             // must go after the first two, or completion will not be passive inside strings/comments
                             // int(1, base=|)
-                            else if (isInputDot) completionProvider.mode = NORMAL 
+                            else if (isInputDot) completionProvider.mode = NORMAL
                             else if (isInputOperator) completionProvider.mode = AFTER_OPERATOR
                             else if (t1.string === 'for') completionProvider.mode = FOR
                             else if (/\s*for\s/.test(newLineContent) && 
                                      !/\sin\s/.test(newLineContent) &&
                                      !(t0.string === ' ' && t1.type === 'variable')) {
                                 completionProvider.mode = FOR
-                            } 
-                            else completionProvider.mode = NORMAL
+                            } else completionProvider.mode = NORMAL
                         } // retrigger is handled in change event
                     } else {
                         formatter.inputHandler(lineContent, t0, t1, t2, isInFunctionSignatureDefinition)
@@ -293,21 +292,51 @@ class CMEventDispatcher {
         })
 
         cm.on('contextmenu', (cm, event) => {
-            if (!event.ctrlKey && !event.metaKey && !event.altKey)
+            const cursor = cm.coordsChar({ left: event.x - 1, top: event.y - 1 })
+            if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+                const rem = getRem()
+                g.contextMenu.$set({
+                    open: true,
+                    x: event.clientX,
+                    y: event.clientY + rem,
+                    items: [
+                        {
+                            text: 'Assignments',
+                            icon: 'fas fa-equals',
+                            callback: () => {
+                                editor.findReferences(['assignments'], cursor)
+                            }
+                        }, {
+                            text: 'Usages',
+                            icon: 'fas fa-hand-point-right',
+                            callback: () => {
+                                editor.findReferences(['usages'], cursor)
+                            }
+                        }, {
+                            text: 'Assignments and Usages',
+                            icon: '',
+                            callback: () => {
+                                editor.findReferences(['assignments', 'usages'], cursor)
+                            }
+                        },
+                    ],
+                })
+                event.preventDefault()
+                event.codemirrorIgnore = false
                 return
+            }
             const type = []
             if (event.ctrlKey || event.metaKey) {
                 type.push('assignments')
-            } 
+            }
             if (event.altKey) {
                 type.push('usages')
             }
-            const cursor = cm.coordsChar({left: event.x - 1, top: event.y - 1})
             editor.findReferences(type, cursor)
             event.preventDefault()
         })
     }
-    
+
     adjustIndent(n) {
         this._indentDelta = n
     }

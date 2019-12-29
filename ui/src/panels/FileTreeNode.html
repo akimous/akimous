@@ -86,9 +86,15 @@
 </style>
 
 <script context="module">
-    const copyPath = {
+    const copyRelativePath = {
         text: 'Copy Path',
         icon: 'fas fa-link',
+        clipboardText: null
+    }
+    
+    const copyAbsolutePath = {
+        text: 'Copy Path',
+        icon: '',
         clipboardText: null
     }
     
@@ -142,7 +148,7 @@
         callback: (target) => {
             target.openInFileManager()
         }
-    }, copyPath]
+    }, copyRelativePath, copyAbsolutePath]
     
     
 </script>
@@ -152,7 +158,7 @@
     // import pressure from 'pressure'
     
     import g from '../lib/Globals'
-    import { binarySearch } from '../lib/Utils'
+    import { binarySearch, toPathString } from '../lib/Utils'
     import { fileTypeToIcon, getIconByFileName, } from '../lib/FileTypeToIcon'
     
     const dispatch = createEventDispatcher()
@@ -250,6 +256,11 @@
             g.fileTree.session.send('Delete', {
                 path: getPath(),
             })
+        },
+        openInFileManager() {
+            g.fileTree.session.send('OpenInFileManager', {
+                path: getPath(),
+            })
         }
     }
     
@@ -310,6 +321,8 @@
     export function getPath() {
         const path = [name]
         let parent_ = parent()
+        if (!parent_) 
+            console.error('parent is undefined', name)
         let name_ = parent_.name
         while (name_) {
             path.push(name_)
@@ -328,6 +341,7 @@
             if (_self)
                 g.setFocus([g.panelLeft, g.fileTree, _self])
         }
+        row.scrollIntoViewIfNeeded(false)
     }
 
     export function onDoubleClick() {
@@ -347,9 +361,11 @@
     }
 
     export function onContextMenu(e) {
-        dispatch('nodeSelected', getPath())
+        let path = getPath()
+        dispatch('nodeSelected', path)
         selected = true
-        copyPath.clipboardText = getAbsolutePath()
+        copyRelativePath.clipboardText = toPathString(path, false)
+        copyAbsolutePath.clipboardText = toPathString(path, true)
         g.contextMenu.$set({
             open: true,
             x: e.clientX,
@@ -376,7 +392,7 @@
             if (placeholderMode) {
                 name = input.value
                 const path = getPath()
-                const { isDir } = parent
+                const { isDir } = parent()
                 if (!isDir)
                     path.splice(-2, 1) // remove if its parent is a file, not the real parent
                 if (renamingCommittedCallback)
@@ -442,8 +458,12 @@
             if (firstChild) return firstChild
             const sibling = getSibling(1)
             if (sibling && sibling !== self()) return sibling
-            if (!parent.sibling) return null
-            return parent.getSibling(1)
+            let node = parent()
+            while (node) {
+                const sibling = node.getSibling(1)
+                if (sibling && sibling !== node) return sibling
+                node = node.parent()
+            }
         } else {
             const sibling = getSibling(-1)
             if (!sibling || sibling === self()) return parent()
@@ -456,17 +476,5 @@
             return node
         }
     }
-
-    export function openInFileManager() {
-        g.fileTree.session.send('OpenInFileManager', {
-            path: getPath(),
-        })
-    }
-
-    export function getAbsolutePath() {
-        const path = g.projectRoot.concat(getPath())
-        let pathString = path.join(g.pathSeparator)
-        pathString = pathString.replace(g.pathSeparator + g.pathSeparator, g.pathSeparator)
-        return pathString
-    }
+    
 </script>

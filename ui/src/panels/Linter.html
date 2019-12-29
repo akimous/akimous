@@ -165,7 +165,8 @@
         spellingErrors = [],
         width = 100
     
-    let offlineLintCounts,
+    let filteredOfflineLints,
+        offlineLintCounts,
         panel,
         typeStrings = getTypeStrings()
     
@@ -181,16 +182,18 @@
             warning: 0,
             error: 0
         }
-        // offlineLints could be something not an iterable after editor being closed?
+        // offlineLints could be null editor being closed
         if (offlineLints) {
             for (const x of offlineLints) {
                 if (result[x.type] === undefined) continue
                 result[x.type] += 1
             }
             offlineLintCounts = result
+            filteredOfflineLints = offlineLints.filter(x => offlineLintType[x.type])
+        } else {
+            filteredOfflineLints = []
         }
     }
-    $: filteredOfflineLints = offlineLints.filter(x => offlineLintType[x.type])
     
     onMount(async () => {
         await makeScrollable('linter', panel)

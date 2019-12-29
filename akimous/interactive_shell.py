@@ -8,7 +8,6 @@ from functools import partial
 from io import StringIO
 from tokenize import generate_tokens
 
-from jupyter_client import KernelManager
 from logzero import logger
 from zmq.asyncio import Context, Socket
 
@@ -16,6 +15,7 @@ from .utils import Timer, nop
 from .websocket import register_handler
 
 handles = partial(register_handler, 'jupyter')
+_jupyter_imported = False
 
 indented = re.compile('(^\\s+)|(^@)')
 continued = re.compile('\\\\\\s*$')
@@ -47,6 +47,10 @@ def set_state(context, new_state):
 @handles('_connected')
 async def connected(msg, send, context):
     logger.info('shell connected')
+    # Lazy import to reduce memory consumption
+    if not _jupyter_imported:
+        from jupyter_client import KernelManager
+        _jupyter_imported = True
     context.kernel_manager = KernelManager()
     context.part_a_end_line = 0
     context.iopub_buffer = None

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.0 (2019-12-29)
+
+* Reduce startup time and idle memory consumption.
+* Implement context menu for file tabs and code editors.
+* Implement hotkeys for finding assignments and usages.
+* Don't run linter/formatter on non-Python files.
+* Add "Fold All" function.
+* Fix file created in file tree going into wrong places.
+* Fix incorrect file tree node neighbor calculation.
+* Fix file tree misbehavior when renaming folder.
+* Allow renaming upper case to lower case on case-insensitive file system.
+* Fix incorrect keyboard shortcut number for context menu.
+
 ## 0.5.1 (2019-12-22)
 
 * Fix console not correctly initialized if a run is triggered when panel right is hidden.

@@ -90,7 +90,12 @@ function bindHotkeys() {
         hotkey('f' + (i + 2), () => {
             g.panelRight.tabBar.switchToTab(i)
         })
-    
+    hotkey('f12', () => {
+        g.activeEditor && g.activeEditor.findReferences(['assignments'])
+    })
+    hotkey('shift + f12', () => {
+        g.activeEditor && g.activeEditor.findReferences(['assignments', 'usages'])
+    })
     
     hotkey('mod + r', () => {
         g.console.runDefault()

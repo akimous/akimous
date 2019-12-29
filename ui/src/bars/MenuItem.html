@@ -42,7 +42,7 @@
             icon: 'fas fa-times',
             callback: g.close
         }, {
-            text: 'Close All',
+            text: 'Close All Saved',
             hotkey: '⌘⌥⇧W',
             icon: 'fas fa-times-circle',
             callback: g.closeAll
@@ -193,12 +193,17 @@
             callback: () => g.CMCommand('splitSelectionByLine')
         }, ],
         View: [{
+            text: 'Fold All',
+            callback: () => g.CMCommand('foldAll')
+        }, {
             text: 'Fold',
             hotkey: '␣ -',
+            icon: 'fas fa-minus',
             callback: () => g.CMCommand('fold')
         }, {
             text: 'Unfold',
             hotkey: '␣ =',
+            icon: 'fas fa-plus',
             callback: () => g.CMCommand('unfold')
         }, {
             text: 'Unfold All',
@@ -239,12 +244,14 @@
             divider: true
         }, {
             text: 'Assignments',
+            hotkey: 'F12',
             callback: () => g.activeEditor && g.activeEditor.findReferences(['assignments'])
         },{
             text: 'Usages',
             callback: () => g.activeEditor && g.activeEditor.findReferences(['usages'])
         }, {
             text: 'Assignments and Usages',
+            hotkey: '⇧F12',
             callback: () => g.activeEditor && g.activeEditor.findReferences(['assignments', 'usages'])
         }, ],
         Help: [{

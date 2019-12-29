@@ -69,13 +69,16 @@ const g = {
         const { filePath } = g.activeEditor
         filePath && g.panelMiddle.closeFile(filePath)
     },
-    closeAll() {
+    closeAll(inactiveEditorsOnly = false) {
         if (!g.activeEditor) return
         const { editors } = g.panelMiddle
         for (let path in editors) {
             const editor = editors[path]
-            if (editor && editor.clean)
+            if (editor && editor.clean) {
+                if (inactiveEditorsOnly && editor.active) 
+                    continue
                 g.panelMiddle.closeView(editor)
+            }
         }
     },
     saveFile() {
