@@ -89,6 +89,7 @@
         handlers['DirOpened'] = message => {
             if (message.path.length) {
                 const node = getNode(message.path)
+                if (!node) return // the folder no longer exists
                 node.$set({
                     dirs: sortAndAddUid(message.dirs),
                     files: sortAndAddUid(message.files),
@@ -114,7 +115,7 @@
         const renamingEventHandler = ({ path, newName }, event) => {
             // change file tree names
             const node = getNode(path)
-            const { parent } = node
+            const parent = node.parent()
             const oldName = path[path.length - 1]
             const target = event === 'FileRenamed' ? 'files' : 'dirs'
             const newPath = [...path]
@@ -122,6 +123,9 @@
             node.$set({
                 name: newName
             })
+            // children binding should be refreshed manually
+            delete parent.children[oldName]
+            parent.children[newName] = node
             // change paths of opened files
             parent[target].find(x => x.name == oldName).name = newName
             sortChildren(parent, target)
@@ -329,8 +333,8 @@
     export function moveToParent() {
         const node = g.focus
         if (moveToTopIfNothingSelected()) return
-        if (!node.parent) return
         const parent = node.parent()
+        if (!parent) return
         if (!parent.onClick) return
         parent.onClick()
         parent.row.scrollIntoViewIfNeeded(false)

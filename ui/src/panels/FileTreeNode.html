@@ -321,6 +321,8 @@
     export function getPath() {
         const path = [name]
         let parent_ = parent()
+        if (!parent_) 
+            console.error('parent is undefined', name)
         let name_ = parent_.name
         while (name_) {
             path.push(name_)
