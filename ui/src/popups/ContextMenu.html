@@ -44,7 +44,6 @@
         keyEventHandler = null,
         open = false,
         selectedID = -1,
-        selectedRow = null,
         self = null,
         target = null,
         x = 0,
@@ -99,6 +98,8 @@
     export function move(nRows) {
         const length = items.length
         let targetIndex = selectedID + nRows
+        if (items[targetIndex] && items[targetIndex].divider) 
+            targetIndex += Math.sign(nRows)
         if (selectedID === -1 && nRows < 0) targetIndex = length - 1
         else if (targetIndex >= length) targetIndex = length - 1
         else if (targetIndex < 0) targetIndex = 0
@@ -106,7 +107,18 @@
     }
 
     export function enter(rowNumber) {
-        const row = rowNumber ? rows[rowNumber - 1] : selectedRow
+        let row
+        if (!rowNumber) row = rows[selectedID]
+        else {
+            let actualRowNumber = -1 // divider added
+            for (let i = 0; i < rowNumber; i++) {
+                actualRowNumber += 1
+                if (items[actualRowNumber].divider) {
+                    actualRowNumber += 1
+                }
+            }
+            row = rows[actualRowNumber]
+        }
         if (row) row.click()
         else open = false
     }
