@@ -160,25 +160,17 @@ async def rename(msg, send, context):
     new_name = msg['newName']
     new_path = old_path.with_name(new_name)
     logger.info('renaming %s to %s', old_path, new_path)
-
-    if new_path.exists():
+    try:
+        old_path.rename(new_path)
+        await send('Done',
+                   f'"<b>{old_path.name}</b>" renamed to "<b>{new_name}</b>"')
+        if str(old_path) in context.observed_watches:
+            stop_monitor(old_path, context)
+            start_monitor(new_path, context)
+    except OSError as e:
         await send(
             'Failed',
-            f'Failed to rename "<b>{old_path.name}</b>" to "<b>{new_name}</b>". '
-            f'Already exists.')
-    else:
-        try:
-            old_path.rename(new_path)
-            await send(
-                'Done',
-                f'"<b>{old_path.name}</b>" renamed to "<b>{new_name}</b>"')
-            if str(old_path) in context.observed_watches:
-                stop_monitor(old_path, context)
-                start_monitor(new_path, context)
-        except OSError as e:
-            await send(
-                'Failed',
-                f'Failed to rename "<b>{old_path.name}</b>". {e.strerror}')
+            f'Failed to rename "<b>{old_path.name}</b>". {e.strerror}.')
 
 
 @handles('CreateFile')
