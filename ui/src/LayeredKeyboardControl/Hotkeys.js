@@ -55,6 +55,8 @@ function bindHotkeys() {
 
     hotkey('mod + alt + w', g.close)
     hotkey('mod + alt + shift + w', g.closeAll)
+    
+    hotkey('mod + l', g.commandPalette.goToLine)
 
     const canBeRenamed = token => {
         return token.string.length > 0 && token.type &&
