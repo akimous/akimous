@@ -1,4 +1,5 @@
 import throttle from 'lodash.throttle'
+import CodeMirror from 'codemirror'
 import { tick } from 'svelte'
 
 import g from './Globals'
@@ -108,9 +109,29 @@ function onTabChangeFactory(tabBar, children, panel) {
     return onTabChange
 }
 
+function joinPath(x) {
+    if (x[0] === g.pathSeparator)
+        return g.pathSeparator + x.slice(1).join(g.pathSeparator)
+    return x.join(g.pathSeparator)
+}
+
+function toPathString(path, absolute = false) {
+    if (absolute) {
+        path = g.projectRoot.concat(path)
+    }
+    let pathString = path.join(g.pathSeparator)
+    pathString = pathString.replace(g.pathSeparator + g.pathSeparator, g.pathSeparator)
+    return pathString
+}
+
+const Pos = CodeMirror.Pos
+
 export {
     dragElement,
     roundCorners,
     makeScrollable,
     onTabChangeFactory,
+    joinPath,
+    toPathString,
+    Pos,
 }

@@ -1,0 +1,80 @@
+<div id="command-selector" class="non-selectable">
+    {#each rows as {icon, text}, i}
+    <div class="row">
+        <div class="row-number"> {i + 1} </div>
+        <div class="row-content">{@html text}</div>
+        <div class="icon {icon}"></div> 
+    </div>
+    {/each}
+</div>
+
+<style>
+    #command-selector {
+        position: relative;
+        top: .5rem;
+        width: 70rem;
+        max-width: 80vw;
+        max-height: 18rem;
+        z-index: 241;
+        margin: 0 auto;
+        
+        background: var(--popup-bg-color);
+        border-radius: var(--default-radius);
+        box-shadow: var(--default-shadow);
+        overflow: hidden;
+        
+        font-size: var(--ui-fond-size-medium);
+    }
+    
+    .row {
+        height: 2rem;
+    }
+    
+    .row-number {
+        display: inline-block;
+        height: 2rem;
+        width: 2rem;
+        line-height: 2rem;
+        position: absolute;
+        text-align: center;
+        vertical-align: middle;
+        color: var(--brighter-ui-font-color);
+        background: var(--blue);
+    }
+    
+    .row-content {
+        display: inline-block;
+        position: absolute;
+        left: 3rem;
+        height: 2rem;
+        line-height: 2rem;
+        vertical-align: middle;
+        color: var(--gray5);
+        overflow-x: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        width: calc(100% - 5rem);
+    }
+    
+    .icon {
+        display: inline-block;
+        position: absolute;
+        width: var(--ui-fond-size-medium);
+        min-height: var(--ui-fond-size-medium);
+        vertical-align: text-bottom;
+        background-size: 100% 100% !important;
+        text-align: center;
+        
+        right: .5rem;
+        margin-top: .3rem;
+        height: 1.4rem;
+        min-width: 1.4rem;
+    }
+
+
+</style>
+
+<script>    
+    export let rows = []
+    
+</script>

@@ -1,7 +1,4 @@
-import CodeMirror from 'codemirror'
 import isEqual from 'lodash.isequal'
-
-import g from './Globals'
 
 // https://stackoverflow.com/questions/22697936/binary-search-in-javascript
 function binarySearch(array, target) {
@@ -118,8 +115,6 @@ function getRem() {
     return parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
 
-const Pos = CodeMirror.Pos
-
 function isStringOrComment(cm, pos) {
     const type = cm.getTokenTypeAt(pos)
     return type === 'string' || type === 'comment'
@@ -132,7 +127,10 @@ function inSomething(cm, cursor, open, close) {
 
     let braceStackCounter = 0
     let startCh = cursor.ch
-    let pos = Pos(0, 0)
+    let pos = {
+        line: 0,
+        ch: 0,
+    }
     for (; line >= 0 && line > cursor.line - searchNLines; line--) {
         pos.line = line
         for (let ch = startCh - 1; ch > -1; ch--) {
@@ -215,10 +213,40 @@ function highlightSequentially(target, input) {
     return result.join('').replace(/<\/em><em>/g, '')
 }
 
-function joinPath(x) {
-    if (x[0] === g.pathSeparator)
-        return g.pathSeparator + x.slice(1).join(g.pathSeparator)
-    return x.join(g.pathSeparator)
+/**
+ * Highlight all occurrences of keywords in target.
+ * @param   {string} target   e.g. 'abac'
+ * @param   {Array}  keywords e.g. ['a', 'c']
+ * @returns {string} highlighted string e.g. '<em>a</em>b<em>ac</em>'
+ */
+function highlightAllOccurrences(target, keywords) {
+    const x = new Array(target.length).fill(0) // 1 if highlighted, 0 if not
+    const targetLowered = target.toLowerCase()
+    for (const keyword of keywords) {
+        const keywordLowered = keyword.toLowerCase()
+        const { length } = keywordLowered
+        let start = 0
+        let index
+        while ((index = targetLowered.indexOf(keywordLowered, start)) > -1) {
+            for (let i = 0; i < length; i++) {
+                x[index + i] = 1
+            }
+            start = index + length
+        }
+    }
+    const result = []
+    for (let i = 0; i < target.length; i++) {
+        if (x[i] && !x[i - 1]) {
+            result.push('<em>')
+        } else if (!x[i] && x[i - 1]) {
+            result.push('</em>')
+        }
+        result.push(target.charAt(i))
+    }
+    if (x[x.length - 1]) {
+        result.push('</em>')
+    }
+    return result.join('')
 }
 
 function capitalize(s) {
@@ -265,31 +293,20 @@ class CircularBuffer {
     }
 }
 
-function toPathString(path, absolute = false) {
-    if (absolute) {
-        path = g.projectRoot.concat(path)
-    }
-    let pathString = path.join(g.pathSeparator)
-    pathString = pathString.replace(g.pathSeparator + g.pathSeparator, g.pathSeparator)
-    return pathString
-}
-
 export {
     binarySearch,
     schedule,
     nextFrame,
     reformatDocstring,
     getRem,
-    Pos,
     isStringOrComment,
     inSomething,
     inParentheses,
     // inBrackets,
     // inBraces,
     highlightSequentially,
-    joinPath,
     capitalize,
     highlightMatch,
     CircularBuffer,
-    toPathString,
+    highlightAllOccurrences,
 }

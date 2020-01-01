@@ -4,9 +4,8 @@ from collections import namedtuple
 from pathlib import Path
 
 from cachetools import TTLCache, cached
-from pathspec import PathSpec
 from logzero import logger
-
+from pathspec import PathSpec
 
 Match = namedtuple('Match', ('line', 'start', 'end', 'text'))
 
@@ -42,7 +41,8 @@ def search(file, regex):
     with open(file, errors='ignore') as f:
         for line, line_content in enumerate(f):
             matches.extend(
-                Match(line, m.start(), m.end(), line_content) for m in regex.finditer(line_content))
+                Match(line, m.start(), m.end(), line_content)
+                for m in regex.finditer(line_content))
     return matches
 
 
@@ -75,8 +75,9 @@ async def find_in_directory(msg, send, context):
         if not subdirectory or match_count > limit:
             break
 
-    await send('FoundInDirectory',
-               dict(result=results, overflow=match_count > limit, nFiles=file_count))
+    await send(
+        'FoundInDirectory',
+        dict(result=results, overflow=match_count > limit, nFiles=file_count))
 
 
 async def replace_all_in_directory(msg, send, context):
@@ -99,7 +100,8 @@ async def replace_all_in_directory(msg, send, context):
             dirty = False
             with open(path) as f:
                 for line_content in f:
-                    new_string, number_of_substitute = regex.subn(replacement, line_content)
+                    new_string, number_of_substitute = regex.subn(
+                        replacement, line_content)
                     replaced_content.append(new_string)
                     if number_of_substitute:
                         dirty = True
@@ -110,6 +112,4 @@ async def replace_all_in_directory(msg, send, context):
                 f.writelines(replaced_content)
         if not subdirectory:
             break
-    await send('ReplacedInDirectory', {
-        'count': match_count
-    })
+    await send('ReplacedInDirectory', {'count': match_count})

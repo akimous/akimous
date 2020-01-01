@@ -1,8 +1,13 @@
 {#if active}
 <div id="command-palette" class="non-selectable">
     <span class="message">{message}</span>
-    <input bind:this={input} bind:value type="text" spellcheck="false" on:keydown="{onKeyDown}" />
+    <input bind:this={input} bind:value type="text" spellcheck="false" on:keydown="{onKeyDown}" on:change="{onChange}" />
 </div>
+{#if candidateRows.length}
+<div id="command-palette-shade" on:mousedown="{() => active = false}">
+    <CommandSelector bind:this="{g.commandSelector}" rows={candidateRows}></CommandSelector>
+</div>
+{/if}
 {/if}
 
 <style>
@@ -12,7 +17,7 @@
         width: 100%;
         height: var(--toolbar-height);
         line-height: var(--toolbar-height);
-        z-index: 240;
+        z-index: 241;
         color: var(--brighter-ui-font-color);
         text-align: center;
         vertical-align: middle;
@@ -35,15 +40,30 @@
     input:focus {
         outline: none;
     }
+    
+    #command-palette-shade {
+        background: transparent;
+        position: absolute;
+        width: 100%;
+        height: calc(100% - var(--toolbar-height));
+        top: var(--toolbar-height);
+        z-index: 240;
+    }
 
 </style>
 
 <script>    
     import g from '../lib/Globals'
+    import { getIconByFileName } from '../lib/FileTypeToIcon'
+    
+    import CommandSelector from './CommandSelector.html'
 
     export let active = false,
-        callback = null,
+        allowWhiteSpace = true,
+        candidateRows = [],
+        enterCallback = null,
         input = null,
+        inputCallback = null,
         message = '',
         value = ''
     
@@ -62,6 +82,7 @@
         g.setFocus([g.commandPalette])
         requestAnimationFrame(() => {
             input.focus()
+            input.select()
         })
     }
     
@@ -76,23 +97,66 @@
         message = 'Command:'
     }
 
-    export function promptForInput(message_, callback_) {
+    export function promptForInput(message_, enterCallback_, inputCallback_) {
         active = true
         message = message_
-        callback = callback_
+        enterCallback = enterCallback_
+        inputCallback = inputCallback_
     }
 
     export function onKeyDown() {
-        if (event.key === 'Enter') {
-            event.stopPropagation()
-            event.preventDefault()
-            const { value } = input
-            callback(value)
-            active = false
+        switch(event.key) {
+            case 'Enter':
+                event.stopPropagation()
+                event.preventDefault()
+                enterCallback(input.value)
+                active = false
+                break
+            case 'Escape':
+                active = false
+                break
+            default:
+                requestAnimationFrame(() => {
+                    inputCallback && inputCallback()
+                })
         }
     }
     
+    function onChange() {
+        if (inputCallback)
+            inputCallback()
+    }
+    
     export function goToLine() {
+        allowWhiteSpace = false
         promptForInput('Go to line:', g.goToLine)
     }
+    
+    export function openFile() {
+        allowWhiteSpace = true
+        promptForInput('Open file:', null, searchFile)
+        candidateRows = [{
+            text: 'test.py',
+            icon: 'l-python-icon'
+        }]
+    }
+    
+    function searchFile() {
+        const { value } = input
+        if (value) {
+            g.projectSession.send('FindFileByName', {
+                keywords: value
+            })
+        }
+    }
+    
+    g.projectSession.handlers['FileFound'] = data => {
+        candidateRows = data.map(text => {
+            return {
+                text,
+                icon: getIconByFileName(text)
+            }
+        })
+    }
+    
 </script>

@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 from functools import partial
 from importlib import resources
@@ -119,3 +120,23 @@ def save_state(context):
 
 handles('FindInDirectory')(find_in_directory)
 handles('ReplaceAllInDirectory')(replace_all_in_directory)
+
+
+@handles('FindFileByName')
+async def find_file_by_name(msg, send, context):
+    sep = os.sep
+    project_root = context.shared.project_root
+    keywords = [i.lower() for i in msg['keywords'].split()]
+    result = []
+    for root, _, files in os.walk(project_root):
+        for file in files:
+            file_lower = file.lower()
+            for keyword in keywords:
+                if keyword not in file_lower:
+                    break
+            else:
+                result.append(str(Path(root, file).relative_to(project_root)))
+                if len(result) > 8:
+                    await send('FileFound', result)
+                    return
+    await send('FileFound', result)

@@ -18,6 +18,7 @@
 <div id="dismiss-popup" on:mousedown="{dismissPopups}"></div>
 {/if}
 
+
 <style>
     .split-bar {
         position: absolute;
@@ -117,7 +118,7 @@
 
     export let initialized = true,
         openFolder = false,
-        popup = false
+        popup = null
 
     let splitterLeft,
         splitterRight,
