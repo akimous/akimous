@@ -15,5 +15,6 @@ describe('highlightAllOccurrences', function () {
         assert.strictEqual(highlightAllOccurrences('abac', ['ba']), 'a<em>ba</em>c')
         assert.strictEqual(highlightAllOccurrences('abac', ['ddd', 'eee']), 'abac')
         assert.strictEqual(highlightAllOccurrences('abac', []), 'abac')
+        assert.strictEqual(highlightAllOccurrences('abac', ['c', '']), 'aba<em>c</em>') // shouldn't be infinite loop
     })
 })

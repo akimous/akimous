@@ -1,6 +1,6 @@
 <div id="command-selector" class="non-selectable">
     {#each rows as {icon, text}, i}
-    <div class="row">
+    <div class="row" class:selected={selectedIndex === i}>
         <div class="row-number"> {i + 1} </div>
         <div class="row-content">{@html text}</div>
         <div class="icon {icon}"></div> 
@@ -71,10 +71,28 @@
         min-width: 1.4rem;
     }
 
+    .selected {
+        background: var(--primary3);
+    }
+    
+    .selected .row-number {
+        background: var(--darker-blue);
+    }
+    
+    .selected .row-content {
+        color: var(--gray9);
+    }
+    
+    :global(.row-content em) {
+        font-weight: 500;
+        font-style: normal;
+        color: var(--green);
+    }
 
 </style>
 
 <script>    
-    export let rows = []
+    export let rows = [],
+        selectedIndex = 0
     
 </script>

@@ -225,6 +225,7 @@ function highlightAllOccurrences(target, keywords) {
     for (const keyword of keywords) {
         const keywordLowered = keyword.toLowerCase()
         const { length } = keywordLowered
+        if (!length) continue // prevent infinite loop
         let start = 0
         let index
         while ((index = targetLowered.indexOf(keywordLowered, start)) > -1) {

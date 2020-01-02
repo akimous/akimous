@@ -55,6 +55,7 @@
 <script>    
     import g from '../lib/Globals'
     import { getIconByFileName } from '../lib/FileTypeToIcon'
+    import { highlightAllOccurrences } from '../lib/Utils'
     
     import CommandSelector from './CommandSelector.html'
 
@@ -135,14 +136,10 @@
     export function openFile() {
         allowWhiteSpace = true
         promptForInput('Open file:', null, searchFile)
-        candidateRows = [{
-            text: 'test.py',
-            icon: 'l-python-icon'
-        }]
+        candidateRows = []
     }
     
     function searchFile() {
-        const { value } = input
         if (value) {
             g.projectSession.send('FindFileByName', {
                 keywords: value
@@ -151,10 +148,11 @@
     }
     
     g.projectSession.handlers['FileFound'] = data => {
-        candidateRows = data.map(text => {
+        const keywords = value.split(' ')
+        candidateRows = data.map(x => {
             return {
-                text,
-                icon: getIconByFileName(text)
+                text: highlightAllOccurrences(x, keywords),
+                icon: getIconByFileName(x)
             }
         })
     }
