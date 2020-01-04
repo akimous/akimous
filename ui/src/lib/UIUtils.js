@@ -126,6 +126,10 @@ function toPathString(path, absolute = false) {
 
 const Pos = CodeMirror.Pos
 
+function stringToPath(s) {
+    return s.split(g.pathSeparator)
+}
+
 export {
     dragElement,
     roundCorners,
@@ -134,4 +138,5 @@ export {
     joinPath,
     toPathString,
     Pos,
+    stringToPath,
 }

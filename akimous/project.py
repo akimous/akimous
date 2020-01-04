@@ -9,7 +9,8 @@ from git import InvalidGitRepositoryError, Repo
 from logzero import logger
 
 from .config import config, set_config
-from .file_finder import find_in_directory, replace_all_in_directory
+from .file_finder import (find_in_directory, get_pathspec,
+                          replace_all_in_directory)
 from .spell_checker import SpellChecker
 from .utils import config_directory, merge_dict
 from .websocket import register_handler
@@ -126,15 +127,22 @@ handles('ReplaceAllInDirectory')(replace_all_in_directory)
 async def find_file_by_name(msg, send, context):
     sep = os.sep
     project_root = context.shared.project_root
+    pathspec = get_pathspec(project_root)
     keywords = [i.lower() for i in msg['keywords'].split()]
     result = []
     for root, _, files in os.walk(project_root):
+        if '__pycache__' in root:
+            continue
         for file in files:
             file_lower = file.lower()
             for keyword in keywords:
                 if keyword not in file_lower:
                     break
             else:
+                path = Path(root) / file
+                relative_path = path.relative_to(project_root)
+                if pathspec.match_file(str(relative_path)):
+                    continue
                 result.append(str(Path(root, file).relative_to(project_root)))
                 if len(result) > 8:
                     await send('FileFound', result)

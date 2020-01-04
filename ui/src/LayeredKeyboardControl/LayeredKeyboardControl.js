@@ -189,15 +189,26 @@ class LayeredKeyboardControl {
                     g.activeEditor.cm.display.shift = false
                     return true
                     // break // this will interfere with hotkey
-                case ' ':
+                case ' ': {
+                    const { focus } = g
                     spacePressed = false
-                    if (g.focus.allowWhiteSpace) return true
-                    if (!this.commandSent && this.sendCommand(e) && g.activeEditor &&
-                        e.timeStamp - composeTimeStamp > 200) { // avoid insert extra space after IME commit
-                        g.activeEditor.insertText(' ')
+                    if (focus.allowWhiteSpace) return true
+                    if (!this.commandSent) {
+                        if (focus.constructor.name === 'CodeEditor') {
+                            // avoid insert extra space after IME commit
+                            if (g.activeEditor && e.timeStamp - composeTimeStamp > 200) { 
+                                g.activeEditor.insertText(' ')
+                            }
+                        } else if (focus.input) {
+                            const { input } = focus
+                            const { value, selectionStart, selectionEnd } = input
+                            input.value = `${value.substring(0, selectionStart)} ${value.substring(selectionEnd)}`
+                            input.setSelectionRange(selectionEnd + 1, selectionEnd + 1)
+                        }
                     }
                     g.keyboardControlHint.dimModifier('Space')
                     return this.stopPropagation(e)
+                }
                 case 'Control':
                     g.tabNumber.$set({ active: false })
                     this.macroMode = false
