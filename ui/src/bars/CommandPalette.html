@@ -3,11 +3,11 @@
     <span class="message">{message}</span>
     <input bind:this={input} bind:value type="text" spellcheck="false" on:change="{onChange}" />
 </div>
-{#if candidateRows.length}
 <div id="command-palette-shade" on:click="{() => active = false}">
+    {#if candidateRows.length}
     <CommandSelector bind:this="{g.commandSelector}" rows={candidateRows}></CommandSelector>
+    {/if}
 </div>
-{/if}
 {/if}
 
 <style>
@@ -179,6 +179,8 @@
             g.projectSession.send('FindFileByName', {
                 keywords: value
             })
+        } else {
+            candidateRows = []
         }
     }
     

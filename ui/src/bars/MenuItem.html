@@ -30,8 +30,15 @@
     /* eslint-enable */
     export const menus = {
         File: [{
-            text: 'Open Folder...',
+            text: 'Open',
             hotkey: '⌘O',
+            icon: 'fas fa-folder-open',
+            callback: () => {
+                g.commandPalette.openFile()
+            }
+        }, {
+            text: 'Open Folder...',
+            hotkey: '⌘⇧O',
             icon: 'fas fa-folder-open',
             callback: () => {
                 g.app.$set({ openFolder: true })
