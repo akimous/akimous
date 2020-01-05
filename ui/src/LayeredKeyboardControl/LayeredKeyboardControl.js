@@ -193,7 +193,7 @@ class LayeredKeyboardControl {
                     const { focus } = g
                     spacePressed = false
                     if (focus.allowWhiteSpace) return true
-                    if (!this.commandSent) {
+                    if (!this.commandSent && this.sendCommand(e)) { // sendCommand is used by completion, do not remove
                         if (focus.constructor.name === 'CodeEditor') {
                             // avoid insert extra space after IME commit
                             if (g.activeEditor && e.timeStamp - composeTimeStamp > 200) { 
