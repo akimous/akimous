@@ -217,7 +217,7 @@ function highlightSequentially(target, input) {
  * Highlight all occurrences of keywords in target.
  * @param   {string} target   e.g. 'abac'
  * @param   {Array}  keywords e.g. ['a', 'c']
- * @returns {string} highlighted string e.g. '<em>a</em>b<em>ac</em>'
+ * @returns {object} highlighted string and score e.g. {display: '<em>a</em>b<em>ac</em>', score: 3}
  */
 function highlightAllOccurrences(target, keywords) {
     const x = new Array(target.length).fill(0) // 1 if highlighted, 0 if not
@@ -247,7 +247,10 @@ function highlightAllOccurrences(target, keywords) {
     if (x[x.length - 1]) {
         result.push('</em>')
     }
-    return result.join('')
+    return {
+        display: result.join(''),
+        score: x.reduce((a, b) => a + b),
+    }
 }
 
 function capitalize(s) {

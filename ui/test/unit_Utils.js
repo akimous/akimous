@@ -3,18 +3,21 @@ import assert from 'assert'
 
 describe('highlightAllOccurrences', function () {
     it('highlights', function () {
-        assert.strictEqual(highlightAllOccurrences('a', ['a']), '<em>a</em>')
-        assert.strictEqual(highlightAllOccurrences('A', ['a']), '<em>A</em>')
-        assert.strictEqual(highlightAllOccurrences('abc', ['abc']), '<em>abc</em>')
-        assert.strictEqual(highlightAllOccurrences('import', ['im']), '<em>im</em>port')
-        assert.strictEqual(highlightAllOccurrences('AbcBbcCbc', ['abc']), '<em>Abc</em>BbcCbc')
-        assert.strictEqual(highlightAllOccurrences('pypy', ['py']), '<em>pypy</em>')
-        assert.strictEqual(highlightAllOccurrences('abac', ['a', 'c']), '<em>a</em>b<em>ac</em>')
-        assert.strictEqual(highlightAllOccurrences('abac', ['a', 'ac']), '<em>a</em>b<em>ac</em>')
-        assert.strictEqual(highlightAllOccurrences('abac', ['b']), 'a<em>b</em>ac')
-        assert.strictEqual(highlightAllOccurrences('abac', ['ba']), 'a<em>ba</em>c')
-        assert.strictEqual(highlightAllOccurrences('abac', ['ddd', 'eee']), 'abac')
-        assert.strictEqual(highlightAllOccurrences('abac', []), 'abac')
-        assert.strictEqual(highlightAllOccurrences('abac', ['c', '']), 'aba<em>c</em>') // shouldn't be infinite loop
+        const t = (target, keywords, highlighted) => {
+            assert.strictEqual(highlightAllOccurrences(target, keywords).display, highlighted)
+        }
+        t('a', ['a'], '<em>a</em>')
+        t('A', ['a'], '<em>A</em>')
+        t('abc', ['abc'], '<em>abc</em>')
+        t('import', ['im'], '<em>im</em>port')
+        t('AbcBbcCbc', ['abc'], '<em>Abc</em>BbcCbc')
+        t('pypy', ['py'], '<em>pypy</em>')
+        t('abac', ['a', 'c'], '<em>a</em>b<em>ac</em>')
+        t('abac', ['a', 'ac'], '<em>a</em>b<em>ac</em>')
+        t('abac', ['b'], 'a<em>b</em>ac')
+        t('abac', ['ba'], 'a<em>ba</em>c')
+        t('abac', ['ddd', 'eee'], 'abac')
+        t('abac', [], 'abac')
+        t('abac', ['c', ''], 'aba<em>c</em>') // shouldn't be infinite loop
     })
 })

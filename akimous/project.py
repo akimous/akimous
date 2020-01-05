@@ -128,6 +128,7 @@ async def find_file_by_name(msg, send, context):
     sep = os.sep
     project_root = context.shared.project_root
     pathspec = get_pathspec(project_root)
+    limit = msg['limit']
     keywords = [i.lower() for i in msg['keywords'].split()]
     result = []
     for root, _, files in os.walk(project_root):
@@ -144,7 +145,7 @@ async def find_file_by_name(msg, send, context):
                 if pathspec.match_file(str(relative_path)):
                     continue
                 result.append(str(Path(root, file).relative_to(project_root)))
-                if len(result) > 8:
+                if len(result) >= limit:
                     await send('FileFound', result)
                     return
     await send('FileFound', result)

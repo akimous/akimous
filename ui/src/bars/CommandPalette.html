@@ -67,7 +67,8 @@
         message = '',
         value = ''
     
-    let previousFocusStack = null
+    let openedFilesFiltered = [],
+        previousFocusStack = null
     
     $: {
         if (active) {
@@ -155,6 +156,8 @@
                     enterCallback(+command)
                     active = false
                     return false
+                case 'commit': // space
+                    return true // no-op, let it propagate
             }
             return false
         }
@@ -176,23 +179,38 @@
     
     function searchFile() {
         if (value) {
+            const keywords = value.split(' ')
+            openedFilesFiltered = Object.keys(g.panelMiddle.editors).map(path => {
+                const { display, score } = highlightAllOccurrences(path, keywords)
+                if (!score) return null
+                return {
+                    path,
+                    display,
+                    score: score + 10 + path.endsWith('.py'),
+                    icon: getIconByFileName(path),
+                }
+            }).filter(Boolean)
             g.projectSession.send('FindFileByName', {
-                keywords: value
+                keywords: value,
+                limit: 9 - openedFilesFiltered.length,
             })
         } else {
             candidateRows = []
         }
     }
-    
+        
     g.projectSession.handlers['FileFound'] = data => {
         const keywords = value.split(' ')
-        candidateRows = data.map(x => {
+        const respondedRows = data.map(path => {
+            const { display, score } = highlightAllOccurrences(path, keywords)
             return {
-                path: x,
-                display: highlightAllOccurrences(x, keywords),
-                icon: getIconByFileName(x)
+                path,
+                display,
+                score: score + path.endsWith('.py'),
+                icon: getIconByFileName(path)
             }
         })
+        candidateRows = [...openedFilesFiltered, ...respondedRows].sort((a, b) => b.score - a.score)
     }
 
 </script>
