@@ -1,0 +1,121 @@
+<div id="command-selector" class="non-selectable">
+    {#each rows as {icon, display}, i}
+    <div class="row" class:selected={selectedIndex === i} on:mouseover={() => selectedIndex = i} on:click={enter}>
+        <div class="row-number"> {i + 1} </div>
+        <div class="row-content">{@html display}</div>
+        <div class="icon {icon}"></div> 
+    </div>
+    {/each}
+</div>
+
+<style>
+    #command-selector {
+        position: relative;
+        top: .5rem;
+        width: 70rem;
+        max-width: 80vw;
+        max-height: 18rem;
+        z-index: 241;
+        margin: 0 auto;
+        
+        background: var(--popup-bg-color);
+        border-radius: var(--default-radius);
+        box-shadow: var(--default-shadow);
+        overflow: hidden;
+        
+        font-size: var(--ui-fond-size-medium);
+    }
+    
+    .row {
+        height: 2rem;
+    }
+    
+    .row-number {
+        display: inline-block;
+        height: 2rem;
+        width: 2rem;
+        line-height: 2rem;
+        position: absolute;
+        text-align: center;
+        vertical-align: middle;
+        color: var(--brighter-ui-font-color);
+        background: var(--blue);
+    }
+    
+    .row-content {
+        display: inline-block;
+        position: absolute;
+        left: 3rem;
+        height: 2rem;
+        line-height: 2rem;
+        vertical-align: middle;
+        color: var(--gray5);
+        overflow-x: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        width: calc(100% - 5rem);
+    }
+    
+    .icon {
+        display: inline-block;
+        position: absolute;
+        width: var(--ui-fond-size-medium);
+        min-height: var(--ui-fond-size-medium);
+        vertical-align: text-bottom;
+        background-size: 100% 100% !important;
+        text-align: center;
+        
+        right: .5rem;
+        margin-top: .3rem;
+        height: 1.4rem;
+        min-width: 1.4rem;
+    }
+
+    .selected {
+        background: var(--primary3);
+    }
+    
+    .selected .row-number {
+        background: var(--darker-blue);
+    }
+    
+    .selected .row-content {
+        color: var(--gray9);
+    }
+    
+    :global(.row-content em) {
+        font-weight: 500;
+        font-style: normal;
+        color: var(--green);
+    }
+
+</style>
+
+<script>
+    import g from '../lib/Globals'
+    import { stringToPath } from '../lib/UIUtils'
+    
+    export let rows = [],
+        selectedIndex = 0
+    
+    $: {
+        if (rows) {
+            selectedIndex = 0
+        }
+    }
+    
+    export function enter(index) {
+        if (index) selectedIndex = index
+        const { path } = rows[selectedIndex]
+        g.panelMiddle.openFile(stringToPath(path))
+    }
+
+    export function move(nRows) {
+        const length = rows.length
+        let targetIndex = selectedIndex + nRows
+        if (targetIndex >= length) targetIndex = length - 1
+        else if (targetIndex < 0) targetIndex = 0
+        selectedIndex = targetIndex
+    }
+    
+</script>

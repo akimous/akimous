@@ -1,7 +1,12 @@
 {#if active}
 <div id="command-palette" class="non-selectable">
     <span class="message">{message}</span>
-    <input bind:this={input} bind:value type="text" spellcheck="false" on:keydown="{onKeyDown}" />
+    <input bind:this={input} bind:value type="text" spellcheck="false" on:change="{onChange}" />
+</div>
+<div id="command-palette-shade" on:click="{() => active = false}">
+    {#if candidateRows.length}
+    <CommandSelector bind:this="{g.commandSelector}" rows={candidateRows}></CommandSelector>
+    {/if}
 </div>
 {/if}
 
@@ -12,7 +17,7 @@
         width: 100%;
         height: var(--toolbar-height);
         line-height: var(--toolbar-height);
-        z-index: 240;
+        z-index: 241;
         color: var(--brighter-ui-font-color);
         text-align: center;
         vertical-align: middle;
@@ -35,19 +40,35 @@
     input:focus {
         outline: none;
     }
+    
+    #command-palette-shade {
+        background: transparent;
+        position: absolute;
+        width: 100%;
+        height: calc(100% - var(--toolbar-height));
+        top: var(--toolbar-height);
+        z-index: 240;
+    }
 
 </style>
 
 <script>    
     import g from '../lib/Globals'
+    import { getIconByFileName } from '../lib/FileTypeToIcon'
+    import { highlightAllOccurrences } from '../lib/Utils'
+    
+    import CommandSelector from './CommandSelector.html'
 
     export let active = false,
-        callback = null,
+        candidateRows = [],
+        enterCallback = null,
         input = null,
+        inputCallback = null,
         message = '',
         value = ''
     
-    let previousFocusStack = null
+    let openedFilesFiltered = [],
+        previousFocusStack = null
     
     $: {
         if (active) {
@@ -56,12 +77,13 @@
             deactivate()
         }
     }
-    
+
     function activate() {
         previousFocusStack = g.focusStack
         g.setFocus([g.commandPalette])
         requestAnimationFrame(() => {
             input.focus()
+            input.select()
         })
     }
     
@@ -76,19 +98,119 @@
         message = 'Command:'
     }
 
-    export function promptForInput(message_, callback_) {
+    export function promptForInput(message_, enterCallback_, inputCallback_) {
         active = true
         message = message_
-        callback = callback_
+        enterCallback = enterCallback_
+        inputCallback = inputCallback_
     }
 
-    export function onKeyDown() {
-        if (event.key === 'Enter') {
-            event.stopPropagation()
-            event.preventDefault()
-            const { value } = input
-            callback(value)
-            active = false
+    export const keyEventHandler = {
+        handleKeyEvent(event) {
+            switch (event.key) {
+                case 'ArrowDown':
+                    g.commandSelector.move(1)
+                    break
+                case 'ArrowUp':
+                    g.commandSelector.move(-1)
+                    break
+                case 'Escape':
+                    active = false
+                    break
+                case 'Enter':
+                    event.stopPropagation()
+                    event.preventDefault()
+                    enterCallback(input.value)
+                    active = false
+                    break
+                default:
+                    requestAnimationFrame(() => {
+                        inputCallback && inputCallback()
+                    })
+                    return true // propagate
+            }
+        },
+        handleCommand(command) {
+            switch (command) {
+                case 'down':
+                    g.commandSelector.move(1)
+                    return false
+                case 'up':
+                    g.commandSelector.move(-1)
+                    return false
+                case 'down5X':
+                    g.commandSelector.move(5)
+                    return false
+                case 'up5X':
+                    g.commandSelector.move(-5)
+                    return false
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    enterCallback(+command)
+                    active = false
+                    return false
+                case 'commit': // space
+                    return true // no-op, let it propagate
+            }
+            return false
         }
     }
+    
+    function onChange() {
+        if (inputCallback)
+            inputCallback()
+    }
+    
+    export function goToLine() {
+        promptForInput('Go to line:', g.goToLine)
+    }
+    
+    export function openFile() {
+        promptForInput('Open file:', () => g.commandSelector.enter(), searchFile)
+        candidateRows = []
+    }
+    
+    function searchFile() {
+        if (value) {
+            const keywords = value.split(' ')
+            openedFilesFiltered = Object.keys(g.panelMiddle.editors).map(path => {
+                const { display, score } = highlightAllOccurrences(path, keywords)
+                if (!score) return null
+                return {
+                    path,
+                    display,
+                    score: score + 10 + path.endsWith('.py'),
+                    icon: getIconByFileName(path),
+                }
+            }).filter(Boolean)
+            g.projectSession.send('FindFileByName', {
+                keywords: value,
+                limit: 9 - openedFilesFiltered.length,
+            })
+        } else {
+            candidateRows = []
+        }
+    }
+        
+    g.projectSession.handlers['FileFound'] = data => {
+        const keywords = value.split(' ')
+        const respondedRows = data.map(path => {
+            const { display, score } = highlightAllOccurrences(path, keywords)
+            return {
+                path,
+                display,
+                score: score + path.endsWith('.py'),
+                icon: getIconByFileName(path)
+            }
+        })
+        candidateRows = [...openedFilesFiltered, ...respondedRows].sort((a, b) => b.score - a.score)
+    }
+
 </script>

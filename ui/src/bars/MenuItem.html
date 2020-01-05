@@ -30,8 +30,15 @@
     /* eslint-enable */
     export const menus = {
         File: [{
-            text: 'Open Folder...',
+            text: 'Open',
             hotkey: '⌘O',
+            icon: 'fas fa-folder-open',
+            callback: () => {
+                g.commandPalette.openFile()
+            }
+        }, {
+            text: 'Open Folder...',
+            hotkey: '⌘⇧O',
             icon: 'fas fa-folder-open',
             callback: () => {
                 g.app.$set({ openFolder: true })
@@ -233,7 +240,7 @@
             text: 'Line',
             hotkey: '⌘L',
             icon: 'fas fa-grip-lines',
-            callback: () => g.commandPalette.promptForInput('Go to line:', g.goToLine)
+            callback: () => g.commandPalette.goToLine()
         }, {
             //     text: 'Last Edit Location',
             //     icon: 'fas fa-arrow-left',

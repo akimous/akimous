@@ -3,7 +3,8 @@ import camelCase from 'lodash.camelcase'
 import g from '../../lib/Globals'
 import Sorter from './Sorter'
 import RuleBasedPredictor from './RuleBasedPredictor'
-import { highlightSequentially, Pos } from '../../lib/Utils'
+import { highlightSequentially } from '../../lib/Utils'
+import { Pos } from '../../lib/UIUtils'
 
 // state
 const CLOSED = 0,

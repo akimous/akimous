@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0 (2020-01-05)
+
+* Implement "Open File" (quick search)
+
 ## 0.6.0 (2019-12-29)
 
 * Reduce startup time and idle memory consumption.

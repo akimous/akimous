@@ -1,4 +1,4 @@
-import { Pos } from '../lib/Utils'
+import { Pos } from '../lib/UIUtils'
 
 // For sharing states between CompletionProvider, RuleBasedPredictor and RealtimeFormatter,
 // so that we can get rid of Object.assign().

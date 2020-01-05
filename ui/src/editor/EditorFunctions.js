@@ -1,4 +1,5 @@
-import { Pos, isStringOrComment } from '../lib/Utils'
+import { Pos } from '../lib/UIUtils'
+import { isStringOrComment } from '../lib/Utils'
 import g from '../lib/Globals'
 
 const matchingBackward = { ')': '(', ']': '[', '}': '{' }
