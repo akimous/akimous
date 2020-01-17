@@ -139,5 +139,9 @@ Scenario('Normal formatting', async (I) => {
     // make sure "in" is completed
     I.typeAndCompare(['if "" in ['], ['if "" in []'])
     I.clear()
+    
+    // should not add space before :
+    I.typeAndCompare(['adef', ['Tab'], 'x', ['Tab'], '):'], ['async def x():'])
+    I.clear()
     // pause()
 })

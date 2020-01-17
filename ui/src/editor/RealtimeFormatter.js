@@ -142,7 +142,7 @@ const RealtimeFormatter = (editor, CodeMirror) => {
                 (t2.type !== 'variable') && (t2.type !== 'string') && (t2.type !== 'number') // a = -3
             ) return
             ensureSpaceBefore(t0)
-        } else if (/[)\]}]/.test(leftText) && currentText !== '.') {
+        } else if (/[)\]}]/.test(leftText) && currentText !== '.' && currentText !== ':') {
             ensureSpaceBefore(t0)
         } else if (t0.string === '=' && t2.string === ' ' && /[!><=@]/.test(t1.string)) { // special case for a = b ==|2
             ensureSpaceBefore(t0)
