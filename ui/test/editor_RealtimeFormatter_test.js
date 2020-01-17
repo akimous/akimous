@@ -135,5 +135,9 @@ Scenario('Normal formatting', async (I) => {
     
     I.typeAndCompare(['a=[]', 'Enter', 'a[1:2+3'], ['a[1:2+3]'])
     I.clear()
+    
+    // make sure "in" is completed
+    I.typeAndCompare(['if "" in ['], ['if "" in []'])
+    I.clear()
     // pause()
 })

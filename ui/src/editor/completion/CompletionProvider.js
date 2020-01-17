@@ -258,6 +258,17 @@ class CompletionProvider {
         Object.assign(this.context, { lineContent, line, ch }) // must assign before setInput()
         this.setInput(ch)
         const { input } = this.context
+        
+        // workaround Jedi not completing 'in'
+        if (input === 'in' && !this.currentCompletions.some(i => i.text === 'in')) {
+            this.currentCompletions.push({
+                postfix: '',
+                score: 100,
+                text: 'in',
+                type: 'keyword',
+            })
+        }
+        
         if (ch <= firstTriggeredCharPos.ch) {
             this.completion.$set({ open: false })
             this.state = CLOSED
