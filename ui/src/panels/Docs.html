@@ -379,7 +379,9 @@
         try {
             let functionSignature
             if (functionDocType === 'html') {
-                functionSignature = document.querySelector('#function-doc p').textContent
+                const p = document.querySelector('#function-doc p')
+                if (!p) return
+                functionSignature = p.textContent
             } else {
                 functionSignature = functionDoc.substring(0, functionDoc.indexOf('\n\n'))
             }

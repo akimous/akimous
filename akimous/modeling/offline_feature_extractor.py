@@ -26,7 +26,6 @@ class OfflineFeatureExtractor(FeatureDefinition):
             line_content,
             line,
             ch,
-            full_doc,
             doc,
             call_signatures,
             positive=True):
@@ -49,45 +48,39 @@ class OfflineFeatureExtractor(FeatureDefinition):
         if id(self.last_token) != id(token):
             # self.stack_context_info = self.get_stack_context_info(completion)
             for f in FeatureDefinition.preprocessors:
-                f(
-                    line_content=line_content[:ch],
-                    line=line - 1,
-                    ch=ch - 1,
-                    doc=doc,
-                    # full_doc=full_doc,
-                    call_signatures=call_signatures,
-                    completion_data_type=completion_data_type,
-                    context=self.context)
+                f(line_content=line_content[:ch],
+                  line=line - 1,
+                  ch=ch - 1,
+                  doc=doc,
+                  call_signatures=call_signatures,
+                  completion_data_type=completion_data_type,
+                  context=self.context)
             for i, f in enumerate(FeatureDefinition.context_features.values()):
-                feature = f(
-                    line_content=line_content[:ch],
-                    line=line - 1,
-                    ch=ch - 1,
-                    doc=doc,
-                    # full_doc=full_doc,
-                    call_signatures=call_signatures,
-                    completion_data_type=completion_data_type,
-                    context=self.context
-                    # stack_context_info=self.stack_context_info
-                )
+                feature = f(line_content=line_content[:ch],
+                            line=line - 1,
+                            ch=ch - 1,
+                            doc=doc,
+                            call_signatures=call_signatures,
+                            completion_data_type=completion_data_type,
+                            context=self.context
+                            # stack_context_info=self.stack_context_info
+                            )
                 self.sample[
                     i + len(FeatureDefinition.completion_features)] = feature
 
         self.last_token = token
 
         for i, f in enumerate(FeatureDefinition.completion_features.values()):
-            self.sample[i] = f(
-                completion=completion,
-                line_content=line_content[:ch],
-                line=line - 1,
-                ch=ch - 1,
-                doc=doc,
-                # full_doc=full_doc,
-                call_signatures=call_signatures,
-                completion_data_type=completion_data_type,
-                context=self.context
-                # stack_context_info=self.stack_context_info
-            )
+            self.sample[i] = f(completion=completion,
+                               line_content=line_content[:ch],
+                               line=line - 1,
+                               ch=ch - 1,
+                               doc=doc,
+                               call_signatures=call_signatures,
+                               completion_data_type=completion_data_type,
+                               context=self.context
+                               # stack_context_info=self.stack_context_info
+                               )
         self.X[self.n_samples] = self.sample
         self.y[self.n_samples] = 1 if positive else 0
         self.n_samples += 1
