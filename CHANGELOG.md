@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.1 (2020-01-19)
+
+* Allow console to work in non-UNIX OS.
+* Workaround Jedi not completing `in`.
+* Fix text input in find panel not accepting whitespaces.
+* Fix formatter adding redundant spaces before colons.
+
 ## 0.7.0 (2020-01-05)
 
 * Implement "Open File" (quick search)
