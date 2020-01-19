@@ -29,3 +29,23 @@ def test_digesting():
 
     engine.digest('lst', 'append')
     assert 'pop' in engine.infer('lst')
+
+
+def test_learning():
+    engine = AttributeInferenceEngine()
+    engine.learn('a = b.c.d(e)')
+    assert engine.infer('b') == {'c'}
+    assert engine.infer('c') == {'d('}
+
+    engine.learn('zero = self.one.two()')
+    assert engine.infer('self') == {'one'}
+    assert engine.infer('one') == {'two()'}
+
+    engine.learn('zero = three.four')
+    assert engine.infer('three') == {'four'}
+
+    engine.learn('alpha[3 + 4].beta')
+    assert engine.infer('alpha[]') == {'beta'}
+
+    engine.learn('gamma(1, 2).delta')
+    assert engine.infer('gamma()') == {'delta'}
