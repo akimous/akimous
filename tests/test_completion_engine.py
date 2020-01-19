@@ -1,4 +1,5 @@
-from akimous.modeling.completion_engine import AttributeInferenceEngine
+from akimous.modeling.completion_engine import (AttributeInferenceEngine,
+                                                CompletionEngine)
 
 
 def test_digesting():
@@ -49,3 +50,21 @@ def test_learning():
 
     engine.learn('gamma(1, 2).delta')
     assert engine.infer('gamma()') == {'delta'}
+
+
+def test_prediction():
+    engine = AttributeInferenceEngine()
+    engine.learn('    print(x.attribute)')
+    assert engine.predict(2, 'x.')[0].name == 'attribute'
+
+
+def test_completion_engine():
+    engine = CompletionEngine('')
+    engine.update(1, 'a="";a.')
+    assert engine.complete(1, 7, 'a="";a.')[0].name == 'capitalize'
+
+    engine.update(1, 'def f(x):')
+    engine.update(2, '    print(x.attribute)')
+    assert engine.complete(3, 6, '    x.')[0].name == 'attribute'
+
+    assert engine.complete(4, 7, 'nothing') == []

@@ -20,7 +20,7 @@ def run_file(file_path,
              zero_length_prediction=False):
     with open(file_path) as f:
         doc = f.read()
-    engine = CompletionEngine(file_path, doc)
+    engine = CompletionEngine(file_path, '')
     doc_lines = doc.splitlines()
     line_count = len(doc_lines)
     print(f'Processing file: {file_path}')
@@ -74,7 +74,6 @@ def run_file(file_path,
             try:
                 real_doc_lines = doc_lines[:line]
                 real_doc_lines[line - 1] = real_doc_lines[line - 1][:ch]
-                engine.lines = real_doc_lines
                 completions = engine.complete(line, ch, line_content[:ch])
             except Exception as e:
                 print(line, ch, line_content)
@@ -122,6 +121,7 @@ def run_file(file_path,
                     ch += 1
                 failed_completion_count += 1
         ch = 1
+        engine.update(line, line_content)
     logger.info(f'Time: {time.time() - start_time}')
     logger.info(f'Successful: {successful_completion_count}')
     logger.info(f'Failed: {failed_completion_count}')
