@@ -11,7 +11,7 @@ print(sys.argv)
 print('stderr', file=sys.stderr)
 
 echo = input('write something')
-#logger.info(echo)
+logger.info(echo)
 
 l = list(range(200))
 
