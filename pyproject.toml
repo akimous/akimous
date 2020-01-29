@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "akimous"
-version = "0.7.1"
+version = "0.7.2"
 description = "An intelligent Python IDE"
 authors = ["Yu-Ann Chen <red8012@gmail.com>"]
 license = "BSD-3-Clause"
@@ -34,9 +34,9 @@ exclude = ["akimous/demo/**/*", "akimous/scripts/**/*"]
 python = "^3.7"
 numpy = "^1.17"
 gitpython = "^3.0"
-jedi = "^0.15.0"
+jedi = "^0.16.0"
 sphinx = "^2.0"
-watchdog = "^0.9.0"
+watchdog = "^0.10.0"
 logzero = "^1.5"
 websockets = "^8.0"
 xgboost = "^0.90"
@@ -45,7 +45,6 @@ fuzzywuzzy = "^0.17.0"
 python-levenshtein = "^0.12.0"
 msgpack = "^0.6"
 wordsegment = "^1.3"
-boltons = "^19.0"
 pylint = "^2.1"
 pyflakes = "^2.0"
 yapf = "^0.29.0"
@@ -67,6 +66,7 @@ tqdm = "^4.40"
 # matplotlib = "^3.0" # for test purpose only, not really used
 sympy = "^1.5" # for test purpose only, not really used
 psutil = "^5.6"
+boltons = "^20.0.0"
 
 [tool.poetry.scripts]
 akimous = 'akimous.__main__:start'

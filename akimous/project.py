@@ -25,6 +25,8 @@ class PersistentConfig:
                                   isolation_level=None)
         self.db.execute(
             'CREATE TABLE IF NOT EXISTS c(k TEXT PRIMARY KEY, v TEXT)')
+        self.db.execute(
+            'CREATE TABLE IF NOT EXISTS f(k TEXT PRIMARY KEY, v TEXT)')
 
     def __setitem__(self, key, value):
         key = str(key)
@@ -48,6 +50,19 @@ class PersistentConfig:
 
     def close(self):
         self.db.close()
+
+    def set_file_state(self, key, value):
+        key = str(key)
+        j = json.dumps(value)
+        self.db.execute('INSERT OR REPLACE INTO f(k, v) VALUES (?, ?)',
+                        (key, j))
+
+    def get_file_state(self, key):
+        key = str(key)
+        result = self.db.execute('SELECT v FROM f WHERE k=?',
+                                 (key, )).fetchall()
+        result = json.loads(result[0][0]) if result else {}
+        return result
 
 
 handles = partial(register_handler, 'project')

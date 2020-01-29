@@ -218,7 +218,7 @@ class CMEventDispatcher {
                         const isInputOperator = OPERATOR.test(input)
                         const shouldTriggerPrediction = () => {
                             if (c.canceled) return false
-                            if (isInputDot) return true
+                            if (isInputDot && (t0.type === 'variable' || t0.type === 'variable-2')) return true
                             if (t0.type === 'number') return false
                             if (t0.string === '@' && input.length === 1) return true // handle decorator
                             if (completionProvider.state !== CLOSED) return false

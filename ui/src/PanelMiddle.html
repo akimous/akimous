@@ -55,12 +55,12 @@
         editors = {},
         focus = null,
         focused = false,
+        self = null,
         tabBar = null
 
     let activationHistory = new CircularBuffer(MAX_ACTIVATION_HISTORY),
         editorUid = 0,
-        onTabChange, 
-        self
+        onTabChange
     
     $: g.pathIndicator && g.pathIndicator.$set({ path: focus ? focus.filePath : null })
     $: {

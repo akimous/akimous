@@ -9,9 +9,10 @@ from types import SimpleNamespace
 import msgpack
 import websockets
 from logzero import logger
-from websockets.exceptions import ConnectionClosed, ConnectionClosedOK, ConnectionClosedError
+from websockets.exceptions import (ConnectionClosed, ConnectionClosedError,
+                                   ConnectionClosedOK)
 
-from akimous.utils import nop, log_exception
+from akimous.utils import log_exception, nop
 
 from .static_server import HTTPHandler
 from .word_completer import initialize as initialize_word_completer
@@ -118,8 +119,8 @@ async def socket_handler(ws: websockets.WebSocketServerProtocol, path: str):
                                         shared_context, first_message))
                     session = Session(session_loop, queue)
                     client_sessions[session_id] = session
-                    logger.info('Session %s of endpoint %s opened.', session_id,
-                                endpoint)
+                    logger.info('Session %s of endpoint %s opened.',
+                                session_id, endpoint)
                 elif event == 'CloseSession':
                     session_id = obj
                     session = client_sessions[session_id]
@@ -162,7 +163,9 @@ def start_server(host, port, no_browser, verbose, clean_up_callback):
         loop.run_until_complete(websocket_server)
     except OSError as e:
         if e.errno == errno.EADDRINUSE:
-            logger.error('%s:%d is already in use. Please specify a new port using option --port.', host, port)
+            logger.error(
+                '%s:%d is already in use. Please specify a new port using option --port.',
+                host, port)
             sys.exit(1)
         raise e
 
@@ -182,6 +185,7 @@ def start_server(host, port, no_browser, verbose, clean_up_callback):
             for sessions_ in sessions.values():
                 for session in sessions_.values():
                     session.loop.cancel()
+            await sleep(.1)
             clean_up_callback()
             # give it some time to gracefully shutdown, or ResourceWarnings will pop up
             await sleep(.1)

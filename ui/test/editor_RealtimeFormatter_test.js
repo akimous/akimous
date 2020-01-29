@@ -43,7 +43,8 @@ Scenario('Normal formatting', async (I) => {
     I.typeAndCompare(['import l'])
     I.waitForCompletionOrContinueIn(5)
     I.typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', 'Enter', 'logz.LF('])
-    I.typeAndCompare(['f', 'Tab'])
+    // I.typeAndCompare(['f', 'Tab']) // behavior changed due to Jedi upgrade
+    I.typeAndCompare(['fm', 'Tab'])
     I.typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
     I.clear()
     
@@ -82,7 +83,7 @@ Scenario('Normal formatting', async (I) => {
     I.clear()
     
     I.typeAndCompare(['"%s.'])
-    I.see('Tab to commit the selected item')
+    I.dontSee('Tab to commit the selected item')
     I.clear()
     
     I.typeAndCompare(['try', 'Enter', 'pa', 'Enter', 'ex OS', 'Enter'],
@@ -94,7 +95,7 @@ Scenario('Normal formatting', async (I) => {
     I.see('Tab to commit the selected item')
     I.clear()
     
-    I.typeAndCompare(['pri "",flu', 'Tab', 'Tru '], ['print("", flush=True)'])
+    I.typeAndCompare(['pri "",flu ', 'Tru '], ['print("", flush=True)'])
     I.clear()
     
     I.setDoc('class C:\n    def __init__(self):\n        pass\n\n    def cat(self):\n' + 
@@ -142,6 +143,10 @@ Scenario('Normal formatting', async (I) => {
     
     // should not add space before :
     I.typeAndCompare(['adef', ['Tab'], 'x', ['Tab'], '):'], ['async def x():'])
+    I.clear()
+    
+    // don't add () if there's already one
+    I.typeAndCompare(['(1', ['Space', 'h'], 'str '], ['str(1)'])
     I.clear()
     // pause()
 })

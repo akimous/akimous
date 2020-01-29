@@ -48,6 +48,7 @@ const forVariableOffset = {
     'function': -1700,
 }
 
+const keywordsShouldNotHaveTail = new Set(['True', 'False', 'None'])
 const passiveTokenCompletionSet = new Set(['word', 'word-segment', 'token'])
 
 class CompletionProvider {
@@ -311,26 +312,29 @@ class CompletionProvider {
     }
 
     addTail(completion) {
-        const { type, postfix } = completion
+        const { type, postfix, text } = completion
         const { mode } = this
         let tail = tails[type]
-        const { isImport, afterAt, except } = this.context
-        if (mode === STRING || mode === COMMENT)
+        const { isImport, afterAt, except, beforeParenthesis } = this.context
+        if (mode === STRING || mode === COMMENT) {
             tail = null
-        else if (passiveTokenCompletionSet.has(type)) {
+        } else if (passiveTokenCompletionSet.has(type)) {
             // do nothing
         } else if (tail === '()') {
             if (isImport) tail = null
             else if (postfix) tail = null
             else if (afterAt) tail = null  // handle @property and other decorators
             else if (except) tail = null
+            else if (beforeParenthesis) tail = null // don't add () if there is already one
+        } else if (keywordsShouldNotHaveTail.has(text)) {
+            tail = null
         }
         if (tail)
             completion.tail = tail
     }
     
     updateContext() {
-        const { lineContent, firstTriggeredCharPos, inParentheses, cm, t0, t1 } = this.context
+        const { lineContent, firstTriggeredCharPos, inParentheses, cm, t0, t1, ch } = this.context
         this.context.isImport = false
         if (lineContent.includes(' import ')) {
             this.context.isImport = true
@@ -351,6 +355,7 @@ class CompletionProvider {
             // isSpace: /^\s*$/.test(head),
             afterAt: (t0 && t0.string === '@') || (t1 && t1.string === '@'),
             except: /^\s*except\s/.test(head),
+            beforeParenthesis: lineContent.charAt(ch) === '(',
         })
     }
 }

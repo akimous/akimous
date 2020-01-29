@@ -199,14 +199,16 @@ function moveCursorToParameter(cm, target) {
     return true
 }
 
-function setCursorAndScrollIntoView(line, ch) {
-    const editor = g.activeEditor
-    if (!editor) return
-    const { cm } = editor
+function setCursorAndScrollIntoView(line, ch, cm) {
+    if (!cm) {
+        const editor = g.activeEditor
+        if (!editor) return
+        cm = editor.cm
+    }
     const pos = Pos(line, ch)
     cm.setCursor(pos)
     cm.focus()
-    const margin = editor.codeEditor.getBoundingClientRect().height * .2
+    const margin = g.panelMiddle.self.getBoundingClientRect().height * .2
     cm.scrollIntoView(pos, margin)
     return cm
 }

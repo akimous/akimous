@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.2 (2020-01-29)
+
+* Don't add `()` to completions if there's already one.
+* Memorize editor cursor position.
+
 ## 0.7.1 (2020-01-19)
 
 * Allow console to work in non-UNIX OS.

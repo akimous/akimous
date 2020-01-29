@@ -51,6 +51,7 @@
     import detectIndent from 'detect-indent'
 
     import Context from './Context'
+    import { setCursorAndScrollIntoView } from './EditorFunctions'
     import CMEventDispatcher from './CMEventDispatcher'
     import RealtimeFormatter from './RealtimeFormatter'
     import { CompletionProvider } from './completion/CompletionProvider'
@@ -182,6 +183,14 @@
     $: {
         if (!active && completion) {
             completion.$set({ open: false })
+        }
+    }
+    $: {
+        if (!active && session && cm) {
+            const cursor = cm.getCursor()
+            session.send('Blur', {
+                pos: [cursor.line, cursor.ch]
+            })
         }
     }
     $: {
@@ -350,6 +359,9 @@
                 gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
                 extraKeys // keymap
             })
+            nextFrame(() => {
+                setCursorAndScrollIntoView(...data.pos, cm)
+            })
             context.bind(cm)
             mtime = data.mtime
         })
@@ -397,7 +409,10 @@
     onDestroy(() => {
         tab.$destroy()
         g.linter.clear()
-        session.send('Close')
+        const cursor = cm.getCursor()
+        session.send('Close', {
+            pos: [cursor.line, cursor.ch]
+        })
         session.close()
     })
     

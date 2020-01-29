@@ -5,11 +5,11 @@ import time
 import token as TOKEN
 import tokenize
 
-import jedi
 import logzero
 from logzero import logger
 from tqdm import tqdm
 
+from .completion_engine import CompletionEngine
 from .offline_feature_extractor import OfflineFeatureExtractor
 from .utility import p, sha3, working_dir
 
@@ -20,6 +20,7 @@ def run_file(file_path,
              zero_length_prediction=False):
     with open(file_path) as f:
         doc = f.read()
+    engine = CompletionEngine(file_path, '')
     doc_lines = doc.splitlines()
     line_count = len(doc_lines)
     print(f'Processing file: {file_path}')
@@ -45,7 +46,6 @@ def run_file(file_path,
             tokens[line].append(token)
 
     line, ch = 1, 1  # 1-based
-    subdoc = ''
     sum_of_successful_rates = 0.
 
     start_time = time.time()
@@ -74,15 +74,14 @@ def run_file(file_path,
             try:
                 real_doc_lines = doc_lines[:line]
                 real_doc_lines[line - 1] = real_doc_lines[line - 1][:ch]
-                full_doc = subdoc + line_content[:ch]
-                script = jedi.Script(full_doc, line, ch, file_path)
-                completions = script.completions()
-            except:
+                completions = engine.complete(line, ch, line_content[:ch])
+            except Exception as e:
                 print(line, ch, line_content)
+                logger.exception(e)
                 break
 
             accepted_completion = None
-            call_signatures = script.call_signatures()
+            call_signatures = engine.jedi.call_signatures()
 
             deduplication_set = set()
             for comp in completions:
@@ -99,12 +98,11 @@ def run_file(file_path,
                     accepted_completion = comp_string
                     # add to training dataset
                     feature_extractor.add(token, comp, line_content[:ch], line,
-                                          ch, full_doc, real_doc_lines,
-                                          call_signatures)
+                                          ch, real_doc_lines, call_signatures)
                 else:
                     feature_extractor.add(token, comp, line_content[:ch], line,
-                                          ch, full_doc, real_doc_lines,
-                                          call_signatures, False)
+                                          ch, real_doc_lines, call_signatures,
+                                          False)
 
             feature_extractor.end_current_completion(accepted_completion)
             if accepted_completion:
@@ -123,7 +121,7 @@ def run_file(file_path,
                     ch += 1
                 failed_completion_count += 1
         ch = 1
-        subdoc += line_content + '\n'
+        engine.update(line, line_content)
     logger.info(f'Time: {time.time() - start_time}')
     logger.info(f'Successful: {successful_completion_count}')
     logger.info(f'Failed: {failed_completion_count}')
@@ -135,11 +133,9 @@ def run_file(file_path,
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print(
-            'Usage: python -m akimous.modeling.extract_features '
-            '<path/to/a/python/file.py> [zero_length_prediction]\n\n'
-            '(zero_length_prediction default to True)'
-        )
+        print('Usage: python -m akimous.modeling.extract_features '
+              '<path/to/a/python/file.py> [zero_length_prediction]\n\n'
+              '(zero_length_prediction default to True)')
         sys.exit(1)
     target = sys.argv[1]
     zero_length_prediction = False
