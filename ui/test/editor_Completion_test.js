@@ -140,5 +140,9 @@ Scenario('Without realtime formatting', async (I) => {
     // make sure "in" is completed
     I.typeAndCompare(['if "" in ['], ['if "" in []'])
     I.clear()
+    
+    // don't add () if there's already one
+    I.typeAndCompare(['(1', ['Space', 'h'], 'str '], ['str(1)'])
+    I.clear()
     // pause()
 })

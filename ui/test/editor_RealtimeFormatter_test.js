@@ -143,5 +143,9 @@ Scenario('Normal formatting', async (I) => {
     // should not add space before :
     I.typeAndCompare(['adef', ['Tab'], 'x', ['Tab'], '):'], ['async def x():'])
     I.clear()
+    
+    // don't add () if there's already one
+    I.typeAndCompare(['(1', ['Space', 'h'], 'str '], ['str(1)'])
+    I.clear()
     // pause()
 })

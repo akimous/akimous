@@ -314,7 +314,7 @@ class CompletionProvider {
         const { type, postfix } = completion
         const { mode } = this
         let tail = tails[type]
-        const { isImport, afterAt, except } = this.context
+        const { isImport, afterAt, except, lineContent, ch } = this.context
         if (mode === STRING || mode === COMMENT)
             tail = null
         else if (passiveTokenCompletionSet.has(type)) {
@@ -324,6 +324,7 @@ class CompletionProvider {
             else if (postfix) tail = null
             else if (afterAt) tail = null  // handle @property and other decorators
             else if (except) tail = null
+            else if (lineContent.charAt(ch) === '(') tail = null // don't add () if there is already one
         }
         if (tail)
             completion.tail = tail
