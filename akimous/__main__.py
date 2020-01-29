@@ -1,11 +1,13 @@
 import argparse
+import gc
 from logging import DEBUG, INFO
 from pathlib import Path
 
 import logzero
-from boltons.gcutils import toggle_gc
 
 from .utils import Timer, set_verbosity
+
+gc.disable()  # to improve startup performance
 
 log_format = '%(color)s[%(levelname)1.1s %(asctime)s.%(msecs)03d %(module)s:%(lineno)d]%(end_color)s %(message)s'
 formatter = logzero.LogFormatter(fmt=log_format)
@@ -34,13 +36,13 @@ try:
 except ModuleNotFoundError:
     pass
 
-with Timer('initialization'), toggle_gc:
+with Timer('initialization'):
     from .websocket import start_server
     from . import project
     from . import file_tree  # 11ms, 4M memory
     from . import editor  # 900ms, 80M memory
     from . import terminal
-    from . import interactive_shell # 30ms, 3M memory
+    from . import interactive_shell  # 30ms, 3M memory
     from . import open_folder
 
 
@@ -52,6 +54,8 @@ def stop():
     project.persistent_state.close()
     editor.doc_generator.temp_dir.cleanup()  # avoid ResourceWarning
 
+
+gc.enable()
 
 if __name__ == '__main__':
     start()

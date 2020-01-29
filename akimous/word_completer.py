@@ -3,7 +3,6 @@ from asyncio import sleep
 from threading import Thread
 
 import wordsegment
-from boltons.gcutils import toggle_gc
 
 from .utils import Timer
 
@@ -14,7 +13,7 @@ initialized = False
 
 
 def _initialize():
-    with Timer('initializing dictionary'), toggle_gc:
+    with Timer('initializing dictionary'):
         global initialized
         # takes 500ms, 100M memory
         wordsegment.load()
@@ -37,16 +36,17 @@ def initialize(event_loop):
 
 def search_prefix(s):
     return [
-        i[0]
-        for i in c.execute('SELECT p||w FROM d where p=? and w glob ? order by f desc limit 6', (
-            s[:3], f'{s[3:]}*')).fetchall()
+        i[0] for i in c.execute(
+            'SELECT p||w FROM d where p=? and w glob ? order by f desc limit 6',
+            (s[:3], f'{s[3:]}*')).fetchall()
     ]
 
 
 def is_prefix(s):
     return bool(
-        c.execute('SELECT 1 FROM d where p=? and w glob ? order by f desc limit 1',
-                  (s[:3], f'{s[3:]}*')).fetchall())
+        c.execute(
+            'SELECT 1 FROM d where p=? and w glob ? order by f desc limit 1',
+            (s[:3], f'{s[3:]}*')).fetchall())
 
 
 async def wait_until_initialized():
