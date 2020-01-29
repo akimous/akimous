@@ -43,7 +43,8 @@ Scenario('Normal formatting', async (I) => {
     I.typeAndCompare(['import l'])
     I.waitForCompletionOrContinueIn(5)
     I.typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', 'Enter', 'logz.LF('])
-    I.typeAndCompare(['f', 'Tab'])
+    // I.typeAndCompare(['f', 'Tab']) // behavior changed due to Jedi upgrade
+    I.typeAndCompare(['fm', 'Tab'])
     I.typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
     I.clear()
     
