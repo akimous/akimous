@@ -48,6 +48,7 @@ const forVariableOffset = {
     'function': -1700,
 }
 
+const keywordsShouldNotHaveTail = new Set(['True', 'False', 'None'])
 const passiveTokenCompletionSet = new Set(['word', 'word-segment', 'token'])
 
 class CompletionProvider {
@@ -311,13 +312,13 @@ class CompletionProvider {
     }
 
     addTail(completion) {
-        const { type, postfix } = completion
+        const { type, postfix, text } = completion
         const { mode } = this
         let tail = tails[type]
         const { isImport, afterAt, except, beforeParenthesis } = this.context
-        if (mode === STRING || mode === COMMENT)
+        if (mode === STRING || mode === COMMENT) {
             tail = null
-        else if (passiveTokenCompletionSet.has(type)) {
+        } else if (passiveTokenCompletionSet.has(type)) {
             // do nothing
         } else if (tail === '()') {
             if (isImport) tail = null
@@ -325,6 +326,8 @@ class CompletionProvider {
             else if (afterAt) tail = null  // handle @property and other decorators
             else if (except) tail = null
             else if (beforeParenthesis) tail = null // don't add () if there is already one
+        } else if (keywordsShouldNotHaveTail.has(text)) {
+            tail = null
         }
         if (tail)
             completion.tail = tail

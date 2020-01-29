@@ -66,6 +66,7 @@ tqdm = "^4.40"
 # matplotlib = "^3.0" # for test purpose only, not really used
 sympy = "^1.5" # for test purpose only, not really used
 psutil = "^5.6"
+boltons = "^20.0.0"
 
 [tool.poetry.scripts]
 akimous = 'akimous.__main__:start'
