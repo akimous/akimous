@@ -314,7 +314,7 @@ class CompletionProvider {
         const { type, postfix } = completion
         const { mode } = this
         let tail = tails[type]
-        const { isImport, afterAt, except, lineContent, ch } = this.context
+        const { isImport, afterAt, except, beforeParenthesis } = this.context
         if (mode === STRING || mode === COMMENT)
             tail = null
         else if (passiveTokenCompletionSet.has(type)) {
@@ -324,14 +324,14 @@ class CompletionProvider {
             else if (postfix) tail = null
             else if (afterAt) tail = null  // handle @property and other decorators
             else if (except) tail = null
-            else if (lineContent.charAt(ch) === '(') tail = null // don't add () if there is already one
+            else if (beforeParenthesis) tail = null // don't add () if there is already one
         }
         if (tail)
             completion.tail = tail
     }
     
     updateContext() {
-        const { lineContent, firstTriggeredCharPos, inParentheses, cm, t0, t1 } = this.context
+        const { lineContent, firstTriggeredCharPos, inParentheses, cm, t0, t1, ch } = this.context
         this.context.isImport = false
         if (lineContent.includes(' import ')) {
             this.context.isImport = true
@@ -352,6 +352,7 @@ class CompletionProvider {
             // isSpace: /^\s*$/.test(head),
             afterAt: (t0 && t0.string === '@') || (t1 && t1.string === '@'),
             except: /^\s*except\s/.test(head),
+            beforeParenthesis: lineContent.charAt(ch) === '(',
         })
     }
 }

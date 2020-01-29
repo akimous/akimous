@@ -20,7 +20,7 @@ from .jedi_preloader import preload_modules
 from .modeling.feature.feature_definition import tokenize
 from .online_feature_extractor import \
     OnlineFeatureExtractor  # 90ms, 10M memory
-from .project import save_state
+from .project import persistent_state, save_state
 from .pyflakes_reporter import PyflakesReporter
 from .utils import Timer, detect_doc_type, log_exception, nop
 from .websocket import register_handler
@@ -186,6 +186,8 @@ async def connected(msg, send, context):
     context.linter_task = create_task(nop())
     # open file
     context.path = Path(context.shared.project_root, *msg['filePath'])
+    file_state = persistent_state.get_file_state(context.path)
+    context.pos = file_state.get('pos', (0, 0))
     context.is_python = context.path.suffix in ('.py', '.pyx')
     context.pyflakes_reporter = PyflakesReporter()
     with open(context.path) as f:
@@ -201,7 +203,8 @@ async def connected(msg, send, context):
     # somehow risky, but it should not wait until the extractor ready
     await send('FileOpened', {
         'mtime': context.path.stat().st_mtime,
-        'content': content
+        'content': content,
+        **file_state,
     })
     # update opened files
     opened_files = context.shared.project_config['openedFiles']
@@ -224,6 +227,7 @@ async def warm_up(context, send):
 @handles('_disconnected')
 async def disconnected(context):
     context.linter_task.cancel()
+    persistent_state.set_file_state(context.path, {'pos': context.pos})
 
 
 @handles('Close')
@@ -233,7 +237,13 @@ async def close(msg, send, context):
     """
     opened_files = context.shared.project_config['openedFiles']
     opened_files.remove(get_relative_path(context))
+    context.pos = msg['pos']
     save_state(context)
+
+
+@handles('Blur')
+async def blur(msg, send, context):
+    context.pos = msg['pos']
 
 
 @handles('Reload')
@@ -382,6 +392,7 @@ async def predict(msg, send, context):
             'offset': offset,
             'result': result,
         })
+        context.pos = (line_number, ch)
     except Exception as e:
         logger.exception(e)
         await send('RequestFullSync', None)
