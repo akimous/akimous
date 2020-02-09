@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.3 (2020-02-09)
+
+* Update dependency versions.
+
 ## 0.7.2 (2020-01-29)
 
 * Don't add `()` to completions if there's already one.
