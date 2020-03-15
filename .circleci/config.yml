@@ -7,13 +7,13 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - akimous-1-{{ .Branch }}-{{ checksum "pyproject.toml" }}
-            - akimous-1-{{ .Branch }}
-            - akimous-1
+            - akimous-2-{{ .Branch }}-{{ checksum "pyproject.toml" }}
+            - akimous-2-{{ .Branch }}
+            - akimous-2
       - run: echo "export PATH=$HOME/.poetry/bin:$PATH" >> $BASH_ENV
       - run: make
       - save_cache:
-          key: akimous-1-{{ .Branch }}-{{ checksum "pyproject.toml" }}
+          key: akimous-2-{{ .Branch }}-{{ checksum "pyproject.toml" }}
           paths:
             - ~/.cache/yarn
             - ~/.cache/pypoetry

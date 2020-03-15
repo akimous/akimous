@@ -3,7 +3,7 @@ FROM python:3.8-slim
 # debian
 RUN set -ex &&\
     apt-get update &&\
-    apt-get install -yq --no-install-recommends zsh git curl nano make ca-certificates gnupg2 &&\
+    apt-get install -yq --no-install-recommends zsh git curl nano make ca-certificates gnupg2 cmake &&\
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&\
     curl -sL https://deb.nodesource.com/setup_13.x | bash - &&\
