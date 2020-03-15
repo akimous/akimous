@@ -23,7 +23,7 @@ _EMPTY = tuple()
 def _load_token_statistics(file_name):
     with open_binary('akimous.resources', file_name) as f1:
         with lzma.open(f1, 'rb') as f2:
-            return msgpack.unpack(f2, use_list=False, raw=False)
+            return msgpack.unpack(f2, use_list=False, raw=False, strict_map_key=False)
 
 
 class FeatureDefinition:
