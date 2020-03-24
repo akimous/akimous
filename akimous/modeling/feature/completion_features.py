@@ -1,7 +1,7 @@
 import re
 import token as token_
 
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 
 from .feature_definition import MAX, MAX_SCAN_LINES, FeatureDefinition
 
