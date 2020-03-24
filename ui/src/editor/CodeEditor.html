@@ -359,9 +359,11 @@
                 gutters: ['padding-gutter', 'CodeMirror-foldgutter', 'CodeMirror-linenumbers'],
                 extraKeys // keymap
             })
-            nextFrame(() => {
-                setCursorAndScrollIntoView(...data.pos, cm)
-            })
+            if (data.pos) {
+                nextFrame(() => {
+                    setCursorAndScrollIntoView(...data.pos, cm)
+                })
+            }
             context.bind(cm)
             mtime = data.mtime
         })

@@ -122,7 +122,7 @@
     }
     
     $: {
-        g.tooltip && g.tooltip.register(Object.values(children).filter(x => x))
+        g.tooltip && g.tooltip.register && g.tooltip.register(Object.values(children).filter(x => x))
     }
     $: {
         if (open) {
