@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.0 (2020-03-24)
+* Use rapidfuzz instead of fuzzywuzzy
+
 ## 0.7.3 (2020-02-09)
 
 * Update dependency versions.
