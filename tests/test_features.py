@@ -202,7 +202,7 @@ def test_last_line_ends_with():
 
 
 def test_first_token_ratio():
-    assert get_completion(22, 20, '__dunder').first_token_ratio == 62
+    assert get_completion(22, 20, '__dunder').first_token_ratio == 63
     assert get_completion(35, 5, 'def').first_token_ratio == -2
 
 
@@ -210,7 +210,7 @@ def test_first_token_partial_ratio():
     assert get_completion(22, 20, '__dunder').first_token_partial_ratio == 75
     assert get_completion(35, 5, 'def').first_token_partial_ratio == -2
     assert get_completion(45, 15, 'Placeholder').first_token_partial_ratio == 100
-    assert get_completion(47, 27, 'regularizers').first_token_partial_ratio == 91  # 92
+    assert get_completion(47, 27, 'regularizers').first_token_partial_ratio == 92
 
 
 def test_last_line_first_token_ratio():
@@ -236,7 +236,7 @@ def test_all_token_ratio():
 
 def test_last_line_all_token_ratio():
     assert get_completion(48, 12, 'regularizers').last_line_all_token_ratio == 100
-    assert get_completion(22, 20, '__dunder').last_line_all_token_ratio == 37  # 38
+    assert get_completion(22, 20, '__dunder').last_line_all_token_ratio == 38
 
 
 def test_token_frequency():
@@ -261,12 +261,12 @@ def test_trigram_frequency():
 
 
 def test_signature_parameter_matching():
-    assert get_completion(56, 39, 'regularizers').signature_parameter_ratio == 90  # 91
+    assert get_completion(56, 39, 'regularizers').signature_parameter_ratio == 91
     assert get_completion(56, 53, 'placeholder').signature_parameter_ratio == 53
     assert get_completion(56, 39, 'regularizers').signature_parameter_partial_ratio == 100
     assert get_completion(56, 53, 'placeholder').signature_parameter_partial_ratio == 100
 
 
 def test_function_ratio():
-    assert get_completion(60, 11, 'string').function_ratio == 66  # 67
+    assert get_completion(60, 11, 'string').function_ratio == 67
     assert get_completion(60, 11, 'string').function_partial_ratio == 100
