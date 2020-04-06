@@ -1,7 +1,13 @@
 # Changelog
 
+## 0.8.1 (2020-04-06)
+
+* Continue to start even if git is unavailable.
+* Bump dependency versions.
+
 ## 0.8.0 (2020-03-24)
-* Use rapidfuzz instead of fuzzywuzzy
+
+* Use rapidfuzz instead of fuzzywuzzy.
 
 ## 0.7.3 (2020-02-09)
 
