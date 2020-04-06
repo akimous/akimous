@@ -202,7 +202,7 @@ def test_last_line_ends_with():
 
 
 def test_first_token_ratio():
-    assert get_completion(22, 20, '__dunder').first_token_ratio == 63
+    assert get_completion(22, 20, '__dunder').first_token_ratio == 62
     assert get_completion(35, 5, 'def').first_token_ratio == -2
 
 
