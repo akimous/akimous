@@ -4,6 +4,7 @@
 
 * Continue to start even if git is unavailable.
 * Bump dependency versions.
+* Revert to fuzzywuzzy.
 
 ## 0.8.0 (2020-03-24)
 
