@@ -5,7 +5,6 @@ from functools import partial
 from importlib import resources
 from pathlib import Path
 
-from git import InvalidGitRepositoryError, Repo
 from logzero import logger
 
 from .config import config, set_config
@@ -14,6 +13,14 @@ from .file_finder import (find_in_directory, get_pathspec,
 from .spell_checker import SpellChecker
 from .utils import config_directory, merge_dict
 from .websocket import register_handler
+
+try:
+    from git import InvalidGitRepositoryError, Repo
+    git_available = True
+except ImportError:
+    git_available = False
+    logger.warning('Git is not available, please install git to enable version control integration.')
+
 
 
 class PersistentConfig:
@@ -96,6 +103,9 @@ async def open_project(msg, send, context):
 
 @handles('RequestGitStatusUpdate')
 async def request_git_status_update(msg, send, context):
+    if not git_available:
+        logger.debug('Git unavailable')
+        return 
     sc = context.shared
     if not sc.repo:
         try:
