@@ -20,8 +20,9 @@ For more information and documentation, visit the official website.
 
 ### Prerequisite
 
-* Python 3.7 or 3.8
-* C/C++ compiler (required by some dependencies during installation)
+* Python 3.7 or 3.8 (with pip)
+* Git (for version control integration)
+* C/C++ compiler (may be required by some dependencies during installation)
 * A modern browser
 
 ### Installing From PyPI

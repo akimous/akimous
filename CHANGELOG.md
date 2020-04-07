@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.2 (2020-04-07)
+
+* Upgrade XGBoost model format.
+* Fix broken `user-select` in Safari.
+
 ## 0.8.1 (2020-04-06)
 
 * Continue to start even if git is unavailable.
