@@ -102,7 +102,11 @@ async def disconnected(context):
 @handles('OpenDir')
 async def open_dir(msg, send, context):
     path = Path(context.shared.project_root, *msg['path'])
-    root, dirs, files = next(os.walk(path))
+    try:
+        root, dirs, files = next(os.walk(path))
+    except StopIteration:
+        logger.warning('%s cannot be accessed', path)
+        return 
     result = {
         'path': path.relative_to(context.shared.project_root).parts,
         'dirs': dirs,

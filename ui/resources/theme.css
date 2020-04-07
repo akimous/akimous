@@ -154,6 +154,7 @@ body {
 
 .non-selectable {
     user-select: none;
+    -webkit-user-select: none;
     cursor: default;
 }
 
