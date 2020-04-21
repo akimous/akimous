@@ -81,7 +81,7 @@ def run_file(file_path,
                 break
 
             accepted_completion = None
-            call_signatures = engine.jedi.call_signatures()
+            call_signatures = engine.jedi.get_signatures(line, ch)
 
             deduplication_set = set()
             for comp in completions:

@@ -152,9 +152,7 @@ async def warm_up_jedi(context):
         logger.debug('File is empty')
         return
 
-    jedi.Script('\n'.join(context.doc), len(context.doc), 0,
-                str(context.path)).completions()
-
+    jedi.Script('\n'.join(context.doc), path=str(context.path)).complete()
     await jedi_preload_modules(context, 0, len(context.doc))
 
 
@@ -351,8 +349,8 @@ async def predict(msg, send, context):
         return
     try:
         with Timer(f'Prediction ({line_number}, {ch})'):
-            j = jedi.Script(doc, line_number + 1, ch, str(context.path))
-            completions = j.completions()
+            j = jedi.Script(doc, path=str(context.path))
+            completions = j.complete(line_number + 1, ch)
 
         offset = 0
         with Timer(f'Rest ({line_number}, {ch})'):
@@ -494,8 +492,8 @@ async def get_function_documentation(msg, send, context):
     ch = msg['ch']
     content = context.content
 
-    j = jedi.Script(content, line_number + 1, ch, str(context.path))
-    call_signatures = j.call_signatures()
+    j = jedi.Script(content, path=str(context.path))
+    call_signatures = j.get_signatures(line_number + 1, ch)
     if not call_signatures:
         logger.debug('call signature is empty while obtaining docstring')
         return
@@ -515,39 +513,6 @@ async def get_function_documentation(msg, send, context):
             'fullName': signature.full_name,
             'type': 'html' if html else 'text'
         })
-
-
-@handles('FindAssignments')
-async def find_assignments(msg, send, context):
-    content = context.content
-    j = jedi.Script(content, msg['line'] + 1, msg['ch'], str(context.path))
-    definitions = j.goto_assignments(follow_imports=True)
-    results = [{
-        'path': d.module_path,
-        'module': d.module_name,
-        'builtin': d.in_builtin_module(),
-        'definition': d.is_definition(),
-        'line': d.line,
-        'ch': d.column,
-        'code': d.get_line_code().strip()
-    } for d in definitions]
-    await send('AssignmentsFound', results)
-
-
-@handles('FindUsages')
-async def find_usage(msg, send, context):
-    content = context.content
-    j = jedi.Script(content, msg['line'] + 1, msg['ch'], str(context.path))
-    usages = j.usages()
-    results = [{
-        'path': u.module_path,
-        'module': u.module_name,
-        'definition': u.is_definition(),
-        'line': u.line,
-        'ch': u.column,
-        'code': u.get_line_code().strip()
-    } for u in usages]
-    await send('UsagesFound', results)
 
 
 def definition_to_dict(d, project_root):
@@ -575,15 +540,16 @@ async def find_references(msg, send, context):
     assignments = []
     usages = []
     mode = msg['type']
-    j = jedi.Script(context.content, msg['line'] + 1, msg['ch'],
-                    str(context.path))
+    line = msg['line'] + 1
+    ch = msg['ch']
+    j = jedi.Script(context.content, path=str(context.path))
     if 'assignments' in mode:
-        references = j.goto_assignments(follow_imports=True)
+        references = j.goto(line, ch, follow_imports=True)
         if 'usages' not in mode:
             definitions.extend(r for r in references if r.is_definition())
         assignments.extend(r for r in references if not r.is_definition())
     if 'usages' in mode:
-        references = j.usages()
+        references = j.get_references(line, ch)
         definitions.extend(r for r in references if r.is_definition())
         usages.extend(r for r in references if not r.is_definition())
 
