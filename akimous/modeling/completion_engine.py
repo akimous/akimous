@@ -30,8 +30,8 @@ class CompletionEngine:
         # line starts from 1
         self.update(line, line_content)
         self.string = '\n'.join(self.lines[1:])
-        self.jedi = jedi.Script(self.string, line, ch, self.file_path)
-        completions = self.jedi.completions()  # TODO: update after Jedi 0.16.0
+        self.jedi = jedi.Script(self.string, path=self.file_path)
+        completions = self.jedi.complete(line, ch)
         if completions:
             return completions
         return self.engine.predict(ch, line_content)

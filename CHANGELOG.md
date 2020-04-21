@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.3 (2020-04-21)
+
+* Hide horizontal scrollbar of completion popup on Windows.
+* Bump dependency versions.
+
 ## 0.8.2 (2020-04-07)
 
 * Upgrade XGBoost model format.

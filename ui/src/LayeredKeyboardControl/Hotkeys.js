@@ -78,11 +78,7 @@ function bindHotkeys() {
             g.notificationBar.show('warning', 'Please select a variable.')
             return
         }
-        editor.session.send('FindUsages', {
-            line: cursor.line,
-            ch: cursor.ch,
-            token: token.string
-        })
+        // TODO: not implemented
     })
     hotkey('f1', () => {
         g.panelLeft.tabBar.switchToTab(1)
