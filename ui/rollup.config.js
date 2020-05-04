@@ -4,7 +4,6 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import { terser } from 'rollup-plugin-terser'
 import postcss from 'rollup-plugin-postcss'
-import progress from 'rollup-plugin-progress'
 import autoprefixer from 'autoprefixer'
 import livereload from 'rollup-plugin-livereload'
 
@@ -62,7 +61,6 @@ export default {
             },
             mangle: false, // mangling is likely to break xterm
         }),
-        production && progress(),
         !production && livereload('../akimous_ui/bundle.js'),
     ]
 }

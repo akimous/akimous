@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.4 (2020-05-04)
+
+* Fix broken sourcemap (Svelte 3.22).
+* Bump dependency versions.
+
 ## 0.8.3 (2020-04-21)
 
 * Hide horizontal scrollbar of completion popup on Windows.
