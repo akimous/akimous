@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.5 (2020-05-24)
+
+* Bump dependency versions.
+
 ## 0.8.4 (2020-05-04)
 
 * Fix broken sourcemap (Svelte 3.22).
