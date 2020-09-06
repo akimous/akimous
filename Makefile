@@ -90,7 +90,6 @@ uitest:
 
 jsdev: | clean static
 	cp ui/node_modules/codemirror/mode/python/python.js ui/src/editor/
-	cd ui/src/editor && patch < python.js.patch
 	cd ui && yarn run rollup -c -w
 
 pydev:
@@ -104,6 +103,9 @@ upgrade:
 
 fixpoetry:
 	poetry cache:clear --all pypi
+    
+patchcodemirror:
+	cd ui/src/editor && patch < python.js.patch
 
 update_docker:
 	cd docker && poetry run python update.py

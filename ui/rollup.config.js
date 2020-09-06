@@ -40,9 +40,6 @@ export default {
         resolve(),
         commonjs({
             sourceMap: production,
-            namedExports: {
-                xterm: ['Terminal']
-            },
         }),
         postcss({
             plugins: [autoprefixer()], // not effective for svelte component

@@ -19,8 +19,9 @@ try:
     git_available = True
 except ImportError:
     git_available = False
-    logger.warning('Git is not available, please install git to enable version control integration.')
-
+    logger.warning(
+        'Git is not available, please install git to enable version control integration.'
+    )
 
 
 class PersistentConfig:
@@ -101,16 +102,25 @@ async def open_project(msg, send, context):
     sc.repo = None
 
 
+def to_relative_path_parts(root, file_paths):
+    for i in file_paths:
+        file = Path(i).resolve()
+        if root in file.parents:
+            yield file.relative_to(root).parts
+
+
 @handles('RequestGitStatusUpdate')
 async def request_git_status_update(msg, send, context):
     if not git_available:
         logger.debug('Git unavailable')
-        return 
+        return
     sc = context.shared
     if not sc.repo:
         try:
-            sc.repo = Repo(sc.project_root)
-        except InvalidGitRepositoryError:
+            sc.repo = Repo(sc.project_root, search_parent_directories=True)
+        except InvalidGitRepositoryError as e:
+            logger.warning(
+                'Invalid git repository, git integration is disabled.')
             return
     repo = sc.repo
     try:
@@ -119,16 +129,18 @@ async def request_git_status_update(msg, send, context):
         branch = '(detached)'
 
     root = context.shared.project_root
-    untracked = [Path(i).parts for i in repo.untracked_files]
-    changed = [Path(i.a_path).parts for i in repo.index.diff(None)]
-    staged = [Path(i.a_path).parts for i in repo.index.diff('HEAD')]
+    untracked = to_relative_path_parts(root, repo.untracked_files)
+    changed = to_relative_path_parts(root,
+                                     (i.a_path for i in repo.index.diff(None)))
+    staged = to_relative_path_parts(root, (i.a_path
+                                           for i in repo.index.diff('HEAD')))
     await send(
         'GitStatusUpdated', {
             'branch': branch,
             'dirty': repo.is_dirty(),
-            'untracked': untracked,
-            'changed': changed,
-            'staged': staged,
+            'untracked': list(untracked),
+            'changed': list(changed),
+            'staged': list(staged),
         })
 
 
