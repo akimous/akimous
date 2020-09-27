@@ -19,6 +19,7 @@ Scenario('Without realtime formatting', async (I) => {
     I.waitForCompletionOrContinueIn(5)
     I.typeAndCompare(['ph'])
     I.typeAndCompare(['.'], ['from sphinx.'])
+    I.waitForCompletionOrContinueIn(5)
     I.typeAndCompare(['io im '], ['from sphinx.io import '])
     I.typeAndCompare(['rea', 'Enter'], ['from sphinx.io import read_doc'])
     I.clear()
@@ -43,7 +44,9 @@ Scenario('Without realtime formatting', async (I) => {
     
     I.typeAndCompare(['import l'])
     I.waitForCompletionOrContinueIn(5)
-    I.typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', 'Enter', 'logz.LF('])
+    I.typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', 'Enter', 'logz.LF'])
+    I.waitForCompletionOrContinueIn(5)
+    I.typeAndCompare(['('], ['logzero.LogFormatter()'])
     // I.typeAndCompare(['f', 'Tab']) // behavior changed due to Jedi upgrade
     I.typeAndCompare(['fm', 'Tab'])
     I.typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.6 (2020-09-27)
+
+* Bump dependency versions.
+* Fix failing UI tests caused by performance variation.
+
 ## 0.8.5 (2020-05-24)
 
 * Bump dependency versions.
