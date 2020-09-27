@@ -44,7 +44,9 @@ Scenario('Without realtime formatting', async (I) => {
     
     I.typeAndCompare(['import l'])
     I.waitForCompletionOrContinueIn(5)
-    I.typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', 'Enter', 'logz.LF('])
+    I.typeAndCompare(['ogz', ['Meta', 'Enter'], 'log_format=""', 'Enter', 'logz.LF'])
+    I.waitForCompletionOrContinueIn(5)
+    I.typeAndCompare(['('], ['logzero.LogFormatter()'])
     // I.typeAndCompare(['f', 'Tab']) // behavior changed due to Jedi upgrade
     I.typeAndCompare(['fm', 'Tab'])
     I.typeAndCompare(['lf '], ['logzero.LogFormatter(fmt=log_format)'])
