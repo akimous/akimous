@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.7 (2020-09-27)
+
+* Fix console not fitting content to panel width.
+
 ## 0.8.6 (2020-09-27)
 
 * Bump dependency versions.

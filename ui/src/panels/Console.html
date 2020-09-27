@@ -42,7 +42,7 @@
     import JupyterCell from './JupyterCell.html'
 
     const dispatch = createEventDispatcher()
-    const fit = new FitAddon()
+    export const fit = new FitAddon()
 
     export let active = false,
         cells = [
@@ -54,13 +54,13 @@
         ],
         displayInput = false,
         mode = '',
-        ready = false
+        ready = false,
+        terminal
 
     let initializing = false,
         jupyter, 
         lastPartALine,
         session,
-        terminal,
         terminalContainer
 
     $: dispatch('active', {
