@@ -19,6 +19,7 @@ Scenario('Without realtime formatting', async (I) => {
     I.waitForCompletionOrContinueIn(5)
     I.typeAndCompare(['ph'])
     I.typeAndCompare(['.'], ['from sphinx.'])
+    I.waitForCompletionOrContinueIn(5)
     I.typeAndCompare(['io im '], ['from sphinx.io import '])
     I.typeAndCompare(['rea', 'Enter'], ['from sphinx.io import read_doc'])
     I.clear()
