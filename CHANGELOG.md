@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.0 (2020-11-15)
+
+* Add Python 3.9 support and drop Python 3.7 support.
+
 ## 0.8.7 (2020-09-27)
 
 * Fix console not fitting content to panel width.
