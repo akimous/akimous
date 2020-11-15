@@ -1,5 +1,5 @@
 const assert = require('assert')
-const Helper = codeceptjs.helper
+const Helper = require('@codeceptjs/helper')
 const SPECIAL_KEYS = new Set(['Enter', 'Space', 'Tab', 'Escape'])
 const META = (process.platform === 'darwin') ? 'Meta' : 'Control'
 

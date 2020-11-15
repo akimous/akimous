@@ -1,6 +1,6 @@
 Feature('Realtime Formatter')
 
-Scenario('Normal formatting', async (I) => {
+Scenario('Normal formatting', async ({ I }) => {
     await I.amOnPage('http://localhost:3178')
     await I.waitForFrames(10)
     await I.click('pre.CodeMirror-line')

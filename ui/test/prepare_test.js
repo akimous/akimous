@@ -1,7 +1,7 @@
 // Run before any test to setup environment
 Feature('Prepare')
 
-Scenario('Preparing', async (I) => {
+Scenario('Preparing', async ({ I }) => {
     await I.amOnPage('http://localhost:3178')
     await I.wait(1)
     I.click('.path > .text-input > input')

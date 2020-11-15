@@ -1,6 +1,6 @@
 Feature('Completion')
 
-Scenario('Without realtime formatting', async (I) => {
+Scenario('Without realtime formatting', async ({ I }) => {
     I.amOnPage('http://localhost:3178')
     I.waitForFrames(10)
     I.click('pre.CodeMirror-line')

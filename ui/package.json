@@ -20,6 +20,7 @@
         "stylelint-config-recommended": "^3.0.0"
     },
     "dependencies": {
+        "@codeceptjs/helper": "^1.0.1",
         "@fortawesome/fontawesome-free": "^5.15.1",
         "@rollup/plugin-commonjs": "^16.0.0",
         "@rollup/plugin-node-resolve": "^10.0.0",
