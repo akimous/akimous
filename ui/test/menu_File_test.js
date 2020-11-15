@@ -1,6 +1,6 @@
 Feature('Menu-File')
 
-Scenario('open folder', (I) => {
+Scenario('open folder', ({ I }) => {
     I.amOnPage('http://localhost:3178')
     I.waitForElement('.file-tree-node', 5)
     

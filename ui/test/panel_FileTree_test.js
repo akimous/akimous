@@ -1,6 +1,6 @@
 Feature('FileTree')
 
-Scenario('select file', (I) => {
+Scenario('select file', ({ I }) => {
     I.amOnPage('http://localhost:3178')
     I.waitForElement('.file-tree-node', 5)
     within('.file-tree', () => {
@@ -15,7 +15,7 @@ Scenario('select file', (I) => {
     I.seeElement('#panel-left.indicator-on')
 })
 
-Scenario('open folder', (I) => {
+Scenario('open folder', ({ I }) => {
     within('.file-tree', async () => {
         // open folder
         await I.doubleClickAlt('akimous', '.display-name')

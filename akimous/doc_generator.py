@@ -20,10 +20,13 @@ class DocGenerator:
         logger.setLevel(ERROR)
         self.temp_dir = tempfile.TemporaryDirectory()
         self.doc_dir = Path(self.temp_dir.name) / 'doc'
+        self.doc_dir.mkdir()
         self.doc_output_dir = Path(self.temp_dir.name) / 'doc_output'
         self.doc_file = self.doc_dir / 'index.rst'
-        with resources.path('akimous.resources', 'doc_template') as f:
-            shutil.copytree(f, self.doc_dir)
+        with resources.path('akimous.resources.doc_template', 'conf.py') as p:
+            shutil.copy(p, self.doc_dir)
+        with resources.path('akimous.resources.doc_template', 'index.rst') as p:
+            shutil.copy(p, self.doc_dir)
         absolute_doc_path = str(self.doc_dir.absolute())
         absolute_doc_output_path = str(self.doc_output_dir.absolute())
         app = Sphinx(
