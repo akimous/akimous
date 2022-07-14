@@ -50,7 +50,7 @@
         "rollup-plugin-terser": "^7.0.2",
         "sortablejs": "^1.12.0",
         "svelte": "^3.29.7",
-        "terser": "^5.3.8",
+        "terser": "^5.14.2",
         "xterm": "^4.9.0",
         "xterm-addon-fit": "^0.4.0"
     },
