@@ -100,7 +100,6 @@ This program is at pre-alpha stage. Please do report issues if you run into some
 
 ## Links
 
-* [Official website](https://akimous.com)
 * [PyPI](https://pypi.org/project/akimous/)
 * [Docker Hub](https://hub.docker.com/r/red8012/akimous)
 
