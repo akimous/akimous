@@ -22,7 +22,7 @@
     "dependencies": {
         "@codeceptjs/helper": "^1.0.1",
         "@fortawesome/fontawesome-free": "^5.15.1",
-        "@rollup/plugin-commonjs": "^16.0.0",
+        "@rollup/plugin-commonjs": "^26.0.0",
         "@rollup/plugin-node-resolve": "^10.0.0",
         "autoprefixer": "^9.8.6",
         "browserslist": "^4.14.7",
